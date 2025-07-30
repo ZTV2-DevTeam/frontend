@@ -29,7 +29,7 @@ export default function LandingPage() {
 
         <CountdownTimer targetDate={launchDate} />
 
-        <div className="max-w-2xl mt-4 border-dashed bg-card border border-border rounded-lg p-4">
+        <div className="max-w-2xl p-4 mt-4 border border-dashed rounded-lg bg-card border-border">
           <div className="flex items-center gap-2 mb-2">
             <Info className="w-4 h-4" />
             <h3 className="font-medium leading-none tracking-tight">Zártkörű alkalmazás</h3>
@@ -48,7 +48,7 @@ export default function LandingPage() {
         <p className="mt-4">
           Kapcsolat:{" "}
           <a href="mailto:kapcsolat@ztv2.hu" className="transition-colors hover:text-primary">
-            kapcsolat@ztv2.hu
+            ztv2@botond.eu
           </a>
         </p>
         <p className="mt-2">&copy; {new Date().getFullYear()} ZTV2. Minden jog fenntartva.</p>
