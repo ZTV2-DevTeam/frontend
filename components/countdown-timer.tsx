@@ -55,7 +55,7 @@ export function CountdownTimer({ targetDate }: { targetDate: Date }) {
         <CountdownUnit value={0} label="Nap" />
         <CountdownUnit value={0} label="Óra" />
         <CountdownUnit value={0} label="Perc" />
-        <CountdownUnit value={0} label="Másodperc" />
+        <CountdownUnit value={0} label="Mp." />
       </div>
     )
   }
