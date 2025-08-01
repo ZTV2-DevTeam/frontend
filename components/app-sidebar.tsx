@@ -67,51 +67,51 @@ const data = {
     admin: [
       {
         title: "Irányítópult",
-        url: "/iranyitopult",
+        url: "/app/iranyitopult",
         icon: IconDashboard,
       },
       {
         title: "Üzenőfal",
-        url: "/uzenofal",
+        url: "/app/uzenofal",
         icon: Mail,
       },
       {
         title: "Analitika",
-        url: "/analitika",
+        url: "/app/analitika",
         icon: IconChartBar,
       },
       {
         title: "Stáb",
-        url: "/stab",
+        url: "/app/stab",
         icon: IconUsers,
       },
       {
         title: "Naptár",
-        url: "/naptar",
+        url: "/app/naptar",
         icon: IconCalendar,
       },
     ],
     'class-teacher': [
       {
         title: "Irányítópult",
-        url: "/iranyitopult",
+        url: "/app/iranyitopult",
         icon: IconDashboard,
       },
     ],
     student: [
       {
         title: "Irányítópult",
-        url: "/iranyitopult",
+        url: "/app/iranyitopult",
         icon: IconDashboard,
       },
       {
         title: "Üzenőfal",
-        url: "/uzenofal",
+        url: "/app/uzenofal",
         icon: Mail,
       },
       {
         title: "Naptár",
-        url: "/naptar",
+        url: "/app/naptar",
         icon: IconCalendar,
       },
     ],
@@ -119,12 +119,12 @@ const data = {
   navSecondary: [
     {
       title: "Beállítások",
-      url: "/beallitasok",
+      url: "/app/beallitasok",
       icon: IconSettings,
     },
     {
       title: "Segítség",
-      url: "/segitseg",
+      url: "/app/segitseg",
       icon: IconHelp,
     },
   ],
@@ -132,22 +132,22 @@ const data = {
     admin: [
       {
         name: "Forgatások",
-        url: "/forgatasok",
+        url: "/app/forgatasok",
         icon: BellDot,
       },
       {
         name: "KaCsa",
-        url: "/kacsa",
+        url: "/app/kacsa",
         icon: Bird,
       },
       {
         name: "Beosztás",
-        url: "/beosztas",
+        url: "/app/beosztas",
         icon: TableProperties,
       },
       {
         name: "Vakáció",
-        url: "/vakacio",
+        url: "/app/vakacio",
         icon: TreePalm,
       },
     ],
@@ -156,17 +156,17 @@ const data = {
     student: [
       {
         name: "Forgatások",
-        url: "/forgatasok",
+        url: "/app/forgatasok",
         icon: BellDot,
       },
       {
         name: "KaCsa",
-        url: "/kacsa",
+        url: "/app/kacsa",
         icon: Bird,
       },
       {
         name: "Vakáció",
-        url: "/vakacio",
+        url: "/app/vakacio",
         icon: TreePalm,
       },
     ],
@@ -175,12 +175,12 @@ const data = {
     admin: [
       {
         name: "Partnerek",
-        url: "/partnerek",
+        url: "/app/partnerek",
         icon: Handshake,
       },
       {
         name: "Felszerelés",
-        url: "/felszereles",
+        url: "/app/felszereles",
         icon: Video,
       },
     ],
@@ -188,12 +188,12 @@ const data = {
     student: [
       {
         name: "Partnerek",
-        url: "/partnerek",
+        url: "/app/partnerek",
         icon: Handshake,
       },
       {
         name: "Felszerelés",
-        url: "/felszereles",
+        url: "/app/felszereles",
         icon: Video,
       },
 
@@ -204,14 +204,14 @@ const data = {
     'class-teacher': [
       {
         name: "Igazolások",
-        url: "/igazolasok",
+        url: "/app/igazolasok",
         icon: TicketCheck,
       },
     ],
     student: [
       {
         name: "Igazolások",
-        url: "/igazolasok",
+        url: "/app/igazolasok",
         icon: TicketCheck,
       },
     ],
