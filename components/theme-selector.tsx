@@ -39,20 +39,20 @@ export function ThemeSelector() {
   ]
 
   return (
-    <div className="flex flex-col items-center gap-4 text-muted-foreground">
+    <div className="flex flex-col items-center gap-2 text-muted-foreground">
       {/* Theme header */}
-      <div className="flex items-center gap-2 text-xs">
+      <div className="flex items-center gap-1 text-xs">
         <Palette className="w-3 h-3" />
         <span>Téma beállítások</span>
       </div>
 
       {/* Theme mode selector */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1">
         <span className="text-xs">Mód:</span>
-        <div className="flex p-1 border rounded-lg border-border/50 bg-background/50">
+        <div className="flex p-0.5 border rounded-md border-border/50 bg-background/50">
           <button
             onClick={() => setTheme("light")}
-            className={`flex items-center gap-1 px-2 py-1 text-xs rounded transition-all ${
+            className={`flex items-center gap-0.5 px-1.5 py-0.5 text-xs rounded transition-all ${
               theme === "light"
                 ? "bg-primary text-primary-foreground shadow-sm"
                 : "hover:bg-muted-foreground/10"
@@ -60,11 +60,10 @@ export function ThemeSelector() {
             title="Világos téma"
           >
             <Sun className="w-3 h-3" />
-            <span className="hidden sm:inline">Világos</span>
           </button>
           <button
             onClick={() => setTheme("dark")}
-            className={`flex items-center gap-1 px-2 py-1 text-xs rounded transition-all ${
+            className={`flex items-center gap-0.5 px-1.5 py-0.5 text-xs rounded transition-all ${
               theme === "dark"
                 ? "bg-primary text-primary-foreground shadow-sm"
                 : "hover:bg-muted-foreground/10"
@@ -72,11 +71,10 @@ export function ThemeSelector() {
             title="Sötét téma"
           >
             <Moon className="w-3 h-3" />
-            <span className="hidden sm:inline">Sötét</span>
           </button>
           <button
             onClick={() => setTheme("system")}
-            className={`flex items-center gap-1 px-2 py-1 text-xs rounded transition-all ${
+            className={`flex items-center gap-0.5 px-1.5 py-0.5 text-xs rounded transition-all ${
               theme === "system"
                 ? "bg-primary text-primary-foreground shadow-sm"
                 : "hover:bg-muted-foreground/10"
@@ -84,29 +82,28 @@ export function ThemeSelector() {
             title="Rendszer téma"
           >
             <Monitor className="w-3 h-3" />
-            <span className="hidden sm:inline">Auto</span>
           </button>
         </div>
       </div>
 
       {/* Color selector */}
-      <div className="flex flex-col items-center gap-2">
+      <div className="flex flex-col items-center gap-1">
         <span className="text-xs">Szín:</span>
-        <div className="flex flex-wrap justify-center max-w-md gap-2">
+        <div className="flex flex-wrap justify-center max-w-md gap-1">
           {themeColors.map((color) => (
             <button
               key={color.value}
               onClick={() => setThemeColor(color.value)}
-              className={`relative w-8 h-8 rounded-full border-2 transition-all hover:scale-110 hover:shadow-lg ${
+              className={`relative w-6 h-6 rounded-full border transition-all hover:scale-105 hover:shadow-md ${
                 themeColor === color.value
-                  ? "border-foreground shadow-md scale-110"
+                  ? "border-foreground shadow-md scale-105"
                   : "border-border/30 hover:border-border"
               }`}
               style={{ backgroundColor: color.color }}
               title={color.name}
             >
               {themeColor === color.value && (
-                <div className="absolute border rounded-full inset-1 border-white/40 dark:border-black/40" />
+                <div className="absolute border rounded-full inset-0.5 border-white/40 dark:border-black/40" />
               )}
             </button>
           ))}

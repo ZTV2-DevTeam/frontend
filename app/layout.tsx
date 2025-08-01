@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeProvider as ColorThemeProvider } from "@/contexts/theme-context";
 import { UserRoleProvider } from "@/contexts/user-role-context";
+import { AuthProvider } from "@/contexts/auth-context";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,9 +33,11 @@ export default function RootLayout({
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <ColorThemeProvider>
-            <UserRoleProvider>
-              {children}
-            </UserRoleProvider>
+            <AuthProvider>
+              <UserRoleProvider>
+                {children}
+              </UserRoleProvider>
+            </AuthProvider>
           </ColorThemeProvider>
         </ThemeProvider>
       </body>

@@ -56,7 +56,7 @@ export function UserRoleProvider({ children }: { children: React.ReactNode }) {
   const setRole = (role: UserRole) => {
     setCurrentRole(role)
     // Navigate to dashboard when role changes
-    router.push('/iranyitopult')
+    router.push('/app/iranyitopult')
   }
 
   return (

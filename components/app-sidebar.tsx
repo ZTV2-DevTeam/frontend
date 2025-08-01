@@ -38,11 +38,6 @@ import {
 import { useUserRole, type UserRole } from "@/contexts/user-role-context"
 
 const data = {
-  user: {
-    name: "Minta Diák",
-    email: "mintadiak@ztv.hu",
-    avatar: "",
-  },
   teams: [
     {
       name: "Adminisztrátor",
@@ -240,7 +235,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser />
       </SidebarFooter>
     </Sidebar>
   )
