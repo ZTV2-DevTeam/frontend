@@ -3,6 +3,7 @@ import { Clapperboard, Info, Code } from "lucide-react"
 import { FeaturesSection } from "@/app/features-section"
 import { ThemeSelector } from "@/components/theme-selector"
 import { CountdownTimer } from "@/components/countdown-timer"
+import { DevelopersSection } from "@/components/developers-section"
 
 export default function LandingPage() {
   const launchDate = new Date("2025-09-08T12:00:00")
@@ -42,6 +43,8 @@ export default function LandingPage() {
       </main>
 
       <FeaturesSection />
+      
+      <DevelopersSection />
 
       <footer className="py-8 text-sm text-center text-muted-foreground">
         <ThemeSelector />

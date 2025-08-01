@@ -9,8 +9,8 @@ import {
 export default function AnnouncementsPage() {
   const faqs = [
     {
-      question: "Mik azok a kiírások?",
-      answer: "A kiírások oldalon láthatod, hogy melyik forgatásra vagy beosztva, mikor és hova kell menned."
+      question: "Mik azok a forgatások?",
+      answer: "A forgatások oldalon láthatod, hogy melyik forgatásra vagy beosztva, mikor és hova kell menned."
     },
     {
       question: "Hogyan tudom megnézni a saját beosztásaimat?",
@@ -26,7 +26,7 @@ export default function AnnouncementsPage() {
     },
     {
       question: "Láthatom más diákok beosztását is?",
-      answer: "Igen, a kiírások oldalon megtekintheted a többi diák beosztását is, így láthatod, hogy mikor és hol vannak mások."
+      answer: "Igen, a forgatások oldalon megtekintheted a többi diák beosztását is, így láthatod, hogy mikor és hol vannak mások."
     }
   ]
 
@@ -42,13 +42,13 @@ export default function AnnouncementsPage() {
       <AppSidebar variant="inset" />
       <SidebarInset>
         <SiteHeader />
-        <div className="flex flex-1 flex-col">
+        <div className="flex flex-col flex-1">
           <div className="@container/main flex flex-1 flex-col gap-2">
             <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
               <div className="px-4 lg:px-6">
                 <ComingSoon 
-                  featureName="Kiírások"
-                  description="A kiírások oldalon a diákok számára megjelennek a beosztott forgatások, ahol pontosan láthatod, hogy mikor és hova kell menned."
+                  featureName="FORGATÁSOK"
+                  description="A forgatások oldalon a diákok számára megjelennek a beosztott forgatások, ahol pontosan láthatod, hogy mikor és hova kell menned."
                   faqs={faqs}
                   estimatedCompletion="2025 szeptember"
                 />

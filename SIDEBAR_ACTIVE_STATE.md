@@ -61,7 +61,7 @@ Current menu structure with URLs:
 - Naptár → `/naptar`
 
 #### Forgatások Section
-- Kiírások → `/kiirasok`
+- Forgatások → `/forgatasok`
 - Beosztás → `/beosztas`
 - Forgatási Naptár → `/shooting-calendar`
 - Projektek → `/projects`
@@ -77,7 +77,7 @@ Current menu structure with URLs:
 
 To test the active highlighting:
 
-1. Navigate to any of the pages (e.g., `/naptar`, `/stab`, `/kiirasok`)
+1. Navigate to any of the pages (e.g., `/naptar`, `/stab`, `/forgatasok`)
 2. The corresponding menu item in the sidebar should be highlighted
 3. The highlighting will automatically update when navigating between pages
 

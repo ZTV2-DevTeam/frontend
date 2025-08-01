@@ -20,7 +20,8 @@ import {
   BellDot, 
   Mail,
   TicketCheck,
-  TreePalm
+  TreePalm,
+  Bird
 } from 'lucide-react';
 
 import { NavCategory } from "@/components/nav-category"
@@ -130,9 +131,14 @@ const data = {
   shootings: {
     admin: [
       {
-        name: "Kiírások",
-        url: "/kiirasok",
+        name: "Forgatások",
+        url: "/forgatasok",
         icon: BellDot,
+      },
+      {
+        name: "KaCsa",
+        url: "/kacsa",
+        icon: Bird,
       },
       {
         name: "Beosztás",
@@ -149,9 +155,14 @@ const data = {
     ],
     student: [
       {
-        name: "Kiírások",
-        url: "/kiirasok",
+        name: "Forgatások",
+        url: "/forgatasok",
         icon: BellDot,
+      },
+      {
+        name: "KaCsa",
+        url: "/kacsa",
+        icon: Bird,
       },
       {
         name: "Vakáció",
@@ -218,7 +229,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent>
         <NavMain items={data.navMain[currentRole]} />
         {data.shootings[currentRole].length > 0 && (
-          <NavCategory category="Forgatások" items={data.shootings[currentRole]} />
+          <NavCategory category="Tevékenység" items={data.shootings[currentRole]} />
         )}
         {data.utils[currentRole].length > 0 && (
           <NavCategory category="Eszközök" items={data.utils[currentRole]} />
