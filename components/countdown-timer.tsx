@@ -75,7 +75,7 @@ export function CountdownTimer({ targetDate }: { targetDate: Date }) {
       <CountdownUnit value={timeLeft.days} label="Nap" />
       <CountdownUnit value={timeLeft.hours} label="Óra" />
       <CountdownUnit value={timeLeft.minutes} label="Perc" />
-      <CountdownUnit value={timeLeft.seconds} label="Másodperc" />
+      <CountdownUnit value={timeLeft.seconds} label="Mp." />
     </div>
   )
 }
