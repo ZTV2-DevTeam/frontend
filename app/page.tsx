@@ -5,6 +5,7 @@ import { Clapperboard, Info } from "lucide-react"
 import { FeaturesSection } from "@/app/features-section"
 import { CountdownTimer } from "@/components/countdown-timer"
 import { DevelopersSection } from "@/components/developers-section"
+import { StatsSection } from "@/components/stats-section"
 import { SiteFooter } from "@/components/site-footer"
 import { useAuth } from "@/contexts/auth-context"
 import { useRouter } from "next/navigation"
@@ -40,7 +41,6 @@ export default function LandingPage() {
           <Clapperboard className="w-8 h-8 text-primary" />
           <span>ZTV2</span>
         </Link>
-        {/* Login button is hidden as requested */}
       </header>
 
       <main className="flex flex-col items-center justify-center px-4 text-center h-dvh x-1">
@@ -57,6 +57,8 @@ export default function LandingPage() {
       </main>
 
       <FeaturesSection />
+
+      <StatsSection />
       
       <DevelopersSection />
 
