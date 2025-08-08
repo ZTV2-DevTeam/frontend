@@ -5,10 +5,19 @@ import { SiteHeader } from "@/components/site-header"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { Card, CardTitle, CardHeader, CardContent } from "@/components/ui/card"
 import { useApi } from '@/hooks/use-simple-api'
+import Image from 'next/image'
+
+interface Partner {
+  id?: number
+  name: string
+  address: string
+  institution?: string
+  imageURL?: string
+}
 
 export default function PartnersPage() {
   // Egysoros API call
-  const { data: partners, loading, error } = useApi('partners')
+  const { data: partners, loading, error } = useApi<Partner[]>('partners')
 
   
 
@@ -31,10 +40,19 @@ export default function PartnersPage() {
           {error && <div>Error: {error}</div>}
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {partners?.map((partner: any, index: number) => (
+            {partners?.map((partner: Partner, index: number) => (
               <Card key={partner.id || index}>
                 <CardHeader>
-                  <img src={partner.imageURL} alt={`${partner.name} logo`} className="h-16 mb-2" />
+                  {partner.imageURL && (
+                    <div className="relative h-16 w-16 mb-2">
+                      <Image 
+                        src={partner.imageURL} 
+                        alt={`${partner.name} logo`} 
+                        fill
+                        className="object-contain"
+                      />
+                    </div>
+                  )}
                   <CardTitle>{partner.name}</CardTitle>
                 </CardHeader>
                 <CardContent>

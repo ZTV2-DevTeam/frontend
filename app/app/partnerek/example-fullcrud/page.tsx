@@ -12,23 +12,32 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { useApi } from '@/hooks/use-simple-api'
 import { useState } from 'react'
 import { Plus, RefreshCw, Edit, Trash2, Building2, MapPin, User, ImageIcon } from 'lucide-react'
+import Image from 'next/image'
+
+interface Partner {
+  id?: number
+  name: string
+  address: string
+  institution?: string
+  imageURL?: string
+}
 
 export default function PartnersFullCRUDPage() {
   // GET partners
-  const { data: partners, loading, error, refetch } = useApi('partners')
+  const { data: partners, loading, error, refetch } = useApi<Partner[]>('partners')
   
   // CREATE partner
-  const { post: createPartner, loading: creating, error: createError } = useApi('partners', { autoFetch: false })
+  const { post: createPartner, loading: creating, error: createError } = useApi<Partner>('partners', { autoFetch: false })
   
   // DELETE partner
-  const { delete: deletePartner, loading: deleting, error: deleteError } = useApi('partners', { autoFetch: false })
+  const { delete: deletePartner, loading: deleting, error: deleteError } = useApi<{ message: string }>('partners', { autoFetch: false })
   
   // UPDATE partner
-  const { put: updatePartner, loading: updating, error: updateError } = useApi('partners', { autoFetch: false })
+  const { put: updatePartner, loading: updating, error: updateError } = useApi<Partner>('partners', { autoFetch: false })
   
   // Form states
   const [showCreateForm, setShowCreateForm] = useState(false)
-  const [editingPartner, setEditingPartner] = useState<any>(null)
+  const [editingPartner, setEditingPartner] = useState<Partner | null>(null)
   const [formData, setFormData] = useState({
     name: '',
     address: '',
@@ -44,8 +53,8 @@ export default function PartnersFullCRUDPage() {
       setFormData({ name: '', address: '', institution: '', imageURL: '' })
       setShowCreateForm(false)
       await refetch()
-    } catch (err) {
-      // Error handled automatically
+    } catch {
+      // Error handled automatically by useApi hook
     }
   }
 
@@ -69,9 +78,9 @@ export default function PartnersFullCRUDPage() {
       setEditingPartner(null)
       setFormData({ name: '', address: '', institution: '', imageURL: '' })
       await refetch()
-    } catch (err) {
-      console.error('Update failed:', err)
-      // Error handled automatically
+    } catch {
+      console.error('Update failed')
+      // Error handled automatically by useApi hook
     }
   }
 
@@ -81,8 +90,8 @@ export default function PartnersFullCRUDPage() {
       try {
         await deletePartner(`partners/${partnerId}`) // Custom route
         await refetch()
-      } catch (err) {
-        // Error handled automatically
+      } catch {
+        // Error handled automatically by useApi hook
       }
     }
   }
@@ -370,16 +379,19 @@ export default function PartnersFullCRUDPage() {
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         {partner.imageURL ? (
-                          <img 
-                            src={partner.imageURL} 
-                            alt={`${partner.name} logo`} 
-                            className="h-12 w-12 object-contain rounded-md border mb-3"
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              target.style.display = 'none';
-                              target.nextElementSibling?.classList.remove('hidden');
-                            }}
-                          />
+                          <div className="relative h-12 w-12 mb-3">
+                            <Image 
+                              src={partner.imageURL} 
+                              alt={`${partner.name} logo`} 
+                              fill
+                              className="object-contain rounded-md border"
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.style.display = 'none';
+                                target.parentElement?.nextElementSibling?.classList.remove('hidden');
+                              }}
+                            />
+                          </div>
                         ) : null}
                         <div className={`h-12 w-12 bg-muted rounded-md flex items-center justify-center mb-3 ${partner.imageURL ? 'hidden' : ''}`}>
                           <Building2 className="h-6 w-6 text-muted-foreground" />
