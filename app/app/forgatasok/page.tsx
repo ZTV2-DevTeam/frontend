@@ -1,62 +1,62 @@
+'use client'
+
 import { AppSidebar } from "@/components/app-sidebar"
 import { SiteHeader } from "@/components/site-header"
-import { ComingSoon } from "@/components/coming-soon"
 import {
   SidebarInset,
   SidebarProvider,
 } from "@/components/ui/sidebar"
+import { Card, CardTitle, CardHeader, CardContent } from "@/components/ui/card"
+import { useApi } from '@/hooks/use-simple-api'
+import { AlertCircleIcon, BadgeCheckIcon, CheckIcon } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
 
 export default function AnnouncementsPage() {
-  const faqs = [
-    {
-      question: "Mik azok a forgatások?",
-      answer: "A forgatások oldalon láthatod, hogy melyik forgatásra vagy beosztva, mikor és hova kell menned."
-    },
-    {
-      question: "Hogyan tudom megnézni a saját beosztásaimat?",
-      answer: "A rendszer automatikusan megjeleníti a számodra kijelölt forgatásokat, időponttal és helyszínnel."
-    },
-    {
-      question: "Kapok értesítést, ha új beosztásom van?",
-      answer: "Igen, minden új beosztásról értesítést kapsz emailben és a platformon belül is."
-    },
-    {
-      question: "Mit tegyek, ha nem tudok részt venni egy beosztáson?",
-      answer: "Ebben az esetben vedd fel a kapcsolatot egy tanárral, hogy módosíthassák a beosztást."
-    },
-    {
-      question: "Láthatom más diákok beosztását is?",
-      answer: "Igen, a forgatások oldalon megtekintheted a többi diák beosztását is, így láthatod, hogy mikor és hol vannak mások."
-    }
-  ]
-
-  return (
+    const { data: announcements, loading, error } = useApi('announcements')
+  
+   return (
     <SidebarProvider
-      style={
+    style={
         {
           "--sidebar-width": "calc(var(--spacing) * 72)",
           "--header-height": "calc(var(--spacing) * 12)",
         } as React.CSSProperties
       }
     >
+    
       <AppSidebar variant="inset" />
       <SidebarInset>
         <SiteHeader />
-        <div className="flex flex-col flex-1">
-          <div className="@container/main flex flex-1 flex-col gap-2">
-            <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-              <div className="px-4 lg:px-6">
-                <ComingSoon 
-                  featureName="FORGATÁSOK"
-                  description="A forgatások oldalon a diákok számára megjelennek a beosztott forgatások, ahol pontosan láthatod, hogy mikor és hova kell menned."
-                  faqs={faqs}
-                  estimatedCompletion="2025 szeptember"
-                />
-              </div>
-            </div>
+        <div className="p-4">
+          
+          {loading && <div>Loading announcements...</div>}
+          {error && <div>Error: {error}</div>}
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {announcements?.map((announcement: any, index: number) => (
+              <Card key={announcement.id || index}>
+                <CardHeader>
+                  <img src={announcement.location.imageURL} alt={`${announcement.location.name} logo`} className="h-16 mb-2" />
+                  <CardTitle>{announcement.name}</CardTitle>
+                  <CardTitle className="text-sm">{announcement.forgTipus}</CardTitle>
+                  <Badge>{announcement.contactperson.phone}</Badge>
+                  <Badge>{announcement.contactperson.email}</Badge>
+                  <Badge>{announcement.location.address}</Badge>
+                  <Badge>i</Badge>
+
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-gray-600">{announcement.date}</p>
+                  <p className="text-sm text-gray-600">{announcement.contactperson.name}</p>
+                  
+                </CardContent>
+              </Card>
+            ))}
           </div>
+          
         </div>
       </SidebarInset>
     </SidebarProvider>
   )
 }
+

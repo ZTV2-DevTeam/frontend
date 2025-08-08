@@ -5,13 +5,14 @@ import { SiteHeader } from "@/components/site-header"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { Card, CardTitle, CardHeader, CardContent } from "@/components/ui/card"
 import { useApi } from '@/hooks/use-simple-api'
+import { AlertCircleIcon, BadgeCheckIcon, CheckIcon } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
 
 export default function PartnersPage() {
   // Egysoros API call
   const { data: partners, loading, error } = useApi('partners')
 
-  
-
+   
   return (
     <SidebarProvider
     style={
@@ -38,8 +39,8 @@ export default function PartnersPage() {
                   <CardTitle>{partner.name}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p>{partner.address}</p>
-                  <p className="text-sm text-gray-600">{partner.institution}</p>
+                  <Badge>{partner.address}</Badge>
+                  <p className="text-sm text-gray-600">{partner.institution.name}</p>
                 </CardContent>
               </Card>
             ))}
@@ -48,5 +49,42 @@ export default function PartnersPage() {
         </div>
       </SidebarInset>
     </SidebarProvider>
+  )
+}
+
+export function BadgeDemo() {
+     return (
+    <div className="flex flex-col items-center gap-2">
+      <div className="flex w-full flex-wrap gap-2">
+        <Badge></Badge>
+        <Badge variant="secondary">Secondary</Badge>
+        <Badge variant="destructive">Destructive</Badge>
+        <Badge variant="outline">Outline</Badge>
+      </div>
+      <div className="flex w-full flex-wrap gap-2">
+        <Badge
+          variant="secondary"
+          className="bg-blue-500 text-white dark:bg-blue-600"
+        >
+          <BadgeCheckIcon />
+          Verified
+        </Badge>
+        <Badge className="h-5 min-w-5 rounded-full px-1 font-mono tabular-nums">
+          8
+        </Badge>
+        <Badge
+          className="h-5 min-w-5 rounded-full px-1 font-mono tabular-nums"
+          variant="destructive"
+        >
+          99
+        </Badge>
+        <Badge
+          className="h-5 min-w-5 rounded-full px-1 font-mono tabular-nums"
+          variant="outline"
+        >
+          20+
+        </Badge>
+      </div>
+    </div>
   )
 }
