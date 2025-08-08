@@ -13,7 +13,15 @@ export default function PartnersPage() {
   
 
   return (
-    <SidebarProvider>
+    <SidebarProvider
+    style={
+        {
+          "--sidebar-width": "calc(var(--spacing) * 72)",
+          "--header-height": "calc(var(--spacing) * 12)",
+        } as React.CSSProperties
+      }
+    >
+    
       <AppSidebar variant="inset" />
       <SidebarInset>
         <SiteHeader />
@@ -26,7 +34,7 @@ export default function PartnersPage() {
             {partners?.map((partner: any, index: number) => (
               <Card key={partner.id || index}>
                 <CardHeader>
-                  <img src={partner.imageURL} alt={`${partner.name} logo`} className="w-16 h-16 mb-2" />
+                  <img src={partner.imageURL} alt={`${partner.name} logo`} className="h-16 mb-2" />
                   <CardTitle>{partner.name}</CardTitle>
                 </CardHeader>
                 <CardContent>
