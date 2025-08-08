@@ -148,6 +148,38 @@ class ApiClient {
     return this.request('/api/dashboard')
   }
 
+  // Generic API methods for custom routes
+  async get<T = any>(route: string): Promise<T> {
+    return this.request<T>(`/api/${route}`)
+  }
+
+  async post<T = any>(route: string, data?: any): Promise<T> {
+    return this.request<T>(`/api/${route}`, {
+      method: 'POST',
+      body: data ? JSON.stringify(data) : undefined,
+    })
+  }
+
+  async put<T = any>(route: string, data?: any): Promise<T> {
+    return this.request<T>(`/api/${route}`, {
+      method: 'PUT',
+      body: data ? JSON.stringify(data) : undefined,
+    })
+  }
+
+  async patch<T = any>(route: string, data?: any): Promise<T> {
+    return this.request<T>(`/api/${route}`, {
+      method: 'PATCH',
+      body: data ? JSON.stringify(data) : undefined,
+    })
+  }
+
+  async delete<T = any>(route: string): Promise<T> {
+    return this.request<T>(`/api/${route}`, {
+      method: 'DELETE',
+    })
+  }
+
   isAuthenticated(): boolean {
     return !!this.token
   }
