@@ -85,7 +85,12 @@ export default function PartnersFullCRUDPage() {
   }
 
   // Delete handler
-  const handleDelete = async (partnerId: number) => {
+  const handleDelete = async (partnerId: number | undefined) => {
+    if (!partnerId) {
+      console.error('No partner ID provided for deletion')
+      return
+    }
+    
     if (confirm('Are you sure you want to delete this partner?')) {
       try {
         await deletePartner(`partners/${partnerId}`) // Custom route
@@ -97,7 +102,7 @@ export default function PartnersFullCRUDPage() {
   }
 
   // Start editing
-  const startEdit = (partner: any) => {
+  const startEdit = (partner: Partner) => {
     console.log('Starting edit for partner:', partner)
     setEditingPartner(partner)
     setFormData({
@@ -373,7 +378,7 @@ export default function PartnersFullCRUDPage() {
           {/* Partners Grid */}
           {!loading && partners && partners.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {partners.map((partner: any, index: number) => (
+              {partners.map((partner: Partner, index: number) => (
                 <Card key={partner.id || index} className="group hover:shadow-md transition-shadow">
                   <CardHeader className="pb-3">
                     <div className="flex items-start justify-between">

@@ -8,13 +8,22 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useApi } from '@/hooks/use-simple-api'
 import { useState } from 'react'
+import Image from 'next/image'
+
+interface Partner {
+  id?: number
+  name: string
+  address: string
+  institution?: string
+  imageURL?: string
+}
 
 export default function PartnersPage() {
   // Original GET request (unchanged)
-  const { data: partners, loading, error, refetch } = useApi('partners')
+  const { data: partners, loading, error, refetch } = useApi<Partner[]>('partners')
   
   // New: Add POST functionality
-  const { post: createPartner, loading: creating, error: createError } = useApi('partners', { autoFetch: false })
+  const { post: createPartner, loading: creating, error: createError } = useApi<Partner>('partners', { autoFetch: false })
   
   // Form state
   const [showForm, setShowForm] = useState(false)
@@ -32,7 +41,7 @@ export default function PartnersPage() {
       setFormData({ name: '', address: '', institution: '', imageURL: '' })
       setShowForm(false)
       await refetch() // Refresh the list
-    } catch (err) {
+    } catch {
       // Error is automatically handled by the hook
     }
   }
@@ -95,10 +104,19 @@ export default function PartnersPage() {
           {error && <div>Error: {error}</div>}
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {partners?.map((partner: any, index: number) => (
+            {partners?.map((partner: Partner, index: number) => (
               <Card key={partner.id || index}>
                 <CardHeader>
-                  <img src={partner.imageURL} alt={`${partner.name} logo`} className="w-16 h-16 mb-2" />
+                  {partner.imageURL && (
+                    <div className="relative w-16 h-16 mb-2">
+                      <Image 
+                        src={partner.imageURL} 
+                        alt={`${partner.name} logo`} 
+                        fill
+                        className="object-contain"
+                      />
+                    </div>
+                  )}
                   <CardTitle>{partner.name}</CardTitle>
                 </CardHeader>
                 <CardContent>
