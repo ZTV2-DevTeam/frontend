@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/sidebar"
 import { LucideIcon } from "lucide-react"
 import { useUserRole } from "@/contexts/user-role-context"
+import { DATABASE_MODELS, getDatabaseAdminUrl } from "@/lib/database-models"
 
 export function NavCategory({
   category,
@@ -44,21 +45,25 @@ export function NavCategory({
   const label = category && category.trim() !== "" ? category : "Category"
 
   const handleDatabaseEdit = (itemName: string) => {
-    // Map item names to database models
+    // Map item names to database models using centralized configuration
     const modelMap: { [key: string]: string } = {
-      'Forgatások': 'forgatasok',
-      'Beosztás': 'beosztasok', 
-      'Igazolások': 'igazolasok',
-      'Partnerek': 'partnerek',
-      'Felszerelés': 'equipment',
-      'Stáb': 'users',
-      'Üzenőfal': 'messages',
-      'Naptár': 'events'
+      'Forgatások': DATABASE_MODELS.FORGATAS,
+      'Beosztás': DATABASE_MODELS.BEOSZTAS,
+      'Igazolások': DATABASE_MODELS.ANNOUNCEMENT, // Using announcements for igazolások
+      'Partnerek': DATABASE_MODELS.PARTNER,
+      'Felszerelés': DATABASE_MODELS.EQUIPMENT,
+      'Stáb': DATABASE_MODELS.STAB,
+      'Üzenőfal': DATABASE_MODELS.ANNOUNCEMENT,
+      'Naptár': DATABASE_MODELS.CONFIG, // Using config for calendar events
+      'Felszerelések': DATABASE_MODELS.EQUIPMENT,
+      'Forgatások DB': DATABASE_MODELS.FORGATAS,
+      'Beosztások DB': DATABASE_MODELS.BEOSZTAS,
+      'Felhasználók DB': DATABASE_MODELS.AUTH_USER,
+      'Felszerelések DB': DATABASE_MODELS.EQUIPMENT,
     }
     
-    const modelName = modelMap[itemName] || itemName.toLowerCase()
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
-    const adminUrl = `${backendUrl}/admin/api/${modelName}`
+    const modelPath = modelMap[itemName] || DATABASE_MODELS.CONFIG
+    const adminUrl = getDatabaseAdminUrl(modelPath)
     window.open(adminUrl, '_blank')
   }
 

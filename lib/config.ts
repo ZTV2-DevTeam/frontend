@@ -18,6 +18,21 @@ export const API_CONFIG = {
   }
 }
 
+// Backend configuration for Django admin integration
+export const BACKEND_CONFIG = {
+  // Backend URL for Django admin and API
+  BASE_URL: process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000',
+  
+  // Django admin base path
+  ADMIN_BASE_PATH: '/admin',
+  
+  // Get full admin URL for a model path
+  getAdminUrl: (modelPath: string) => {
+    const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
+    return `${baseUrl}/admin/${modelPath}/`;
+  }
+}
+
 // You can also set the API URL via environment variables:
 // Create a .env.local file with:
 // NEXT_PUBLIC_API_URL=http://your-api-server:port

@@ -24,19 +24,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-
-// Database model names for admin panel integration
-const DATABASE_MODELS = {
-  FORGATASOK: 'forgatasok',
-  BEOSZTASOK: 'beosztasok', 
-  IGAZOLASOK: 'igazolasok',
-  USERS: 'users',
-  EQUIPMENT: 'equipment',
-  EVENTS: 'events'
-}
+import { DATABASE_MODELS, getDatabaseAdminUrl } from "@/lib/database-models"
+import { BACKEND_CONFIG } from "@/lib/config"
 
 // Backend URL configuration
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
+const BACKEND_URL = BACKEND_CONFIG.BASE_URL
 
 // Mock data - replace with real API calls
 const mockForgatások = [
@@ -111,8 +103,8 @@ export default function Page() {
     setRecentActivity(mockActivity)
   }, [currentRole])
 
-  const handleEditInDatabase = (modelName: string) => {
-    const adminUrl = `${BACKEND_URL}/admin/api/${modelName}`
+  const handleEditInDatabase = (modelPath: string) => {
+    const adminUrl = getDatabaseAdminUrl(modelPath)
     window.open(adminUrl, '_blank')
   }
 
@@ -216,7 +208,7 @@ export default function Page() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => handleEditInDatabase(DATABASE_MODELS.FORGATASOK)}>
+              <DropdownMenuItem onClick={() => handleEditInDatabase(DATABASE_MODELS.FORGATAS)}>
                 <ExternalLink className="mr-2 h-4 w-4" />
                 Edit in Database
               </DropdownMenuItem>
@@ -334,7 +326,7 @@ export default function Page() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => handleEditInDatabase(DATABASE_MODELS.BEOSZTASOK)}>
+              <DropdownMenuItem onClick={() => handleEditInDatabase(DATABASE_MODELS.BEOSZTAS)}>
                 <ExternalLink className="mr-2 h-4 w-4" />
                 Edit in Database
               </DropdownMenuItem>

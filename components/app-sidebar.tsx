@@ -25,8 +25,39 @@ import {
   Database,
   FileText,
   UserCheck,
-  ExternalLink
+  ExternalLink,
+  Wrench,
+  Settings,
+  Tag,
+  Phone,
+  Calendar,
+  User,
+  Network
 } from 'lucide-react';
+
+// Icon mapping for database admin items
+const iconMap = {
+  Video,
+  TableProperties,
+  UserCheck,
+  Users,
+  Wrench,
+  Settings,
+  Tag,
+  Phone,
+  GraduationCap,
+  Calendar,
+  User,
+  BellDot,
+  Shield,
+  Network,
+  Handshake,
+};
+
+// Helper function to get icon component by name
+const getIconComponent = (iconName: string) => {
+  return iconMap[iconName as keyof typeof iconMap] || Database;
+};
 
 import { NavCategory } from "@/components/nav-category"
 import { NavMain } from "@/components/nav-main"
@@ -40,17 +71,16 @@ import {
   SidebarHeader,
 } from "@/components/ui/sidebar"
 import { useUserRole, type UserRole } from "@/contexts/user-role-context"
-
-// Database model names for admin panel integration
-const DATABASE_MODELS = {
-  FORGATASOK: 'api/forgatas',
-  BEOSZTASOK: 'api/beosztas',
-  USERS: 'auth/user',
-  EQUIPMENT: 'api/equipment',
-}
+import { 
+  DATABASE_MODELS, 
+  getDatabaseAdminUrl, 
+  getDatabaseAdminMenuItemsByRole,
+  type DatabaseAdminMenuItem 
+} from "@/lib/database-models"
+import { BACKEND_CONFIG } from "@/lib/config"
 
 // Backend URL configuration
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
+const BACKEND_URL = BACKEND_CONFIG.BASE_URL
 
 const data = {
   teams: [
@@ -126,18 +156,50 @@ const data = {
       },
     ],
   },
-  navSecondary: [
-    {
-      title: "Beállítások",
-      url: "/app/beallitasok",
-      icon: IconSettings,
-    },
-    {
-      title: "Segítség",
-      url: "/app/segitseg",
-      icon: IconHelp,
-    },
-  ],
+  navSecondary: {
+    admin: [
+      {
+        title: "Beállítások",
+        url: "/app/beallitasok",
+        icon: IconSettings,
+      },
+      // Database Admin
+      {
+        title: "Adatbázis Admin",
+        url: "/app/database-admin",
+        icon: Database,
+      },
+      {
+        title: "Segítség",
+        url: "/app/segitseg",
+        icon: IconHelp,
+      },
+    ],
+    'class-teacher': [
+      {
+        title: "Beállítások",
+        url: "/app/beallitasok",
+        icon: IconSettings,
+      },
+      {
+        title: "Segítség",
+        url: "/app/segitseg",
+        icon: IconHelp,
+      },
+    ],
+    student: [
+      {
+        title: "Beállítások",
+        url: "/app/beallitasok",
+        icon: IconSettings,
+      },
+      {
+        title: "Segítség",
+        url: "/app/segitseg",
+        icon: IconHelp,
+      },
+    ],
+  },
   shootings: {
     admin: [
       {
@@ -161,8 +223,7 @@ const data = {
         icon: TreePalm,
       },
     ],
-    'class-teacher': [
-    ],
+    'class-teacher': [],
     student: [
       {
         name: "Forgatások",
@@ -227,32 +288,12 @@ const data = {
     ],
   },
   databaseAdmin: {
-    admin: [
-      {
-        name: "Forgatások DB",
-        url: `${BACKEND_URL}/admin/${DATABASE_MODELS.FORGATASOK}`,
-        icon: Video,
-        external: true,
-      },
-      {
-        name: "Beosztások DB",
-        url: `${BACKEND_URL}/admin/${DATABASE_MODELS.BEOSZTASOK}`,
-        icon: TableProperties,
-        external: true,
-      },
-      {
-        name: "Felhasználók DB",
-        url: `${BACKEND_URL}/admin/${DATABASE_MODELS.USERS}`,
-        icon: UserCheck,
-        external: true,
-      },
-      {
-        name: "Felszerelések DB",
-        url: `${BACKEND_URL}/admin/${DATABASE_MODELS.EQUIPMENT}`,
-        icon: Video,
-        external: true,
-      },
-    ],
+    admin: getDatabaseAdminMenuItemsByRole('admin').map((item: DatabaseAdminMenuItem) => ({
+      name: item.name,
+      url: getDatabaseAdminUrl(item.modelPath),
+      icon: getIconComponent(item.icon),
+      external: true,
+    })),
     'class-teacher': [],
     student: [],
   },
@@ -277,10 +318,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         {data.myClass[currentRole].length > 0 && (
           <NavCategory category="Osztályom" items={data.myClass[currentRole]} />
         )}
-        {data.databaseAdmin[currentRole].length > 0 && (
-          <NavCategory category="Adatbázis admin" items={data.databaseAdmin[currentRole]} />
-        )}
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
+        <NavSecondary items={data.navSecondary[currentRole]} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
         <NavUser />
