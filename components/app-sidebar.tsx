@@ -21,8 +21,43 @@ import {
   Mail,
   TicketCheck,
   TreePalm,
-  Bird
+  Bird,
+  Database,
+  FileText,
+  UserCheck,
+  ExternalLink,
+  Wrench,
+  Settings,
+  Tag,
+  Phone,
+  Calendar,
+  User,
+  Network
 } from 'lucide-react';
+
+// Icon mapping for database admin items
+const iconMap = {
+  Video,
+  TableProperties,
+  UserCheck,
+  Users,
+  Wrench,
+  Settings,
+  Tag,
+  Phone,
+  GraduationCap,
+  Calendar,
+  User,
+  BellDot,
+  Shield,
+  Network,
+  Handshake,
+};
+
+// Helper function to get icon component by name
+const getIconComponent = (iconName: string) => {
+  return iconMap[iconName as keyof typeof iconMap] || Database;
+};
 
 import { NavCategory } from "@/components/nav-category"
 import { NavMain } from "@/components/nav-main"
@@ -36,6 +71,16 @@ import {
   SidebarHeader,
 } from "@/components/ui/sidebar"
 import { useUserRole, type UserRole } from "@/contexts/user-role-context"
+import { 
+  DATABASE_MODELS, 
+  getDatabaseAdminUrl, 
+  getDatabaseAdminMenuItemsByRole,
+  type DatabaseAdminMenuItem 
+} from "@/lib/database-models"
+import { BACKEND_CONFIG } from "@/lib/config"
+
+// Backend URL configuration
+const BACKEND_URL = BACKEND_CONFIG.BASE_URL
 
 const data = {
   teams: [
@@ -111,18 +156,50 @@ const data = {
       },
     ],
   },
-  navSecondary: [
-    {
-      title: "Beállítások",
-      url: "/app/beallitasok",
-      icon: IconSettings,
-    },
-    {
-      title: "Segítség",
-      url: "/app/segitseg",
-      icon: IconHelp,
-    },
-  ],
+  navSecondary: {
+    admin: [
+      {
+        title: "Beállítások",
+        url: "/app/beallitasok",
+        icon: IconSettings,
+      },
+      // Database Admin
+      {
+        title: "Adatbázis Admin",
+        url: "/app/database-admin",
+        icon: Database,
+      },
+      {
+        title: "Segítség",
+        url: "/app/segitseg",
+        icon: IconHelp,
+      },
+    ],
+    'class-teacher': [
+      {
+        title: "Beállítások",
+        url: "/app/beallitasok",
+        icon: IconSettings,
+      },
+      {
+        title: "Segítség",
+        url: "/app/segitseg",
+        icon: IconHelp,
+      },
+    ],
+    student: [
+      {
+        title: "Beállítások",
+        url: "/app/beallitasok",
+        icon: IconSettings,
+      },
+      {
+        title: "Segítség",
+        url: "/app/segitseg",
+        icon: IconHelp,
+      },
+    ],
+  },
   shootings: {
     admin: [
       {
@@ -146,8 +223,7 @@ const data = {
         icon: TreePalm,
       },
     ],
-    'class-teacher': [
-    ],
+    'class-teacher': [],
     student: [
       {
         name: "Forgatások",
@@ -211,6 +287,16 @@ const data = {
       },
     ],
   },
+  databaseAdmin: {
+    admin: getDatabaseAdminMenuItemsByRole('admin').map((item: DatabaseAdminMenuItem) => ({
+      name: item.name,
+      url: getDatabaseAdminUrl(item.modelPath),
+      icon: getIconComponent(item.icon),
+      external: true,
+    })),
+    'class-teacher': [],
+    student: [],
+  },
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -232,7 +318,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         {data.myClass[currentRole].length > 0 && (
           <NavCategory category="Osztályom" items={data.myClass[currentRole]} />
         )}
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
+        <NavSecondary items={data.navSecondary[currentRole]} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
         <NavUser />

@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { Code } from "lucide-react"
 import { ThemeSelector } from "@/components/theme-selector"
+import { CONTACT_CONFIG } from "@/lib/config"
 
 export function SiteFooter() {
   return (
@@ -11,11 +12,11 @@ export function SiteFooter() {
           <div className="flex flex-col items-center sm:items-start">
             <p className="text-xs">
               Kapcsolat:{" "}
-              <a href="mailto:kapcsolat@ztv2.hu" className="underline transition-colors hover:text-primary">
-                ztv2@botond.eu
+              <a href={`mailto:${CONTACT_CONFIG.PRIMARY_EMAIL}`} className="underline transition-colors hover:text-primary">
+                {CONTACT_CONFIG.PRIMARY_EMAIL}
               </a>
             </p>
-            <p className="mt-2 text-xs">&copy; {new Date().getFullYear()} ZTV2. Minden jog fenntartva.</p>
+            <p className="mt-2 text-xs">&copy; {new Date().getFullYear()} {CONTACT_CONFIG.ORG_NAME}. Minden jog fenntartva.</p>
           </div>
           <div className="flex flex-col items-center gap-2 sm:items-end">
             <Link
