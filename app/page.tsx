@@ -39,7 +39,13 @@ export default function LandingPage() {
       <header className="container flex items-center justify-between px-4 py-6 mx-auto sm:px-6 lg:px-8">
         <Link href="/" className="flex items-center gap-3 text-2xl font-bold">
           <Clapperboard className="w-8 h-8 text-primary" />
-          <span>ZTV2</span>
+          <span>FTV</span>
+        </Link>
+        <Link
+          href="/login"
+          className="px-4 py-2 text-sm font-medium transition-colors bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+        >
+          Bejelentkezés
         </Link>
       </header>
 
@@ -47,7 +53,7 @@ export default function LandingPage() {
         <h1 className="text-4xl font-extrabold leading-tight tracking-tighter sm:text-5xl md:text-6xl lg:text-7xl">
           viszlát ztv.
           <br />
-          Helló ZTV2!
+          Helló FTV!
         </h1>
         <p className="max-w-2xl mt-6 text-lg md:text-xl text-muted-foreground">
           Az új generációs platform a zökkenőmentes forgatásszervezéshez
@@ -57,8 +63,6 @@ export default function LandingPage() {
       </main>
 
       <FeaturesSection />
-
-      <StatsSection />
       
       <DevelopersSection />
 

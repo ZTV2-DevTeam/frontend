@@ -22,16 +22,19 @@ const developers: Developer[] = [
   {
     name: "Kovács Ádám Lőrinc",
     class: "9.F",
+    role: "Fejlesztő (Backend)",
     github: "lorenth-kovacs"
   },
   {
     name: "Péterfi Dénes",
     class: "9.F",
+    role: "Fejlesztő (Frontend)",
     github: "Denesz009"
   },
   {
     name: "Tóth László Barnabás",
     class: "NYF",
+    role: "UI/UX Design",
     github: "BuilderSnail"
   }
 ]
@@ -45,7 +48,7 @@ export function DevelopersSection() {
           <h2 className="text-3xl font-bold tracking-tight">Fejlesztőcsapat</h2>
         </div>
         <p className="max-w-2xl mx-auto text-lg text-muted-foreground">
-          A ZTV2 mögött álló fejlesztők
+          Az FTV mögött álló fejlesztők
         </p>
       </div>
 

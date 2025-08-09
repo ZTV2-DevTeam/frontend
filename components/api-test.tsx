@@ -19,7 +19,7 @@ export function ApiTestComponent() {
 
         try {
             // Test basic API connectivity
-            const response = await fetch(`${apiClient['baseUrl']}/api/hello?name=ZTV2`)
+            const response = await fetch(`${apiClient['baseUrl']}/api/hello?name=FTV`)
             
             if (response.ok) {
                 const data = await response.text()

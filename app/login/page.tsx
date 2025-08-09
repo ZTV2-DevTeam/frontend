@@ -8,7 +8,7 @@ export default function LoginPage() {
       <div className="flex flex-col w-full max-w-sm gap-6">
         <a href="#" className="flex items-center self-center gap-2 font-medium">
           <Clapperboard className="size-6 text-primary" />
-          ZTV2
+          FTV
         </a>
         <LoginForm />
       </div>

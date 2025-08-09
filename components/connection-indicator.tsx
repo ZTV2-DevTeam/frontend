@@ -21,7 +21,7 @@ export function ConnectionIndicator({ className = '' }: ConnectionIndicatorProps
 
     try {
       // Test basic API connectivity with a simple endpoint
-      const response = await fetch(`${API_CONFIG.BASE_URL}/api/hello?name=ZTV2`)
+      const response = await fetch(`${API_CONFIG.BASE_URL}/api/hello?name=FTV`)
       
       if (response.ok) {
         setConnectionState('connected')

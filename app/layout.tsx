@@ -17,8 +17,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ZTV2",
-  description: "ZTV2 Adminisztációs felület",
+  title: "FTV",
+  description: "FTV Adminisztációs felület",
 };
 
 export default function RootLayout({

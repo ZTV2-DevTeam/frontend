@@ -68,14 +68,16 @@ export function LoginForm({
                     onChange={(e) => setUsername(e.target.value)}
                     required
                     disabled={isLoading}
+                    tabIndex={1}
                   />
                 </div>
                 <div className="grid gap-3">
                   <div className="flex items-center">
                     <Label htmlFor="password">Jelszó</Label>
                     <a
-                      href="#"
+                      href="/elfelejtett_jelszo"
                       className="ml-auto text-sm underline-offset-4 hover:underline"
+                      tabIndex={4}
                     >
                       Elfelejtett jelszó?
                     </a>
@@ -87,9 +89,10 @@ export function LoginForm({
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     disabled={isLoading}
+                    tabIndex={2}
                   />
                 </div>
-                <Button type="submit" className="w-full" disabled={isLoading}>
+                <Button type="submit" className="w-full" disabled={isLoading} tabIndex={3}>
                   {isLoading ? 'Bejelentkezés...' : 'Bejelentkezés'}
                 </Button>
               </div>

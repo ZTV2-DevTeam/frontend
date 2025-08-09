@@ -9,7 +9,7 @@ export default function PrivacyPolicyPage() {
       <header className="container flex items-center justify-between px-4 py-6 mx-auto sm:px-6 lg:px-8">
         <Link href="/" className="flex items-center gap-3 text-2xl font-bold">
           <Clapperboard className="w-8 h-8 text-primary" />
-          <span>ZTV2</span>
+          <span>FTV</span>
         </Link>
       </header>
 
@@ -18,7 +18,7 @@ export default function PrivacyPolicyPage() {
           <div className="mb-8 text-center">
             <h1 className="mb-4 text-4xl font-bold">Adatvédelmi szabályzat</h1>
             <p className="max-w-2xl mx-auto text-lg text-muted-foreground">
-              Információ az analitikai szolgáltatásokról, amelyeket a ZTV2 platformon használunk.
+              Információ az analitikai szolgáltatásokról, amelyeket a FTV platformon használunk.
             </p>
           </div>
 
@@ -35,7 +35,7 @@ export default function PrivacyPolicyPage() {
               <CardContent>
                 <div className="space-y-3">
                   <p className="text-sm">
-                    A ZTV2 platform CloudFlare Analytics szolgáltatást használ a weboldalforgalom 
+                    A FTV platform CloudFlare Analytics szolgáltatást használ a weboldalforgalom 
                     és teljesítmény elemzésére. Ez segít megérteni, hogyan használják a szolgáltatásainkat 
                     és javítani a felhasználói élményt.
                   </p>

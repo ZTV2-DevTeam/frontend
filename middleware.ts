@@ -11,8 +11,9 @@ export function middleware(request: NextRequest) {
   )
 
   // Public routes - accessible to everyone
-  const publicPaths = ['/', '/login', '/privacy-policy', '/terms-of-service']
-  const isPublicPath = publicPaths.includes(request.nextUrl.pathname)
+  const publicPaths = ['/', '/login', '/privacy-policy', '/terms-of-service', '/elfelejtett_jelszo']
+  const isPublicPath = publicPaths.includes(request.nextUrl.pathname) || 
+                      request.nextUrl.pathname.startsWith('/elfelejtett_jelszo/')
 
   // Auth-only public routes - redirect authenticated users away from these
   const authOnlyPublicPaths = ['/login']

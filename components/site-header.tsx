@@ -23,7 +23,7 @@ const routeToPageName: Record<string, string> = {
 }
 
 function getCurrentPageName(pathname: string): string {
-  return routeToPageName[pathname] || "ZTV2"
+  return routeToPageName[pathname] || "FTV"
 }
 
 export function SiteHeader() {
@@ -42,7 +42,7 @@ export function SiteHeader() {
         <div className="flex items-center gap-2 ml-auto">
           <Button variant="ghost" asChild size="sm" className="hidden sm:flex">
             <a
-              href="https://github.com/ZTV2-DevTeam/ztv2-frontend"
+              href="https://github.com/FTV-DevTeam/FTV-frontend"
               rel="noopener noreferrer"
               target="_blank"
               className="dark:text-foreground"

@@ -9,7 +9,7 @@ export default function TermsOfServicePage() {
       <header className="container flex items-center justify-between px-4 py-6 mx-auto sm:px-6 lg:px-8">
         <Link href="/" className="flex items-center gap-3 text-2xl font-bold">
           <Clapperboard className="w-8 h-8 text-primary" />
-          <span>ZTV2</span>
+          <span>FTV</span>
         </Link>
       </header>
 
@@ -18,8 +18,8 @@ export default function TermsOfServicePage() {
           <div className="mb-8 text-center">
             <h1 className="mb-4 text-4xl font-bold">Felhasználási feltételek</h1>
             <p className="max-w-3xl mx-auto text-lg text-muted-foreground">
-              A ZTV2 platform használatának feltételei és szabályai - 
-              Kőbányai Szent László Gimnázium Emelt Digitális Kultúra Tagozata - Aktuális ZTV2 Fejlesztői Csapata.
+              A FTV platform használatának feltételei és szabályai - 
+              Kőbányai Szent László Gimnázium Emelt Digitális Kultúra Tagozata - Aktuális FTV Fejlesztői Csapata.
             </p>
           </div>
 
@@ -36,13 +36,13 @@ export default function TermsOfServicePage() {
               <CardContent>
                 <div className="space-y-3">
                   <p className="text-sm">
-                    <strong>Szolgáltató:</strong> Kőbányai Szent László Gimnázium Emelt Digitális Kultúra Tagozata - Aktuális ZTV2 Fejlesztői Csapata
+                    <strong>Szolgáltató:</strong> Kőbányai Szent László Gimnázium Emelt Digitális Kultúra Tagozata - Aktuális FTV Fejlesztői Csapata
                   </p>
                   <p className="text-sm">
                     <strong>Kapcsolat:</strong> balla.botond.23f@szlgbp.hu
                   </p>
                   <p className="text-sm">
-                    Jelen felhasználási feltételek szabályozzák a ZTV2 platform használatát. 
+                    Jelen felhasználási feltételek szabályozzák a FTV platform használatát. 
                     A platform használatával Ön elfogadja ezeket a feltételeket.
                   </p>
                 </div>
@@ -61,7 +61,7 @@ export default function TermsOfServicePage() {
               <CardContent>
                 <div className="space-y-3">
                   <p className="text-sm">
-                    A ZTV2 platform kizárólag a Kőbányai Szent László Gimnázium Média Tagozatának 
+                    A FTV platform kizárólag a Kőbányai Szent László Gimnázium Média Tagozatának 
                     tagjai számára elérhető.
                   </p>
                   <p className="text-sm">

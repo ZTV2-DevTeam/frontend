@@ -27,6 +27,16 @@ export interface User {
   email: string
 }
 
+export interface ForgotPasswordRequest {
+  email: string
+}
+
+export interface ResetPasswordRequest {
+  token: string
+  password: string
+  confirmPassword: string
+}
+
 // API Client class
 class ApiClient {
   private baseUrl: string
@@ -146,6 +156,24 @@ class ApiClient {
 
   async dashboard(): Promise<unknown> {
     return this.request('/api/dashboard')
+  }
+
+  async forgotPassword(data: ForgotPasswordRequest): Promise<{ message: string }> {
+    return this.request('/api/forgot-password', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async resetPassword(data: ResetPasswordRequest): Promise<{ message: string }> {
+    return this.request('/api/reset-password', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async verifyResetToken(token: string): Promise<{ valid: boolean }> {
+    return this.request(`/api/verify-reset-token/${token}`)
   }
 
   // Generic API methods for custom routes

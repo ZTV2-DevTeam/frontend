@@ -80,7 +80,7 @@ const adminData = [
     name: "Dr. Kovács János",
     role: "Médiatanár",
     status: "Aktív",
-    email: "kovacs.janos@ztv.hu",
+    email: "kovacs.janos@szlgbp.hu",
     phone: "+36 30 123 4567",
     department: "Média Oktatás",
     type: "admin"
@@ -90,7 +90,7 @@ const adminData = [
     name: "Nagy Anna",
     role: "Médiatanár",
     status: "Aktív",
-    email: "nagy.anna@ztv.hu",
+    email: "nagy.anna@szlgbp.hu",
     phone: "+36 30 234 5678",
     department: "Média Oktatás",
     type: "admin"
@@ -100,7 +100,7 @@ const adminData = [
     name: "Dr. Szabó Péter",
     role: "Vezető Médiatanár",
     status: "Aktív",
-    email: "szabo.peter@ztv.hu",
+    email: "szabo.peter@szlgbp.hu",
     phone: "+36 30 345 6789",
     department: "Média Oktatás",
     type: "admin"
@@ -110,7 +110,7 @@ const adminData = [
     name: "Tóth Mária",
     role: "Médiatanár",
     status: "Aktív",
-    email: "toth.maria@ztv.hu",
+    email: "toth.maria@szlgbp.hu",
     phone: "+36 30 456 7890",
     department: "Média Oktatás",
     type: "admin"
