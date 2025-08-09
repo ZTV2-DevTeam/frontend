@@ -12,7 +12,7 @@ import { useRouter } from "next/navigation"
 import { useEffect } from "react"
 
 export default function LandingPage() {
-  const launchDate = new Date("2025-09-08T12:00:00")
+  const launchDate = new Date("2025-09-01T12:00:00")
   const { isAuthenticated, isLoading } = useAuth()
   const router = useRouter()
 
