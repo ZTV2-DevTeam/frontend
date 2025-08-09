@@ -1,62 +1,108 @@
+'use client'
+
 import { AppSidebar } from "@/components/app-sidebar"
 import { SiteHeader } from "@/components/site-header"
-import { ComingSoon } from "@/components/coming-soon"
 import {
   SidebarInset,
   SidebarProvider,
 } from "@/components/ui/sidebar"
+import { Card, CardTitle, CardHeader, CardContent } from "@/components/ui/card"
+import { useApi } from '@/hooks/use-simple-api'
+import { AlertCircleIcon, BadgeCheckIcon, CheckIcon } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
 
 export default function AnnouncementsPage() {
-  const faqs = [
-    {
-      question: "Mik azok a forgatások?",
-      answer: "A forgatások oldalon láthatod, hogy melyik forgatásra vagy beosztva, mikor és hova kell menned."
-    },
-    {
-      question: "Hogyan tudom megnézni a saját beosztásaimat?",
-      answer: "A rendszer automatikusan megjeleníti a számodra kijelölt forgatásokat, időponttal és helyszínnel."
-    },
-    {
-      question: "Kapok értesítést, ha új beosztásom van?",
-      answer: "Igen, minden új beosztásról értesítést kapsz emailben és a platformon belül is."
-    },
-    {
-      question: "Mit tegyek, ha nem tudok részt venni egy beosztáson?",
-      answer: "Ebben az esetben vedd fel a kapcsolatot egy tanárral, hogy módosíthassák a beosztást."
-    },
-    {
-      question: "Láthatom más diákok beosztását is?",
-      answer: "Igen, a forgatások oldalon megtekintheted a többi diák beosztását is, így láthatod, hogy mikor és hol vannak mások."
-    }
-  ]
+    // const { data: announcements, loading, error } = useApi('announcements')
 
-  return (
+    const announcements = [
+      {
+        id: 17,
+        location: {
+          imageURL: "https://lh3.googleusercontent.com/gps-cs-s/AC9h4nr0H3RAOZnvMt0SVdA76fcbkDVnKQ7Sp68opzVi0ffEu0k62tK0pYnNonIquPZjWqmK3kkGPj0d82NR6v8qZasxNeec-wwl49KthKrpLH9c81D8WjqDGIZL37Le45M02emCAM9j=w408-h306-k-no",
+          name:"Gogobar hambi",
+          address:"1102 Kőrösi Csoma Sándor út 26."
+        },
+        name: "Gogo forgi",
+        forgtipus: "KaCsa",
+        contactperson: {
+          phone: "+36203454545",
+          email: "gogohami@gmail.com",
+          name: "Kovács László",
+        },
+        date: "2025. szeptember 1.",
+      },
+      {
+        id: 10,
+        location: {
+          imageURL: "https://welovebudapest.com/i/85/budai-helyek-hadik-kavehaz-201909-csudai-sandor-049.exact1980w.jpg",
+          name:"Hadik Kávéház",
+          address:"1111 Bartók Béla út 36."
+        },
+        name: "Hadik (Szatyor)",
+        forgtipus: "Szórakozóhely",
+        contactperson: {
+          phone: "+36204523678",
+          email: "hadikkvhaz@gmail.com",
+          name: "Karinthy Frigyes",
+        },
+        date: "2025. szeptember 2.",
+      },
+    ]
+
+
+   return (
     <SidebarProvider
-      style={
+    style={
         {
           "--sidebar-width": "calc(var(--spacing) * 72)",
           "--header-height": "calc(var(--spacing) * 12)",
         } as React.CSSProperties
       }
     >
+    
       <AppSidebar variant="inset" />
       <SidebarInset>
         <SiteHeader />
-        <div className="flex flex-col flex-1">
-          <div className="@container/main flex flex-1 flex-col gap-2">
-            <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-              <div className="px-4 lg:px-6">
-                <ComingSoon 
-                  featureName="FORGATÁSOK"
-                  description="A forgatások oldalon a diákok számára megjelennek a beosztott forgatások, ahol pontosan láthatod, hogy mikor és hova kell menned."
-                  faqs={faqs}
-                  estimatedCompletion="2025 szeptember"
-                />
-              </div>
-            </div>
+        <div className="p-4">
+          
+          {/* {loading && <div>Loading announcements...</div>} */}
+          {/* {error && <div>Error: {error}</div>} */}
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {announcements?.map((announcement: any, index: number) => (
+              <Card key={announcement.id || index}>
+                <CardHeader>
+                  <img 
+                  src={announcement.location.imageURL} 
+                  alt={`${announcement.location.name} logo`} 
+                  className="h-auto w-full rounded xl" />
+                  <CardTitle>{announcement.name}</CardTitle>
+                  {/* <label className="text-sm text-gray-600" htmlFor="cim">időpont:</label> */}
+                  <p className="text-sm">{announcement.date}</p>
+                  <CardTitle className="text-sm">{announcement.forgtipus}</CardTitle>
+                </CardHeader>
+                <CardContent className="grid grid-cols-1 gap-2">
+                  
+
+                  <p className="">{announcement.contactperson.name}:</p>
+                  <label  className="text-sm text-gray-600"htmlFor="">telefon:</label>
+                  <a className="ml-5" href="tel:{announcement.contactperson.phone}">{announcement.contactperson.phone}</a>
+
+                  <label  className="text-sm text-gray-600" htmlFor="">email:</label>
+                  <a className="ml-5" href="announcement.contactperson.email">{announcement.contactperson.email}</a>
+
+                  <label  className="text-sm text-gray-600" htmlFor="cim">cím:</label>
+                  <a className="ml-5" id="cim"   href={`https://maps.google.com/?q=${encodeURIComponent(announcement.location.address)}`}
+>{announcement.location.address}</a>                  
+                  <a className="text-sm  sm ml-0" href={`forgatasok/${encodeURIComponent(announcement.id)}/`}>részletek</a>                  
+                </CardContent>
+              </Card>
+            ))}
           </div>
+          
         </div>
       </SidebarInset>
     </SidebarProvider>
   )
 }
+
