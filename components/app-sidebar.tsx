@@ -21,7 +21,11 @@ import {
   Mail,
   TicketCheck,
   TreePalm,
-  Bird
+  Bird,
+  Database,
+  FileText,
+  UserCheck,
+  ExternalLink
 } from 'lucide-react';
 
 import { NavCategory } from "@/components/nav-category"
@@ -36,6 +40,17 @@ import {
   SidebarHeader,
 } from "@/components/ui/sidebar"
 import { useUserRole, type UserRole } from "@/contexts/user-role-context"
+
+// Database model names for admin panel integration
+const DATABASE_MODELS = {
+  FORGATASOK: 'api/forgatas',
+  BEOSZTASOK: 'api/beosztas',
+  USERS: 'auth/user',
+  EQUIPMENT: 'api/equipment',
+}
+
+// Backend URL configuration
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
 
 const data = {
   teams: [
@@ -211,6 +226,36 @@ const data = {
       },
     ],
   },
+  databaseAdmin: {
+    admin: [
+      {
+        name: "Forgatások DB",
+        url: `${BACKEND_URL}/admin/${DATABASE_MODELS.FORGATASOK}`,
+        icon: Video,
+        external: true,
+      },
+      {
+        name: "Beosztások DB",
+        url: `${BACKEND_URL}/admin/${DATABASE_MODELS.BEOSZTASOK}`,
+        icon: TableProperties,
+        external: true,
+      },
+      {
+        name: "Felhasználók DB",
+        url: `${BACKEND_URL}/admin/${DATABASE_MODELS.USERS}`,
+        icon: UserCheck,
+        external: true,
+      },
+      {
+        name: "Felszerelések DB",
+        url: `${BACKEND_URL}/admin/${DATABASE_MODELS.EQUIPMENT}`,
+        icon: Video,
+        external: true,
+      },
+    ],
+    'class-teacher': [],
+    student: [],
+  },
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -231,6 +276,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         )}
         {data.myClass[currentRole].length > 0 && (
           <NavCategory category="Osztályom" items={data.myClass[currentRole]} />
+        )}
+        {data.databaseAdmin[currentRole].length > 0 && (
+          <NavCategory category="Adatbázis admin" items={data.databaseAdmin[currentRole]} />
         )}
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
