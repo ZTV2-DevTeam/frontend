@@ -33,6 +33,27 @@ export const BACKEND_CONFIG = {
   }
 }
 
+// Contact information configuration
+export const CONTACT_CONFIG = {
+  // Primary contact email
+  PRIMARY_EMAIL: process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'balla.botond.23f@szlgbp.hu',
+  
+  // Developer email for technical issues
+  DEVELOPER_EMAIL: process.env.NEXT_PUBLIC_DEVELOPER_EMAIL || 'balla.botond.23f@szlgbp.hu',
+  
+  // Support email for general inquiries
+  SUPPORT_EMAIL: process.env.NEXT_PUBLIC_SUPPORT_EMAIL || 'balla.botond.23f@szlgbp.hu',
+  
+  // Emergency contact for critical issues
+  EMERGENCY_CONTACT: process.env.NEXT_PUBLIC_EMERGENCY_CONTACT || 'balla.botond.23f@szlgbp.hu',
+  
+  // Organization name
+  ORG_NAME: process.env.NEXT_PUBLIC_ORG_NAME || 'ZTV2',
+  
+  // Website URL
+  WEBSITE_URL: process.env.NEXT_PUBLIC_WEBSITE_URL || 'https://ztv2.szlg.info',
+}
+
 // You can also set the API URL via environment variables:
 // Create a .env.local file with:
 // NEXT_PUBLIC_API_URL=http://your-api-server:port

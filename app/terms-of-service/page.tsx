@@ -39,7 +39,7 @@ export default function TermsOfServicePage() {
                     <strong>Szolgáltató:</strong> Kőbányai Szent László Gimnázium Emelt Digitális Kultúra Tagozata - Aktuális ZTV2 Fejlesztői Csapata
                   </p>
                   <p className="text-sm">
-                    <strong>Kapcsolat:</strong> ztv2@botond.eu
+                    <strong>Kapcsolat:</strong> balla.botond.23f@szlgbp.hu
                   </p>
                   <p className="text-sm">
                     Jelen felhasználási feltételek szabályozzák a ZTV2 platform használatát. 

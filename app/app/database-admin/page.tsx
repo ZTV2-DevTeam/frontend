@@ -17,6 +17,7 @@ import { Separator } from "@/components/ui/separator"
 import { useUserRole } from "@/contexts/user-role-context"
 import { useAuth } from "@/contexts/auth-context"
 import { DatabaseAdminMenu, DatabaseAdminToolbar } from "@/components/database-admin-menu"
+import { CONTACT_CONFIG } from "@/lib/config"
 import { 
   getDatabaseAdminMenuItemsByRole,
   DATABASE_MODELS,
@@ -131,6 +132,34 @@ export default function DatabaseAdminPage() {
               Django Admin
             </Badge>
           </div>
+
+          {/* Disclaimer for Advanced Users */}
+          <Card className="border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-amber-800 dark:text-amber-200">
+                <Shield className="h-5 w-5" />
+                ⚠️ FIGYELEM - Csak haladó felhasználóknak
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="text-amber-700 dark:text-amber-300">
+              <p className="mb-2">
+                <strong>Ez az adminisztrációs felület közvetlen hozzáférést biztosít az adatbázishoz.</strong>
+              </p>
+              <p className="mb-2">
+                Az adatok megfelelő ismeretek nélküli módosítása <strong>destruktív lehet</strong> és 
+                <strong> kritikus problémákat okozhat</strong> a rendszer működésében.
+              </p>
+              <p className="text-sm">
+                <strong>Kritikus hibák esetén azonnal vegye fel a kapcsolatot a fejlesztővel: </strong>
+                <a 
+                  href={`mailto:${CONTACT_CONFIG.DEVELOPER_EMAIL}?subject=KRITIKUS HIBA - Adatbázis adminisztráció`}
+                  className="underline text-amber-800 dark:text-amber-200 hover:text-amber-900 dark:hover:text-amber-100"
+                >
+                  {CONTACT_CONFIG.DEVELOPER_EMAIL}
+                </a>
+              </p>
+            </CardContent>
+          </Card>
 
           {/* Statistics Cards */}
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
