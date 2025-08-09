@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useReducer, useCallback } from 'react'
 
-export type ThemeColor = 'red' | 'orange' | 'yellow' | 'cyan' | 'green' | 'indigo' | 'purple' | 'pink' | 'amber' | 'blue'
+export type ThemeColor = 'red' | 'amber' | 'yellow' | 'cyan' | 'green' | 'indigo' | 'purple' | 'pink' | 'blue' | 'slate'
 
 interface ThemeState {
   themeColor: ThemeColor
@@ -66,7 +66,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   useEffect(() => {
     try {
       const savedTheme = localStorage.getItem('theme-color') as ThemeColor
-      const validTheme = savedTheme && ['red', 'orange', 'yellow', 'cyan', 'green', 'indigo', 'purple', 'pink', 'amber', 'blue'].includes(savedTheme) 
+      const validTheme = savedTheme && ['red', 'amber', 'yellow', 'cyan', 'green', 'indigo', 'purple', 'pink', 'blue', 'slate'].includes(savedTheme) 
         ? savedTheme 
         : 'indigo'
 
@@ -201,39 +201,39 @@ function getThemeVariables(color: ThemeColor, isDark: boolean) {
         '--sidebar-accent': 'oklch(0.28 0.025 27.325)',
       }
     },
-    orange: {
+    amber: {
       light: {
-        '--primary': 'oklch(0.689 0.184 41.116)',
+        '--primary': 'oklch(0.689 0.184 61.116)',
         '--primary-foreground': 'oklch(0.984 0.003 247.858)',
-        '--ring': 'oklch(0.689 0.184 41.116)',
-        '--sidebar-primary': 'oklch(0.689 0.184 41.116)',
-        '--sidebar-ring': 'oklch(0.689 0.184 41.116)',
-        '--background': 'oklch(0.995 0.01 41.116)',
-        '--card': 'oklch(0.99 0.015 41.116)',
-        '--popover': 'oklch(0.99 0.015 41.116)',
-        '--secondary': 'oklch(0.96 0.02 41.116)',
-        '--muted': 'oklch(0.96 0.02 41.116)',
-        '--accent': 'oklch(0.96 0.02 41.116)',
-        '--border': 'oklch(0.92 0.025 41.116)',
-        '--input': 'oklch(0.92 0.025 41.116)',
-        '--sidebar': 'oklch(0.98 0.012 41.116)',
-        '--sidebar-accent': 'oklch(0.96 0.02 41.116)',
-        '--sidebar-border': 'oklch(0.92 0.025 41.116)',
+        '--ring': 'oklch(0.689 0.184 61.116)',
+        '--sidebar-primary': 'oklch(0.689 0.184 61.116)',
+        '--sidebar-ring': 'oklch(0.689 0.184 61.116)',
+        '--background': 'oklch(0.995 0.01 61.116)',
+        '--card': 'oklch(0.99 0.015 61.116)',
+        '--popover': 'oklch(0.99 0.015 61.116)',
+        '--secondary': 'oklch(0.96 0.02 61.116)',
+        '--muted': 'oklch(0.96 0.02 61.116)',
+        '--accent': 'oklch(0.96 0.02 61.116)',
+        '--border': 'oklch(0.92 0.025 61.116)',
+        '--input': 'oklch(0.92 0.025 61.116)',
+        '--sidebar': 'oklch(0.98 0.012 61.116)',
+        '--sidebar-accent': 'oklch(0.96 0.02 61.116)',
+        '--sidebar-border': 'oklch(0.92 0.025 61.116)',
       },
       dark: {
-        '--primary': 'oklch(0.689 0.184 41.116)',
+        '--primary': 'oklch(0.689 0.184 61.116)',
         '--primary-foreground': 'oklch(0.984 0.003 247.858)',
-        '--ring': 'oklch(0.646 0.222 41.116)',
-        '--sidebar-primary': 'oklch(0.689 0.184 41.116)',
-        '--sidebar-ring': 'oklch(0.646 0.222 41.116)',
-        '--background': 'oklch(0.15 0.015 41.116)',
-        '--card': 'oklch(0.22 0.02 41.116)',
-        '--popover': 'oklch(0.22 0.02 41.116)',
-        '--secondary': 'oklch(0.28 0.025 41.116)',
-        '--muted': 'oklch(0.28 0.025 41.116)',
-        '--accent': 'oklch(0.28 0.025 41.116)',
-        '--sidebar': 'oklch(0.22 0.02 41.116)',
-        '--sidebar-accent': 'oklch(0.28 0.025 41.116)',
+        '--ring': 'oklch(0.646 0.222 61.116)',
+        '--sidebar-primary': 'oklch(0.689 0.184 61.116)',
+        '--sidebar-ring': 'oklch(0.646 0.222 61.116)',
+        '--background': 'oklch(0.15 0.015 61.116)',
+        '--card': 'oklch(0.22 0.02 61.116)',
+        '--popover': 'oklch(0.22 0.02 61.116)',
+        '--secondary': 'oklch(0.28 0.025 61.116)',
+        '--muted': 'oklch(0.28 0.025 61.116)',
+        '--accent': 'oklch(0.28 0.025 61.116)',
+        '--sidebar': 'oklch(0.22 0.02 61.116)',
+        '--sidebar-accent': 'oklch(0.28 0.025 61.116)',
       }
     },
     yellow: {
@@ -446,41 +446,6 @@ function getThemeVariables(color: ThemeColor, isDark: boolean) {
         '--sidebar-accent': 'oklch(0.28 0.025 16.439)',
       }
     },
-    amber: {
-      light: {
-        '--primary': 'oklch(0.689 0.184 61.116)',
-        '--primary-foreground': 'oklch(0.984 0.003 247.858)',
-        '--ring': 'oklch(0.689 0.184 61.116)',
-        '--sidebar-primary': 'oklch(0.689 0.184 61.116)',
-        '--sidebar-ring': 'oklch(0.689 0.184 61.116)',
-        '--background': 'oklch(0.995 0.01 61.116)',
-        '--card': 'oklch(0.99 0.015 61.116)',
-        '--popover': 'oklch(0.99 0.015 61.116)',
-        '--secondary': 'oklch(0.96 0.02 61.116)',
-        '--muted': 'oklch(0.96 0.02 61.116)',
-        '--accent': 'oklch(0.96 0.02 61.116)',
-        '--border': 'oklch(0.92 0.025 61.116)',
-        '--input': 'oklch(0.92 0.025 61.116)',
-        '--sidebar': 'oklch(0.98 0.012 61.116)',
-        '--sidebar-accent': 'oklch(0.96 0.02 61.116)',
-        '--sidebar-border': 'oklch(0.92 0.025 61.116)',
-      },
-      dark: {
-        '--primary': 'oklch(0.689 0.184 61.116)',
-        '--primary-foreground': 'oklch(0.984 0.003 247.858)',
-        '--ring': 'oklch(0.646 0.222 61.116)',
-        '--sidebar-primary': 'oklch(0.689 0.184 61.116)',
-        '--sidebar-ring': 'oklch(0.646 0.222 61.116)',
-        '--background': 'oklch(0.15 0.015 61.116)',
-        '--card': 'oklch(0.22 0.02 61.116)',
-        '--popover': 'oklch(0.22 0.02 61.116)',
-        '--secondary': 'oklch(0.28 0.025 61.116)',
-        '--muted': 'oklch(0.28 0.025 61.116)',
-        '--accent': 'oklch(0.28 0.025 61.116)',
-        '--sidebar': 'oklch(0.22 0.02 61.116)',
-        '--sidebar-accent': 'oklch(0.28 0.025 61.116)',
-      }
-    },
     blue: {
       light: {
         '--primary': 'oklch(0.6 0.243 244.376)',
@@ -514,9 +479,48 @@ function getThemeVariables(color: ThemeColor, isDark: boolean) {
         '--accent': 'oklch(0.28 0.025 244.376)',
         '--sidebar': 'oklch(0.22 0.02 244.376)',
         '--sidebar-accent': 'oklch(0.28 0.025 244.376)',
+      },
+    },
+    slate: {
+      light: {
+        '--primary': 'oklch(0.46 0.08 215)',
+        '--primary-foreground': 'oklch(0.98 0.003 250)',
+        '--ring': 'oklch(0.46 0.08 215)',
+        '--sidebar-primary': 'oklch(0.46 0.08 215)',
+        '--sidebar-ring': 'oklch(0.46 0.08 215)',
+        '--background': 'oklch(0.995 0.01 215)',
+        '--card': 'oklch(0.99 0.015 215)',
+        '--popover': 'oklch(0.99 0.015 215)',
+        '--secondary': 'oklch(0.96 0.02 215)',
+        '--muted': 'oklch(0.96 0.02 215)',
+        '--accent': 'oklch(0.96 0.02 215)',
+        '--border': 'oklch(0.92 0.025 215)',
+        '--input': 'oklch(0.92 0.025 215)',
+        '--sidebar': 'oklch(0.98 0.012 215)',
+        '--sidebar-accent': 'oklch(0.96 0.02 215)',
+        '--sidebar-border': 'oklch(0.92 0.025 215)',
+      },
+      dark: {
+        '--primary': 'oklch(0.46 0.08 215)',
+        '--primary-foreground': 'oklch(0.98 0.003 250)',
+        '--ring': 'oklch(0.55 0.03 215)',
+        '--sidebar-primary': 'oklch(0.46 0.08 215)',
+        '--sidebar-ring': 'oklch(0.55 0.03 215)',
+        '--background': 'oklch(0.15 0.015 215)',
+        '--card': 'oklch(0.22 0.02 215)',
+        '--popover': 'oklch(0.22 0.02 215)',
+        '--secondary': 'oklch(0.28 0.025 215)',
+        '--muted': 'oklch(0.28 0.025 215)',
+        '--accent': 'oklch(0.28 0.025 215)',
+        '--sidebar': 'oklch(0.22 0.02 215)',
+        '--sidebar-accent': 'oklch(0.28 0.025 215)',
       }
     }
   }
 
   return isDark ? themes[color].dark : themes[color].light
 }
+
+//#285862
+//oklch(0.4313 0.0543 213.13)
+//oklch(0.9635 0.0291 213.13)
