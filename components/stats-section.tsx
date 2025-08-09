@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react"
 import { SlidingNumber } from "@/components/animate-ui/text/sliding-number"
-import { Users, Clock, Award } from "lucide-react"
+import { Users, Clock } from "lucide-react"
 
 interface StatItem {
     id: string

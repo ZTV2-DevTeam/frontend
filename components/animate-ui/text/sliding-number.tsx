@@ -20,11 +20,7 @@ type SlidingNumberRollerProps = {
   place: number;
   transition: SpringOptions;
 };
-const DEFAULT_TRANSITION: SpringOptions = {
-  stiffness: 100,
-  damping: 30,
-  mass: 0.8,
-};
+
 function SlidingNumberRoller({
   prevValue,
   value,
