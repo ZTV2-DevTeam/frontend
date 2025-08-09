@@ -27,7 +27,7 @@ export function ThemeSelector() {
 
   const themeColors = [
     { name: "Piros", value: "red" as const, color: "oklch(0.637 0.245 27.325)" },
-    { name: "Narancs", value: "orange" as const, color: "oklch(0.689 0.184 41.116)" },
+    { name: "Borostyán", value: "amber" as const, color: "oklch(0.689 0.184 61.116)" },
     { name: "Sárga", value: "yellow" as const, color: "oklch(0.795 0.184 86.047)" },
     { name: "Zöld", value: "green" as const, color: "oklch(0.696 0.17 162.48)" },
     { name: "Türkiz", value: "cyan" as const, color: "oklch(0.696 0.17 195.293)" },
@@ -35,7 +35,7 @@ export function ThemeSelector() {
     { name: "Indigó", value: "indigo" as const, color: "oklch(0.488 0.243 264.376)" },
     { name: "Lila", value: "purple" as const, color: "oklch(0.627 0.265 303.9)" },
     { name: "Rózsaszín", value: "pink" as const, color: "oklch(0.645 0.246 16.439)" },
-    { name: "Borostyán", value: "amber" as const, color: "oklch(0.689 0.184 61.116)" },
+    { name: "Pala", value: "slate" as const, color: "oklch(0.4313 0.0543 213.13)" },
   ]
 
   return (
