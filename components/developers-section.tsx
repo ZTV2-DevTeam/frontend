@@ -32,7 +32,7 @@ const developers: Developer[] = [
   {
     name: "Tóth László Barnabás",
     class: "NYF",
-    github: "github"
+    github: "BuilderSnail"
   }
 ]
 
