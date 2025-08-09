@@ -21,6 +21,7 @@ export default function PartnersPage() {
   // Egysoros API call
   const { data: partners, loading, error } = useApi<Partner[]>('partners')
 
+  
    
   return (
     <SidebarProvider
@@ -58,7 +59,7 @@ export default function PartnersPage() {
                 </CardHeader>
                 <CardContent>
                   <Badge>{partner.address}</Badge>
-                  <p className="text-sm text-gray-600">{partner.institution.name}</p>
+                  <p className="text-sm text-gray-600">{partner.name}</p>
                 </CardContent>
               </Card>
             ))}

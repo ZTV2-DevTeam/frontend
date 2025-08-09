@@ -12,8 +12,44 @@ import { AlertCircleIcon, BadgeCheckIcon, CheckIcon } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 
 export default function AnnouncementsPage() {
-    const { data: announcements, loading, error } = useApi('announcements')
-  
+    // const { data: announcements, loading, error } = useApi('announcements')
+
+    const announcements = [
+      {
+        id: 17,
+        location: {
+          imageURL: "https://lh3.googleusercontent.com/gps-cs-s/AC9h4nr0H3RAOZnvMt0SVdA76fcbkDVnKQ7Sp68opzVi0ffEu0k62tK0pYnNonIquPZjWqmK3kkGPj0d82NR6v8qZasxNeec-wwl49KthKrpLH9c81D8WjqDGIZL37Le45M02emCAM9j=w408-h306-k-no",
+          name:"Gogobar hambi",
+          address:"1102 Kőrösi Csoma Sándor út 26."
+        },
+        name: "Gogo forgi",
+        forgtipus: "KaCsa",
+        contactperson: {
+          phone: "+36203454545",
+          email: "gogohami@gmail.com",
+          name: "Kovács László",
+        },
+        date: "2025. szeptember 1.",
+      },
+      {
+        id: 10,
+        location: {
+          imageURL: "https://welovebudapest.com/i/85/budai-helyek-hadik-kavehaz-201909-csudai-sandor-049.exact1980w.jpg",
+          name:"Hadik Kávéház",
+          address:"1111 Bartók Béla út 36."
+        },
+        name: "Hadik (Szatyor)",
+        forgtipus: "Szórakozóhely",
+        contactperson: {
+          phone: "+36204523678",
+          email: "hadikkvhaz@gmail.com",
+          name: "Karinthy Frigyes",
+        },
+        date: "2025. szeptember 2.",
+      },
+    ]
+
+
    return (
     <SidebarProvider
     style={
@@ -29,26 +65,36 @@ export default function AnnouncementsPage() {
         <SiteHeader />
         <div className="p-4">
           
-          {loading && <div>Loading announcements...</div>}
-          {error && <div>Error: {error}</div>}
+          {/* {loading && <div>Loading announcements...</div>} */}
+          {/* {error && <div>Error: {error}</div>} */}
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {announcements?.map((announcement: any, index: number) => (
               <Card key={announcement.id || index}>
                 <CardHeader>
-                  <img src={announcement.location.imageURL} alt={`${announcement.location.name} logo`} className="h-16 mb-2" />
+                  <img 
+                  src={announcement.location.imageURL} 
+                  alt={`${announcement.location.name} logo`} 
+                  className="h-auto w-full rounded xl" />
                   <CardTitle>{announcement.name}</CardTitle>
-                  <CardTitle className="text-sm">{announcement.forgTipus}</CardTitle>
-                  <Badge>{announcement.contactperson.phone}</Badge>
-                  <Badge>{announcement.contactperson.email}</Badge>
-                  <Badge>{announcement.location.address}</Badge>
-                  <Badge>i</Badge>
-
+                  {/* <label className="text-sm text-gray-600" htmlFor="cim">időpont:</label> */}
+                  <p className="text-sm">{announcement.date}</p>
+                  <CardTitle className="text-sm">{announcement.forgtipus}</CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-gray-600">{announcement.date}</p>
-                  <p className="text-sm text-gray-600">{announcement.contactperson.name}</p>
+                <CardContent className="grid grid-cols-1 gap-2">
                   
+
+                  <p className="">{announcement.contactperson.name}:</p>
+                  <label  className="text-sm text-gray-600"htmlFor="">telefon:</label>
+                  <a className="ml-5" href="tel:{announcement.contactperson.phone}">{announcement.contactperson.phone}</a>
+
+                  <label  className="text-sm text-gray-600" htmlFor="">email:</label>
+                  <a className="ml-5" href="announcement.contactperson.email">{announcement.contactperson.email}</a>
+
+                  <label  className="text-sm text-gray-600" htmlFor="cim">cím:</label>
+                  <a className="ml-5" id="cim"   href={`https://maps.google.com/?q=${encodeURIComponent(announcement.location.address)}`}
+>{announcement.location.address}</a>                  
+                  <a className="text-sm  sm ml-0" href={`forgatasok/${encodeURIComponent(announcement.id)}/`}>részletek</a>                  
                 </CardContent>
               </Card>
             ))}
