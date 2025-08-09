@@ -59,15 +59,15 @@ export function NavUser() {
 
   const colorMap: { hex: string; name: ThemeColor }[] = [
     { hex: "#ef4444", name: "red" },
-    { hex: "#f97316", name: "amber" },
+    { hex: "#f59e42", name: "orange" },
     { hex: "#fde047", name: "yellow" },
-    { hex: "#10b981", name: "green" },
     { hex: "#22d3ee", name: "cyan" },
-    { hex: "#0ea5e9", name: "blue" },
+    { hex: "#10b981", name: "green" },
     { hex: "#6366f1", name: "indigo" },
     { hex: "#a21caf", name: "purple" },
     { hex: "#ec4899", name: "pink" },
-    { hex: "#285862", name: "slate" },
+    { hex: "#f97316", name: "amber" },
+    { hex: "#0ea5e9", name: "blue" },
   ]
 
   return (
