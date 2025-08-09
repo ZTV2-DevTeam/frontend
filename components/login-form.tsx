@@ -13,6 +13,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useAuth } from "@/contexts/auth-context"
+import { ConnectionIndicator } from "@/components/connection-indicator"
 
 export function LoginForm({
   className,
@@ -43,7 +44,8 @@ export function LoginForm({
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card>
+      <Card className="relative">
+        <ConnectionIndicator />
         <CardHeader className="text-center">
           <CardTitle className="text-xl">Bejelentkezés</CardTitle>
         </CardHeader>

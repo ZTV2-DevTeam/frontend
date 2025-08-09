@@ -1,7 +1,6 @@
 import { Clapperboard } from "lucide-react"
 
 import { LoginForm } from "@/components/login-form"
-import { ApiTestComponent } from "@/components/api-test"
 
 export default function LoginPage() {
   return (
@@ -12,11 +11,6 @@ export default function LoginPage() {
           ZTV2
         </a>
         <LoginForm />
-      </div>
-      
-      {/* API Test Component - Remove this in production */}
-      <div className="mt-8">
-        <ApiTestComponent />
       </div>
     </div>
   )
