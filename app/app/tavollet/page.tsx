@@ -3,7 +3,7 @@ import { SiteHeader } from "@/components/site-header"
 import { ComingSoon } from "@/components/coming-soon"
 import {
   SidebarInset,
-  SidebarProvider,
+  SidebarProvider,  
 } from "@/components/ui/sidebar"
 
 export default function VacationPage() {
@@ -33,7 +33,7 @@ export default function VacationPage() {
         <div className="flex flex-1 flex-col">
           <div className="@container/main flex flex-1 flex-col gap-2">
             <ComingSoon 
-              featureName="VAKÁCIÓ"
+              featureName="TÁVOLLÉT"
               description="A diákok előre jelezhetik, ha nem tudnak részt venni a médiás tevékenységekben. Ez segíti a forgatások beosztását és a diákok tervezését."
               faqs={faqs}
               estimatedCompletion="2025. szeptember"

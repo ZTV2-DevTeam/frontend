@@ -218,8 +218,8 @@ const data = {
         icon: TableProperties,
       },
       {
-        name: "Vakáció",
-        url: "/app/vakacio",
+        name: "Távollét",
+        url: "/app/tavollet",
         icon: TreePalm,
       },
     ],
@@ -236,8 +236,8 @@ const data = {
         icon: Bird,
       },
       {
-        name: "Vakáció",
-        url: "/app/vakacio",
+        name: "Távollét",
+        url: "/app/tavollet",
         icon: TreePalm,
       },
     ],

@@ -23,7 +23,7 @@ const generalFeatures: Feature[] = [
   },
   {
     icon: Plane,
-    title: "Vakáció",
+    title: "Távollét",
     description: "Jelezd előre, ha nem leszel elérhető egy ideig (korábban Trello → Google Forms).",
   },
   {

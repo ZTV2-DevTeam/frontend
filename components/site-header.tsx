@@ -16,7 +16,7 @@ const routeToPageName: Record<string, string> = {
   "/segitseg": "Segítség",
   "/forgatasok": "Forgatások",
   "/beosztas": "Beosztás",
-  "/vakacio": "Vakáció",
+  "/tavollet": "Távollét",
   "/partnerek": "Partnerek",
   "/felszereles": "Felszerelés",
   "/igazolasok": "Igazolások",
