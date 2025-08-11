@@ -1,13 +1,11 @@
 "use client"
 
-import { useTheme as useNextTheme } from "next-themes"
 import { useTheme } from "@/contexts/theme-context"
-import { Sun, Moon, Monitor, Palette } from "lucide-react"
+import { Sun, Moon, Monitor, Palette, Check } from "lucide-react"
 import { useEffect, useState } from "react"
 
 export function ThemeSelector() {
-  const { theme, setTheme } = useNextTheme()
-  const { themeColor, setThemeColor } = useTheme()
+  const { themeColor, themeMode, setThemeColor, setThemeMode } = useTheme()
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
@@ -18,8 +16,8 @@ export function ThemeSelector() {
     return (
       <div className="flex flex-col items-center gap-4 text-muted-foreground">
         <div className="flex items-center gap-2 text-xs">
-          <Palette className="w-3 h-3" />
-          <span>Téma beállítások</span>
+          <Palette className="w-4 h-4" />
+          <span>Téma beállítások betöltése...</span>
         </div>
       </div>
     )
@@ -39,75 +37,95 @@ export function ThemeSelector() {
   ]
 
   return (
-    <div className="flex flex-col items-center gap-2 text-muted-foreground">
-      {/* Theme header */}
-      <div className="flex items-center gap-1 text-xs">
-        <Palette className="w-3 h-3" />
-        <span>Téma beállítások</span>
-      </div>
-
+    <div className="space-y-6">
       {/* Theme mode selector */}
-      <div className="flex items-center gap-1">
-        <span className="text-xs">Mód:</span>
-        <div className="flex p-0.5 border rounded-md border-border/50 bg-background/50">
+      <div className="space-y-3">
+        <div className="flex items-center gap-2 text-sm font-medium">
+          <Palette className="w-4 h-4" />
+          <span>Téma mód</span>
+        </div>
+        <div className="grid grid-cols-3 gap-2">
           <button
-            onClick={() => setTheme("light")}
-            className={`flex items-center gap-0.5 px-1.5 py-0.5 text-xs rounded transition-all ${
-              theme === "light"
-                ? "bg-primary text-primary-foreground shadow-sm"
-                : "hover:bg-muted-foreground/10"
+            onClick={() => setThemeMode("light")}
+            className={`flex flex-col items-center gap-2 p-3 border rounded-lg transition-all hover:bg-accent ${
+              themeMode === "light"
+                ? "border-primary bg-primary/5 text-primary"
+                : "border-border hover:border-border/80"
             }`}
             title="Világos téma"
           >
-            <Sun className="w-3 h-3" />
+            <Sun className="w-4 h-4" />
+            <span className="text-xs font-medium">Világos</span>
+            {themeMode === "light" && (
+              <Check className="w-3 h-3 text-primary" />
+            )}
           </button>
           <button
-            onClick={() => setTheme("dark")}
-            className={`flex items-center gap-0.5 px-1.5 py-0.5 text-xs rounded transition-all ${
-              theme === "dark"
-                ? "bg-primary text-primary-foreground shadow-sm"
-                : "hover:bg-muted-foreground/10"
+            onClick={() => setThemeMode("dark")}
+            className={`flex flex-col items-center gap-2 p-3 border rounded-lg transition-all hover:bg-accent ${
+              themeMode === "dark"
+                ? "border-primary bg-primary/5 text-primary"
+                : "border-border hover:border-border/80"
             }`}
             title="Sötét téma"
           >
-            <Moon className="w-3 h-3" />
+            <Moon className="w-4 h-4" />
+            <span className="text-xs font-medium">Sötét</span>
+            {themeMode === "dark" && (
+              <Check className="w-3 h-3 text-primary" />
+            )}
           </button>
           <button
-            onClick={() => setTheme("system")}
-            className={`flex items-center gap-0.5 px-1.5 py-0.5 text-xs rounded transition-all ${
-              theme === "system"
-                ? "bg-primary text-primary-foreground shadow-sm"
-                : "hover:bg-muted-foreground/10"
+            onClick={() => setThemeMode("system")}
+            className={`flex flex-col items-center gap-2 p-3 border rounded-lg transition-all hover:bg-accent ${
+              themeMode === "system"
+                ? "border-primary bg-primary/5 text-primary"
+                : "border-border hover:border-border/80"
             }`}
-            title="Rendszer téma"
+            title="Automatikus (rendszer beállítás szerint)"
           >
-            <Monitor className="w-3 h-3" />
+            <Monitor className="w-4 h-4" />
+            <span className="text-xs font-medium">Auto</span>
+            {themeMode === "system" && (
+              <Check className="w-3 h-3 text-primary" />
+            )}
           </button>
         </div>
       </div>
 
       {/* Color selector */}
-      <div className="flex flex-col items-center gap-1">
-        <span className="text-xs">Szín:</span>
-        <div className="flex flex-wrap justify-center max-w-md gap-1">
+      <div className="space-y-3">
+        <div className="flex items-center gap-2 text-sm font-medium">
+          <div 
+            className="w-4 h-4 rounded-full border-2 border-primary"
+            style={{ backgroundColor: themeColors.find(c => c.value === themeColor)?.color }}
+          />
+          <span>Szín téma</span>
+        </div>
+        <div className="grid grid-cols-5 gap-3">
           {themeColors.map((color) => (
             <button
               key={color.value}
               onClick={() => setThemeColor(color.value)}
-              className={`relative w-6 h-6 rounded-full border transition-all hover:scale-105 hover:shadow-md ${
+              className={`relative w-12 h-12 rounded-full border-2 transition-all hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${
                 themeColor === color.value
-                  ? "border-foreground shadow-md scale-105"
+                  ? "border-foreground shadow-lg scale-105"
                   : "border-border/30 hover:border-border"
               }`}
               style={{ backgroundColor: color.color }}
               title={color.name}
             >
               {themeColor === color.value && (
-                <div className="absolute border rounded-full inset-0.5 border-white/40 dark:border-black/40" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Check className="w-5 h-5 text-white drop-shadow-lg" />
+                </div>
               )}
             </button>
           ))}
         </div>
+        <p className="text-xs text-muted-foreground text-center">
+          Válassz egy színt a téma személyre szabásához
+        </p>
       </div>
     </div>
   )
