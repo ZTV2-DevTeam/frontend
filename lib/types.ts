@@ -175,7 +175,7 @@ export interface Show {
 export interface NavItem {
   name: string
   url: string
-  icon?: React.ComponentType<any>
+  icon?: React.ComponentType<{ className?: string }>
   external?: boolean
   isActive?: boolean
   items?: NavItem[]
