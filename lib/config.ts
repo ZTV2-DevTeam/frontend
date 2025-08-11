@@ -13,7 +13,7 @@ const getEnvironmentDefaults = () => {
       API_URL: 'https://api-staging.szlg.info',
       BACKEND_URL: 'https://api-staging.szlg.info',
       CONTACT_EMAIL: 'staging@szlgbp.hu',
-      ORG_NAME: 'ZTV2 Staging',
+      ORG_NAME: 'FTV Staging',
       WEBSITE_URL: 'https://staging.ftv.szlg.info',
       DEBUG: true,
       LOG_LEVEL: 'info'
@@ -23,7 +23,7 @@ const getEnvironmentDefaults = () => {
       API_URL: 'https://ftvapi.szlg.info',
       BACKEND_URL: 'https://ftvapi.szlg.info',
       CONTACT_EMAIL: 'balla.botond.23f@szlgbp.hu',
-      ORG_NAME: 'ZTV2',
+      ORG_NAME: 'FTV',
       WEBSITE_URL: 'https://ftv.szlg.info',
       DEBUG: false,
       LOG_LEVEL: 'error'
@@ -34,7 +34,7 @@ const getEnvironmentDefaults = () => {
       API_URL: 'http://localhost:8000',
       BACKEND_URL: 'http://localhost:8000',
       CONTACT_EMAIL: 'dev@szlgbp.hu',
-      ORG_NAME: 'ZTV2 Dev',
+      ORG_NAME: 'FTV Dev',
       WEBSITE_URL: 'http://localhost:3000',
       DEBUG: true,
       LOG_LEVEL: 'debug'

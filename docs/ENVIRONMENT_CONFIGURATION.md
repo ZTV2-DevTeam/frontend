@@ -1,6 +1,6 @@
 # Environment Configuration Guide
 
-This guide explains how to configure and use different environments (development, staging, production) with the ZTV2 frontend application.
+This guide explains how to configure and use different environments (development, staging, production) with the FTV frontend application.
 
 ## 🌍 Environment Overview
 

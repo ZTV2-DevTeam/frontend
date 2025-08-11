@@ -1,4 +1,4 @@
-# ZTV2 Frontend - Quick Reference Guide
+# FTV Frontend - Quick Reference Guide
 
 ## 🚀 Essential Commands
 
@@ -244,4 +244,4 @@ export default function MyForm() {
 
 ---
 
-*ZTV2 Frontend Quick Reference - Always up to date!*
+*FTV Frontend Quick Reference - Always up to date!*

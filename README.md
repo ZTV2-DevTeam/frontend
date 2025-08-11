@@ -1,13 +1,13 @@
-# ZTV2 Frontend
+# FTV Frontend
 
-Modern Next.js frontend application for the ZTV2 (Zeneiskola Tanár Videoalbum 2) project with comprehensive API integration and multi-environment support.
+Modern Next.js frontend application for the FTV (Zeneiskola Tanár Videoalbum 2) project with comprehensive API integration and multi-environment support.
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 - Node.js 18+ 
 - npm or yarn
-- ZTV2 Django backend running (for development)
+- FTV Django backend running (for development)
 
 ### Installation
 ```bash
@@ -96,7 +96,7 @@ frontend/
 ## 🔌 API Integration
 
 ### Complete Backend Integration
-- **91+ API Endpoints**: Full integration with ZTV2 Django backend
+- **91+ API Endpoints**: Full integration with FTV Django backend
 - **Type-Safe**: Complete TypeScript definitions for all API responses
 - **Authentication**: JWT-based auth with automatic token management
 - **Error Handling**: Comprehensive error handling and user feedback
@@ -199,7 +199,7 @@ NEXT_PUBLIC_DEBUG=false
 NEXT_PUBLIC_LOG_LEVEL=error
 
 # Organization
-NEXT_PUBLIC_ORG_NAME=ZTV2
+NEXT_PUBLIC_ORG_NAME=FTV
 NEXT_PUBLIC_CONTACT_EMAIL=balla.botond.23f@szlgbp.hu
 ```
 
@@ -345,6 +345,6 @@ rm -rf .next && npm run build
 
 ---
 
-**ZTV2 Frontend** - Built with Next.js, TypeScript, and modern web technologies.
+**FTV Frontend** - Built with Next.js, TypeScript, and modern web technologies.
 
 *Last updated: August 11, 2025*

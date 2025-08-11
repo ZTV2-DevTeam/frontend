@@ -1,8 +1,8 @@
-# ZTV2 Frontend Environment Configuration Documentation
+# FTV Frontend Environment Configuration Documentation
 
 ## 📋 Overview
 
-This document provides comprehensive guidance for configuring and managing different environments (development, staging, production) in the ZTV2 frontend application. The system automatically detects environments and configures backend connections, logging, and debugging features accordingly.
+This document provides comprehensive guidance for configuring and managing different environments (development, staging, production) in the FTV frontend application. The system automatically detects environments and configures backend connections, logging, and debugging features accordingly.
 
 ## 🎯 Quick Start
 
@@ -28,7 +28,7 @@ This document provides comprehensive guidance for configuring and managing diffe
 ## 📁 Configuration Files Structure
 
 ```
-ZTV2/frontend/
+FTV/frontend/
 ├── .env.local          # Development environment (gitignored)
 ├── .env.staging        # Staging environment (gitignored)
 ├── .env.production     # Production environment (gitignored)
@@ -64,7 +64,7 @@ ZTV2/frontend/
 | `NEXT_PUBLIC_DEVELOPER_EMAIL` | Developer contact | `balla.botond.23f@szlgbp.hu` |
 | `NEXT_PUBLIC_SUPPORT_EMAIL` | Support contact | `balla.botond.23f@szlgbp.hu` |
 | `NEXT_PUBLIC_EMERGENCY_CONTACT` | Emergency contact | `balla.botond.23f@szlgbp.hu` |
-| `NEXT_PUBLIC_ORG_NAME` | Organization name | `ZTV2` |
+| `NEXT_PUBLIC_ORG_NAME` | Organization name | `FTV` |
 | `NEXT_PUBLIC_WEBSITE_URL` | Website URL | `https://ftv.szlg.info` |
 
 ## 🚀 Usage Instructions
@@ -241,7 +241,7 @@ NEXT_PUBLIC_LOG_LEVEL=debug
 
 # Contact Information
 NEXT_PUBLIC_CONTACT_EMAIL=your-dev-email@domain.com
-NEXT_PUBLIC_ORG_NAME=ZTV2 Dev
+NEXT_PUBLIC_ORG_NAME=FTV Dev
 NEXT_PUBLIC_WEBSITE_URL=http://localhost:3000
 ```
 
@@ -256,7 +256,7 @@ NEXT_PUBLIC_LOG_LEVEL=info
 
 # Contact Information
 NEXT_PUBLIC_CONTACT_EMAIL=staging@szlgbp.hu
-NEXT_PUBLIC_ORG_NAME=ZTV2 Staging
+NEXT_PUBLIC_ORG_NAME=FTV Staging
 NEXT_PUBLIC_WEBSITE_URL=https://staging.ftv.szlg.info
 ```
 
@@ -271,7 +271,7 @@ NEXT_PUBLIC_LOG_LEVEL=error
 
 # Contact Information
 NEXT_PUBLIC_CONTACT_EMAIL=balla.botond.23f@szlgbp.hu
-NEXT_PUBLIC_ORG_NAME=ZTV2
+NEXT_PUBLIC_ORG_NAME=FTV
 NEXT_PUBLIC_WEBSITE_URL=https://ftv.szlg.info
 ```
 
@@ -469,4 +469,4 @@ For issues with environment configuration:
 ---
 
 *Last updated: August 11, 2025*
-*ZTV2 Frontend Environment Configuration v2.0*
+*FTV Frontend Environment Configuration v2.0*

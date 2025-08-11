@@ -1,8 +1,8 @@
-# ZTV2 Frontend API Client - Implementation Summary
+# FTV Frontend API Client - Implementation Summary
 
 ## 🎉 Complete API Client Implementation
 
-I've successfully created a comprehensive API client for your ZTV2 frontend application based on the complete OpenAPI specification you provided. Here's what was implemented:
+I've successfully created a comprehensive API client for your FTV frontend application based on the complete OpenAPI specification you provided. Here's what was implemented:
 
 ## 📁 Files Created/Updated
 

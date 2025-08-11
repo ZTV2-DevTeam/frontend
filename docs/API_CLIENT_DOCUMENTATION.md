@@ -1,6 +1,6 @@
-# ZTV2 API Client Documentation
+# FTV API Client Documentation
 
-This document provides comprehensive documentation for the ZTV2 Frontend API client, which is automatically generated from the OpenAPI specification.
+This document provides comprehensive documentation for the FTV Frontend API client, which is automatically generated from the OpenAPI specification.
 
 ## Table of Contents
 - [Overview](#overview)
@@ -14,7 +14,7 @@ This document provides comprehensive documentation for the ZTV2 Frontend API cli
 
 ## Overview
 
-The API client provides a complete TypeScript interface to the ZTV2 Backend API with:
+The API client provides a complete TypeScript interface to the FTV Backend API with:
 - Full type safety with TypeScript interfaces
 - Automatic JWT token management
 - Built-in error handling
