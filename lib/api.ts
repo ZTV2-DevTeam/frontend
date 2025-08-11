@@ -176,6 +176,85 @@ class ApiClient {
     return this.request(`/api/verify-reset-token/${token}`)
   }
 
+  // First Steps / Setup API methods
+  async getSetupStatus(): Promise<{ needs_setup: boolean, missing_configs?: string[] }> {
+    return this.request('/api/setup-status')
+  }
+
+  async saveSchoolYear(data: { start_date: string, end_date: string }): Promise<{ success: boolean }> {
+    return this.request('/api/setup/school-year', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async saveClasses(classes: Array<{ starting_year: number, section: string }>): Promise<{ success: boolean }> {
+    return this.request('/api/setup/classes', {
+      method: 'POST',
+      body: JSON.stringify({ classes }),
+    })
+  }
+
+  async saveStaffs(staffs: Array<{ name: string }>): Promise<{ success: boolean }> {
+    return this.request('/api/setup/staffs', {
+      method: 'POST',
+      body: JSON.stringify({ staffs }),
+    })
+  }
+
+  async saveStudents(students: Array<any>): Promise<{ success: boolean }> {
+    return this.request('/api/setup/students', {
+      method: 'POST',
+      body: JSON.stringify({ students }),
+    })
+  }
+
+  async saveTeachers(teachers: Array<any>): Promise<{ success: boolean }> {
+    return this.request('/api/setup/teachers', {
+      method: 'POST',
+      body: JSON.stringify({ teachers }),
+    })
+  }
+
+  async savePartners(partners: Array<any>): Promise<{ success: boolean }> {
+    return this.request('/api/setup/partners', {
+      method: 'POST',
+      body: JSON.stringify({ partners }),
+    })
+  }
+
+  async saveEquipment(equipment: Array<any>): Promise<{ success: boolean }> {
+    return this.request('/api/setup/equipment', {
+      method: 'POST',
+      body: JSON.stringify({ equipment }),
+    })
+  }
+
+  async completeSetup(settings: { email_notifications: boolean }): Promise<{ success: boolean }> {
+    return this.request('/api/setup/complete', {
+      method: 'POST',
+      body: JSON.stringify(settings),
+    })
+  }
+
+  async createTeacher(teacher: any): Promise<{ success: boolean, teacher_id: string }> {
+    return this.request('/api/setup/create-teacher', {
+      method: 'POST',
+      body: JSON.stringify(teacher),
+    })
+  }
+
+  async getTeacherRegistrationLink(teacherId: string): Promise<{ registration_link: string }> {
+    return this.request(`/api/setup/teacher-registration-link/${teacherId}`)
+  }
+
+  async sendStudentRegistrationEmails(classData: { class_year: number, class_section: string }): Promise<{ success: boolean, sent_count: number }> {
+    return this.request('/api/setup/send-student-emails', {
+      method: 'POST',
+      body: JSON.stringify(classData),
+    })
+  }
+
   // Generic API methods for custom routes
   async get<T = unknown>(route: string): Promise<T> {
     return this.request<T>(`/api/${route}`)
