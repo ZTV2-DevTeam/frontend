@@ -7,6 +7,7 @@ import {
 } from "@tabler/icons-react"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
+import { NavItem } from "@/lib/types"
 
 import {
   DropdownMenu,
@@ -67,7 +68,7 @@ export function NavCategory({
     window.open(adminUrl, '_blank')
   }
 
-  const handleItemClick = (item: any, e: React.MouseEvent) => {
+  const handleItemClick = (item: NavItem, e: React.MouseEvent) => {
     if (item.external) {
       e.preventDefault()
       window.open(item.url, '_blank')

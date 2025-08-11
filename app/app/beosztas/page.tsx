@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { AppSidebar } from "@/components/app-sidebar"
 import { SiteHeader } from "@/components/site-header"
+import { Assignment, AssignedStudent } from "@/lib/types"
 import {
   SidebarInset,
   SidebarProvider,
@@ -156,7 +157,7 @@ const getStudentStatusInfo = (status: string) => {
 export default function SchedulePage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
-  const [selectedAssignment, setSelectedAssignment] = useState<any>(null)
+  const [selectedAssignment, setSelectedAssignment] = useState<Assignment | null>(null)
 
   // Filter assignments
   const filteredAssignments = mockAssignments.filter(assignment => {
@@ -312,7 +313,7 @@ export default function SchedulePage() {
                           <div className="flex items-center gap-3">
                             <div className="flex items-center gap-2">
                               <h3 className="text-lg font-semibold">{assignment.shootingTitle}</h3>
-                              <Badge variant={statusInfo.variant as any}>
+                              <Badge variant={statusInfo.variant as "default" | "secondary" | "destructive" | "outline"}>
                                 <StatusIcon className="h-3 w-3 mr-1" />
                                 {statusInfo.label}
                               </Badge>
@@ -397,7 +398,7 @@ export default function SchedulePage() {
                                     </div>
                                   </div>
                                   <div className="flex items-center gap-2">
-                                    <Badge variant={studentStatusInfo.variant as any} className="text-xs">
+                                    <Badge variant={studentStatusInfo.variant as "default" | "secondary" | "destructive" | "outline"} className="text-xs">
                                       <StudentStatusIcon className="h-2 w-2 mr-1" />
                                       {studentStatusInfo.label}
                                     </Badge>
@@ -462,7 +463,7 @@ export default function SchedulePage() {
                               <Badge variant="outline" className="text-xs">
                                 {student.skills.slice(0, 2).join(', ')}
                               </Badge>
-                              <Badge variant={statusInfo.variant as any} className="text-xs">
+                              <Badge variant={statusInfo.variant as "default" | "secondary" | "destructive" | "outline"} className="text-xs">
                                 <StatusIcon className="h-2 w-2 mr-1" />
                                 {statusInfo.label}
                               </Badge>

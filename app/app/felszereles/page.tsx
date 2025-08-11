@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { AppSidebar } from "@/components/app-sidebar"
 import { SiteHeader } from "@/components/site-header"
+import { Equipment } from "@/lib/types"
 import {
   SidebarInset,
   SidebarProvider,
@@ -207,7 +208,7 @@ export default function EquipmentPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [categoryFilter, setCategoryFilter] = useState("all")
-  const [selectedEquipment, setSelectedEquipment] = useState<any>(null)
+  const [selectedEquipment, setSelectedEquipment] = useState<Equipment | null>(null)
 
   // Filter equipment
   const filteredEquipment = mockEquipment.filter(equipment => {
@@ -329,11 +330,11 @@ export default function EquipmentPage() {
                             </div>
                           </div>
                           <div className="flex flex-col gap-1">
-                            <Badge variant={statusInfo.variant as any} className="text-xs">
+                            <Badge variant={statusInfo.variant as "default" | "secondary" | "destructive" | "outline"} className="text-xs">
                               <StatusIcon className="h-2 w-2 mr-1" />
                               {statusInfo.label}
                             </Badge>
-                            <Badge variant={conditionInfo.variant as any} className="text-xs">
+                            <Badge variant={conditionInfo.variant as "default" | "secondary" | "destructive" | "outline"} className="text-xs">
                               {conditionInfo.label}
                             </Badge>
                           </div>

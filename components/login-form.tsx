@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
@@ -74,13 +75,13 @@ export function LoginForm({
                 <div className="grid gap-3">
                   <div className="flex items-center">
                     <Label htmlFor="password">Jelszó</Label>
-                    <a
+                    <Link
                       href="/elfelejtett_jelszo"
                       className="ml-auto text-sm underline-offset-4 hover:underline"
                       tabIndex={4}
                     >
                       Elfelejtett jelszó?
-                    </a>
+                    </Link>
                   </div>
                   <Input 
                     id="password" 

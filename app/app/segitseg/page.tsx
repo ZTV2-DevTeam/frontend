@@ -458,7 +458,7 @@ export default function HelpPage() {
                       </a>
                     </div>
                     <p className="text-sm mt-2">
-                      Sürgős esetben a tárgy sorában jelöld meg: "SÜRGŐS"
+                      Sürgős esetben a tárgy sorában jelöld meg: &quot;SÜRGŐS&quot;
                     </p>
                   </CardContent>
                 </Card>

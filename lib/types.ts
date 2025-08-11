@@ -101,7 +101,86 @@ export interface PaginatedResponse<T> {
   totalPages: number
 }
 
+// Assignment types
+export interface AssignmentRole {
+  role: string
+  needed: number
+  assigned: number
+}
+
+export interface AssignedStudent {
+  id: number
+  name: string
+  role: string
+  class: string
+  status: 'confirmed' | 'pending' | 'declined'
+  skills: string[]
+}
+
+export interface Assignment {
+  id: number
+  shootingId: number
+  shootingTitle: string
+  date: string
+  time: string
+  location: string
+  requiredRoles: AssignmentRole[]
+  assignedStudents: AssignedStudent[]
+  status: 'complete' | 'incomplete'
+  priority: 'low' | 'medium' | 'high'
+  autoAssigned: boolean
+}
+
+// Equipment types
+export interface Equipment {
+  id: number
+  name: string
+  category: string
+  status: 'available' | 'in-use' | 'maintenance' | 'broken'
+  location?: string
+  serialNumber?: string
+  assignedTo?: string
+  condition?: string
+}
+
+// Calendar Event types
+export interface CalendarEvent {
+  id: number
+  title: string
+  date: string
+  time?: string
+  type: string
+  description?: string
+  location?: string
+  status: string
+  participants: number
+  crew: string
+  organizer: string
+  equipment: string[]
+}
+
+// Show types for Kacsa page
+export interface Show {
+  id: number
+  title: string
+  type: string
+  status: string
+  thumbnail?: string
+  duration?: string
+  description?: string
+  createdAt: string
+}
+
+// Navigation types
+export interface NavItem {
+  name: string
+  url: string
+  icon?: React.ComponentType<any>
+  external?: boolean
+  isActive?: boolean
+  items?: NavItem[]
+}
+
 // You can add more types here for other endpoints like:
-// - Felszereles (Equipment)
 // - Igazolások (Certificates)
 // - etc.

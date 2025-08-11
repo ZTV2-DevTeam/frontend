@@ -1,8 +1,9 @@
-'use client'
+"use client"
 
 import { useState } from "react"
 import { AppSidebar } from "@/components/app-sidebar"
 import { SiteHeader } from "@/components/site-header"
+import { Forgatas } from "@/lib/types"
 import {
   SidebarInset,
   SidebarProvider,
@@ -265,7 +266,7 @@ export default function ShootingsPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [typeFilter, setTypeFilter] = useState("all")
-  const [selectedShooting, setSelectedShooting] = useState<any>(null)
+  const [selectedShooting, setSelectedShooting] = useState<Forgatas | null>(null)
 
   // Filter shootings
   const filteredShootings = mockShootings.filter(shooting => {
@@ -381,14 +382,14 @@ export default function ShootingsPage() {
                     <CardHeader className="pb-3">
                       <div className="flex items-start justify-between gap-2 mb-3">
                         <div className="flex gap-2">
-                          <Badge variant={statusInfo.variant as any} className="text-xs">
+                          <Badge variant={statusInfo.variant as "default" | "secondary" | "destructive" | "outline"} className="text-xs">
                             <StatusIcon className="h-3 w-3 mr-1" />
                             {statusInfo.label}
                           </Badge>
                           <Badge variant="outline" className="text-xs">
                             {shooting.type}
                           </Badge>
-                          <Badge variant={priorityInfo.variant as any} className="text-xs">
+                          <Badge variant={priorityInfo.variant as "default" | "secondary" | "destructive" | "outline"} className="text-xs">
                             {priorityInfo.label}
                           </Badge>
                         </div>

@@ -75,7 +75,7 @@ export function getModelDisplayName(modelPath: string): string {
 export interface DatabaseAdminMenuItem {
   name: string;
   modelPath: string;
-  icon: any; // React component for icon
+  icon: string; // Icon name as string
   category?: string;
   roles?: string[]; // Which user roles can access this
 }

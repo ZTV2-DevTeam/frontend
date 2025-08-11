@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { AppSidebar } from "@/components/app-sidebar"
 import { SiteHeader } from "@/components/site-header"
+import { Show } from "@/lib/types"
 import {
   SidebarInset,
   SidebarProvider,
@@ -190,7 +191,7 @@ export default function KacsaPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [typeFilter, setTypeFilter] = useState("all")
-  const [selectedShow, setSelectedShow] = useState<any>(null)
+  const [selectedShow, setSelectedShow] = useState<Show | null>(null)
 
   // Filter shows
   const filteredShows = mockShows.filter(show => {
@@ -366,7 +367,7 @@ export default function KacsaPage() {
                           </Button>
                         </div>
                         <div className="absolute top-3 left-3 flex gap-2">
-                          <Badge variant={statusInfo.variant as any}>
+                          <Badge variant={statusInfo.variant as "default" | "secondary" | "destructive" | "outline"}>
                             <StatusIcon className="h-3 w-3 mr-1" />
                             {statusInfo.label}
                           </Badge>

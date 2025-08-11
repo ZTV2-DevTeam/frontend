@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { AppSidebar } from "@/components/app-sidebar"
 import { SiteHeader } from "@/components/site-header"
+import { CalendarEvent } from "@/lib/types"
 import {
   SidebarInset,
   SidebarProvider,
@@ -158,7 +159,7 @@ const getStatusInfo = (status: string) => {
 export default function CalendarPage() {
   const [currentDate, setCurrentDate] = useState(new Date(2025, 0, 1)) // January 2025
   const [selectedView, setSelectedView] = useState("month")
-  const [selectedEvent, setSelectedEvent] = useState<any>(null)
+  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null)
 
   // Generate calendar days
   const generateCalendarDays = () => {
@@ -423,7 +424,7 @@ export default function CalendarPage() {
                                 <div className="flex-1 space-y-1">
                                   <div className="flex items-center gap-2">
                                     <h3 className="font-semibold">{event.title}</h3>
-                                    <Badge variant={statusInfo.variant as any}>
+                                    <Badge variant={statusInfo.variant as "default" | "secondary" | "destructive" | "outline"}>
                                       {statusInfo.label}
                                     </Badge>
                                   </div>
