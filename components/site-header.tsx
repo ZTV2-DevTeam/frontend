@@ -9,7 +9,6 @@ import { SidebarTrigger } from "@/components/ui/sidebar"
 const routeToPageName: Record<string, string> = {
   "/iranyitopult": "Irányítópult",
   "/uzenofal": "Üzenőfal",
-  "/analitika": "Analitika",
   "/stab": "Stáb",
   "/naptar": "Naptár",
   "/beallitasok": "Beállítások",

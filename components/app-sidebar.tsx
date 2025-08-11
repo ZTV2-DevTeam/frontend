@@ -116,11 +116,6 @@ const data = {
         icon: Mail,
       },
       {
-        title: "Analitika",
-        url: "/app/analitika",
-        icon: IconChartBar,
-      },
-      {
         title: "Stáb",
         url: "/app/stab",
         icon: IconUsers,

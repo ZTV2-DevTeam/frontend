@@ -315,7 +315,6 @@ export default function KacsaPage() {
                 <TabsTrigger value="published">Publikálva</TabsTrigger>
                 <TabsTrigger value="scheduled">Ütemezve</TabsTrigger>
                 <TabsTrigger value="production">Gyártás alatt</TabsTrigger>
-                <TabsTrigger value="analytics">Analitika</TabsTrigger>
               </TabsList>
 
               <div className="flex gap-4">
@@ -586,105 +585,6 @@ export default function KacsaPage() {
                           </div>
                         </div>
                       ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="analytics" className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-3">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <TrendingUp className="h-5 w-5" />
-                      Népszerű kategóriák
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      {[
-                        { name: 'Hírműsor', views: 8547, percentage: 35 },
-                        { name: 'Zene', views: 6234, percentage: 28 },
-                        { name: 'Interjú', views: 4521, percentage: 20 },
-                        { name: 'Gasztronómia', views: 3012, percentage: 17 }
-                      ].map(category => (
-                        <div key={category.name} className="space-y-1">
-                          <div className="flex justify-between text-sm">
-                            <span>{category.name}</span>
-                            <span>{category.views.toLocaleString()}</span>
-                          </div>
-                          <div className="w-full bg-secondary rounded-full h-2">
-                            <div 
-                              className="bg-primary h-2 rounded-full transition-all duration-1000" 
-                              style={{ width: `${category.percentage}%` }}
-                            />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <BarChart3 className="h-5 w-5" />
-                      Top műsorvezetők
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      {[
-                        { name: 'Nagy Petra', shows: 8, views: 12547 },
-                        { name: 'Farkas Dávid', shows: 6, views: 9234 },
-                        { name: 'Tóth Márton', shows: 5, views: 7821 },
-                        { name: 'Molnár Lilla', shows: 4, views: 5432 }
-                      ].map(presenter => (
-                        <div key={presenter.name} className="flex items-center justify-between p-2 rounded-lg hover:bg-accent">
-                          <div>
-                            <div className="font-medium">{presenter.name}</div>
-                            <div className="text-sm text-muted-foreground">{presenter.shows} műsor</div>
-                          </div>
-                          <div className="text-right">
-                            <div className="font-medium">{presenter.views.toLocaleString()}</div>
-                            <div className="text-xs text-muted-foreground">megtekintés</div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Eye className="h-5 w-5" />
-                      Havi statisztika
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div className="text-center">
-                        <div className="text-2xl font-bold">{stats.totalViews.toLocaleString()}</div>
-                        <div className="text-sm text-muted-foreground">összes megtekintés</div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-4 text-center">
-                        <div>
-                          <div className="text-lg font-semibold">{stats.totalLikes}</div>
-                          <div className="text-xs text-muted-foreground">like</div>
-                        </div>
-                        <div>
-                          <div className="text-lg font-semibold">{mockShows.reduce((sum, show) => sum + show.comments, 0)}</div>
-                          <div className="text-xs text-muted-foreground">komment</div>
-                        </div>
-                      </div>
-                      <div className="pt-3 border-t">
-                        <div className="flex items-center justify-center gap-2 text-green-600">
-                          <TrendingUp className="h-4 w-4" />
-                          <span className="text-sm font-medium">+12% növekedés</span>
-                        </div>
-                      </div>
                     </div>
                   </CardContent>
                 </Card>

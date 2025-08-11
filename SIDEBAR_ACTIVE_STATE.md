@@ -56,7 +56,6 @@ Current menu structure with URLs:
 #### Main Navigation
 - Irányítópult → `/iranyitopult`
 - Üzenőfal → `/uzenofal`
-- Analitika → `/analitika`
 - Stáb → `/stab`
 - Naptár → `/naptar`
 

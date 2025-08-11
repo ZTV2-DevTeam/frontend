@@ -179,11 +179,11 @@ export default function HelpPage() {
         items: [
           {
             question: "Hogyan követhetem figyelemmel a diákok részvételét?",
-            answer: "A naptár és analitika menüpontokban láthatod a diákok aktivitását és részvételi statisztikáit."
+            answer: "A naptár menüpontban láthatod a diákok aktivitását és részvételi statisztikáit."
           },
           {
             question: "Hogyan készítek jelentést a diákok teljesítményéről?",
-            answer: "Az analitika felületen generálhatsz részletes jelentéseket az osztályod aktivitásáról."
+            answer: "A naptár és egyéb menüpontokon keresztül követheted nyomon az osztályod aktivitását."
           }
         ]
       },

@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { AppSidebar } from "@/components/app-sidebar";
+import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -15,9 +16,7 @@ import {
   MessageCircle, 
   Share2, 
   Filter,
-  Calendar,
   User,
-  Building,
   BellDot,
   Plus,
   Megaphone
@@ -41,10 +40,18 @@ export default function MessageBoardPage() {
 
   if (loading) {
     return (
-      <SidebarProvider>
-        <AppSidebar />
+      <SidebarProvider
+        style={
+          {
+            "--sidebar-width": "calc(var(--spacing) * 72)",
+            "--header-height": "calc(var(--spacing) * 12)",
+          } as React.CSSProperties
+        }
+      >
+        <AppSidebar variant="inset" />
         <SidebarInset>
-          <div className="p-6">
+          <SiteHeader />
+          <div className="flex-1 space-y-4 p-4 md:p-6">
             <div className="text-center">Betöltés...</div>
           </div>
         </SidebarInset>
@@ -54,10 +61,18 @@ export default function MessageBoardPage() {
 
   if (error) {
     return (
-      <SidebarProvider>
-        <AppSidebar />
+      <SidebarProvider
+        style={
+          {
+            "--sidebar-width": "calc(var(--spacing) * 72)",
+            "--header-height": "calc(var(--spacing) * 12)",
+          } as React.CSSProperties
+        }
+      >
+        <AppSidebar variant="inset" />
         <SidebarInset>
-          <div className="p-6">
+          <SiteHeader />
+          <div className="flex-1 space-y-4 p-4 md:p-6">
             <div className="text-center text-red-500">
               Hiba történt az adatok betöltésekor: {error}
             </div>
@@ -128,67 +143,35 @@ export default function MessageBoardPage() {
   }
 
   return (
-    <SidebarProvider>
-      <AppSidebar />
+    <SidebarProvider
+      style={
+        {
+          "--sidebar-width": "calc(var(--spacing) * 72)",
+          "--header-height": "calc(var(--spacing) * 12)",
+        } as React.CSSProperties
+      }
+    >
+      <AppSidebar variant="inset" />
       <SidebarInset>
-        <div className="p-6 space-y-6">
+        <SiteHeader />
+        <div className="flex-1 space-y-4 p-4 md:p-6">
+          {/* Header */}
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold">Üzenőfal</h1>
-              <p className="text-muted-foreground">Közlemények és bejelentések</p>
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-primary rounded-lg">
+                <Megaphone className="h-5 w-5 text-primary-foreground" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold">Üzenőfal</h1>
+                <p className="text-muted-foreground">
+                  Közlemények és bejelentések
+                </p>
+              </div>
             </div>
             <Button>
               <Plus className="h-4 w-4 mr-2" />
               Új közlemény
             </Button>
-          </div>
-
-          {/* Statistics Cards */}
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Összes közlemény</CardTitle>
-                <Megaphone className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{announcementsArray.length}</div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Nyilvános</CardTitle>
-                <Building className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {announcementsArray.filter(a => !a.is_targeted).length}
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Célzott</CardTitle>
-                <User className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {announcementsArray.filter(a => a.is_targeted).length}
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Mai közlemények</CardTitle>
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {announcementsArray.filter(a => 
-                    new Date(a.created_at).toDateString() === new Date().toDateString()
-                  ).length}
-                </div>
-              </CardContent>
-            </Card>
           </div>
 
           {/* Filters */}

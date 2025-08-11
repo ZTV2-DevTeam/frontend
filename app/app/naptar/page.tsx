@@ -9,8 +9,6 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { 
   Calendar,
   Plus,
@@ -20,34 +18,23 @@ import {
   MapPin,
   Users,
   Video,
-  Camera,
-  Megaphone,
-  AlertCircle,
-  Filter,
-  CalendarDays,
-  List,
-  Grid3x3
+  Camera
 } from "lucide-react"
 import { useApiQuery } from "@/lib/api-helpers"
-import { ForgatSchema, AnnouncementSchema } from "@/lib/types"
+import { ForgatSchema } from "@/lib/types"
 import { apiClient } from "@/lib/api"
 import { ApiError } from "@/components/api-error"
 
 export default function CalendarPage() {
   const [selectedDate, setSelectedDate] = useState(new Date())
   const [viewMode, setViewMode] = useState<"month" | "week" | "list">("month")
-  const [eventTypeFilter, setEventTypeFilter] = useState<string>("all")
   
-  // Fetch data from API
+  // Fetch only filming data from API
   const { data: filmingData = [], loading: filmingLoading, error: filmingError } = useApiQuery(
     () => apiClient.getFilmingSessions()
   )
-  
-  const { data: announcementsData = [], loading: announcementsLoading, error: announcementsError } = useApiQuery(
-    () => apiClient.getAnnouncements()
-  )
 
-  if (filmingLoading || announcementsLoading) {
+  if (filmingLoading) {
     return (
       <SidebarProvider>
         <AppSidebar />
@@ -60,16 +47,15 @@ export default function CalendarPage() {
     )
   }
 
-  if (filmingError || announcementsError) {
-    const error = filmingError || announcementsError || 'Ismeretlen hiba történt'
+  if (filmingError) {
     return (
       <SidebarProvider>
         <AppSidebar />
         <SidebarInset>
           <div className="p-6">
             <ApiError 
-              error={error}
-              title="Hiba a forgatások és közlemények betöltésekor"
+              error={filmingError}
+              title="Hiba a forgatások betöltésekor"
               onRetry={() => window.location.reload()}
             />
           </div>
@@ -78,7 +64,7 @@ export default function CalendarPage() {
     )
   }
 
-  // Transform API data into calendar events
+  // Transform API data into calendar events - only filming sessions
   const filmingSessions = (filmingData as ForgatSchema[]).map((session: ForgatSchema) => ({
     id: `filming-${session.id}`,
     title: session.name,
@@ -93,53 +79,18 @@ export default function CalendarPage() {
     typeDisplay: session.type_display
   }))
 
-  const announcements = (announcementsData as AnnouncementSchema[]).map((announcement: AnnouncementSchema) => ({
-    id: `announcement-${announcement.id}`,
-    title: announcement.title,
-    date: announcement.created_at.split('T')[0],
-    time: "Egész nap",
-    location: "Online",
-    type: "announcement",
-    status: "published",
-    description: announcement.body,
-    organizer: announcement.author?.full_name || "Rendszer",
-    participants: announcement.recipient_count,
-    typeDisplay: "Közlemény"
-  }))
-
-  const allEvents = [...filmingSessions, ...announcements]
-
-  // Filter events based on type
-  const filteredEvents = eventTypeFilter === "all" 
-    ? allEvents 
-    : allEvents.filter(event => event.type === eventTypeFilter)
-
-  // Get events for today and upcoming
+  // Get events for today and upcoming - only filming sessions
   const today = new Date().toISOString().split('T')[0]
-  const upcomingEvents = filteredEvents
+  const upcomingEvents = filmingSessions
     .filter(event => event.date >= today)
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
 
   const getEventIcon = (type: string) => {
-    switch (type) {
-      case 'filming':
-        return <Video className="h-4 w-4" />
-      case 'announcement':
-        return <Megaphone className="h-4 w-4" />
-      default:
-        return <Calendar className="h-4 w-4" />
-    }
+    return <Video className="h-4 w-4" />
   }
 
   const getEventBadgeColor = (type: string) => {
-    switch (type) {
-      case 'filming':
-        return 'bg-blue-100 text-blue-800 border-blue-200'
-      case 'announcement':
-        return 'bg-green-100 text-green-800 border-green-200'
-      default:
-        return 'bg-gray-100 text-gray-800 border-gray-200'
-    }
+    return 'bg-blue-100 text-blue-800 border-blue-200'
   }
 
   return (
@@ -149,82 +100,30 @@ export default function CalendarPage() {
         <div className="p-6 space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold">Naptár</h1>
+              <h1 className="text-3xl font-bold">Forgatási Naptár</h1>
               <p className="text-muted-foreground">Forgások és események kezelése</p>
             </div>
             <div className="flex items-center gap-4">
-              <Select value={eventTypeFilter} onValueChange={setEventTypeFilter}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Esemény típusa" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Minden esemény</SelectItem>
-                  <SelectItem value="filming">Forgások</SelectItem>
-                  <SelectItem value="announcement">Közlemények</SelectItem>
-                </SelectContent>
-              </Select>
               <Button>
                 <Plus className="h-4 w-4 mr-2" />
-                Új esemény
+                Új forgatás
               </Button>
             </div>
-          </div>
-
-          {/* Statistics Cards */}
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Összes esemény</CardTitle>
-                <CalendarDays className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{filteredEvents.length}</div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Forgások</CardTitle>
-                <Video className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{filmingSessions.length}</div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Közlemények</CardTitle>
-                <Megaphone className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{announcements.length}</div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Mai események</CardTitle>
-                <Clock className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {filteredEvents.filter(event => event.date === today).length}
-                </div>
-              </CardContent>
-            </Card>
           </div>
 
           {/* Events List */}
           <Card>
             <CardHeader>
-              <CardTitle>Közelgő események</CardTitle>
+              <CardTitle>Közelgő forgások</CardTitle>
               <CardDescription>
-                A következő események és forgások időrendi sorrendben
+                A következő forgások időrendi sorrendben
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 {upcomingEvents.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">
-                    Nincsenek közelgő események.
+                    Nincsenek közelgő forgások.
                   </div>
                 ) : (
                   upcomingEvents.slice(0, 10).map((event) => (
