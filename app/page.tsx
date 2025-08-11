@@ -12,7 +12,7 @@ import { useRouter } from "next/navigation"
 import { useEffect } from "react"
 
 export default function LandingPage() {
-  const launchDate = new Date("2025-09-01T12:00:00")
+  const launchDate = new Date("2025-08-11T12:00:00")
   const { isAuthenticated, isLoading } = useAuth()
   const router = useRouter()
 
@@ -50,7 +50,7 @@ export default function LandingPage() {
       </header>
 
       <main className="flex flex-col items-center justify-center px-4 text-center h-dvh x-1">
-        <h1 className="text-4xl font-extrabold leading-tight tracking-tighter sm:text-5xl md:text-6xl lg:text-7xl">
+        <h1 className="text-4xl -mt-20 font-extrabold leading-tight tracking-tighter sm:text-5xl md:text-6xl lg:text-7xl">
           viszlát ztv.
           <br />
           Helló FTV!
@@ -58,8 +58,6 @@ export default function LandingPage() {
         <p className="max-w-2xl mt-6 text-lg md:text-xl text-muted-foreground">
           Az új generációs platform a zökkenőmentes forgatásszervezéshez
         </p>
-
-        <CountdownTimer targetDate={launchDate} />
       </main>
 
       <FeaturesSection />
