@@ -26,7 +26,6 @@ import {
   TrendingUp,
   AlertCircle,
   Target,
-  LogIn,
   ExternalLink,
   Activity,
   Zap,
@@ -90,9 +89,9 @@ function getDynamicWelcomeMessage(firstName: string = 'Felhasználó'): string {
 }
 
 // Admin Widget Components - Database Admin Style
-function LatestLoginsWidget() {
-  const { data: loginData, loading, error } = useApiQuery(
-    () => apiClient.getAllUsers()
+function ActiveUsersWidget() {
+  const { data: usersData, loading, error } = useApiQuery(
+    () => apiClient.getAllUsersDetailed()
   )
 
   if (loading) {
@@ -112,7 +111,7 @@ function LatestLoginsWidget() {
           <AlertCircle className="h-8 w-8 text-destructive" />
           <div className="text-center">
             <p className="text-destructive font-medium">
-              Hiba a felhasználók betöltésekor
+              Hiba az aktív felhasználók betöltésekor
             </p>
             <p className="text-sm text-muted-foreground mt-1">
               {error}
@@ -133,49 +132,170 @@ function LatestLoginsWidget() {
     )
   }
 
-  const users = loginData || []
+  const users = usersData || []
+  
+  // Get current date for activity calculations
+  const now = new Date()
+  const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000)
+  const last24Hours = new Date(now.getTime() - 24 * 60 * 60 * 1000)
+  
+  // Get top 5 active users by last login time
+  // Sort all users by last_login (most recent first), filter out users without login, and take top 5
+  const topActiveUsers = users
+    .filter((user: any) => user.last_login) // Only users who have logged in
+    .sort((a: any, b: any) => {
+      return new Date(b.last_login).getTime() - new Date(a.last_login).getTime()
+    })
+    .slice(0, 5) // Get top 5
+
+  // Count users active in different time periods
+  const activeNowCount = users.filter((user: any) => {
+    if (!user.last_login) return false
+    const lastLogin = new Date(user.last_login)
+    return lastLogin >= fiveMinutesAgo
+  }).length
+
+  const activeTodayCount = users.filter((user: any) => {
+    if (!user.last_login) return false
+    const lastLogin = new Date(user.last_login)
+    return lastLogin >= last24Hours
+  }).length
+
+  // Format last login time
+  const formatLastLogin = (lastLogin: string) => {
+    const loginDate = new Date(lastLogin)
+    const diffMs = now.getTime() - loginDate.getTime()
+    const diffMinutes = Math.floor(diffMs / (1000 * 60))
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
+
+    if (diffMinutes < 1) return 'most'
+    if (diffMinutes < 60) return `${diffMinutes} perce`
+    if (diffHours < 24) return `${diffHours} órája`
+    if (diffDays === 1) return 'tegnap'
+    return `${diffDays} napja`
+  }
+
+  // Get user role display
+  const getUserRoleDisplay = (user: any) => {
+    if (user.admin_type === 'system') return 'Admin'
+    if (user.admin_type === 'teacher') return 'Tanár'
+    if (user.special_role === 'class_teacher') return 'Osztályfőnök'
+    return 'Diák'
+  }
+
+  // Check if user is currently active (last login within 5 minutes)
+  const isCurrentlyActive = (user: any) => {
+    if (!user.last_login) return false
+    const lastLogin = new Date(user.last_login)
+    return lastLogin >= fiveMinutesAgo
+  }
+
+  // Get activity status with more precise timing
+  const getActivityStatus = (user: any) => {
+    if (!user.last_login) return { status: 'offline', color: 'text-gray-500', bgColor: 'bg-gray-500' }
+    
+    const lastLogin = new Date(user.last_login)
+    const diffMs = now.getTime() - lastLogin.getTime()
+    const diffMinutes = diffMs / (1000 * 60)
+    const diffHours = diffMs / (1000 * 60 * 60)
+    
+    if (diffMinutes <= 5) return { status: 'online', color: 'text-green-500', bgColor: 'bg-green-500' }
+    if (diffHours < 1) return { status: 'recent', color: 'text-blue-500', bgColor: 'bg-blue-500' }
+    if (diffHours < 24) return { status: 'today', color: 'text-yellow-500', bgColor: 'bg-yellow-500' }
+    return { status: 'offline', color: 'text-gray-500', bgColor: 'bg-gray-500' }
+  }
 
   return (
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <LogIn className="h-5 w-5 text-muted-foreground" />
-            <CardTitle>Aktív felhasználók</CardTitle>
+            <Users className="h-5 w-5 text-muted-foreground" />
+            <CardTitle>Aktív Felhasználók</CardTitle>
           </div>
           <Badge variant="outline" className="text-xs">
-            {users.length} felhasználó
+            {topActiveUsers.length}/5
           </Badge>
         </div>
-        <CardDescription>Regisztrált felhasználók</CardDescription>
+        <CardDescription>Legutóbbi bejelentkezések alapján rendezve</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="space-y-1">
-          {users.slice(0, 3).map((user: any, index: number) => (
-            <div key={user.id || index} className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent cursor-pointer transition-colors">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center text-xs font-medium">
-                  {user.first_name?.charAt(0) || '?'}
+        {topActiveUsers.length > 0 ? (
+          <div className="space-y-1">
+            {topActiveUsers.map((user: any, index: number) => {
+              const activity = getActivityStatus(user)
+              const isActive = isCurrentlyActive(user)
+              
+              return (
+                <div key={user.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent cursor-pointer transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className="relative">
+                      <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center text-xs font-medium">
+                        {user.first_name?.charAt(0) || '?'}
+                      </div>
+                      <div className={`absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-background ${activity.bgColor}`} />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-muted-foreground">#{index + 1}</span>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium">{user.full_name || `${user.first_name} ${user.last_name}`}</span>
+                          {isActive && (
+                            <Badge variant="default" className="text-xs bg-green-500">
+                              ONLINE
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground mt-0.5">
+                          <span>{getUserRoleDisplay(user)}</span>
+                          <span>•</span>
+                          <span>{formatLastLogin(user.last_login)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center text-muted-foreground">
+                    <Badge 
+                      variant="outline" 
+                      className={`text-xs mr-2 ${activity.color}`}
+                    >
+                      {activity.status === 'online' ? 'Aktív' : 
+                       activity.status === 'recent' ? 'Nemrég' : 
+                       activity.status === 'today' ? 'Ma' : 'Offline'}
+                    </Badge>
+                    <ExternalLink className="h-4 w-4" />
+                  </div>
                 </div>
-                <div>
-                  <span className="font-medium">{user.first_name} {user.last_name}</span>
-                  <p className="text-sm text-muted-foreground">{user.email}</p>
-                </div>
+              )
+            })}
+          </div>
+        ) : (
+          <div className="text-center py-8">
+            <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <p className="text-muted-foreground">Nincs bejelentkezett felhasználó</p>
+          </div>
+        )}
+        
+        <div className="mt-4 grid grid-cols-2 gap-3">
+          <div className="p-3 border rounded-lg bg-green-50 dark:bg-green-950/30">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Activity className="h-4 w-4 text-green-600" />
+                <span className="text-sm font-medium">Aktív most</span>
               </div>
-              <div className="flex items-center text-muted-foreground">
-                <span className="text-sm mr-2">{user.role || 'student'}</span>
-                <ExternalLink className="h-4 w-4" />
+              <span className="text-sm font-bold text-green-600">{activeNowCount}</span>
+            </div>
+          </div>
+          
+          <div className="p-3 border rounded-lg bg-blue-50 dark:bg-blue-950/30">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Clock className="h-4 w-4 text-blue-600" />
+                <span className="text-sm font-medium">Ma aktív</span>
               </div>
+              <span className="text-sm font-bold text-blue-600">{activeTodayCount}</span>
             </div>
-          ))}
-        </div>
-        <div className="mt-4 p-3 border rounded-lg bg-muted/50">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Activity className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm font-medium">Regisztrált felhasználók</span>
-            </div>
-            <span className="text-sm text-muted-foreground">{users.length} összesen</span>
           </div>
         </div>
       </CardContent>
@@ -615,17 +735,20 @@ export default function Page() {
     switch (currentRole) {
       case 'admin':
         return (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            <div className="col-span-1 lg:col-span-2">
-              <LatestLoginsWidget />
+          <>
+            {/* Quick Actions at the top */}
+            <QuickActionsWidget />
+            
+            {/* Main widgets grid */}
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              <div className="col-span-1 lg:col-span-2">
+                <ActiveUsersWidget />
+              </div>
+              <div className="col-span-1">
+                <PendingForgatásokWidget />
+              </div>
             </div>
-            <div className="col-span-1 lg:col-span-2">
-              <PendingForgatásokWidget />
-            </div>
-            <div className="col-span-full">
-              <QuickActionsWidget />
-            </div>
-          </div>
+          </>
         )
 
       case 'student':

@@ -6,6 +6,13 @@ import { ThemeProvider as ColorThemeProvider } from "@/contexts/theme-context";
 import { UserRoleProvider } from "@/contexts/user-role-context";
 import { AuthProvider } from "@/contexts/auth-context";
 import { GlobalErrorHandler } from "@/components/global-error-handler";
+import { ConsoleDebugger } from "@/components/console-debugger";
+import { ConsoleErrorFilter } from "@/lib/console-error-filter";
+
+// Initialize console error filter in development
+if (process.env.NODE_ENV === 'development' && typeof window !== 'undefined') {
+  ConsoleErrorFilter.init();
+}
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,6 +40,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <GlobalErrorHandler />
+        <ConsoleDebugger />
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <ColorThemeProvider>
             <AuthProvider>
