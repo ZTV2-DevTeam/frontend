@@ -480,14 +480,21 @@ class ApiClient {
 
   constructor(baseUrl: string) {
     this.baseUrl = baseUrl
-    this.token = this.getStoredToken()
+    // Initialize token as null, will be set when getStoredToken is called
+    this.token = null
+    // Only get stored token in browser environment
+    if (typeof window !== 'undefined') {
+      this.token = this.getStoredToken()
+    }
   }
 
   private getStoredToken(): string | null {
     if (typeof window !== 'undefined') {
       // Try localStorage first
       const localToken = localStorage.getItem('jwt_token')
-      if (localToken) return localToken
+      if (localToken && localToken.trim() !== '' && localToken !== 'null') {
+        return localToken.trim()
+      }
       
       // Fallback to cookies
       const cookieToken = document.cookie
@@ -495,7 +502,9 @@ class ApiClient {
         .find(cookie => cookie.trim().startsWith('jwt_token='))
         ?.split('=')[1]
       
-      return cookieToken || null
+      if (cookieToken && cookieToken.trim() !== '' && cookieToken !== 'null') {
+        return decodeURIComponent(cookieToken.trim())
+      }
     }
     return null
   }
@@ -503,10 +512,11 @@ class ApiClient {
   setToken(token: string | null) {
     this.token = token
     if (typeof window !== 'undefined') {
-      if (token) {
-        localStorage.setItem('jwt_token', token)
-        // Also set as httpOnly cookie for middleware
-        document.cookie = `jwt_token=${token}; path=/; max-age=${7 * 24 * 60 * 60}; secure; samesite=strict`
+      if (token && token.trim() !== '') {
+        const cleanToken = token.trim()
+        localStorage.setItem('jwt_token', cleanToken)
+        // Also set as httpOnly cookie for middleware - encode properly
+        document.cookie = `jwt_token=${encodeURIComponent(cleanToken)}; path=/; max-age=${7 * 24 * 60 * 60}; secure; samesite=strict`
       } else {
         localStorage.removeItem('jwt_token')
         // Remove cookie
@@ -525,8 +535,14 @@ class ApiClient {
       ...(options.headers as Record<string, string>),
     }
 
-    if (this.token) {
-      headers.Authorization = `Bearer ${this.token}`
+    if (this.token && this.token.trim() !== '') {
+      const cleanToken = this.token.trim()
+      // Ensure we don't double-add 'Bearer' prefix
+      if (cleanToken.startsWith('Bearer ')) {
+        headers.Authorization = cleanToken
+      } else {
+        headers.Authorization = `Bearer ${cleanToken}`
+      }
     }
 
     // Log API calls in development/staging
@@ -535,7 +551,9 @@ class ApiClient {
         method: options.method || 'GET',
         url,
         baseUrl: this.baseUrl,
-        headers: DEBUG_CONFIG.ENABLED ? headers : '[hidden]',
+        hasAuthHeader: !!headers.Authorization,
+        authHeaderPreview: headers.Authorization ? `${headers.Authorization.substring(0, 20)}...` : 'none',
+        headers: DEBUG_CONFIG.ENABLED ? { ...headers, Authorization: headers.Authorization ? '[PRESENT]' : '[MISSING]' } : '[hidden]',
         body: options.body ? JSON.parse(options.body as string) : undefined
       })
     }
@@ -572,6 +590,69 @@ class ApiClient {
           })
         }
 
+        // Handle specific error cases
+        if (response.status === 401) {
+          // First, try to refresh token from storage in case it was updated elsewhere
+          const refreshedToken = this.refreshTokenFromStorage()
+          
+          if (DEBUG_CONFIG.ENABLED) {
+            console.warn('🔄 401 Error - attempting token refresh:', {
+              hadToken: !!this.token,
+              refreshedToken: !!refreshedToken,
+              tokenChanged: this.token !== refreshedToken
+            })
+          }
+          
+          // If token changed, retry the request once
+          if (refreshedToken && refreshedToken !== this.token) {
+            console.log('🔄 Retrying request with refreshed token')
+            headers.Authorization = refreshedToken.startsWith('Bearer ') ? refreshedToken : `Bearer ${refreshedToken}`
+            
+            const retryResponse = await fetch(url, {
+              ...options,
+              headers,
+            })
+            
+            if (retryResponse.ok) {
+              const data = await retryResponse.json()
+              if (DEBUG_CONFIG.ENABLED && DEBUG_CONFIG.LOG_LEVEL === 'debug') {
+                console.log(`✅ API Retry Success:`, { url, data })
+              }
+              return data
+            }
+          }
+          
+          // Check if this is a public endpoint that shouldn't require auth
+          const publicEndpoints = [
+            '/api/hello',
+            '/api/test-auth', 
+            '/api/partners',
+            '/api/filming-sessions/types',
+            '/api/first-login/verify-token',
+            '/api/first-login/set-password',
+            '/api/config/status'
+          ]
+          
+          const isPublicEndpoint = publicEndpoints.some(publicPath => 
+            endpoint.startsWith(publicPath)
+          )
+          
+          if (isPublicEndpoint) {
+            // For public endpoints, don't clear token and use specific error message
+            throw new Error(errorData.message || 'Hitelesítési hiba történt.')
+          } else {
+            // For protected endpoints, clear invalid token
+            this.setToken(null)
+            throw new Error('A munkamenet lejárt. Kérjük, jelentkezzen be újra.')
+          }
+        } else if (response.status === 403) {
+          throw new Error('Nincs jogosultsága ehhez a művelethez.')
+        } else if (response.status === 404) {
+          throw new Error('A kért erőforrás nem található.')
+        } else if (response.status >= 500) {
+          throw new Error('Szerverhiba történt. Kérjük, próbálja újra később.')
+        }
+
         throw new Error(errorData.message || 'API request failed')
       }
 
@@ -579,7 +660,7 @@ class ApiClient {
       
       // Log successful response data in debug mode
       if (DEBUG_CONFIG.ENABLED && DEBUG_CONFIG.LOG_LEVEL === 'debug') {
-        console.log(`✅ API Success:`, { url, data })
+        console.log(`✅ API Success:`, { url, data, isEmpty: Array.isArray(data) && data.length === 0 })
       }
 
       return data
@@ -618,25 +699,122 @@ class ApiClient {
   }
 
   async login(credentials: LoginRequest): Promise<LoginResponse> {
-    const formData = new FormData()
+    // Use URL-encoded form data as per OpenAPI specification
+    const formData = new URLSearchParams()
     formData.append('username', credentials.username)
     formData.append('password', credentials.password)
 
-    const response = await fetch(`${this.baseUrl}/api/login`, {
-      method: 'POST',
-      body: formData,
-    })
+    try {
+      // Log the request in development
+      if (DEBUG_CONFIG.LOG_API_CALLS) {
+        console.log('🔗 Login Request:', {
+          url: `${this.baseUrl}/api/login`,
+          username: credentials.username,
+          method: 'POST'
+        })
+      }
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({
-        message: `HTTP ${response.status}: ${response.statusText}`
-      }))
-      throw new Error(errorData.message || 'Login failed')
+      const response = await fetch(`${this.baseUrl}/api/login`, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Accept': 'application/json',
+        }
+      })
+
+      // Log response status
+      if (DEBUG_CONFIG.LOG_API_CALLS) {
+        console.log('📡 Login Response:', {
+          status: response.status,
+          statusText: response.statusText,
+          ok: response.ok,
+          headers: Object.fromEntries(response.headers.entries())
+        })
+      }
+
+      if (!response.ok) {
+        let errorData
+        try {
+          // Safely parse error response
+          const responseText = await response.text()
+          if (responseText) {
+            errorData = JSON.parse(responseText)
+          } else {
+            errorData = { message: `HTTP ${response.status}: ${response.statusText}` }
+          }
+        } catch (parseError) {
+          console.warn('Failed to parse error response:', parseError)
+          errorData = { message: `HTTP ${response.status}: ${response.statusText}` }
+        }
+        
+        // Enhanced error logging
+        if (DEBUG_CONFIG.ENABLED) {
+          console.error('❌ Login Error:', {
+            status: response.status,
+            statusText: response.statusText,
+            errorData,
+            url: `${this.baseUrl}/api/login`
+          })
+        }
+        
+        throw new Error(errorData.message || 'Login failed')
+      }
+
+      // Safely parse success response
+      let data
+      try {
+        const responseText = await response.text()
+        if (responseText) {
+          data = JSON.parse(responseText)
+        } else {
+          throw new Error('Empty response from server')
+        }
+      } catch (parseError) {
+        console.error('Failed to parse success response:', parseError)
+        throw new Error('Invalid response format from server')
+      }
+
+      // Validate response structure
+      if (!data.token || !data.username) {
+        console.error('Invalid login response structure:', data)
+        throw new Error('Invalid response format: missing required fields')
+      }
+
+      this.setToken(data.token)
+      
+      if (DEBUG_CONFIG.LOG_API_CALLS) {
+        console.log('✅ Login Success:', {
+          username: data.username,
+          userId: data.user_id
+        })
+      }
+      
+      return data
+    } catch (error) {
+      // Enhanced error handling with more details
+      if (DEBUG_CONFIG.ENABLED) {
+        console.error('💥 Login Request Failed:', {
+          error: error instanceof Error ? error.message : String(error),
+          errorType: error?.constructor?.name || typeof error,
+          url: `${this.baseUrl}/api/login`,
+          baseUrl: this.baseUrl,
+          credentials: { username: credentials.username }
+        })
+      }
+      
+      // Re-throw with more context if it's a network error
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        throw new Error(`Network error: Unable to connect to server at ${this.baseUrl}. Please check if the backend server is running.`)
+      }
+      
+      // Ensure we always throw an Error instance
+      if (error instanceof Error) {
+        throw error
+      } else {
+        throw new Error(`Unexpected error: ${String(error)}`)
+      }
     }
-
-    const data = await response.json()
-    this.setToken(data.token)
-    return data
   }
 
   async getProfile(): Promise<LoginResponse> {
@@ -1218,10 +1396,24 @@ class ApiClient {
 
   // === UTILITY METHODS ===
   isAuthenticated(): boolean {
-    return !!this.token
+    // Always check fresh token from storage
+    const token = this.getToken()
+    return !!(token && token.trim() !== '' && token !== 'null')
   }
 
   getToken(): string | null {
+    // Refresh token from storage if not set
+    if (!this.token && typeof window !== 'undefined') {
+      this.token = this.getStoredToken()
+    }
+    return this.token
+  }
+
+  // Force refresh token from storage
+  refreshTokenFromStorage(): string | null {
+    if (typeof window !== 'undefined') {
+      this.token = this.getStoredToken()
+    }
     return this.token
   }
 

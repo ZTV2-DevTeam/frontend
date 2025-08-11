@@ -32,11 +32,30 @@ export function useApiQuery<T>(
         setError(null)
         const result = await apiCall()
         if (!cancelled) {
+          // Handle empty arrays/results properly - these are valid responses, not errors
           setData(result)
         }
       } catch (err) {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : 'Unknown error')
+          const errorMessage = err instanceof Error ? err.message : 'Ismeretlen hiba történt'
+          
+          // Log the error for debugging
+          console.error('API Query Error:', {
+            error: err,
+            message: errorMessage
+          })
+          
+          // Handle authentication errors specifically
+          if (errorMessage.includes('Bejelentkezés szükséges') || errorMessage.includes('munkamenet lejárt')) {
+            // If running in browser, redirect to login
+            if (typeof window !== 'undefined') {
+              console.warn('Authentication required, redirecting to login...')
+              window.location.href = '/login'
+              return
+            }
+          }
+          
+          setError(errorMessage)
         }
       } finally {
         if (!cancelled) {
@@ -343,9 +362,12 @@ export const errorUtils = {
    */
   isAuthError: (error: unknown): boolean => {
     if (error instanceof Error) {
-      return error.message.includes('401') || 
-             error.message.toLowerCase().includes('unauthorized') ||
-             error.message.toLowerCase().includes('authentication')
+      const message = error.message.toLowerCase()
+      return message.includes('401') || 
+             message.includes('unauthorized') ||
+             message.includes('authentication') ||
+             message.includes('munkamenet lejárt') ||
+             message.includes('bejelentkezés szükséges')
     }
     return false
   },
@@ -357,9 +379,17 @@ export const errorUtils = {
     if (error instanceof Error) {
       return error.message.includes('403') ||
              error.message.toLowerCase().includes('forbidden') ||
-             error.message.toLowerCase().includes('permission')
+             error.message.toLowerCase().includes('permission') ||
+             error.message.toLowerCase().includes('jogosultság')
     }
     return false
+  },
+
+  /**
+   * Check if result is empty but valid (not an error)
+   */
+  isEmptyResult: (data: unknown): boolean => {
+    return Array.isArray(data) && data.length === 0
   }
 }
 

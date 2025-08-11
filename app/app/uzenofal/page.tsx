@@ -61,13 +61,25 @@ export default function MessageBoardPage() {
             <div className="text-center text-red-500">
               Hiba történt az adatok betöltésekor: {error}
             </div>
+            {(error.includes('munkamenet') || error.includes('session') || error.includes('401')) && (
+              <div className="text-center mt-4">
+                <p className="text-gray-600 mb-4">A munkamenet lejárt. Kérjük, jelentkezzen be újra.</p>
+                <button 
+                  onClick={() => window.location.href = '/login'}
+                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                >
+                  Bejelentkezés
+                </button>
+              </div>
+            )}
           </div>
         </SidebarInset>
       </SidebarProvider>
     )
   }
 
-  const announcementsArray = announcements as AnnouncementSchema[]
+  // Properly handle the case where announcements is an empty array (valid response)
+  const announcementsArray = (announcements as AnnouncementSchema[]) || []
 
   // Filter announcements based on search and category
   const filteredAnnouncements = announcementsArray.filter(announcement => {

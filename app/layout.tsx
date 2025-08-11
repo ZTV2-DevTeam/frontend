@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeProvider as ColorThemeProvider } from "@/contexts/theme-context";
 import { UserRoleProvider } from "@/contexts/user-role-context";
 import { AuthProvider } from "@/contexts/auth-context";
+import { GlobalErrorHandler } from "@/components/global-error-handler";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,6 +32,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <GlobalErrorHandler />
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <ColorThemeProvider>
             <AuthProvider>

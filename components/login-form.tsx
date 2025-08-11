@@ -34,10 +34,34 @@ export function LoginForm({
     setError('')
 
     try {
-      await login({ username, password })
+      // Validate inputs before making request
+      if (!username.trim()) {
+        setError('A felhasználónév megadása kötelező')
+        return
+      }
+      
+      if (!password.trim()) {
+        setError('A jelszó megadása kötelező')
+        return
+      }
+
+      console.log('Attempting login with username:', username)
+      await login({ username: username.trim(), password: password.trim() })
+      console.log('Login successful, redirecting...')
       router.push('/app/iranyitopult') // Redirect to dashboard after successful login
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Login failed')
+      console.error('Login error in form:', error)
+      
+      // Handle different types of errors
+      let errorMessage = 'Bejelentkezési hiba'
+      
+      if (error instanceof Error) {
+        errorMessage = error.message
+      } else {
+        errorMessage = String(error) || 'Ismeretlen hiba történt'
+      }
+      
+      setError(errorMessage)
     } finally {
       setIsLoading(false)
     }

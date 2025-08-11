@@ -31,6 +31,7 @@ import {
 import { useApiQuery } from "@/lib/api-helpers"
 import { ForgatSchema, AnnouncementSchema } from "@/lib/types"
 import { apiClient } from "@/lib/api"
+import { ApiError } from "@/components/api-error"
 
 export default function CalendarPage() {
   const [selectedDate, setSelectedDate] = useState(new Date())
@@ -60,14 +61,17 @@ export default function CalendarPage() {
   }
 
   if (filmingError || announcementsError) {
+    const error = filmingError || announcementsError || 'Ismeretlen hiba történt'
     return (
       <SidebarProvider>
         <AppSidebar />
         <SidebarInset>
           <div className="p-6">
-            <div className="text-center text-red-500">
-              Hiba történt az adatok betöltésekor: {filmingError || announcementsError}
-            </div>
+            <ApiError 
+              error={error}
+              title="Hiba a forgatások és közlemények betöltésekor"
+              onRetry={() => window.location.reload()}
+            />
           </div>
         </SidebarInset>
       </SidebarProvider>

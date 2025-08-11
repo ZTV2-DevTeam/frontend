@@ -1,7 +1,17 @@
 'use client'
 
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import { apiClient, type User, type LoginRequest } from '@/lib/api'
+import { apiClient, type LoginRequest, type LoginResponse } from '@/lib/api'
+import { DEBUG_CONFIG } from '@/lib/config'
+
+// Define User type based on LoginResponse
+interface User {
+  user_id: number
+  username: string
+  first_name: string
+  last_name: string
+  email: string
+}
 
 interface AuthContextType {
   user: User | null
@@ -23,19 +33,68 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const initAuth = async () => {
       try {
-        if (apiClient.isAuthenticated()) {
-          const profile = await apiClient.getProfile()
-          setUser({
-            user_id: profile.user_id,
-            username: profile.username,
-            first_name: profile.first_name,
-            last_name: profile.last_name,
-            email: profile.email,
+        // Force refresh token from storage
+        const token = apiClient.getToken()
+        if (DEBUG_CONFIG.LOG_API_CALLS) {
+          console.log('🔐 Auth initialization:', {
+            hasToken: !!token,
+            tokenLength: token?.length || 0,
+            tokenPreview: token ? `${token.substring(0, 10)}...` : 'none'
           })
+        }
+        
+        if (apiClient.isAuthenticated()) {
+          try {
+            const profile = await apiClient.getProfile()
+            setUser({
+              user_id: profile.user_id,
+              username: profile.username,
+              first_name: profile.first_name,
+              last_name: profile.last_name,
+              email: profile.email,
+            })
+            
+            if (DEBUG_CONFIG.LOG_API_CALLS) {
+              console.log('✅ Auth initialized successfully:', {
+                username: profile.username,
+                userId: profile.user_id
+              })
+            }
+          } catch (profileError) {
+            console.error('Failed to get user profile:', profileError)
+            
+            // If profile fetch fails with auth error, clear token
+            if (profileError instanceof Error && (
+              profileError.message.includes('401') ||
+              profileError.message.includes('Unauthorized') ||
+              profileError.message.includes('munkamenet lejárt')
+            )) {
+              console.log('🔑 Clearing token due to profile fetch auth error')
+              apiClient.setToken(null)
+              setUser(null)
+            }
+          }
+        } else {
+          if (DEBUG_CONFIG.LOG_API_CALLS) {
+            console.log('⚠️ No valid authentication token found')
+          }
+          setUser(null)
         }
       } catch (error) {
         console.error('Failed to initialize auth:', error)
-        apiClient.setToken(null)
+        
+        // Only clear token if it's actually an auth error
+        if (error instanceof Error && (
+          error.message.includes('401') || 
+          error.message.includes('Unauthorized') ||
+          error.message.includes('Bejelentkezés szükséges')
+        )) {
+          console.log('🔑 Clearing invalid token due to auth error')
+          apiClient.setToken(null)
+        }
+        
+        // Don't clear user state here - let the pages handle the errors
+        setUser(null)
       } finally {
         setIsLoading(false)
       }
@@ -56,6 +115,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       })
     } catch (error) {
       console.error('Login failed:', error)
+      
+      // Provide more user-friendly error messages
+      if (error instanceof Error) {
+        if (error.message.includes('Network error')) {
+          throw new Error('Nem sikerült csatlakozni a szerverhez. Kérjük, ellenőrizze az internetkapcsolatot és próbálja újra.')
+        } else if (error.message.includes('Unauthorized')) {
+          throw new Error('Hibás felhasználónév vagy jelszó.')
+        } else if (error.message.includes('HTTP 500')) {
+          throw new Error('Szerverhiba történt. Kérjük, próbálja újra később.')
+        }
+      }
+      
       throw error
     }
   }

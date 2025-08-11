@@ -108,9 +108,26 @@ function LatestLoginsWidget() {
   if (error) {
     return (
       <Card>
-        <CardContent className="flex items-center justify-center py-12 text-destructive">
-          <AlertCircle className="h-6 w-6 mr-2" />
-          Hiba a felhasználók betöltésekor
+        <CardContent className="flex flex-col items-center justify-center py-12 space-y-4">
+          <AlertCircle className="h-8 w-8 text-destructive" />
+          <div className="text-center">
+            <p className="text-destructive font-medium">
+              Hiba a felhasználók betöltésekor
+            </p>
+            <p className="text-sm text-muted-foreground mt-1">
+              {error}
+            </p>
+            {error?.includes('Bejelentkezés szükséges') && (
+              <Button 
+                onClick={() => window.location.href = '/login'}
+                variant="outline"
+                size="sm"
+                className="mt-2"
+              >
+                Bejelentkezés
+              </Button>
+            )}
+          </div>
         </CardContent>
       </Card>
     )

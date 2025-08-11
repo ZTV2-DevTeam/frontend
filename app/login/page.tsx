@@ -1,6 +1,7 @@
 import { Clapperboard } from "lucide-react"
 
 import { LoginForm } from "@/components/login-form"
+import { ErrorBoundary } from "@/components/error-boundary"
 
 export default function LoginPage() {
   return (
@@ -10,7 +11,9 @@ export default function LoginPage() {
           <Clapperboard className="size-6 text-primary" />
           FTV
         </a>
-        <LoginForm />
+        <ErrorBoundary>
+          <LoginForm />
+        </ErrorBoundary>
       </div>
     </div>
   )
