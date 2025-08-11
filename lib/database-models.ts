@@ -58,7 +58,7 @@ export const DATABASE_MODEL_NAMES = {
  * Get the full Django admin URL for a model
  */
 export function getDatabaseAdminUrl(modelPath: string, baseUrl?: string): string {
-  const backendUrl = baseUrl || process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
+  const backendUrl = baseUrl || process.env.NEXT_PUBLIC_BACKEND_URL || 'https://ftvapi.szlg.info';
   return `${backendUrl}/admin/${modelPath}/`;
 }
 

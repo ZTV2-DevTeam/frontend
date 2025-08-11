@@ -277,7 +277,7 @@ export default function DatabaseAdminPage() {
                 <div>
                   <p className="text-sm font-medium">Backend URL</p>
                   <p className="text-sm text-muted-foreground">
-                    {process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'}
+                    {process.env.NEXT_PUBLIC_BACKEND_URL || 'https://ftvapi.szlg.info'}
                   </p>
                 </div>
                 <div>
