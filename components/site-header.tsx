@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
+import { Clapperboard } from "lucide-react"
 
 // Map of routes to page names based on the sidebar data
 const routeToPageName: Record<string, string> = {
@@ -37,18 +38,10 @@ export function SiteHeader() {
           orientation="vertical"
           className="mx-2 data-[orientation=vertical]:h-4"
         />
-        <h1 className="text-base font-medium">{currentPageName}</h1>
-        <div className="flex items-center gap-2 ml-auto">
-          <Button variant="ghost" asChild size="sm" className="hidden sm:flex">
-            <a
-              href="https://github.com/FTV-DevTeam/FTV-frontend"
-              rel="noopener noreferrer"
-              target="_blank"
-              className="dark:text-foreground"
-            >
-              GitHub
-            </a>
-          </Button>
+        <div className="flex items-center gap-2">
+          {/* icon */}
+          <Clapperboard className="size-5 text-primary" />
+          <h1 className="text-base font-medium">{currentPageName}</h1>
         </div>
       </div>
     </header>

@@ -93,7 +93,14 @@ export default function StabPage() {
 
   return (
     <TooltipProvider>
-      <SidebarProvider>
+      <SidebarProvider
+      style={
+        {
+          "--sidebar-width": "calc(var(--spacing) * 72)",
+          "--header-height": "calc(var(--spacing) * 12)",
+        } as React.CSSProperties
+      }
+    >
         <AppSidebar />
         <SidebarInset>
           <div className="p-6 space-y-6">
