@@ -1,7 +1,9 @@
 "use client"
 
 import { useState } from "react"
+import * as React from "react"
 import { AppSidebar } from "@/components/app-sidebar"
+import { SiteHeader } from "@/components/site-header"
 import {
   SidebarInset,
   SidebarProvider,
@@ -36,10 +38,18 @@ export default function CalendarPage() {
 
   if (filmingLoading) {
     return (
-      <SidebarProvider>
-        <AppSidebar />
+      <SidebarProvider
+        style={
+          {
+            "--sidebar-width": "calc(var(--spacing) * 72)",
+            "--header-height": "calc(var(--spacing) * 12)",
+          } as React.CSSProperties
+        }
+      >
+        <AppSidebar variant="inset" />
         <SidebarInset>
-          <div className="p-6">
+          <SiteHeader />
+          <div className="flex-1 space-y-4 p-4 md:p-6">
             <div className="text-center">Betöltés...</div>
           </div>
         </SidebarInset>
@@ -49,10 +59,18 @@ export default function CalendarPage() {
 
   if (filmingError) {
     return (
-      <SidebarProvider>
-        <AppSidebar />
+      <SidebarProvider
+        style={
+          {
+            "--sidebar-width": "calc(var(--spacing) * 72)",
+            "--header-height": "calc(var(--spacing) * 12)",
+          } as React.CSSProperties
+        }
+      >
+        <AppSidebar variant="inset" />
         <SidebarInset>
-          <div className="p-6">
+          <SiteHeader />
+          <div className="flex-1 space-y-4 p-4 md:p-6">
             <ApiError 
               error={filmingError}
               title="Hiba a forgatások betöltésekor"
@@ -94,10 +112,18 @@ export default function CalendarPage() {
   }
 
   return (
-    <SidebarProvider>
-      <AppSidebar />
+    <SidebarProvider
+      style={
+        {
+          "--sidebar-width": "calc(var(--spacing) * 72)",
+          "--header-height": "calc(var(--spacing) * 12)",
+        } as React.CSSProperties
+      }
+    >
+      <AppSidebar variant="inset" />
       <SidebarInset>
-        <div className="p-6 space-y-6">
+        <SiteHeader />
+        <div className="flex-1 space-y-4 p-4 md:p-6">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold">Forgatási Naptár</h1>
