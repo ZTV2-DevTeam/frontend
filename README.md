@@ -1,6 +1,6 @@
 # FTV Frontend
 
-Modern Next.js frontend application for the FTV (Zeneiskola Tanár Videoalbum 2) project with comprehensive API integration and multi-environment support.
+Modern Next.js frontend application for the FTV project with comprehensive API integration and multi-environment support.
 
 ## 🚀 Quick Start
 
@@ -346,5 +346,6 @@ rm -rf .next && npm run build
 ---
 
 **FTV Frontend** - Built with Next.js, TypeScript, and modern web technologies.
+
 
 *Last updated: August 11, 2025*
