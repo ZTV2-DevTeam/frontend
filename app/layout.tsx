@@ -29,17 +29,24 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="hu" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased font-sans`}
       >
         <GlobalErrorHandler />
         <ConsoleDebugger />
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <ThemeProvider 
+          attribute="class" 
+          defaultTheme="system" 
+          enableSystem
+          disableTransitionOnChange
+        >
           <ColorThemeProvider>
             <AuthProvider>
               <UserRoleProvider>
-                {children}
+                <div className="relative flex min-h-screen flex-col">
+                  {children}
+                </div>
               </UserRoleProvider>
             </AuthProvider>
           </ColorThemeProvider>
