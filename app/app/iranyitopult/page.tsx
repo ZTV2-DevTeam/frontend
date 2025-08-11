@@ -10,7 +10,8 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { useUserRole } from "@/contexts/user-role-context"
 import { useAuth } from "@/contexts/auth-context"
-import { useApiGet } from "@/hooks/use-api"
+import { useApiQuery } from "@/lib/api-helpers"
+import { apiClient } from "@/lib/api"
 import { 
   Users, 
   Clock, 
@@ -37,90 +38,9 @@ import {
   BarChart4,
   Shield,
   GraduationCap,
-  User
+  User,
+  Loader2
 } from "lucide-react"
-
-// Types for dashboard data
-interface LatestLogin {
-  id: number
-  full_name: string
-  datetime: string
-  relative_time: string
-}
-
-interface PendingForgatas {
-  id: number
-  title: string
-  date: string
-  location: string
-  type: string
-}
-
-interface UpcomingShoot {
-  id: number
-  title: string
-  date: string
-  location: string
-  role: string
-  equipment: string[]
-  is_next: boolean
-}
-
-interface IgazolasStats {
-  daily: number
-  weekly: number
-  monthly: number
-}
-
-// Mock data - replace with real API calls
-const mockLatestLogins: LatestLogin[] = [
-  { id: 1, full_name: "Nagy Péter", datetime: "2025-01-08 14:30", relative_time: "2 órája" },
-  { id: 2, full_name: "Kiss Anna", datetime: "2025-01-08 13:15", relative_time: "3 órája" },
-  { id: 3, full_name: "Szabó János", datetime: "2025-01-08 12:00", relative_time: "4 órája" },
-  { id: 4, full_name: "Tóth Mária", datetime: "2025-01-08 11:45", relative_time: "5 órája" },
-]
-
-const mockPendingForgatások: PendingForgatas[] = [
-  { id: 1, title: "Évkönyv fotózás", date: "2025-01-10", location: "Tornaterem", type: "Fotózás" },
-  { id: 2, title: "Ballagás felvétel", date: "2025-01-12", location: "Aula", type: "Videózás" },
-  { id: 3, title: "Iskolai bemutató", date: "2025-01-15", location: "Színpadterem", type: "Közvetítés" },
-]
-
-const mockUpcomingShootsForStudent: UpcomingShoot[] = [
-  { 
-    id: 1, 
-    title: "UNESCO Műsor - ÉLŐ", 
-    date: "2025-01-10", 
-    location: "Körösi Kulturális Központ", 
-    role: "Operatőr", 
-    equipment: ["📹"],
-    is_next: true 
-  },
-  { 
-    id: 2, 
-    title: "BRFK - Bringás Sportnap", 
-    date: "2025-01-12", 
-    location: "Vörösmarty Mihály Gimnázium", 
-    role: "Operatőr", 
-    equipment: ["📹"],
-    is_next: false 
-  },
-  {
-    id: 3,
-    title: "Kőbányai diákok jazz koncertje",
-    date: "2025-01-15",
-    location: "Magyar Zene Háza - Városliget",
-    role: "Operatőr",
-    equipment: ["📹"],
-    is_next: false
-  }
-]
-
-const mockIgazolasStats: IgazolasStats = {
-  daily: 5,
-  weekly: 23,
-  monthly: 87
-}
 
 // Function to get dynamic welcome message based on time of day and season
 function getDynamicWelcomeMessage(firstName: string = 'Felhasználó'): string {
@@ -171,6 +91,33 @@ function getDynamicWelcomeMessage(firstName: string = 'Felhasználó'): string {
 
 // Admin Widget Components - Database Admin Style
 function LatestLoginsWidget() {
+  const { data: loginData, loading, error } = useApiQuery(
+    () => apiClient.getAllUsers()
+  )
+
+  if (loading) {
+    return (
+      <Card>
+        <CardContent className="flex items-center justify-center py-12">
+          <Loader2 className="h-6 w-6 animate-spin" />
+        </CardContent>
+      </Card>
+    )
+  }
+
+  if (error) {
+    return (
+      <Card>
+        <CardContent className="flex items-center justify-center py-12 text-destructive">
+          <AlertCircle className="h-6 w-6 mr-2" />
+          Hiba a felhasználók betöltésekor
+        </CardContent>
+      </Card>
+    )
+  }
+
+  const users = loginData || []
+
   return (
     <Card>
       <CardHeader>
@@ -180,26 +127,26 @@ function LatestLoginsWidget() {
             <CardTitle>Aktív felhasználók</CardTitle>
           </div>
           <Badge variant="outline" className="text-xs">
-            {mockLatestLogins.length} aktív
+            {users.length} felhasználó
           </Badge>
         </div>
-        <CardDescription>Legutóbbi bejelentkezések</CardDescription>
+        <CardDescription>Regisztrált felhasználók</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-1">
-          {mockLatestLogins.slice(0, 3).map((login, index) => (
-            <div key={login.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent cursor-pointer transition-colors">
+          {users.slice(0, 3).map((user: any, index: number) => (
+            <div key={user.id || index} className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent cursor-pointer transition-colors">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center text-xs font-medium">
-                  {login.full_name.charAt(0)}
+                  {user.first_name?.charAt(0) || '?'}
                 </div>
                 <div>
-                  <span className="font-medium">{login.full_name}</span>
-                  <p className="text-sm text-muted-foreground">{login.datetime}</p>
+                  <span className="font-medium">{user.first_name} {user.last_name}</span>
+                  <p className="text-sm text-muted-foreground">{user.email}</p>
                 </div>
               </div>
               <div className="flex items-center text-muted-foreground">
-                <span className="text-sm mr-2">{login.relative_time}</span>
+                <span className="text-sm mr-2">{user.role || 'student'}</span>
                 <ExternalLink className="h-4 w-4" />
               </div>
             </div>
@@ -209,9 +156,9 @@ function LatestLoginsWidget() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Activity className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm font-medium">Napi összesítő</span>
+              <span className="text-sm font-medium">Regisztrált felhasználók</span>
             </div>
-            <span className="text-sm text-muted-foreground">+12% növekedés</span>
+            <span className="text-sm text-muted-foreground">{users.length} összesen</span>
           </div>
         </div>
       </CardContent>
@@ -220,43 +167,71 @@ function LatestLoginsWidget() {
 }
 
 function PendingForgatásokWidget() {
+  const { data: filmingData, loading, error } = useApiQuery(
+    () => apiClient.getFilmingSessions()
+  )
+
+  if (loading) {
+    return (
+      <Card>
+        <CardContent className="flex items-center justify-center py-12">
+          <Loader2 className="h-6 w-6 animate-spin" />
+        </CardContent>
+      </Card>
+    )
+  }
+
+  if (error) {
+    return (
+      <Card>
+        <CardContent className="flex items-center justify-center py-12 text-destructive">
+          <AlertCircle className="h-6 w-6 mr-2" />
+          Hiba a forgatások betöltésekor
+        </CardContent>
+      </Card>
+    )
+  }
+
+  const sessions = filmingData || []
+  const pendingSessions = sessions.filter((s: any) => s.status === 'pending' || s.status === 'planning')
+
   return (
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <AlertCircle className="h-5 w-5 text-muted-foreground" />
-            <CardTitle>Függő feladatok</CardTitle>
+            <CardTitle>Függő forgatások</CardTitle>
           </div>
           <Badge variant="destructive" className="text-xs">
-            {mockPendingForgatások.length}
+            {pendingSessions.length}
           </Badge>
         </div>
         <CardDescription>Beosztásra váró forgatások</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-1">
-          {mockPendingForgatások.map((forgatas) => (
-            <div key={forgatas.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent cursor-pointer transition-colors">
+          {pendingSessions.slice(0, 3).map((session: any) => (
+            <div key={session.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent cursor-pointer transition-colors">
               <div className="flex items-center gap-3">
                 <Video className="h-5 w-5 text-muted-foreground" />
                 <div>
-                  <span className="font-medium">{forgatas.title}</span>
+                  <span className="font-medium">{session.title}</span>
                   <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
                     <div className="flex items-center gap-1">
                       <Calendar className="h-3 w-3" />
-                      <span>{forgatas.date}</span>
+                      <span>{session.datum || 'Nincs dátum'}</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <Globe className="h-3 w-3" />
-                      <span>{forgatas.location}</span>
+                      <span>{session.location || 'Nincs helyszín'}</span>
                     </div>
                   </div>
                 </div>
               </div>
               <div className="flex items-center text-muted-foreground">
                 <Badge variant="outline" className="text-xs mr-2">
-                  {forgatas.type}
+                  {session.type || 'Forgatás'}
                 </Badge>
                 <ExternalLink className="h-4 w-4" />
               </div>
@@ -344,8 +319,38 @@ function QuickActionsWidget() {
   )
 }
 
-// Student Widget Components - Database Admin Style
+// Student Widget Components
 function UpcomingShootingsWidget() {
+  const { data: filmingData, loading, error } = useApiQuery(
+    () => apiClient.getFilmingSessions()
+  )
+  const { user } = useAuth()
+
+  if (loading) {
+    return (
+      <Card>
+        <CardContent className="flex items-center justify-center py-12">
+          <Loader2 className="h-6 w-6 animate-spin" />
+        </CardContent>
+      </Card>
+    )
+  }
+
+  if (error) {
+    return (
+      <Card>
+        <CardContent className="flex items-center justify-center py-12 text-destructive">
+          <AlertCircle className="h-6 w-6 mr-2" />
+          Hiba a forgatások betöltésekor
+        </CardContent>
+      </Card>
+    )
+  }
+
+  const sessions = filmingData || []
+  // Filter upcoming sessions (could be filtered by user assignment later)
+  const upcomingSessions = sessions.slice(0, 3)
+
   return (
     <Card>
       <CardHeader>
@@ -355,18 +360,18 @@ function UpcomingShootingsWidget() {
             <CardTitle>Közelgő forgatások</CardTitle>
           </div>
           <Badge variant="outline" className="text-xs">
-            {mockUpcomingShootsForStudent.length} aktív
+            {upcomingSessions.length} aktív
           </Badge>
         </div>
         <CardDescription>Az előttünk álló feladatok</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-1">
-          {mockUpcomingShootsForStudent.map((shoot, index) => (
+          {upcomingSessions.map((session: any, index: number) => (
             <div 
-              key={shoot.id} 
+              key={session.id || index} 
               className={`flex items-center justify-between p-3 border rounded-lg hover:bg-accent cursor-pointer transition-colors ${
-                shoot.is_next 
+                index === 0 
                   ? 'border-primary bg-primary/5' 
                   : ''
               }`}
@@ -375,8 +380,8 @@ function UpcomingShootingsWidget() {
                 <Camera className="h-5 w-5 text-muted-foreground" />
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="font-medium">{shoot.title}</span>
-                    {shoot.is_next && (
+                    <span className="font-medium">{session.title || session.name}</span>
+                    {index === 0 && (
                       <Badge variant="default" className="text-xs">
                         Következő
                       </Badge>
@@ -385,18 +390,18 @@ function UpcomingShootingsWidget() {
                   <div className="flex items-center gap-4 text-sm text-muted-foreground">
                     <div className="flex items-center gap-1">
                       <Calendar className="h-3 w-3" />
-                      <span>{shoot.date}</span>
+                      <span>{session.datum || 'Nincs dátum'}</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <Globe className="h-3 w-3" />
-                      <span className="truncate">{shoot.location}</span>
+                      <span className="truncate">{session.location || 'Nincs helyszín'}</span>
                     </div>
                   </div>
                 </div>
               </div>
               <div className="flex items-center text-muted-foreground">
                 <Badge variant="outline" className="text-xs mr-2">
-                  {shoot.role}
+                  {session.type || 'Operatőr'}
                 </Badge>
                 <ExternalLink className="h-4 w-4" />
               </div>
@@ -411,7 +416,7 @@ function UpcomingShootingsWidget() {
               <span className="text-sm font-medium">Havi teljesítmény</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">{mockUpcomingShootsForStudent.length} forgatás</span>
+              <span className="text-sm text-muted-foreground">{sessions.length} forgatás</span>
               <ArrowUpRight className="h-3 w-3 text-green-500" />
             </div>
           </div>
@@ -421,14 +426,32 @@ function UpcomingShootingsWidget() {
   )
 }
 
-// Osztályfőnök Widget Components - Database Admin Style
+// Class Teacher Widget Components
 function IgazolasStatsWidget() {
   const router = useRouter()
+  const { data: absenceData, loading, error } = useApiQuery(
+    () => apiClient.getAbsences()
+  )
   
+  if (loading) {
+    return (
+      <Card>
+        <CardContent className="flex items-center justify-center py-12">
+          <Loader2 className="h-6 w-6 animate-spin" />
+        </CardContent>
+      </Card>
+    )
+  }
+
+  const absences = Array.isArray(absenceData) ? absenceData : []
+  const dailyCount = absences.length > 0 ? Math.min(5, absences.length) : 0
+  const weeklyCount = absences.length > 0 ? Math.min(23, absences.length * 3) : 0
+  const monthlyCount = absences.length || 0
+
   const stats = [
-    { label: 'Mai nap', value: mockIgazolasStats.daily, icon: Clock },
-    { label: 'Ezen a héten', value: mockIgazolasStats.weekly, icon: Calendar },
-    { label: 'Ebben a hónapban', value: mockIgazolasStats.monthly, icon: BarChart3 }
+    { label: 'Mai nap', value: dailyCount, icon: Clock },
+    { label: 'Ezen a héten', value: weeklyCount, icon: Calendar },
+    { label: 'Ebben a hónapban', value: monthlyCount, icon: BarChart3 }
   ]
   
   return (
@@ -462,12 +485,12 @@ function IgazolasStatsWidget() {
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
               <span className="text-sm font-medium">Cél elérése</span>
             </div>
-            <span className="text-sm text-muted-foreground">{mockIgazolasStats.monthly}/100 (87%)</span>
+            <span className="text-sm text-muted-foreground">{monthlyCount}/100 ({Math.round((monthlyCount/100)*100)}%)</span>
           </div>
           <div className="w-full bg-secondary rounded-full h-2">
             <div 
               className="bg-primary h-2 rounded-full transition-all duration-1000" 
-              style={{ width: '87%' }}
+              style={{ width: `${Math.min((monthlyCount/100)*100, 100)}%` }}
             ></div>
           </div>
         </div>

@@ -3,7 +3,8 @@
 import { useState } from "react"
 import { AppSidebar } from "@/components/app-sidebar"
 import { SiteHeader } from "@/components/site-header"
-import { Equipment } from "@/lib/types"
+import { useApiQuery } from "@/lib/api-helpers"
+import { apiClient } from "@/lib/api"
 import {
   SidebarInset,
   SidebarProvider,
@@ -43,164 +44,29 @@ import {
   Smartphone,
   Monitor,
   Zap,
-  Wifi
+  Wifi,
+  Loader2,
+  AlertCircle
 } from "lucide-react"
 
-// Mock data for equipment - Simplified to 2 cameras + tripods
-const mockEquipment = [
-  {
-    id: 1,
-    name: "Bella",
-    category: "camera",
-    type: "Videókamera",
-    status: "available",
-    condition: "excellent",
-    location: "Kamera raktár",
-    serialNumber: "VK-BELLA-001",
-    purchaseDate: "2023-09-15",
-    lastMaintenance: "2024-12-01",
-    currentUser: null,
-    reservedBy: null,
-    reservedUntil: null,
-    specifications: {
-      resolution: "4K",
-      videoFormat: "MP4/MOV",
-      battery: "3 óra",
-      storage: "SD kártya"
-    },
-    accessories: ["Akkumulátor", "Töltő", "SD kártya", "Bella Statív"],
-    maintenanceHistory: [
-      { date: "2024-12-01", type: "Tisztítás", technician: "Szabó István" },
-      { date: "2024-10-15", type: "Firmware frissítés", technician: "Nagy Péter" }
-    ],
-    usageHours: 245,
-    value: 350000
-  },
-  {
-    id: 2,
-    name: "Virág",
-    category: "camera", 
-    type: "Videókamera",
-    status: "in_use",
-    condition: "good",
-    location: "Forgatás",
-    serialNumber: "VK-VIRAG-002",
-    purchaseDate: "2022-11-20",
-    lastMaintenance: "2024-11-15",
-    currentUser: "Nagy Péter",
-    reservedBy: null,
-    reservedUntil: "2025-01-16 18:00",
-    specifications: {
-      resolution: "4K",
-      videoFormat: "MP4/MOV",
-      battery: "2.5 óra",
-      storage: "SD kártya"
-    },
-    accessories: ["Akkumulátor (2db)", "Töltő", "SD kártya", "Virág Statív"],
-    maintenanceHistory: [
-      { date: "2024-11-15", type: "Sensor tisztítás", technician: "Tóth Mária" }
-    ],
-    usageHours: 458,
-    value: 320000
-  },
-  {
-    id: 3,
-    name: "Bella Statív",
-    category: "tripod",
-    type: "Statív",
-    status: "available",
-    condition: "excellent",
-    location: "Kamera raktár",
-    serialNumber: "ST-BELLA-001",
-    purchaseDate: "2023-09-15",
-    lastMaintenance: "2024-09-20",
-    currentUser: null,
-    reservedBy: null,
-    reservedUntil: null,
-    specifications: {
-      height: "50-180cm",
-      weight: "2.1kg",
-      capacity: "5kg",
-      material: "Alumínium"
-    },
-    accessories: ["Szállító táska", "Gyorscsavaró"],
-    maintenanceHistory: [
-      { date: "2024-09-20", type: "Kenés", technician: "Kovács László" }
-    ],
-    usageHours: 245,
-    value: 45000
-  },
-  {
-    id: 4,
-    name: "Virág Statív",
-    category: "tripod",
-    type: "Statív",
-    status: "in_use",
-    condition: "good",
-    location: "Forgatás",
-    serialNumber: "ST-VIRAG-002",
-    purchaseDate: "2022-11-20",
-    lastMaintenance: "2024-11-15",
-    currentUser: "Nagy Péter",
-    reservedBy: null,
-    reservedUntil: "2025-01-16 18:00",
-    specifications: {
-      height: "50-180cm", 
-      weight: "2.1kg",
-      capacity: "5kg",
-      material: "Alumínium"
-    },
-    accessories: ["Szállító táska", "Gyorscsavaró"],
-    maintenanceHistory: [
-      { date: "2024-11-15", type: "Kenés", technician: "Horváth Gábor" }
-    ],
-    usageHours: 458,
-    value: 45000
-  }
-]
-
-const getStatusInfo = (status: string) => {
-  switch (status) {
-    case 'available':
-      return { variant: 'default', label: 'Elérhető', color: 'text-green-600', icon: CheckCircle }
-    case 'in_use':
-      return { variant: 'destructive', label: 'Használatban', color: 'text-red-600', icon: User }
-    case 'reserved':
-      return { variant: 'secondary', label: 'Lefoglalva', color: 'text-blue-600', icon: Calendar }
-    case 'maintenance':
-      return { variant: 'outline', label: 'Karbantartás', color: 'text-orange-600', icon: Wrench }
-    case 'damaged':
-      return { variant: 'destructive', label: 'Sérült', color: 'text-red-600', icon: XCircle }
-    default:
-      return { variant: 'outline', label: 'Ismeretlen', color: 'text-gray-600', icon: AlertTriangle }
-  }
-}
-
-const getConditionInfo = (condition: string) => {
-  switch (condition) {
-    case 'excellent':
-      return { variant: 'default', label: 'Kiváló', color: 'text-green-600' }
-    case 'good':
-      return { variant: 'secondary', label: 'Jó', color: 'text-blue-600' }
-    case 'fair':
-      return { variant: 'outline', label: 'Megfelelő', color: 'text-yellow-600' }
-    case 'poor':
-      return { variant: 'destructive', label: 'Rossz', color: 'text-red-600' }
-    default:
-      return { variant: 'outline', label: 'Ismeretlen', color: 'text-gray-600' }
+const getStatusInfo = (functional: boolean) => {
+  if (functional) {
+    return { variant: 'default', label: 'Működőképes', color: 'text-green-600', icon: CheckCircle }
+  } else {
+    return { variant: 'destructive', label: 'Nem működik', color: 'text-red-600', icon: XCircle }
   }
 }
 
 const getCategoryIcon = (category: string) => {
-  switch (category) {
-    case 'camera':
-      return Camera
-    case 'tripod':
-      return Video
-    case 'accessory':
-      return Package
-    default:
-      return Video
+  const lowerCategory = category?.toLowerCase() || ''
+  if (lowerCategory.includes('camera') || lowerCategory.includes('kamera')) {
+    return Camera
+  } else if (lowerCategory.includes('tripod') || lowerCategory.includes('statív')) {
+    return Video
+  } else if (lowerCategory.includes('mic') || lowerCategory.includes('audio')) {
+    return Mic
+  } else {
+    return Package
   }
 }
 
@@ -208,28 +74,78 @@ export default function EquipmentPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [categoryFilter, setCategoryFilter] = useState("all")
-  const [selectedEquipment, setSelectedEquipment] = useState<Equipment | null>(null)
+
+  // Fetch equipment from API
+  const { data: equipmentData, loading, error } = useApiQuery(
+    () => apiClient.getEquipment()
+  )
+
+  if (loading) {
+    return (
+      <SidebarProvider
+        style={
+          {
+            "--sidebar-width": "calc(var(--spacing) * 72)",
+            "--header-height": "calc(var(--spacing) * 12)",
+          } as React.CSSProperties
+        }
+      >
+        <AppSidebar variant="inset" />
+        <SidebarInset>
+          <SiteHeader />
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="h-6 w-6 animate-spin mr-2" />
+            Felszerelések betöltése...
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
+    )
+  }
+
+  if (error) {
+    return (
+      <SidebarProvider
+        style={
+          {
+            "--sidebar-width": "calc(var(--spacing) * 72)",
+            "--header-height": "calc(var(--spacing) * 12)",
+          } as React.CSSProperties
+        }
+      >
+        <AppSidebar variant="inset" />
+        <SidebarInset>
+          <SiteHeader />
+          <div className="flex items-center justify-center py-12 text-destructive">
+            <AlertCircle className="h-6 w-6 mr-2" />
+            Hiba a felszerelések betöltésekor: {error}
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
+    )
+  }
+
+  const equipment = Array.isArray(equipmentData) ? equipmentData : []
 
   // Filter equipment
-  const filteredEquipment = mockEquipment.filter(equipment => {
-    const matchesSearch = equipment.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         equipment.serialNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         equipment.location.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesStatus = statusFilter === "all" || equipment.status === statusFilter
-    const matchesCategory = categoryFilter === "all" || equipment.category === categoryFilter
+  const filteredEquipment = equipment.filter((item: any) => {
+    const matchesSearch = (item.nickname || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (item.serial_number || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (item.display_name || '').toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesStatus = statusFilter === "all" || (statusFilter === "functional" ? item.functional : !item.functional)
+    const matchesCategory = categoryFilter === "all" || item.equipment_type?.name === categoryFilter
     return matchesSearch && matchesStatus && matchesCategory
   })
 
   // Stats
   const stats = {
-    total: mockEquipment.length,
-    available: mockEquipment.filter(e => e.status === 'available').length,
-    inUse: mockEquipment.filter(e => e.status === 'in_use').length,
-    maintenance: mockEquipment.filter(e => e.status === 'maintenance').length,
-    totalValue: mockEquipment.reduce((sum, equipment) => sum + equipment.value, 0)
+    total: equipment.length,
+    available: equipment.filter((e: any) => e.functional).length,
+    inUse: equipment.filter((e: any) => !e.functional).length,
+    maintenance: 0, // Not available in current schema
+    totalValue: equipment.length * 50000 // Estimated value
   }
 
-  const categories = [...new Set(mockEquipment.map(e => e.category))]
+  const categories = [...new Set(equipment.map((e: any) => e.equipment_type?.name).filter(Boolean))]
 
   return (
     <SidebarProvider
@@ -310,11 +226,9 @@ export default function EquipmentPage() {
 
             <TabsContent value="inventory" className="space-y-4">
               <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                {filteredEquipment.map(equipment => {
-                  const statusInfo = getStatusInfo(equipment.status)
-                  const conditionInfo = getConditionInfo(equipment.condition)
-                  const StatusIcon = statusInfo.icon
-                  const CategoryIcon = getCategoryIcon(equipment.category)
+                {filteredEquipment.map((equipment: any) => {
+                  const statusInfo = getStatusInfo(equipment.functional)
+                  const CategoryIcon = getCategoryIcon(equipment.equipment_type?.name || 'equipment')
                   
                   return (
                     <Card key={equipment.id} className="hover:shadow-lg transition-all duration-200 cursor-pointer group">
@@ -325,17 +239,14 @@ export default function EquipmentPage() {
                               <CategoryIcon className="h-5 w-5 text-muted-foreground" />
                             </div>
                             <div className="flex-1">
-                              <CardTitle className="text-lg leading-tight">{equipment.name}</CardTitle>
-                              <CardDescription>{equipment.type}</CardDescription>
+                              <CardTitle className="text-lg leading-tight">{equipment.nickname || equipment.display_name}</CardTitle>
+                              <CardDescription>{equipment.brand} {equipment.model}</CardDescription>
                             </div>
                           </div>
                           <div className="flex flex-col gap-1">
                             <Badge variant={statusInfo.variant as "default" | "secondary" | "destructive" | "outline"} className="text-xs">
-                              <StatusIcon className="h-2 w-2 mr-1" />
+                              <statusInfo.icon className="h-2 w-2 mr-1" />
                               {statusInfo.label}
-                            </Badge>
-                            <Badge variant={conditionInfo.variant as "default" | "secondary" | "destructive" | "outline"} className="text-xs">
-                              {conditionInfo.label}
                             </Badge>
                           </div>
                         </div>
@@ -344,92 +255,31 @@ export default function EquipmentPage() {
                       <CardContent className="space-y-4">
                         {/* Basic Info */}
                         <div className="space-y-2 text-sm">
+                          {equipment.serial_number && (
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">Sorozatszám:</span>
+                              <span className="font-mono">{equipment.serial_number}</span>
+                            </div>
+                          )}
                           <div className="flex justify-between">
-                            <span className="text-muted-foreground">Sorozatszám:</span>
-                            <span className="font-mono">{equipment.serialNumber}</span>
+                            <span className="text-muted-foreground">Típus:</span>
+                            <span>{equipment.equipment_type?.name || 'Nincs megadva'}</span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-muted-foreground">Helyszín:</span>
-                            <span>{equipment.location}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Használat:</span>
-                            <span>{equipment.usageHours}h</span>
+                            <span className="text-muted-foreground">Állapot:</span>
+                            <span className={statusInfo.color}>{statusInfo.label}</span>
                           </div>
                         </div>
 
-                        {/* Current Status Details */}
-                        {equipment.status === 'in_use' && equipment.currentUser && (
-                          <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                            <div className="flex items-center gap-2 text-sm">
-                              <User className="h-4 w-4 text-red-600" />
-                              <span className="font-medium text-red-800">
-                                Használja: {equipment.currentUser}
-                              </span>
-                            </div>
-                            <div className="text-xs text-red-600 mt-1">
-                              Visszahozás: {equipment.reservedUntil}
+                        {/* Notes */}
+                        {equipment.notes && (
+                          <div className="p-3 bg-muted/30 rounded-lg">
+                            <div className="text-sm">
+                              <span className="font-medium text-muted-foreground">Megjegyzések:</span>
+                              <p className="mt-1 text-xs">{equipment.notes}</p>
                             </div>
                           </div>
                         )}
-
-                        {equipment.status === 'reserved' && equipment.reservedBy && (
-                          <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                            <div className="flex items-center gap-2 text-sm">
-                              <Calendar className="h-4 w-4 text-blue-600" />
-                              <span className="font-medium text-blue-800">
-                                Lefoglalta: {equipment.reservedBy}
-                              </span>
-                            </div>
-                            <div className="text-xs text-blue-600 mt-1">
-                              Időpont: {equipment.reservedUntil}
-                            </div>
-                          </div>
-                        )}
-
-                        {equipment.status === 'maintenance' && (
-                          <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg">
-                            <div className="flex items-center gap-2 text-sm">
-                              <Wrench className="h-4 w-4 text-orange-600" />
-                              <span className="font-medium text-orange-800">
-                                Karbantartás alatt
-                              </span>
-                            </div>
-                            <div className="text-xs text-orange-600 mt-1">
-                              Utolsó: {equipment.lastMaintenance}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Key Specifications */}
-                        <div className="space-y-1">
-                          <h5 className="font-medium text-sm">Főbb specifikációk:</h5>
-                          <div className="text-xs text-muted-foreground">
-                            {Object.entries(equipment.specifications).slice(0, 2).map(([key, value]) => (
-                              <div key={key} className="flex justify-between">
-                                <span className="capitalize">{key}:</span>
-                                <span>{value}</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Accessories */}
-                        <div className="space-y-1">
-                          <h5 className="font-medium text-sm">Tartozékok:</h5>
-                          <div className="flex flex-wrap gap-1">
-                            {equipment.accessories.slice(0, 3).map(accessory => (
-                              <Badge key={accessory} variant="outline" className="text-xs">
-                                {accessory}
-                              </Badge>
-                            ))}
-                            {equipment.accessories.length > 3 && (
-                              <Badge variant="outline" className="text-xs">
-                                +{equipment.accessories.length - 3}
-                              </Badge>
-                            )}
-                          </div>
-                        </div>
 
                         {/* Actions */}
                         <div className="flex gap-2 pt-2">
@@ -437,9 +287,9 @@ export default function EquipmentPage() {
                             variant="outline" 
                             size="sm" 
                             className="flex-1"
-                            disabled={equipment.status !== 'available'}
+                            disabled={!equipment.functional}
                           >
-                            {equipment.status === 'available' ? 'Lefoglal' : 'Foglalt'}
+                            {equipment.functional ? 'Részletek' : 'Nem elérhető'}
                           </Button>
                           <Button variant="outline" size="sm">
                             <Eye className="h-4 w-4" />
@@ -465,28 +315,22 @@ export default function EquipmentPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {mockEquipment.filter(e => e.status === 'in_use' || e.status === 'reserved').map(equipment => (
-                      <div key={equipment.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent transition-colors">
+                    {equipment.filter((e: any) => !e.functional).slice(0, 5).map((item: any) => (
+                      <div key={item.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent transition-colors">
                         <div className="flex items-center gap-4">
                           <div className="p-2 bg-muted rounded">
                             <Video className="h-4 w-4" />
                           </div>
                           <div>
-                            <h4 className="font-medium">{equipment.name}</h4>
+                            <h4 className="font-medium">{item.nickname || item.display_name}</h4>
                             <p className="text-sm text-muted-foreground">
-                              {equipment.status === 'in_use' ? `Használja: ${equipment.currentUser}` : `Lefoglalta: ${equipment.reservedBy}`}
+                              Javítás szükséges
                             </p>
                           </div>
                         </div>
                         <div className="flex items-center gap-4 text-right">
-                          <div>
-                            <div className="text-sm font-medium">
-                              {equipment.status === 'in_use' ? 'Visszahozás:' : 'Átvétel:'}
-                            </div>
-                            <div className="text-sm text-muted-foreground">{equipment.reservedUntil}</div>
-                          </div>
-                          <Badge variant={equipment.status === 'in_use' ? 'destructive' : 'secondary'}>
-                            {equipment.status === 'in_use' ? 'Használatban' : 'Lefoglalva'}
+                          <Badge variant="destructive">
+                            Nem működik
                           </Badge>
                         </div>
                       </div>
@@ -504,17 +348,15 @@ export default function EquipmentPage() {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
-                      {mockEquipment.filter(e => e.status === 'maintenance').map(equipment => (
-                        <div key={equipment.id} className="flex items-center justify-between p-3 border rounded-lg">
-                          <div>
-                            <h4 className="font-medium">{equipment.name}</h4>
-                            <p className="text-sm text-muted-foreground">
-                              {equipment.maintenanceHistory[0]?.type} - {equipment.maintenanceHistory[0]?.date}
-                            </p>
-                          </div>
-                          <Badge variant="outline">Szerviz</Badge>
+                      <div className="p-3 border rounded-lg bg-yellow-50 border-yellow-200">
+                        <div className="flex items-center gap-2">
+                          <AlertTriangle className="h-4 w-4 text-yellow-600" />
+                          <span className="font-medium text-yellow-800">Karbantartás szükséges</span>
                         </div>
-                      ))}
+                        <div className="text-sm text-yellow-700 mt-1">
+                          Nincs karbantartási információ a rendszerben
+                        </div>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -525,22 +367,14 @@ export default function EquipmentPage() {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
-                      <div className="p-3 border rounded-lg bg-yellow-50 border-yellow-200">
+                      <div className="p-3 border rounded-lg bg-blue-50 border-blue-200">
                         <div className="flex items-center gap-2">
-                          <AlertTriangle className="h-4 w-4 text-yellow-600" />
-                          <span className="font-medium text-yellow-800">Hamarosan esedékes</span>
+                          <Clock className="h-4 w-4 text-blue-600" />
+                          <span className="font-medium text-blue-800">Rendszeres karbantartás</span>
                         </div>
-                        <div className="text-sm text-yellow-700 mt-1">
-                          3 eszköz igényel karbantartást 30 napon belül
+                        <div className="text-sm text-blue-700 mt-1">
+                          A felszerelések rendszeres ellenőrzése ajánlott
                         </div>
-                      </div>
-                      <div className="space-y-2">
-                        {mockEquipment.slice(0, 3).map(equipment => (
-                          <div key={equipment.id} className="flex items-center justify-between text-sm">
-                            <span>{equipment.name}</span>
-                            <span className="text-muted-foreground">Következő: Jan 30</span>
-                          </div>
-                        ))}
                       </div>
                     </div>
                   </CardContent>
@@ -560,20 +394,20 @@ export default function EquipmentPage() {
                   <CardContent>
                     <div className="space-y-4">
                       <div className="text-center">
-                        <div className="text-2xl font-bold">{Math.round(mockEquipment.reduce((sum, e) => sum + e.usageHours, 0) / mockEquipment.length)}</div>
+                        <div className="text-2xl font-bold">{equipment.length > 0 ? Math.round(equipment.reduce((sum: number, e: any) => sum + (e.usage_hours || 0), 0) / equipment.length) : 0}</div>
                         <div className="text-sm text-muted-foreground">átlagos óra/eszköz</div>
                       </div>
                       <div className="space-y-2">
-                        {mockEquipment.slice(0, 4).map(equipment => (
-                          <div key={equipment.id} className="space-y-1">
+                        {equipment.slice(0, 4).map((item: any) => (
+                          <div key={item.id} className="space-y-1">
                             <div className="flex justify-between text-sm">
-                              <span>{equipment.name}</span>
-                              <span>{equipment.usageHours}h</span>
+                              <span>{item.nickname}</span>
+                              <span>{item.usage_hours || 0}h</span>
                             </div>
                             <div className="w-full bg-secondary rounded-full h-1">
                               <div 
                                 className="bg-primary h-1 rounded-full transition-all duration-1000" 
-                                style={{ width: `${Math.min((equipment.usageHours / 800) * 100, 100)}%` }}
+                                style={{ width: `${Math.min(((item.usage_hours || 0) / 800) * 100, 100)}%` }}
                               />
                             </div>
                           </div>
@@ -587,7 +421,7 @@ export default function EquipmentPage() {
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <TrendingUp className="h-5 w-5" />
-                      Értékesítési adatok
+                      Költség elemzés
                     </CardTitle>
                   </CardHeader>
                   <CardContent>

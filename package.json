@@ -4,9 +4,16 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
+    "dev:prod-api": "cross-env NEXT_PUBLIC_API_URL=https://ftvapi.szlg.info NEXT_PUBLIC_BACKEND_URL=https://ftvapi.szlg.info next dev --turbopack",
     "build": "next build",
+    "build:dev": "cross-env NODE_ENV=production NEXT_PUBLIC_NODE_ENV=development next build",
+    "build:staging": "cross-env NODE_ENV=production NEXT_PUBLIC_NODE_ENV=staging next build",
+    "build:production": "cross-env NODE_ENV=production NEXT_PUBLIC_NODE_ENV=production next build",
     "start": "next start",
-    "lint": "next lint"
+    "start:staging": "cross-env NEXT_PUBLIC_NODE_ENV=staging next start",
+    "start:production": "cross-env NEXT_PUBLIC_NODE_ENV=production next start",
+    "lint": "next lint",
+    "analyze": "cross-env ANALYZE=true next build"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -54,6 +61,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "cross-env": "^7.0.3",
     "eslint": "^9",
     "eslint-config-next": "15.4.5",
     "tailwindcss": "^4",
