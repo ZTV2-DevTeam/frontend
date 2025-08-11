@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { AppSidebar } from "@/components/app-sidebar"
 import { SiteHeader } from "@/components/site-header"
@@ -43,48 +43,58 @@ import {
 
 // Function to get dynamic welcome message based on time of day and season
 function getDynamicWelcomeMessage(firstName: string = 'Felhasználó'): string {
-  const now = new Date()
-  const hour = now.getHours()
-  const month = now.getMonth() + 1 // getMonth() returns 0-11
-  const day = now.getDate()
+  try {
+    const now = new Date()
+    const hour = now.getHours()
+    const month = now.getMonth() + 1 // getMonth() returns 0-11
+    const day = now.getDate()
 
-  // Christmas period (second half of December)
-  if (month === 12 && day >= 15) {
-    const christmasGreetings = [
-      `🎄 Kellemes ünnepeket, ${firstName}!`,
-      `✨ Kellemes ünnepeket, ${firstName}!`,
-      `🎅 Kellemes ünnepeket, ${firstName}!`,
-      `❄️ Kellemes ünnepeket, ${firstName}!`
-    ]
-    return christmasGreetings[Math.floor(Math.random() * christmasGreetings.length)]
-  }
+    // Validate date values
+    if (isNaN(hour) || isNaN(month) || isNaN(day)) {
+      return `Üdvözlünk, ${firstName}!`
+    }
 
-  // New Year period (first week of January)
-  if (month === 1 && day <= 7) {
-    return `🎊 Boldog új évet, ${firstName}!`
-  }
+    // Christmas period (second half of December)
+    if (month === 12 && day >= 15) {
+      const christmasGreetings = [
+        `🎄 Kellemes ünnepeket, ${firstName}!`,
+        `✨ Kellemes ünnepeket, ${firstName}!`,
+        `🎅 Kellemes ünnepeket, ${firstName}!`,
+        `❄️ Kellemes ünnepeket, ${firstName}!`
+      ]
+      return christmasGreetings[Math.floor(Math.random() * christmasGreetings.length)]
+    }
 
-  // Summer greetings (July-August)
-  if (month >= 7 && month <= 8) {
-    const summerGreetings = [
-      `☀️ Jó reggelt, ${firstName}!`,
-      `🌞 Szép napot, ${firstName}!`,
-      `🌅 Kellemes nyarat, ${firstName}!`
-    ]
-    if (hour >= 6 && hour < 12) return summerGreetings[0]
-    if (hour >= 12 && hour < 18) return summerGreetings[1]
-    return summerGreetings[2]
-  }
+    // New Year period (first week of January)
+    if (month === 1 && day <= 7) {
+      return `🎊 Boldog új évet, ${firstName}!`
+    }
 
-  // Time-based greetings for regular days
-  if (hour >= 5 && hour < 11) {
-    return `🌅 Jó reggelt, ${firstName}!`
-  } else if (hour >= 11 && hour < 17) {
-    return `☀️ Szép napot, ${firstName}!`
-  } else if (hour >= 17 && hour < 21) {
-    return `🌇 Szép estét, ${firstName}!`
-  } else {
-    return `🌙 Jó éjszakát, ${firstName}!`
+    // Summer greetings (July-August)
+    if (month >= 7 && month <= 8) {
+      const summerGreetings = [
+        `☀️ Jó reggelt, ${firstName}!`,
+        `🌞 Szép napot, ${firstName}!`,
+        `🌅 Kellemes nyarat, ${firstName}!`
+      ]
+      if (hour >= 6 && hour < 12) return summerGreetings[0]
+      if (hour >= 12 && hour < 18) return summerGreetings[1]
+      return summerGreetings[2]
+    }
+
+    // Time-based greetings for regular days
+    if (hour >= 5 && hour < 11) {
+      return `🌅 Jó reggelt, ${firstName}!`
+    } else if (hour >= 11 && hour < 17) {
+      return `☀️ Szép napot, ${firstName}!`
+    } else if (hour >= 17 && hour < 21) {
+      return `🌇 Szép estét, ${firstName}!`
+    } else {
+      return `🌙 Jó éjszakát, ${firstName}!`
+    }
+  } catch (error) {
+    console.error('Error generating welcome message:', error)
+    return `Üdvözlünk, ${firstName}!`
   }
 }
 
@@ -97,8 +107,24 @@ function ActiveUsersWidget() {
   if (loading) {
     return (
       <Card>
+        <CardHeader className="pb-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg">
+                <Users className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <CardTitle className="text-lg">Legutóbbi Felhasználók</CardTitle>
+                <CardDescription>Utolsó bejelentkezések betöltése...</CardDescription>
+              </div>
+            </div>
+          </div>
+        </CardHeader>
         <CardContent className="flex items-center justify-center py-12">
-          <Loader2 className="h-6 w-6 animate-spin" />
+          <div className="flex flex-col items-center space-y-4">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p className="text-sm text-muted-foreground">Felhasználók betöltése...</p>
+          </div>
         </CardContent>
       </Card>
     )
@@ -139,14 +165,14 @@ function ActiveUsersWidget() {
   const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000)
   const last24Hours = new Date(now.getTime() - 24 * 60 * 60 * 1000)
   
-  // Get top 5 active users by last login time
-  // Sort all users by last_login (most recent first), filter out users without login, and take top 5
-  const topActiveUsers = users
+  // Get most recently active users (last 5 users who logged in)
+  // Sort all users by last_login (most recent first), filter out users without login, and take last 5
+  const mostRecentUsers = users
     .filter((user: any) => user.last_login) // Only users who have logged in
     .sort((a: any, b: any) => {
       return new Date(b.last_login).getTime() - new Date(a.last_login).getTime()
     })
-    .slice(0, 5) // Get top 5
+    .slice(0, 5) // Get most recent 5
 
   // Count users active in different time periods
   const activeNowCount = users.filter((user: any) => {
@@ -161,24 +187,34 @@ function ActiveUsersWidget() {
     return lastLogin >= last24Hours
   }).length
 
-  // Format last login time
+  // Format last login time with better error handling
   const formatLastLogin = (lastLogin: string) => {
-    const loginDate = new Date(lastLogin)
-    const diffMs = now.getTime() - loginDate.getTime()
-    const diffMinutes = Math.floor(diffMs / (1000 * 60))
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
+    try {
+      const loginDate = new Date(lastLogin)
+      if (isNaN(loginDate.getTime())) {
+        return 'ismeretlen'
+      }
+      
+      const diffMs = now.getTime() - loginDate.getTime()
+      const diffMinutes = Math.floor(diffMs / (1000 * 60))
+      const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
+      const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
 
-    if (diffMinutes < 1) return 'most'
-    if (diffMinutes < 60) return `${diffMinutes} perce`
-    if (diffHours < 24) return `${diffHours} órája`
-    if (diffDays === 1) return 'tegnap'
-    return `${diffDays} napja`
+      if (diffMinutes < 1) return 'most'
+      if (diffMinutes < 60) return `${diffMinutes} perce`
+      if (diffHours < 24) return `${diffHours} órája`
+      if (diffDays === 1) return 'tegnap'
+      if (diffDays > 365) return 'több mint egy éve'
+      return `${diffDays} napja`
+    } catch (error) {
+      console.error('Error formatting last login:', error)
+      return 'ismeretlen'
+    }
   }
 
   // Get user role display
   const getUserRoleDisplay = (user: any) => {
-    if (user.admin_type === 'system') return 'Admin'
+    if (user.admin_type === 'system') return 'Rendszeradmin'
     if (user.admin_type === 'teacher') return 'Tanár'
     if (user.special_role === 'class_teacher') return 'Osztályfőnök'
     return 'Diák'
@@ -207,132 +243,97 @@ function ActiveUsersWidget() {
   }
 
   return (
-    <Card className="h-fit">
-      <CardHeader className="pb-4">
+    <Card className="h-fit" role="region" aria-labelledby="recent-users-title">
+      <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg">
-              <Users className="h-5 w-5 text-white" />
+          <div className="flex items-center gap-2">
+            <div className="p-1.5 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg" aria-hidden="true">
+              <Users className="h-4 w-4 text-white" />
             </div>
             <div>
-              <CardTitle className="text-lg">Aktív Felhasználók</CardTitle>
-              <CardDescription>Legutóbbi bejelentkezések alapján</CardDescription>
+              <CardTitle id="recent-users-title" className="text-base">Legutóbbi bejelentkezések</CardTitle>
+              <CardDescription className="text-xs">Utolsó {mostRecentUsers.length} felhasználó</CardDescription>
             </div>
           </div>
-          <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
-            Top {topActiveUsers.length}
-          </Badge>
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
-        {topActiveUsers.length > 0 ? (
+      <CardContent className="space-y-3">
+        {mostRecentUsers.length > 0 ? (
           <>
-            <div className="space-y-2">
-              {topActiveUsers.map((user: any, index: number) => {
+            <div className="space-y-1">
+              {mostRecentUsers.slice(0, 3).map((user: any, index: number) => {
                 const activity = getActivityStatus(user)
                 const isActive = isCurrentlyActive(user)
                 
                 return (
-                  <div key={user.id} className="group flex items-center justify-between p-3 rounded-lg border border-border/50 hover:border-primary/30 hover:bg-accent/50 cursor-pointer transition-all duration-200">
-                    <div className="flex items-center gap-3">
-                      <div className="relative flex items-center gap-3">
-                        <div className={`flex items-center justify-center w-2 h-8 rounded-full ${
-                          index === 0 ? 'bg-yellow-400' : 
-                          index === 1 ? 'bg-gray-400' : 
-                          index === 2 ? 'bg-orange-400' : 'bg-muted'
-                        }`}>
-                          <span className="text-xs font-bold text-white">
-                            {index + 1}
-                          </span>
+                  <div 
+                    key={user.id} 
+                    className="group flex items-center justify-between p-2 rounded-lg border border-border/30 hover:border-primary/30 hover:bg-accent/50 cursor-pointer transition-all duration-200"
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`${user.full_name || `${user.first_name} ${user.last_name}`} - ${getUserRoleDisplay(user)} - ${formatLastLogin(user.last_login)}`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className="relative">
+                        <div 
+                          className="w-8 h-8 bg-gradient-to-br from-primary/20 to-primary/10 rounded-full flex items-center justify-center text-xs font-semibold border border-background group-hover:border-primary/20 transition-colors"
+                          title={`${user.full_name || `${user.first_name || 'Ismeretlen'} ${user.last_name || 'Felhasználó'}`}`}
+                        >
+                          {(user.first_name?.charAt(0) || user.full_name?.charAt(0) || '?').toUpperCase()}
                         </div>
-                        
-                        <div className="relative">
-                          <div className="w-10 h-10 bg-gradient-to-br from-primary/20 to-primary/10 rounded-full flex items-center justify-center text-sm font-semibold border-2 border-background group-hover:border-primary/20 transition-colors">
-                            {user.first_name?.charAt(0) || '?'}
-                          </div>
-                          <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-background ${activity.bgColor} flex items-center justify-center`}>
-                            {isActive && (
-                              <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
-                            )}
-                          </div>
+                        <div className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border border-background ${activity.bgColor} flex items-center justify-center`}>
+                          {isActive && (
+                            <div className="w-1 h-1 bg-white rounded-full animate-pulse" />
+                          )}
                         </div>
                       </div>
                       
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="font-semibold text-sm truncate">
-                            {user.full_name || `${user.first_name} ${user.last_name}`}
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1 mb-0.5">
+                          <span className="font-medium text-xs truncate">
+                            {user.full_name || `${user.first_name || 'Ismeretlen'} ${user.last_name || 'Felhasználó'}`}
                           </span>
                           {isActive && (
-                            <Badge variant="default" className="text-xs bg-green-500 hover:bg-green-600">
-                              ONLINE
-                            </Badge>
+                            <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
                           )}
                         </div>
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <span className="px-2 py-1 bg-muted rounded-md">{getUserRoleDisplay(user)}</span>
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <Badge variant="secondary" className="text-xs px-1.5 py-0 text-xs">
+                            {getUserRoleDisplay(user)}
+                          </Badge>
                           <span>•</span>
                           <span>{formatLastLogin(user.last_login)}</span>
                         </div>
                       </div>
                     </div>
-                    
-                    <div className="flex items-center gap-2">
-                      <Badge 
-                        variant="outline" 
-                        className={`text-xs ${activity.color} border-current`}
-                      >
-                        {activity.status === 'online' ? 'Aktív' : 
-                         activity.status === 'recent' ? 'Nemrég' : 
-                         activity.status === 'today' ? 'Ma' : 'Offline'}
-                      </Badge>
-                      <ExternalLink className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </div>
                   </div>
                 )
               })}
             </div>
+            
+            {/* Compact Statistics */}
+            <div className="pt-2 border-t border-border/30">
+              <div className="grid grid-cols-2 gap-2 text-center">
+                <div className="p-2 rounded-lg bg-green-50 dark:bg-green-950/30">
+                  <div className="text-lg font-bold text-green-700 dark:text-green-300">{activeNowCount}</div>
+                  <div className="text-xs text-green-600 dark:text-green-400">Aktív most</div>
+                </div>
+                <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-950/30">
+                  <div className="text-lg font-bold text-blue-700 dark:text-blue-300">{activeTodayCount}</div>
+                  <div className="text-xs text-blue-600 dark:text-blue-400">Ma aktív</div>
+                </div>
+              </div>
+            </div>
           </>
         ) : (
-          <div className="text-center py-8">
-            <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-              <Users className="h-8 w-8 text-muted-foreground" />
+          <div className="text-center py-6">
+            <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center mx-auto mb-3">
+              <Users className="h-6 w-6 text-muted-foreground" />
             </div>
-            <h3 className="font-semibold text-sm mb-2">Nincs aktív felhasználó</h3>
+            <h3 className="font-semibold text-sm mb-1">Nincs aktív felhasználó</h3>
             <p className="text-xs text-muted-foreground">Még senki sem jelentkezett be</p>
           </div>
         )}
-        
-        {/* Statistics cards */}
-        <div className="pt-4 border-t border-border/50">
-          <div className="grid grid-cols-2 gap-3">
-            <div className="relative overflow-hidden rounded-lg border border-green-200 bg-gradient-to-br from-green-50 to-emerald-50 p-3 dark:from-green-950/30 dark:to-emerald-950/30 dark:border-green-800">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="p-1.5 bg-green-500 rounded-md">
-                    <Activity className="h-3 w-3 text-white" />
-                  </div>
-                  <span className="text-sm font-medium text-green-800 dark:text-green-200">Aktív most</span>
-                </div>
-                <span className="text-lg font-bold text-green-700 dark:text-green-300">{activeNowCount}</span>
-              </div>
-              <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-green-400/20 rounded-full" />
-            </div>
-            
-            <div className="relative overflow-hidden rounded-lg border border-blue-200 bg-gradient-to-br from-blue-50 to-cyan-50 p-3 dark:from-blue-950/30 dark:to-cyan-950/30 dark:border-blue-800">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="p-1.5 bg-blue-500 rounded-md">
-                    <Clock className="h-3 w-3 text-white" />
-                  </div>
-                  <span className="text-sm font-medium text-blue-800 dark:text-blue-200">Ma aktív</span>
-                </div>
-                <span className="text-lg font-bold text-blue-700 dark:text-blue-300">{activeTodayCount}</span>
-              </div>
-              <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-blue-400/20 rounded-full" />
-            </div>
-          </div>
-        </div>
       </CardContent>
     </Card>
   )
@@ -342,12 +343,29 @@ function PendingForgatásokWidget() {
   const { data: filmingData, loading, error } = useApiQuery(
     () => apiClient.getFilmingSessions()
   )
+  const router = useRouter()
 
   if (loading) {
     return (
       <Card>
+        <CardHeader className="pb-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg">
+                <AlertCircle className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <CardTitle className="text-lg">Függő Forgatások</CardTitle>
+                <CardDescription>Beosztásra váró munkák betöltése...</CardDescription>
+              </div>
+            </div>
+          </div>
+        </CardHeader>
         <CardContent className="flex items-center justify-center py-12">
-          <Loader2 className="h-6 w-6 animate-spin" />
+          <div className="flex flex-col items-center space-y-4">
+            <Loader2 className="h-8 w-8 animate-spin text-orange-500" />
+            <p className="text-sm text-muted-foreground">Forgatások betöltése...</p>
+          </div>
         </CardContent>
       </Card>
     )
@@ -366,6 +384,13 @@ function PendingForgatásokWidget() {
 
   const sessions = filmingData || []
   const pendingSessions = sessions.filter((s: any) => s.status === 'pending' || s.status === 'planning')
+  const urgentSessions = pendingSessions.filter((s: any) => {
+    if (!s.datum) return false
+    const sessionDate = new Date(s.datum)
+    const threeDaysFromNow = new Date()
+    threeDaysFromNow.setDate(threeDaysFromNow.getDate() + 3)
+    return sessionDate <= threeDaysFromNow
+  })
 
   return (
     <Card className="h-fit">
@@ -376,93 +401,197 @@ function PendingForgatásokWidget() {
               <AlertCircle className="h-5 w-5 text-white" />
             </div>
             <div>
-              <CardTitle className="text-lg">Függő Forgatások</CardTitle>
-              <CardDescription>Beosztásra váró munkák</CardDescription>
+              <CardTitle className="text-lg">Függő Forgatások Központ</CardTitle>
+              <CardDescription>Beosztásra váró munkák és sürgős feladatok</CardDescription>
             </div>
           </div>
-          <Badge variant="destructive" className="text-xs bg-red-50 text-red-700 border-red-200">
-            {pendingSessions.length} függőben
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="text-xs bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-950/30 dark:text-orange-300 dark:border-orange-800">
+              {pendingSessions.length} függő
+            </Badge>
+            {urgentSessions.length > 0 && (
+              <Badge variant="destructive" className="text-xs animate-pulse">
+                {urgentSessions.length} sürgős
+              </Badge>
+            )}
+          </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
         {pendingSessions.length > 0 ? (
           <>
-            <div className="space-y-2">
-              {pendingSessions.slice(0, 3).map((session: any, index: number) => (
-                <div key={session.id} className="group flex items-center justify-between p-3 rounded-lg border border-border/50 hover:border-orange-500/30 hover:bg-accent/50 cursor-pointer transition-all duration-200">
-                  <div className="flex items-center gap-3">
-                    <div className="relative">
-                      <div className="p-2.5 bg-gradient-to-br from-orange-500/10 to-red-500/10 rounded-lg border border-orange-200/30 group-hover:border-orange-300/50 transition-colors">
-                        <Video className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+            {/* Quick Action Buttons */}
+            <div className="flex items-center gap-2 mb-4">
+              <Button 
+                size="sm" 
+                onClick={() => router.push('/app/forgatasok')}
+                className="flex items-center gap-2"
+              >
+                <Plus className="h-4 w-4" />
+                Új forgatás
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => router.push('/app/forgatasok/beosztasok')}
+                className="flex items-center gap-2"
+              >
+                <Calendar className="h-4 w-4" />
+                Beosztások
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => router.push('/app/stab')}
+                className="flex items-center gap-2"
+              >
+                <Users className="h-4 w-4" />
+                Stábok
+              </Button>
+            </div>
+
+            {/* Priority Sessions */}
+            {urgentSessions.length > 0 && (
+              <div className="mb-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <AlertCircle className="h-4 w-4 text-red-500" />
+                  <h4 className="text-sm font-semibold text-red-700 dark:text-red-300">Sürgős beosztások (3 napon belül)</h4>
+                </div>
+                <div className="space-y-2">
+                  {urgentSessions.slice(0, 2).map((session: any, index: number) => (
+                    <div key={`urgent-${session.id}`} className="p-3 rounded-lg border border-red-200 bg-red-50 dark:bg-red-950/20 dark:border-red-800">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-red-500 rounded-lg animate-pulse">
+                            <Video className="h-4 w-4 text-white" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="font-semibold text-sm text-red-800 dark:text-red-200">
+                                {session.title}
+                              </span>
+                              <Badge variant="destructive" className="text-xs">
+                                Sürgős
+                              </Badge>
+                            </div>
+                            <div className="flex items-center gap-3 text-xs text-red-600 dark:text-red-300">
+                              <span>📅 {session.datum || 'Nincs dátum'}</span>
+                              <span>📍 {session.location || 'Nincs helyszín'}</span>
+                            </div>
+                          </div>
+                        </div>
+                        <Button size="sm" variant="destructive">
+                          Beosztás
+                        </Button>
                       </div>
-                      <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-background flex items-center justify-center">
-                        <div className="w-1 h-1 bg-white rounded-full animate-pulse" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Regular Pending Sessions */}
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="text-sm font-semibold">Összes függő forgatás</h4>
+                <Button variant="ghost" size="sm" onClick={() => router.push('/app/forgatasok')}>
+                  Összes megtekintése
+                  <ExternalLink className="h-3 w-3 ml-1" />
+                </Button>
+              </div>
+              <div className="grid gap-2 md:grid-cols-2">
+                {pendingSessions.slice(0, 6).map((session: any, index: number) => (
+                  <div key={session.id} className="group flex items-center justify-between p-3 rounded-lg border border-border/50 hover:border-orange-500/30 hover:bg-accent/50 cursor-pointer transition-all duration-200">
+                    <div className="flex items-center gap-3">
+                      <div className="relative">
+                        <div className="p-2 bg-gradient-to-br from-orange-500/10 to-red-500/10 rounded-lg border border-orange-200/30 group-hover:border-orange-300/50 transition-colors">
+                          <Video className="h-4 w-4 text-orange-600 dark:text-orange-400" />
+                        </div>
+                        <div className="absolute -top-1 -right-1 w-3 h-3 bg-orange-500 rounded-full border-2 border-background flex items-center justify-center">
+                          <div className="w-1 h-1 bg-white rounded-full animate-pulse" />
+                        </div>
+                      </div>
+                      
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-medium text-sm truncate">
+                            {session.title}
+                          </span>
+                          <Badge variant="outline" className="text-xs bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/30 dark:text-purple-300 dark:border-purple-800">
+                            {session.type || 'Forgatás'}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <span>📅 {session.datum || 'TBD'}</span>
+                          <span>•</span>
+                          <span>📍 {session.location || 'TBD'}</span>
+                        </div>
                       </div>
                     </div>
                     
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="font-semibold text-sm truncate">
-                          {session.title}
-                        </span>
-                        <Badge variant="outline" className="text-xs bg-orange-50 text-orange-700 border-orange-200">
-                          {session.type || 'Forgatás'}
-                        </Badge>
-                      </div>
-                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                        <div className="flex items-center gap-1">
-                          <Calendar className="h-3 w-3" />
-                          <span>{session.datum || 'Nincs dátum'}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Globe className="h-3 w-3" />
-                          <span>{session.location || 'Nincs helyszín'}</span>
-                        </div>
+                    <div className="flex items-center gap-2">
+                      <Badge 
+                        variant="outline" 
+                        className="text-xs text-orange-600 border-orange-200 bg-orange-50 dark:bg-orange-950/30 dark:text-orange-300 dark:border-orange-800"
+                      >
+                        🔶 Függő
+                      </Badge>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Statistics and Overview */}
+            <div className="pt-4 border-t border-border/50">
+              <div className="grid grid-cols-3 gap-3">
+                <div className="p-3 rounded-lg bg-orange-50 dark:bg-orange-950/30 text-center">
+                  <div className="text-xl font-bold text-orange-700 dark:text-orange-300">{pendingSessions.length}</div>
+                  <div className="text-xs text-orange-600 dark:text-orange-400">Összes függő</div>
+                </div>
+                <div className="p-3 rounded-lg bg-red-50 dark:bg-red-950/30 text-center">
+                  <div className="text-xl font-bold text-red-700 dark:text-red-300">{urgentSessions.length}</div>
+                  <div className="text-xs text-red-600 dark:text-red-400">Sürgős</div>
+                </div>
+                <div className="p-3 rounded-lg bg-blue-50 dark:bg-blue-950/30 text-center">
+                  <div className="text-xl font-bold text-blue-700 dark:text-blue-300">{sessions.length - pendingSessions.length}</div>
+                  <div className="text-xs text-blue-600 dark:text-blue-400">Beosztott</div>
+                </div>
+              </div>
+            </div>
+
+            {urgentSessions.length > 0 && (
+              <div className="relative overflow-hidden rounded-lg border border-red-200 bg-gradient-to-br from-red-50 to-orange-50 p-4 dark:from-red-950/30 dark:to-orange-950/30 dark:border-red-800">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-red-500 rounded-lg animate-pulse">
+                      <Timer className="h-4 w-4 text-white" />
+                    </div>
+                    <div>
+                      <span className="text-sm font-semibold text-red-800 dark:text-red-200">Sürgős beosztás szükséges</span>
+                      <div className="text-xs text-red-600 dark:text-red-300 mt-1">
+                        {urgentSessions.length} forgatás 3 napon belül • Azonnali figyelem szükséges
                       </div>
                     </div>
                   </div>
-                  
-                  <div className="flex items-center gap-2">
-                    <Badge 
-                      variant="outline" 
-                      className="text-xs text-red-600 border-red-200"
-                    >
-                      Függő
-                    </Badge>
-                    <ExternalLink className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </div>
+                  <Button variant="destructive" size="sm" onClick={() => router.push('/app/forgatasok/surgos')}>
+                    Kezelés
+                  </Button>
                 </div>
-              ))}
-            </div>
-            
-            {/* Priority Alert */}
-            <div className="relative overflow-hidden rounded-lg border border-red-200 bg-gradient-to-br from-red-50 to-orange-50 p-4 dark:from-red-950/30 dark:to-orange-950/30 dark:border-red-800">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-red-500 rounded-lg animate-pulse">
-                    <Timer className="h-4 w-4 text-white" />
-                  </div>
-                  <div>
-                    <span className="text-sm font-semibold text-red-800 dark:text-red-200">Sürgős beosztás szükséges</span>
-                    <div className="text-xs text-red-600 dark:text-red-300 mt-1">Prioritás: Magas • Azonnali figyelem szükséges</div>
-                  </div>
-                </div>
-                <Badge variant="destructive" className="text-xs animate-bounce">
-                  Sürgős
-                </Badge>
+                <div className="absolute -bottom-2 -right-2 w-12 h-12 bg-red-400/20 rounded-full" />
+                <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-red-500/20 rounded-full" />
               </div>
-              <div className="absolute -bottom-2 -right-2 w-12 h-12 bg-red-400/20 rounded-full" />
-              <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-red-500/20 rounded-full" />
-            </div>
+            )}
           </>
         ) : (
-          <div className="text-center py-8">
-            <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-              <Video className="h-8 w-8 text-muted-foreground" />
+          <div className="text-center py-12">
+            <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+              <Video className="h-10 w-10 text-muted-foreground" />
             </div>
-            <h3 className="font-semibold text-sm mb-2">Nincs függő forgatás</h3>
-            <p className="text-xs text-muted-foreground">Minden forgatás rendben van</p>
+            <h3 className="font-semibold text-lg mb-2">Nincs függő forgatás</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              Minden forgatás megfelelően be van osztva
+            </p>
           </div>
         )}
       </CardContent>
@@ -504,8 +633,13 @@ function QuickActionsWidget() {
     },
   ]
 
-  const handleActionClick = (route: string) => {
-    router.push(route)
+  const handleActionClick = (route: string, actionName: string) => {
+    try {
+      router.push(route)
+    } catch (error) {
+      console.error(`Failed to navigate to ${actionName}:`, error)
+      // Could add toast notification here
+    }
   }
 
   return (
@@ -531,8 +665,17 @@ function QuickActionsWidget() {
           {quickActions.map((action) => (
             <div
               key={action.name}
-              onClick={() => handleActionClick(action.route)}
-              className="group relative overflow-hidden rounded-xl border border-border/50 bg-card hover:bg-accent hover:border-primary/20 cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-lg"
+              onClick={() => handleActionClick(action.route, action.name)}
+              className="group relative overflow-hidden rounded-xl border border-border/50 bg-card hover:bg-accent hover:border-primary/20 cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
+              role="button"
+              tabIndex={0}
+              aria-label={`${action.name} - ${action.description}`}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  handleActionClick(action.route, action.name);
+                }
+              }}
             >
               <div className="p-4">
                 <div className="flex flex-col items-center text-center space-y-3">
@@ -823,7 +966,9 @@ export default function Page() {
   // Update welcome message on component mount and every minute
   useEffect(() => {
     const updateMessage = () => {
-      setWelcomeMessage(getDynamicWelcomeMessage(user?.first_name))
+      if (user?.first_name) {
+        setWelcomeMessage(getDynamicWelcomeMessage(user.first_name))
+      }
     }
 
     // Initial update
@@ -844,13 +989,13 @@ export default function Page() {
             {/* Quick Actions at the top */}
             <QuickActionsWidget />
             
-            {/* Main widgets grid */}
+            {/* Main widgets grid - Prioritizing pending shootings */}
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               <div className="col-span-1 lg:col-span-2">
-                <ActiveUsersWidget />
+                <PendingForgatásokWidget />
               </div>
               <div className="col-span-1">
-                <PendingForgatásokWidget />
+                <ActiveUsersWidget />
               </div>
             </div>
           </>
@@ -955,7 +1100,18 @@ export default function Page() {
                   </div>
                 </div>
                 <div className="text-sm text-muted-foreground">
-                  {new Date().toLocaleDateString('hu-HU')}
+                  {(() => {
+                    try {
+                      return new Date().toLocaleDateString('hu-HU', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        weekday: 'long'
+                      })
+                    } catch (error) {
+                      return new Date().toLocaleDateString('hu-HU')
+                    }
+                  })()}
                 </div>
               </div>
             </CardContent>
