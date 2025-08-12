@@ -265,6 +265,55 @@ export interface EquipmentAvailabilitySchema {
   conflicts: Record<string, any>[]
 }
 
+export interface EquipmentScheduleSchema {
+  equipment_id: number
+  equipment_name: string
+  schedule: {
+    date: string
+    time_from: string
+    time_to: string
+    forgatas_name: string
+    forgatas_id: number
+    forgatas_type: string
+    location: string
+    available: boolean
+  }[]
+}
+
+export interface EquipmentUsageSchema {
+  equipment_id: number
+  equipment_name: string
+  total_bookings: number
+  upcoming_bookings: number
+  usage_hours: number
+  most_recent_use: string
+  next_booking?: {
+    forgatas_id: number
+    forgatas_name: string
+    date: string
+    time_from: string
+    time_to: string
+    location: string
+  }
+}
+
+export interface EquipmentOverviewSchema {
+  equipment_id: number
+  equipment_name: string
+  equipment_type: string
+  functional: boolean
+  available_periods: boolean
+  bookings: {
+    forgatas_id: number
+    forgatas_name: string
+    time_from: string
+    time_to: string
+    type: string
+    location: string
+  }[]
+  booking_count: number
+}
+
 // === PRODUCTION ===
 export interface ContactPersonSchema {
   id: number
@@ -1217,6 +1266,33 @@ class ApiClient {
       end_datetime: endDatetime,
     })
     return this.request<EquipmentAvailabilitySchema>(`/api/equipment/${equipmentId}/availability?${params.toString()}`)
+  }
+
+  async getEquipmentSchedule(
+    equipmentId: number,
+    startDate: string,
+    endDate?: string
+  ): Promise<EquipmentScheduleSchema> {
+    const params = new URLSearchParams({ start_date: startDate })
+    if (endDate) params.append('end_date', endDate)
+    return this.request<EquipmentScheduleSchema>(`/api/equipment/${equipmentId}/schedule?${params.toString()}`)
+  }
+
+  async getEquipmentUsage(
+    equipmentId: number,
+    daysBack: number = 30
+  ): Promise<EquipmentUsageSchema> {
+    const params = new URLSearchParams({ days_back: daysBack.toString() })
+    return this.request<EquipmentUsageSchema>(`/api/equipment/${equipmentId}/usage?${params.toString()}`)
+  }
+
+  async getEquipmentOverview(
+    date: string,
+    typeId?: number
+  ): Promise<EquipmentOverviewSchema[]> {
+    const params = new URLSearchParams({ date })
+    if (typeId) params.append('type_id', typeId.toString())
+    return this.request<EquipmentOverviewSchema[]>(`/api/equipment/availability-overview?${params.toString()}`)
   }
 
   // === PRODUCTION ===

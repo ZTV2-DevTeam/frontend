@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { Clapperboard, Info } from "lucide-react"
 import { FeaturesSection } from "@/app/features-section"
+import { WhyBetterSection } from "@/components/why-better-section"
 import { CountdownTimer } from "@/components/countdown-timer"
 import { DevelopersSection } from "@/components/developers-section"
 import { StatsSection } from "@/components/stats-section"
@@ -49,6 +50,9 @@ export default function LandingPage() {
             <a href="#features" className="text-muted-foreground hover:text-foreground transition-colors">
               Funkciók
             </a>
+            <a href="#why-better" className="text-muted-foreground hover:text-foreground transition-colors">
+              Előnyök
+            </a>
             <a href="#about" className="text-muted-foreground hover:text-foreground transition-colors">
               Rólunk
             </a>
@@ -93,6 +97,10 @@ export default function LandingPage() {
 
       <section id="features">
         <FeaturesSection />
+      </section>
+      
+      <section id="why-better">
+        <WhyBetterSection />
       </section>
       
       <section id="about">

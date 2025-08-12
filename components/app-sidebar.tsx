@@ -239,32 +239,43 @@ const data = {
     ],
   },
   utils: {
-    admin: [
-      {
-        name: "Partnerek",
-        url: "/app/partnerek",
-        icon: Handshake,
-      },
-      {
-        name: "Felszerelés",
-        url: "/app/felszereles",
-        icon: Video,
-      },
-    ],
-    'class-teacher': [],
-    student: [
-      {
-        name: "Partnerek",
-        url: "/app/partnerek",
-        icon: Handshake,
-      },
-      {
-        name: "Felszerelés",
-        url: "/app/felszereles",
-        icon: Video,
-      },
-
-    ],
+    admin: [] as Array<{
+      name: string
+      url: string  
+      icon: any
+    }>,
+    // Partnerek és Felszerelés funkciókat ideiglenesen kikapcsolta a fejlesztő
+    // {
+    //   name: "Partnerek",
+    //   url: "/app/partnerek",
+    //   icon: Handshake,
+    // },
+    // {
+    //   name: "Felszerelés",
+    //   url: "/app/felszereles",
+    //   icon: Video,
+    // },
+    'class-teacher': [] as Array<{
+      name: string
+      url: string
+      icon: any
+    }>,
+    student: [] as Array<{
+      name: string
+      url: string
+      icon: any
+    }>,
+    // Partnerek és Felszerelés funkciókat ideiglenesen kikapcsolta a fejlesztő
+    // {
+    //   name: "Partnerek",
+    //   url: "/app/partnerek",
+    //   icon: Handshake,
+    // },
+    // {
+    //   name: "Felszerelés", 
+    //   url: "/app/felszereles",
+    //   icon: Video,
+    // },
   },
   myClass: {
     admin: [],

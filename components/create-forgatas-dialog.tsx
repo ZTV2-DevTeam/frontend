@@ -24,6 +24,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { Plus } from "lucide-react"
 import { useUserRole } from "@/contexts/user-role-context"
 import { useAuth } from "@/contexts/auth-context"
+import { usePermissions } from "@/contexts/permissions-context"
+import { apiClient } from "@/lib/api"
 
 export function CreateForgatásDialog() {
   const [open, setOpen] = useState(false)
@@ -36,8 +38,11 @@ export function CreateForgatásDialog() {
   
   const { currentRole } = useUserRole()
   const { user } = useAuth()
+  const { hasPermission, permissions } = usePermissions()
 
-  const canCreateForgatás = currentRole === 'admin' || (currentRole === 'student' && user?.username?.includes('10F'))
+  const classDisplayName = permissions?.role_info?.class_display_name || permissions?.role_info?.class_assignment?.display_name
+  const is10FStudent = currentRole === 'student' && classDisplayName === '10F'
+  const canCreateForgatás = hasPermission('can_create_forgatas') || hasPermission('is_admin') || currentRole === 'admin' || is10FStudent
 
   if (!canCreateForgatás) {
     return null
@@ -48,19 +53,21 @@ export function CreateForgatásDialog() {
     setIsLoading(true)
 
     try {
-      // Here you would make an API call to create the forgatás
+      // Map form data to API schema
       const forgatásData = {
-        title,
-        type,
-        date,
-        location,
-        description,
+        name: title,
+        description: description,
+        date: date,
+        time_from: "09:00", // Default time - could be made configurable
+        time_to: "17:00",   // Default time - could be made configurable
+        type: type,
+        notes: `Helyszín: ${location}`,
       }
       
       console.log('Creating forgatás:', forgatásData)
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      // Make actual API call
+      await apiClient.createFilmingSession(forgatásData)
       
       // Reset form and close dialog
       setTitle("")

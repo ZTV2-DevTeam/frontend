@@ -227,6 +227,42 @@ export const apiHelpers = {
   },
 
   /**
+   * Get equipment schedule
+   */
+  getEquipmentSchedule: async (equipmentId: number, startDate: string, endDate?: string) => {
+    try {
+      return await apiClient.getEquipmentSchedule(equipmentId, startDate, endDate)
+    } catch (error) {
+      console.error('Failed to fetch equipment schedule:', error)
+      throw error
+    }
+  },
+
+  /**
+   * Get equipment usage statistics
+   */
+  getEquipmentUsage: async (equipmentId: number, daysBack: number = 30) => {
+    try {
+      return await apiClient.getEquipmentUsage(equipmentId, daysBack)
+    } catch (error) {
+      console.error('Failed to fetch equipment usage:', error)
+      throw error
+    }
+  },
+
+  /**
+   * Get equipment availability overview
+   */
+  getEquipmentOverview: async (date: string, typeId?: number) => {
+    try {
+      return await apiClient.getEquipmentOverview(date, typeId)
+    } catch (error) {
+      console.error('Failed to fetch equipment overview:', error)
+      throw error
+    }
+  },
+
+  /**
    * Get classes with error handling
    */
   getClasses: async () => {

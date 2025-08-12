@@ -197,11 +197,12 @@ export function PermissionsProvider({ children }: { children: React.ReactNode })
 
     // Check user role types
     const isSystemAdmin = perms?.is_system_admin || role_info?.primary_role === 'system_admin' || role_info?.admin_type === 'system_admin'
-    const isTeacherAdmin = perms?.is_teacher_admin || role_info?.admin_type === 'teacher' || perms?.is_admin
+    const isTeacherAdmin = perms?.is_teacher_admin || role_info?.admin_type === 'teacher'
+    const isGeneralAdmin = perms?.is_admin
     const isClassTeacher = perms?.is_osztaly_fonok || role_info?.special_role === 'class_teacher' || perms?.can_manage_class_students
     
-    // System admins and teacher admins (médiatanárok) can access everything
-    if (isSystemAdmin || isTeacherAdmin) {
+    // System admins, teacher admins (médiatanárok), and general admins can access everything
+    if (isSystemAdmin || isTeacherAdmin || isGeneralAdmin) {
       return true
     }
 
@@ -211,15 +212,15 @@ export function PermissionsProvider({ children }: { children: React.ReactNode })
       case '/app/iranyitopult':
         return true
 
-      // Admin-only pages
+      // Staff page - accessible by everyone except class teachers (osztályfőnökök)
       case '/app/stab':
-        return perms.can_manage_users || perms.is_admin
+        return true // Everyone can access staff contact info
       
       case '/app/database-admin':
         return perms.is_developer_admin || perms.is_system_admin
 
       case '/app/beallitasok':
-        return perms.can_access_admin_panel || perms.is_admin
+        return perms.can_access_admin_panel || perms.is_admin || isSystemAdmin || isTeacherAdmin || isGeneralAdmin
 
       // Teacher/Admin pages
       case '/app/forgatasok':
@@ -275,13 +276,15 @@ export function PermissionsProvider({ children }: { children: React.ReactNode })
     const { permissions: perms, role_info, display_properties } = permissions
     const roles: AvailableRole[] = []
 
-    // Check if user is a system admin or teacher admin (médiatanár)
+    // Check if user is a system admin or teacher admin (médiatanár) or general admin
     const isSystemAdmin = perms?.is_system_admin || role_info?.primary_role === 'system_admin' || role_info?.admin_type === 'system_admin'
-    const isTeacherAdmin = perms?.is_teacher_admin || role_info?.admin_type === 'teacher' || perms?.is_admin
+    const isTeacherAdmin = perms?.is_teacher_admin || role_info?.admin_type === 'teacher'
+    const isGeneralAdmin = perms?.is_admin
     
     console.log('🔍 Role Analysis:', {
       isSystemAdmin,
       isTeacherAdmin,
+      isGeneralAdmin,
       primary_role: role_info?.primary_role,
       admin_type: role_info?.admin_type,
       is_system_admin: perms?.is_system_admin,
@@ -291,8 +294,8 @@ export function PermissionsProvider({ children }: { children: React.ReactNode })
       special_role: role_info?.special_role
     })
     
-    // Admin role: Rendszeradmin OR Tanár-admin (Médiatanár)
-    if (isSystemAdmin || isTeacherAdmin) {
+    // Admin role: Rendszeradmin OR Tanár-admin (Médiatanár) OR általános admin szerepkör
+    if (isSystemAdmin || isTeacherAdmin || isGeneralAdmin) {
       roles.push('admin')
     }
     
@@ -341,6 +344,7 @@ export function PermissionsProvider({ children }: { children: React.ReactNode })
     // Multiple roles available - prioritize based on hierarchy and role types
     const isSystemAdmin = perms?.is_system_admin || role_info?.primary_role === 'system_admin' || role_info?.admin_type === 'system_admin'
     const isTeacherAdmin = perms?.is_teacher_admin || role_info?.admin_type === 'teacher' || perms?.is_admin
+    const isGeneralAdmin = perms?.is_admin
     const isClassTeacher = perms?.is_osztaly_fonok || role_info?.special_role === 'class_teacher'
     
     // Priority 1: System Admin always gets admin role
@@ -353,8 +357,13 @@ export function PermissionsProvider({ children }: { children: React.ReactNode })
       return 'admin'
     }
     
-    // Priority 3: Pure osztályfőnök (class teacher without admin rights) gets class-teacher role  
-    if (availableRoles.includes('class-teacher') && isClassTeacher && !isTeacherAdmin && !isSystemAdmin) {
+    // Priority 3: General admin gets admin role
+    if (availableRoles.includes('admin') && isGeneralAdmin) {
+      return 'admin'
+    }
+    
+    // Priority 4: Pure osztályfőnök (class teacher without admin rights) gets class-teacher role  
+    if (availableRoles.includes('class-teacher') && isClassTeacher && !isTeacherAdmin && !isSystemAdmin && !isGeneralAdmin) {
       return 'class-teacher'
     }
     

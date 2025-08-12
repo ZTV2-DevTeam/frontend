@@ -5,6 +5,9 @@ import { AppSidebar } from "@/components/app-sidebar"
 import { SiteHeader } from "@/components/site-header"
 import { useApiQuery } from "@/lib/api-helpers"
 import { apiClient } from "@/lib/api"
+import { usePermissions } from "@/contexts/permissions-context"
+import { useAuth } from "@/contexts/auth-context"
+import { useUserRole } from "@/contexts/user-role-context"
 import {
   SidebarInset,
   SidebarProvider,
@@ -14,6 +17,8 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { CreateForgatásForm } from "@/components/create-forgatas-form"
 import { 
   Video,
   Camera,
@@ -71,6 +76,24 @@ export default function ShootingsPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [typeFilter, setTypeFilter] = useState("all")
+  const [createOpen, setCreateOpen] = useState(false)
+  const { hasPermission, permissions } = usePermissions()
+  const { user } = useAuth()
+  const { currentRole } = useUserRole()
+  const classDisplayName = permissions?.role_info?.class_display_name || permissions?.role_info?.class_assignment?.display_name
+  const is10FStudent = currentRole === 'student' && classDisplayName === '10F'
+  const canCreate = hasPermission('can_create_forgatas') || hasPermission('is_admin') || is10FStudent
+
+  // Debug logging
+  console.log('🔍 Create Button Debug:', {
+    currentRole,
+    username: user?.username,
+    classDisplayName,
+    is10FStudent,
+    hasCreatePermission: hasPermission('can_create_forgatas'),
+    hasAdminPermission: hasPermission('is_admin'),
+    canCreate
+  })
 
   // Fetch filming sessions from API
   const { data: filmingData, loading, error } = useApiQuery(
@@ -180,11 +203,23 @@ export default function ShootingsPage() {
                 </p>
               </div>
             </div>
-            <Button size="sm">
-              <Plus className="mr-1 h-3 w-3" />
-              Új forgatás
-            </Button>
+            {canCreate && (
+              <Button size="sm" onClick={() => setCreateOpen(true)}>
+                <Plus className="mr-1 h-3 w-3" />
+                Új forgatás
+              </Button>
+            )}
           </div>
+          {canCreate && (
+            <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+              <DialogContent className="sm:max-w-[720px]">
+                <DialogHeader>
+                  <DialogTitle>Új forgatás létrehozása</DialogTitle>
+                </DialogHeader>
+                <CreateForgatásForm />
+              </DialogContent>
+            </Dialog>
+          )}
 
           {/* Filters - Compact */}
           <div className="flex items-center gap-3 mb-4">

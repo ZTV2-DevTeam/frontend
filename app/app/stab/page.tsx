@@ -42,7 +42,8 @@ import {
   MoreHorizontal,
   Star,
   Activity,
-  Loader2
+  Loader2,
+  FileText
 } from "lucide-react"
 import { useApiQuery } from "@/lib/api-helpers"
 import { UserDetailSchema, UserProfileSchema, OsztalySchema } from "@/lib/types"
@@ -55,6 +56,88 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+
+// Dynamic import for PDF functionality (client-side only)
+const generatePDF = async (users: any[]) => {
+  // Import jsPDF and autoTable dynamically to avoid SSR issues
+  const jsPDF = (await import('jspdf')).default
+  // Import autoTable - this extends jsPDF prototype
+  await import('jspdf-autotable')
+
+  const doc = new jsPDF({
+    orientation: 'landscape',
+    unit: 'mm',
+    format: 'a4'
+  })
+
+  // Group users by class
+  const usersByClass: { [key: string]: any[] } = {}
+  users.forEach(user => {
+    // Only include users with phone numbers for contact purposes
+    if (user.telefonszam) {
+      const className = user.osztaly_name || 'Osztály nélkül'
+      if (!usersByClass[className]) {
+        usersByClass[className] = []
+      }
+      usersByClass[className].push(user)
+    }
+  })
+
+  // Sort classes alphabetically
+  const sortedClasses = Object.keys(usersByClass).sort()
+
+  let isFirstPage = true
+
+  sortedClasses.forEach(className => {
+    if (!isFirstPage) {
+      doc.addPage()
+    }
+    isFirstPage = false
+
+    const classUsers = usersByClass[className]
+    
+    // Title
+    doc.setFontSize(20)
+    doc.setFont('helvetica', 'bold')
+    doc.text(className, 20, 25)
+    
+    // Subtitle
+    doc.setFontSize(12)
+    doc.setFont('helvetica', 'normal')
+    doc.text(`Kontakt információk - ${classUsers.length} személy`, 20, 35)
+
+    // Prepare table data - only name and phone number
+    const tableData = classUsers.map(user => [
+      user.full_name || `${user.first_name} ${user.last_name}`.trim(),
+      user.telefonszam || ''
+    ])
+
+    // Generate table using the extended autoTable method
+    ;(doc as any).autoTable({
+      head: [['Név', 'Telefonszám']],
+      body: tableData,
+      startY: 45,
+      styles: {
+        fontSize: 11,
+        cellPadding: 4,
+      },
+      headStyles: {
+        fillColor: [63, 81, 181],
+        textColor: 255,
+        fontStyle: 'bold',
+      },
+      columnStyles: {
+        0: { cellWidth: 120 }, // Name column
+        1: { cellWidth: 80 }, // Phone column
+      },
+      margin: { left: 20, right: 20 },
+    })
+  })
+
+  // Save the PDF
+  const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-')
+  doc.save(`stab-kontakt-lista-${timestamp}.pdf`)
+}
 
 // Enhanced Loading Component
 function LoadingSpinner({ message = "Betöltés..." }) {
@@ -438,8 +521,25 @@ export default function StabPage() {
     console.log('Delete user:', user)
   }
 
+  const handleExportPDF = async () => {
+    try {
+      // Filter users with phone numbers
+      const usersWithPhone = filteredUsers.filter(user => user.telefonszam)
+      
+      if (usersWithPhone.length === 0) {
+        alert('Nincs telefonszámmal rendelkező felhasználó a jelenlegi szűrés alapján.')
+        return
+      }
+      
+      await generatePDF(usersWithPhone)
+    } catch (error) {
+      console.error('Failed to generate PDF:', error)
+      alert('Hiba történt a PDF generálása során.')
+    }
+  }
+
   return (
-    <ProtectedRoute requiredPermission="can_manage_users">
+    <ProtectedRoute>
       <TooltipProvider>
         <SidebarProvider
           style={
@@ -465,6 +565,10 @@ export default function StabPage() {
                 </div>
                 
                 <div className="flex items-center gap-3">
+                  <Button onClick={handleExportPDF} variant="outline" size="sm">
+                    <FileText className="h-4 w-4 mr-2" />
+                    Export PDF
+                  </Button>
                   <Button onClick={handleRefresh} variant="outline" size="sm">
                     <RefreshCw className="h-4 w-4 mr-2" />
                     Frissítés
