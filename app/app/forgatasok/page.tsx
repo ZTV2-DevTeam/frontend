@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-import { useState } from "react"
+import React, { useState, useMemo } from "react"
 import { AppSidebar } from "@/components/app-sidebar"
 import { SiteHeader } from "@/components/site-header"
 import { useApiQuery } from "@/lib/api-helpers"
@@ -13,6 +13,7 @@ import { useAuth } from "@/contexts/auth-context"
 import { useUserRole } from "@/contexts/user-role-context"
 import type { ForgatSchema, ForgatoTipusSchema } from "@/lib/types"
 import { ApiErrorBoundary } from "@/components/api-error-boundary"
+import { ApiErrorFallback } from "@/components/api-error-fallback"
 import { DebugConsole } from "@/components/debug-console"
 import {
   SidebarInset,
@@ -22,50 +23,63 @@ import { Card, CardTitle, CardHeader, CardContent, CardDescription } from "@/com
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { CreateForgatásForm } from "@/components/create-forgatas-form"
+import { Label } from "@/components/ui/label"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Separator } from "@/components/ui/separator"
+import { Textarea } from "@/components/ui/textarea"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 import { 
-  Video,
-  Camera,
-  MapPin,
-  Phone,
-  Mail,
-  Calendar,
-  Clock,
-  Users,
+  CalendarDays, 
+  Clock, 
+  MapPin, 
+  User, 
+  Camera, 
+  CheckCircle, 
+  XCircle, 
+  AlertTriangle,
+  Loader2,
+  AlertCircle,
   Plus,
   Search,
   Filter,
-  Eye,
-  Edit,
-  Trash2,
-  ExternalLink,
-  Star,
-  AlertCircle,
-  CheckCircle,
-  XCircle,
-  Loader2
+  Phone,
+  Mail,
+  ExternalLink
 } from "lucide-react"
+import { format } from "date-fns"
+import { hu } from "date-fns/locale"
+import { CreateForgatásDialog } from "@/components/create-forgatas-dialog"
 
-const getStatusInfo = (status: string) => {
+// Status badge helper
+const getStatusBadge = (status: string) => {
   switch (status) {
-    case 'confirmed':
-      return { variant: 'default', label: 'Megerősítve', icon: CheckCircle, color: 'text-green-600' }
-    case 'scheduled':
-      return { variant: 'secondary', label: 'Ütemezve', icon: Clock, color: 'text-blue-600' }
-    case 'pending':
-      return { variant: 'outline', label: 'Függőben', icon: AlertCircle, color: 'text-yellow-600' }
-    case 'draft':
-      return { variant: 'outline', label: 'Tervezet', icon: Edit, color: 'text-gray-600' }
+    case 'completed':
+      return { icon: CheckCircle, variant: 'default' as const, label: 'Befejezett', color: 'text-green-600' }
+    case 'in_progress':
+      return { icon: Clock, variant: 'secondary' as const, label: 'Folyamatban', color: 'text-blue-600' }
     case 'cancelled':
-      return { variant: 'destructive', label: 'Törölve', icon: XCircle, color: 'text-red-600' }
+      return { icon: XCircle, variant: 'destructive' as const, label: 'Törölve', color: 'text-red-600' }
+    case 'planned':
+      return { icon: CalendarDays, variant: 'outline' as const, label: 'Tervezett', color: 'text-gray-600' }
     default:
-      return { variant: 'outline', label: 'Ismeretlen', icon: AlertCircle, color: 'text-gray-600' }
+      return { icon: AlertTriangle, variant: 'outline' as const, label: 'Ismeretlen', color: 'text-gray-600' }
   }
 }
 
-const getPriorityInfo = (priority: string) => {
+// Priority badge helper
+const getPriorityBadge = (priority: string) => {
   switch (priority) {
     case 'high':
       return { variant: 'destructive', label: 'Magas' }
@@ -79,38 +93,90 @@ const getPriorityInfo = (priority: string) => {
 }
 
 export default function ShootingsPage() {
+  // State hooks - MUST be at the very top
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [typeFilter, setTypeFilter] = useState("all")
   const [createOpen, setCreateOpen] = useState(false)
+  
+  // Context hooks - MUST be called before any conditional returns
   const { hasPermission, permissions } = usePermissions()
   const { user } = useAuth()
   const { currentRole } = useUserRole()
-  const classDisplayName = permissions?.role_info?.class_display_name || permissions?.role_info?.class_assignment?.display_name
+  
+  // API hooks - MUST be called before any conditional returns
+  const filmingQuery = useApiQuery(() => apiClient.getFilmingSessions())
+  const typesQuery = useApiQuery(() => apiClient.getFilmingTypes())
+
+  const { data: filmingData, loading, error } = filmingQuery
+  const { data: typesData } = typesQuery
+
+  // Computed values using useMemo - MUST be called before conditional returns
+  const sessions = useMemo(() => {
+    if (!Array.isArray(filmingData)) return []
+    return filmingData
+  }, [filmingData])
+
+  const types = useMemo(() => {
+    if (!Array.isArray(typesData)) return []
+    return typesData
+  }, [typesData])
+
+  // Safe data handling - MUST be before conditional returns
+  const safeSessions = useMemo(() => {
+    return sessions.map((session: any) => {
+      try {
+        return {
+          ...session,
+          // Safely extract string values to avoid React object rendering errors
+          displayName: String(session.name || 'Ismeretlen forgatás'),
+          displayDescription: String(session.description || session.notes || ''),
+          displayLocation: typeof session.location === 'object' && session.location?.name ? 
+                          String(session.location.name) : String(session.location || 'Nincs helyszín'),
+          displayContactPerson: typeof session.contact_person === 'object' && session.contact_person?.name ?
+                               String(session.contact_person.name) : String(session.contact_person || ''),
+          displayDate: String(session.date || ''),
+          // Safely handle phone and email from contact_person object
+          phone: typeof session.contact_person === 'object' && session.contact_person?.phone ?
+                 String(session.contact_person.phone) : String(session.phone || ''),
+          email: typeof session.contact_person === 'object' && session.contact_person?.email ?
+                 String(session.contact_person.email) : String(session.email || '')
+        }
+      } catch (err) {
+        console.error('Error processing session:', session, err)
+        return {
+          ...session,
+          displayName: 'Hibás adat',
+          displayDescription: '',
+          displayLocation: 'Nincs helyszín',
+          displayContactPerson: '',
+          displayDate: '',
+          phone: '',
+          email: ''
+        }
+      }
+    })
+  }, [sessions])
+
+  // Filtered sessions - MUST be before conditional returns
+  const filteredSessions = useMemo(() => {
+    return safeSessions.filter((session: any) => {
+      const matchesSearch = (session.displayName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           (session.displayLocation || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           (session.type || '').toString().toLowerCase().includes(searchTerm.toLowerCase())
+      const matchesStatus = statusFilter === "all" || session.status === statusFilter
+      const matchesType = typeFilter === "all" || session.type === typeFilter
+      return matchesSearch && matchesStatus && matchesType
+    })
+  }, [safeSessions, searchTerm, statusFilter, typeFilter])
+
+  // Permission calculations - MUST be before conditional returns
+  const classDisplayName = permissions?.role_info?.class_display_name || 
+                          permissions?.role_info?.class_assignment?.display_name
   const is10FStudent = currentRole === 'student' && classDisplayName === '10F'
   const canCreate = hasPermission('can_create_forgatas') || hasPermission('is_admin') || is10FStudent
 
-  // Debug logging
-  console.log('🔍 Create Button Debug:', {
-    currentRole,
-    username: user?.username,
-    classDisplayName,
-    is10FStudent,
-    hasCreatePermission: hasPermission('can_create_forgatas'),
-    hasAdminPermission: hasPermission('is_admin'),
-    canCreate
-  })
-
-  // Fetch filming sessions from API
-  const { data: filmingData, loading, error } = useApiQuery(
-    () => apiClient.getFilmingSessions()
-  )
-
-  // Fetch filming types for filter
-  const { data: typesData } = useApiQuery(
-    () => apiClient.getFilmingTypes()
-  )
-
+  // NOW we can have conditional returns - ALL HOOKS HAVE BEEN CALLED
   if (loading) {
     return (
       <SidebarProvider
@@ -155,66 +221,8 @@ export default function ShootingsPage() {
     )
   }
 
-  const sessions = Array.isArray(filmingData) ? filmingData : []
-  const types = Array.isArray(typesData) ? typesData : []
-
-  // Ensure safe data handling - avoid passing objects to React text rendering
-  const safeSessions = sessions.map((session: any) => ({
-    ...session,
-    // Safely extract string values to avoid React object rendering errors
-    displayName: session.name || 'Ismeretlen forgatás',
-    displayDescription: session.description || session.notes || '',
-    displayLocation: typeof session.location === 'object' && session.location?.name ? 
-                    session.location.name : (session.location || 'Nincs helyszín'),
-    displayContactPerson: typeof session.contact_person === 'object' && session.contact_person?.name ?
-                         session.contact_person.name : (session.contact_person || ''),
-    displayDate: session.date || '',
-    // Safely handle phone and email from contact_person object
-    phone: typeof session.contact_person === 'object' && session.contact_person?.phone ?
-           session.contact_person.phone : (session.phone || ''),
-    email: typeof session.contact_person === 'object' && session.contact_person?.email ?
-           session.contact_person.email : (session.email || '')
-  }))
-
-  // Debug logging for development
-  if (process.env.NODE_ENV === 'development' && safeSessions.length > 0) {
-    console.log('🔍 Safe Sessions Debug:', {
-      originalCount: sessions.length,
-      safeCount: safeSessions.length,
-      firstOriginal: sessions[0],
-      firstSafe: safeSessions[0]
-    })
-  }
-
-  // Filter sessions
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const filteredSessions = safeSessions.filter((session: any) => {
-    const matchesSearch = (session.displayName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         (session.displayLocation || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         (session.type || '').toString().toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesStatus = statusFilter === "all" || session.status === statusFilter
-    const matchesType = typeFilter === "all" || session.type === typeFilter
-    return matchesSearch && matchesStatus && matchesType
-  })
-
-  // Stats - temporary disable for build
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const stats = {
-    total: safeSessions.length,
-    confirmed: safeSessions.filter((s: any) => s.status === 'confirmed').length, // eslint-disable-line @typescript-eslint/no-explicit-any
-    pending: safeSessions.filter((s: any) => s.status === 'pending').length, // eslint-disable-line @typescript-eslint/no-explicit-any
-    thisWeek: safeSessions.filter((s: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
-      if (!s.displayDate) return false
-      const sessionDate = new Date(s.displayDate)
-      const now = new Date()
-      const weekStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay())
-      const weekEnd = new Date(weekStart.getTime() + 7 * 24 * 60 * 60 * 1000)
-      return sessionDate >= weekStart && sessionDate < weekEnd
-    }).length
-  }
-
   return (
-    <ApiErrorBoundary>
+    <ApiErrorBoundary fallback={ApiErrorFallback}>
       <SidebarProvider
         style={
           {
@@ -236,134 +244,112 @@ export default function ShootingsPage() {
           {/* Header */}
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <div className="p-1.5 bg-primary rounded-md">
-                <Video className="h-4 w-4 text-primary-foreground" />
-              </div>
-              <div>
-                <h1 className="text-xl font-semibold">Forgatások</h1>
-                <p className="text-sm text-muted-foreground">
-                  Videó és fotózási projektek kezelése
-                </p>
-              </div>
+              <h1 className="text-2xl font-bold">Forgatások</h1>
+              <Badge variant="secondary">{filteredSessions.length}</Badge>
             </div>
-            {canCreate && (
-              <Button size="sm" onClick={() => setCreateOpen(true)}>
-                <Plus className="mr-1 h-3 w-3" />
-                Új forgatás
-              </Button>
-            )}
-          </div>
-          {canCreate && (
-            <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-              <DialogContent className="sm:max-w-[720px]">
-                <DialogHeader>
-                  <DialogTitle>Új forgatás létrehozása</DialogTitle>
-                </DialogHeader>
-                <CreateForgatásForm />
-              </DialogContent>
-            </Dialog>
-          )}
-
-          {/* Filters - Compact */}
-          <div className="flex items-center gap-3 mb-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-muted-foreground" />
-              <Input
-                placeholder="Forgatás keresése..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-7 h-8 text-sm"
-              />
-            </div>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-32 h-8 text-sm">
-                <SelectValue placeholder="Státusz" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Minden</SelectItem>
-                <SelectItem value="confirmed">Megerősítve</SelectItem>
-                <SelectItem value="scheduled">Ütemezve</SelectItem>
-                <SelectItem value="pending">Függőben</SelectItem>
-                <SelectItem value="draft">Tervezet</SelectItem>
-                <SelectItem value="cancelled">Törölve</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={typeFilter} onValueChange={setTypeFilter}>
-              <SelectTrigger className="w-32 h-8 text-sm">
-                <SelectValue placeholder="Típus" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Minden</SelectItem>
-                {types.map((type: ForgatoTipusSchema) => (
-                  <SelectItem key={type.value || type.label} value={type.value || type.label}>
-                    {type.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            {canCreate && <CreateForgatásDialog />}
           </div>
 
-          {/* Shootings Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+          {/* Search and Filters */}
+          <div className="flex flex-col md:flex-row gap-4 mb-6">
+            <div className="flex-1">
+              <div className="relative">
+                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Keresés forgatások között..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-8"
+                />
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-40">
+                  <Filter className="h-4 w-4 mr-2" />
+                  <SelectValue placeholder="Státusz" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Minden státusz</SelectItem>
+                  <SelectItem value="planned">Tervezett</SelectItem>
+                  <SelectItem value="in_progress">Folyamatban</SelectItem>
+                  <SelectItem value="completed">Befejezett</SelectItem>
+                  <SelectItem value="cancelled">Törölve</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={typeFilter} onValueChange={setTypeFilter}>
+                <SelectTrigger className="w-40">
+                  <SelectValue placeholder="Típus" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Minden típus</SelectItem>
+                  {types.map((type: any) => (
+                    <SelectItem key={type.id} value={type.id.toString()}>
+                      {type.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Sessions Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredSessions.length === 0 ? (
-              <div className="col-span-full text-center py-12">
-                <Video className="mx-auto h-12 w-12 text-muted-foreground/50 mb-4" />
-                <p className="text-lg font-medium text-muted-foreground">Nincs találat</p>
-                <p className="text-sm text-muted-foreground">Próbálj meg más keresési feltételekkel</p>
+              <div className="col-span-full text-center py-12 text-muted-foreground">
+                {searchTerm || statusFilter !== "all" || typeFilter !== "all" 
+                  ? "Nincs találat a keresési feltételeknek megfelelően."
+                  : "Még nincsenek forgatások."
+                }
               </div>
             ) : (
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               filteredSessions.map((session: any) => {
-                const statusInfo = getStatusInfo('confirmed') // Default status since not available
-                const priorityInfo = getPriorityInfo('medium') // Default priority since not available
-                const StatusIcon = statusInfo.icon
+                const status = getStatusBadge(session.status)
+                const StatusIcon = status.icon
                 
                 return (
                   <Card key={session.id} className="hover:shadow-lg transition-all duration-200 cursor-pointer">
                     <CardHeader className="pb-3">
-                      <div className="flex items-start justify-between gap-2 mb-3">
-                        <div className="flex gap-2">
-                          <Badge variant={statusInfo.variant as "default" | "secondary" | "destructive" | "outline"} className="text-xs">
-                            <StatusIcon className="h-3 w-3 mr-1" />
-                            {statusInfo.label}
-                          </Badge>
-                          <Badge variant="outline" className="text-xs">
-                            {session.type || 'Forgatás'}
-                          </Badge>
-                          <Badge variant={priorityInfo.variant as "default" | "secondary" | "destructive" | "outline"} className="text-xs">
-                            {priorityInfo.label}
-                          </Badge>
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <CardTitle className="text-lg leading-tight">{session.displayName}</CardTitle>
+                          {session.displayDescription && (
+                            <CardDescription className="mt-1 line-clamp-2">
+                              {session.displayDescription}
+                            </CardDescription>
+                          )}
                         </div>
+                        <Badge variant={status.variant} className="ml-2 shrink-0">
+                          <StatusIcon className="h-3 w-3 mr-1" />
+                          {status.label}
+                        </Badge>
                       </div>
-                      <CardTitle className="text-lg leading-tight">{session.displayName}</CardTitle>
-                      <CardDescription className="line-clamp-2">
-                        {session.displayDescription || 'Nincs leírás'}
-                      </CardDescription>
                     </CardHeader>
                     
-                    <CardContent className="space-y-4">
-                      {/* Date and Duration */}
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                        <div className="flex items-center gap-1">
-                          <Calendar className="h-4 w-4" />
-                          <span>{session.displayDate || 'Nincs dátum'}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Clock className="h-4 w-4" />
+                    <CardContent className="space-y-3">
+                      {/* Date and Time */}
+                      <div className="flex items-center text-sm text-muted-foreground">
+                        <CalendarDays className="h-4 w-4 mr-2 flex-shrink-0" />
+                        <div>
+                          <div>{session.displayDate ? format(new Date(session.displayDate), 'yyyy. MM. dd.', { locale: hu }) : 'Nincs dátum'}</div>
                           <span>{session.time_from && session.time_to ? `${session.time_from} - ${session.time_to}` : 'Nincs időpont'}</span>
                         </div>
                       </div>
-                      
+
                       {/* Location */}
-                      <div className="flex items-center gap-2 text-sm">
-                        <MapPin className="h-4 w-4 text-muted-foreground" />
+                      <div className="flex items-center text-sm">
+                        <MapPin className="h-4 w-4 mr-2 flex-shrink-0 text-muted-foreground" />
                         <span className="font-medium">{session.displayLocation}</span>
                       </div>
-                      
-                      {/* Contact */}
+
+                      {/* Contact Person */}
                       {session.displayContactPerson && (
-                        <div className="space-y-2">
-                          <div className="text-sm font-medium">{session.displayContactPerson}</div>
+                        <div className="flex items-center justify-between text-sm">
+                          <div className="flex items-center">
+                            <User className="h-4 w-4 mr-2 flex-shrink-0 text-muted-foreground" />
+                            <div className="text-sm font-medium">{session.displayContactPerson}</div>
+                          </div>
                           <div className="flex items-center gap-4">
                             {session.phone && (
                               <Button variant="ghost" size="sm" className="h-8 px-2" asChild>
@@ -393,51 +379,6 @@ export default function ShootingsPage() {
                           </div>
                         </div>
                       )}
-                      
-                      {/* Staff Assignment */}
-                      <div className="bg-muted/30 p-3 rounded-lg space-y-2">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <Users className="h-4 w-4 text-blue-600" />
-                            <span className="text-sm font-medium">Stáb beosztás</span>
-                          </div>
-                          <Badge variant="outline" className="text-xs">
-                            {session.assigned_users?.length || 0} fő
-                          </Badge>
-                        </div>
-                        {session.assigned_users && session.assigned_users.length > 0 && (
-                          <div className="space-y-1">
-                            <div className="text-xs font-medium text-muted-foreground">Beosztott stábtagok:</div>
-                            <div className="flex flex-wrap gap-1">
-                              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                              {session.assigned_users?.slice(0, 3).map((user: any, idx: number) => (
-                                <Badge key={idx} variant="secondary" className="text-xs">
-                                  {user.name || user}
-                                </Badge>
-                              ))}
-                              {session.assigned_users.length > 3 && (
-                                <Badge variant="outline" className="text-xs">
-                                  +{session.assigned_users.length - 3} további
-                                </Badge>
-                              )}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                      
-                      {/* Action Buttons */}
-                      <div className="flex gap-2 pt-2">
-                        <Button variant="outline" size="sm" className="flex-1">
-                          <Eye className="h-4 w-4 mr-1" />
-                          Részletek
-                        </Button>
-                        <Button variant="outline" size="sm">
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button variant="outline" size="sm">
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
                     </CardContent>
                   </Card>
                 )
@@ -450,4 +391,3 @@ export default function ShootingsPage() {
     </ApiErrorBoundary>
   )
 }
-
