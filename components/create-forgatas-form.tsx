@@ -19,6 +19,7 @@ import { useUserRole } from "@/contexts/user-role-context"
 import { useAuth } from "@/contexts/auth-context"
 import { usePermissions } from "@/contexts/permissions-context"
 import { useApiQuery, useApiMutation } from "@/lib/api-helpers"
+import { ApiErrorBoundary } from "@/components/api-error-boundary"
 import { apiClient } from "@/lib/api"
 import type { ForgatCreateSchema, PartnerSchema, ContactPersonSchema, ForgatoTipusSchema } from "@/lib/api"
 
@@ -199,16 +200,17 @@ export function CreateForgatásForm() {
   }, [formData.contact_person_id, contactPersons, contactPersonInput])
 
   return (
-    <Card className="w-full max-w-2xl mx-auto">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Camera className="h-5 w-5" />
-          Új forgatás létrehozása
-        </CardTitle>
-        <CardDescription>
-          Hozz létre egy új forgatás projektet. A stáb beosztását a tanárok fogják elvégezni.
-        </CardDescription>
-      </CardHeader>
+    <ApiErrorBoundary>
+      <Card className="w-full max-w-2xl mx-auto">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Camera className="h-5 w-5" />
+            Új forgatás létrehozása
+          </CardTitle>
+          <CardDescription>
+            Hozz létre egy új forgatás projektet. A stáb beosztását a tanárok fogják elvégezni.
+          </CardDescription>
+        </CardHeader>
       
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -423,5 +425,6 @@ export function CreateForgatásForm() {
         </form>
       </CardContent>
     </Card>
+    </ApiErrorBoundary>
   )
 }

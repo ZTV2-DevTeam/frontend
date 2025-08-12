@@ -12,6 +12,8 @@ import { usePermissions } from "@/contexts/permissions-context"
 import { useAuth } from "@/contexts/auth-context"
 import { useUserRole } from "@/contexts/user-role-context"
 import type { ForgatSchema, ForgatoTipusSchema } from "@/lib/types"
+import { ApiErrorBoundary } from "@/components/api-error-boundary"
+import { DebugConsole } from "@/components/debug-console"
 import {
   SidebarInset,
   SidebarProvider,
@@ -166,8 +168,23 @@ export default function ShootingsPage() {
                     session.location.name : (session.location || 'Nincs helyszín'),
     displayContactPerson: typeof session.contact_person === 'object' && session.contact_person?.name ?
                          session.contact_person.name : (session.contact_person || ''),
-    displayDate: session.date || ''
+    displayDate: session.date || '',
+    // Safely handle phone and email from contact_person object
+    phone: typeof session.contact_person === 'object' && session.contact_person?.phone ?
+           session.contact_person.phone : (session.phone || ''),
+    email: typeof session.contact_person === 'object' && session.contact_person?.email ?
+           session.contact_person.email : (session.email || '')
   }))
+
+  // Debug logging for development
+  if (process.env.NODE_ENV === 'development' && safeSessions.length > 0) {
+    console.log('🔍 Safe Sessions Debug:', {
+      originalCount: sessions.length,
+      safeCount: safeSessions.length,
+      firstOriginal: sessions[0],
+      firstSafe: safeSessions[0]
+    })
+  }
 
   // Filter sessions
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -197,18 +214,25 @@ export default function ShootingsPage() {
   }
 
   return (
-    <SidebarProvider
-      style={
-        {
-          "--sidebar-width": "calc(var(--spacing) * 72)",
-          "--header-height": "calc(var(--spacing) * 12)",
-        } as React.CSSProperties
-      }
-    >
-      <AppSidebar variant="inset" />
-      <SidebarInset>
-        <SiteHeader />
-        <div className="flex-1 space-y-4 p-4 md:p-6">
+    <ApiErrorBoundary>
+      <SidebarProvider
+        style={
+          {
+            "--sidebar-width": "calc(var(--spacing) * 72)",
+            "--header-height": "calc(var(--spacing) * 12)",
+          } as React.CSSProperties
+        }
+      >
+        <AppSidebar variant="inset" />
+        <SidebarInset>
+          <SiteHeader />
+          <DebugConsole label="Forgatasok Page Data" data={{ 
+            sessionsCount: safeSessions.length,
+            filteredCount: filteredSessions.length,
+            hasData: filmingData && Array.isArray(filmingData),
+            firstSession: safeSessions[0]
+          }} />
+          <div className="flex-1 space-y-4 p-4 md:p-6">
           {/* Header */}
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
@@ -355,10 +379,10 @@ export default function ShootingsPage() {
                                 </a>
                               </Button>
                             )}
-                            {session.location && (
+                            {session.displayLocation && session.displayLocation !== 'Nincs helyszín' && (
                               <Button variant="ghost" size="sm" className="h-8 px-2" asChild>
                                 <a 
-                                  href={`https://maps.google.com/?q=${encodeURIComponent(session.location)}`}
+                                  href={`https://maps.google.com/?q=${encodeURIComponent(session.displayLocation)}`}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                 >
@@ -423,6 +447,7 @@ export default function ShootingsPage() {
         </div>
       </SidebarInset>
     </SidebarProvider>
+    </ApiErrorBoundary>
   )
 }
 
