@@ -156,6 +156,19 @@ export default function ShootingsPage() {
   const sessions = Array.isArray(filmingData) ? filmingData : []
   const types = Array.isArray(typesData) ? typesData : []
 
+  // Ensure safe data handling - avoid passing objects to React text rendering
+  const safeSessions = sessions.map((session: any) => ({
+    ...session,
+    // Safely extract string values to avoid React object rendering errors
+    displayName: session.name || 'Ismeretlen forgatás',
+    displayDescription: session.description || session.notes || '',
+    displayLocation: typeof session.location === 'object' && session.location?.name ? 
+                    session.location.name : (session.location || 'Nincs helyszín'),
+    displayContactPerson: typeof session.contact_person === 'object' && session.contact_person?.name ?
+                         session.contact_person.name : (session.contact_person || ''),
+    displayDate: session.date || ''
+  }))
+
   // Filter sessions
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const filteredSessions = sessions.filter((session: any) => {

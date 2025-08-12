@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { CalendarIcon, Clock, MapPin, Users, Camera } from "lucide-react"
+import { CalendarIcon, Clock, MapPin, Users, Camera, AlertCircle } from "lucide-react"
 import { useUserRole } from "@/contexts/user-role-context"
 import { useAuth } from "@/contexts/auth-context"
 import { usePermissions } from "@/contexts/permissions-context"
@@ -46,16 +46,16 @@ export function CreateForgatásForm() {
   const { hasPermission, permissions } = usePermissions()
 
   // API queries
-  const { data: partners, loading: partnersLoading } = useApiQuery(
+  const { data: partners, loading: partnersLoading, error: partnersError } = useApiQuery(
     () => apiClient.getPartners()
   )
   
-  const { data: contactPersons, loading: contactPersonsLoading } = useApiQuery(
+  const { data: contactPersons, loading: contactPersonsLoading, error: contactPersonsError } = useApiQuery(
     () => apiClient.getContactPersons()
   )
   
   // Fetch filming types for filter
-  const { data: filmingTypes, loading: typesLoading } = useApiQuery(
+  const { data: filmingTypes, loading: typesLoading, error: typesError } = useApiQuery(
     () => apiClient.getFilmingTypes(),
     []
   )
@@ -64,6 +64,30 @@ export function CreateForgatásForm() {
   const createForgatás = useApiMutation(
     (data: ForgatCreateSchema) => apiClient.createFilmingSession(data)
   )
+
+  // Handle API errors
+  if (partnersError || contactPersonsError || typesError) {
+    return (
+      <Card className="w-full max-w-2xl mx-auto">
+        <CardContent className="p-6">
+          <div className="text-center">
+            <AlertCircle className="h-12 w-12 mx-auto text-destructive mb-4" />
+            <p className="text-lg font-medium text-destructive">Hiba történt az adatok betöltésekor</p>
+            <p className="text-sm text-muted-foreground mt-2">
+              {partnersError || contactPersonsError || typesError}
+            </p>
+            <Button 
+              onClick={() => window.location.reload()} 
+              variant="outline" 
+              className="mt-4"
+            >
+              Újra próbálkozás
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
 
   // Permission check - only 10F students can create
   const classDisplayName = permissions?.role_info?.class_display_name || permissions?.role_info?.class_assignment?.display_name
