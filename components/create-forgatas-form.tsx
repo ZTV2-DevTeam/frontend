@@ -339,7 +339,7 @@ export function CreateForgatásForm() {
                 <datalist id="partners-list">
                   {partners?.map((partner: PartnerSchema) => (
                     <option key={partner.id} value={partner.name}>
-                      {partner.institution && `${partner.name} - ${partner.institution}`}
+                      {partner.institution ? `${partner.name} - ${partner.institution}` : partner.name}
                     </option>
                   ))}
                 </datalist>

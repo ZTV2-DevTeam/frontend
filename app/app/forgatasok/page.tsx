@@ -171,9 +171,9 @@ export default function ShootingsPage() {
 
   // Filter sessions
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const filteredSessions = sessions.filter((session: any) => {
-    const matchesSearch = (session.name || session.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         (session.location?.name || session.location || '').toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
+  const filteredSessions = safeSessions.filter((session: any) => {
+    const matchesSearch = (session.displayName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (session.displayLocation || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
                          (session.type || '').toString().toLowerCase().includes(searchTerm.toLowerCase())
     const matchesStatus = statusFilter === "all" || session.status === statusFilter
     const matchesType = typeFilter === "all" || session.type === typeFilter
@@ -183,12 +183,12 @@ export default function ShootingsPage() {
   // Stats - temporary disable for build
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const stats = {
-    total: sessions.length,
-    confirmed: sessions.filter((s: any) => s.status === 'confirmed').length, // eslint-disable-line @typescript-eslint/no-explicit-any
-    pending: sessions.filter((s: any) => s.status === 'pending').length, // eslint-disable-line @typescript-eslint/no-explicit-any
-    thisWeek: sessions.filter((s: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
-      if (!s.date && !s.datum) return false
-      const sessionDate = new Date(s.date || s.datum)
+    total: safeSessions.length,
+    confirmed: safeSessions.filter((s: any) => s.status === 'confirmed').length, // eslint-disable-line @typescript-eslint/no-explicit-any
+    pending: safeSessions.filter((s: any) => s.status === 'pending').length, // eslint-disable-line @typescript-eslint/no-explicit-any
+    thisWeek: safeSessions.filter((s: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
+      if (!s.displayDate) return false
+      const sessionDate = new Date(s.displayDate)
       const now = new Date()
       const weekStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay())
       const weekEnd = new Date(weekStart.getTime() + 7 * 24 * 60 * 60 * 1000)
@@ -311,9 +311,9 @@ export default function ShootingsPage() {
                           </Badge>
                         </div>
                       </div>
-                      <CardTitle className="text-lg leading-tight">{session.title || session.name}</CardTitle>
+                      <CardTitle className="text-lg leading-tight">{session.displayName}</CardTitle>
                       <CardDescription className="line-clamp-2">
-                        {session.description || session.notes || 'Nincs leírás'}
+                        {session.displayDescription || 'Nincs leírás'}
                       </CardDescription>
                     </CardHeader>
                     
@@ -322,24 +322,24 @@ export default function ShootingsPage() {
                       <div className="flex items-center gap-4 text-sm text-muted-foreground">
                         <div className="flex items-center gap-1">
                           <Calendar className="h-4 w-4" />
-                          <span>{session.datum || 'Nincs dátum'}</span>
+                          <span>{session.displayDate || 'Nincs dátum'}</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <Clock className="h-4 w-4" />
-                          <span>{session.time || session.duration || 'Nincs időpont'}</span>
+                          <span>{session.time_from && session.time_to ? `${session.time_from} - ${session.time_to}` : 'Nincs időpont'}</span>
                         </div>
                       </div>
                       
                       {/* Location */}
                       <div className="flex items-center gap-2 text-sm">
                         <MapPin className="h-4 w-4 text-muted-foreground" />
-                        <span className="font-medium">{session.location || 'Nincs helyszín'}</span>
+                        <span className="font-medium">{session.displayLocation}</span>
                       </div>
                       
                       {/* Contact */}
-                      {session.contact_person && (
+                      {session.displayContactPerson && (
                         <div className="space-y-2">
-                          <div className="text-sm font-medium">{session.contact_person}</div>
+                          <div className="text-sm font-medium">{session.displayContactPerson}</div>
                           <div className="flex items-center gap-4">
                             {session.phone && (
                               <Button variant="ghost" size="sm" className="h-8 px-2" asChild>

@@ -46,11 +46,15 @@ export function useApiQuery<T>(
           // Log the error for debugging
           console.error('API Query Error:', {
             error: err,
-            message: errorMessage
+            message: errorMessage,
+            endpoint: typeof apiCall === 'function' ? 'Unknown endpoint' : 'Static data'
           })
           
           // Handle authentication errors specifically
-          if (errorMessage.includes('Bejelentkezés szükséges') || errorMessage.includes('munkamenet lejárt')) {
+          if (errorMessage.includes('Bejelentkezés szükséges') || 
+              errorMessage.includes('munkamenet lejárt') ||
+              errorMessage.includes('401') ||
+              errorMessage.includes('Unauthorized')) {
             // If running in browser, redirect to login
             if (typeof window !== 'undefined') {
               console.warn('Authentication required, redirecting to login...')
