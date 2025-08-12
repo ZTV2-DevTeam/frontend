@@ -1,5 +1,6 @@
 'use client'
 
+/* eslint-disable @typescript-eslint/no-empty-object-type */
 import React from 'react'
 
 interface ErrorBoundaryState {

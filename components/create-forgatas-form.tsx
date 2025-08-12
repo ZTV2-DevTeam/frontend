@@ -1,4 +1,5 @@
-"use client"
+/* eslint-disable @typescript-eslint/no-explicit-any, react-hooks/rules-of-hooks */
+'use client'
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"

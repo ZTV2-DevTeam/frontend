@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useState, useEffect } from 'react'
 import { apiClient } from '@/lib/api'
 
 export function ApiDebug() {

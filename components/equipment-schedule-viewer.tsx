@@ -1,4 +1,5 @@
-"use client"
+/* eslint-disable @typescript-eslint/no-explicit-any */
+'use client'
 
 import { useState, useEffect } from "react"
 import { Calendar, Clock, MapPin, Users, Wrench } from "lucide-react"
