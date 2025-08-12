@@ -12,7 +12,10 @@ import {
   Shield, 
   Mail,
   Phone,
-  RefreshCw
+  RefreshCw,
+  Sparkles,
+  Server,
+  Zap
 } from 'lucide-react'
 
 interface EnhancedLoadingProps {
@@ -107,40 +110,58 @@ export function EnhancedLoading({
 
   const getLoadingIcon = () => {
     if (isConnecting) {
-      return <RefreshCw className="h-8 w-8 animate-spin text-primary" />
+      return (
+        <div className="relative">
+          <RefreshCw className="h-10 w-10 animate-spin text-primary" />
+          <div className="absolute inset-0 rounded-full border-2 border-primary/30 animate-pulse" />
+        </div>
+      )
     }
     
     if (timeElapsed > 15000) {
-      return <WifiOff className="h-8 w-8 text-orange-500 animate-pulse" />
+      return (
+        <div className="relative">
+          <WifiOff className="h-10 w-10 text-orange-500 animate-pulse" />
+          <div className="absolute -inset-2 rounded-full border-2 border-orange-200 animate-ping" />
+        </div>
+      )
     }
     
-    return <Loader2 className="h-8 w-8 animate-spin text-primary" />
+    return (
+      <div className="relative">
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        <Sparkles className="absolute -top-1 -right-1 h-4 w-4 text-primary animate-pulse" />
+        {timeElapsed > 8000 && (
+          <div className="absolute inset-0 rounded-full border-2 border-primary/20 animate-pulse" />
+        )}
+      </div>
+    )
   }
 
   const getTipsContent = () => {
     return (
-      <div className="space-y-4 text-sm text-muted-foreground">
-        <div className="flex items-start gap-3">
-          <Shield className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
+      <div className="space-y-4 text-sm">
+        <div className="flex items-start gap-3 p-3 rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border border-blue-100 dark:border-blue-800">
+          <Shield className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
           <div>
-            <p className="font-medium text-foreground">Biztonsági ellenőrzés</p>
-            <p>A rendszer biztonsági okokból alaposan ellenőrzi a jogosultságokat. Ez néhány másodpercig tarthat.</p>
+            <p className="font-semibold text-blue-900 dark:text-blue-100">Biztonsági ellenőrzés</p>
+            <p className="text-blue-800 dark:text-blue-200">A rendszer biztonsági okokból alaposan ellenőrzi a jogosultságokat. Ez néhány másodpercig tarthat.</p>
           </div>
         </div>
         
-        <div className="flex items-start gap-3">
-          <Clock className="h-4 w-4 text-amber-500 mt-0.5 flex-shrink-0" />
+        <div className="flex items-start gap-3 p-3 rounded-lg bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 border border-amber-100 dark:border-amber-800">
+          <Server className="h-5 w-5 text-amber-500 mt-0.5 flex-shrink-0" />
           <div>
-            <p className="font-medium text-foreground">Szerver kapcsolat</p>
-            <p>A szerver esetenként lassabban válaszol. Kérjük, legyen türelemmel.</p>
+            <p className="font-semibold text-amber-900 dark:text-amber-100">Szerver kapcsolat</p>
+            <p className="text-amber-800 dark:text-amber-200">A szerver esetenként lassabban válaszol. Kérjük, legyen türelemmel.</p>
           </div>
         </div>
         
-        <div className="flex items-start gap-3">
-          <Wifi className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+        <div className="flex items-start gap-3 p-3 rounded-lg bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 border border-green-100 dark:border-green-800">
+          <Zap className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
           <div>
-            <p className="font-medium text-foreground">Hálózati kapcsolat</p>
-            <p>Ellenőrizze az internetkapcsolatot, ha a betöltés túl sokáig tart.</p>
+            <p className="font-semibold text-green-900 dark:text-green-100">Hálózati kapcsolat</p>
+            <p className="text-green-800 dark:text-green-200">Ellenőrizze az internetkapcsolatot, ha a betöltés túl sokáig tart.</p>
           </div>
         </div>
       </div>
@@ -156,7 +177,10 @@ export function EnhancedLoading({
     return (
       <div className="space-y-4">
         <div className="flex items-center gap-3">
-          <AlertCircle className="h-8 w-8 text-destructive flex-shrink-0" />
+          <div className="relative">
+            <AlertCircle className="h-10 w-10 text-destructive flex-shrink-0" />
+            <div className="absolute inset-0 rounded-full border-2 border-destructive/20 animate-pulse" />
+          </div>
           <div>
             <h3 className="font-semibold text-lg">
               {isNetworkError ? 'Kapcsolódási probléma' : 'Hiba történt'}
@@ -170,26 +194,30 @@ export function EnhancedLoading({
           </div>
         </div>
 
-        <div className="bg-muted/50 rounded-lg p-4 space-y-3">
-          <p className="font-medium text-sm">Mit tehet:</p>
+        <div className="bg-gradient-to-br from-muted/50 to-muted/80 backdrop-blur-sm rounded-lg p-4 space-y-3 border border-border/50">
+          <p className="font-medium text-sm flex items-center gap-2">
+            <Sparkles className="h-4 w-4" />
+            Mit tehet:
+          </p>
           <ul className="space-y-2 text-sm text-muted-foreground">
             <li className="flex items-start gap-2">
-              <RefreshCw className="h-4 w-4 mt-0.5 flex-shrink-0" />
-              Próbálja újra a kapcsolódást
+              <RefreshCw className="h-4 w-4 mt-0.5 flex-shrink-0 text-primary" />
+              <span>Próbálja újra a kapcsolódást</span>
             </li>
             <li className="flex items-start gap-2">
-              <Wifi className="h-4 w-4 mt-0.5 flex-shrink-0" />
-              Ellenőrizze az internetkapcsolatot
+              <Wifi className="h-4 w-4 mt-0.5 flex-shrink-0 text-green-500" />
+              <span>Ellenőrizze az internetkapcsolatot</span>
             </li>
             <li className="flex items-start gap-2">
-              <Clock className="h-4 w-4 mt-0.5 flex-shrink-0" />
-              Várjon egy keveset, majd próbálja újra
+              <Clock className="h-4 w-4 mt-0.5 flex-shrink-0 text-amber-500" />
+              <span>Várjon egy keveset, majd próbálja újra</span>
             </li>
           </ul>
         </div>
 
-        <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-          <p className="font-medium text-sm text-blue-900 dark:text-blue-100 mb-2">
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+          <p className="font-medium text-sm text-blue-900 dark:text-blue-100 mb-2 flex items-center gap-2">
+            <Mail className="h-4 w-4" />
             Továbbra sem működik?
           </p>
           <div className="space-y-2 text-sm text-blue-800 dark:text-blue-200">
@@ -214,7 +242,7 @@ export function EnhancedLoading({
 
   return (
     <div className="flex items-center justify-center min-h-[60vh] px-4">
-      <Card className="max-w-md w-full">
+      <Card className="max-w-lg w-full shadow-xl border-0 bg-gradient-to-br from-card to-card/80 backdrop-blur-sm">
         <CardContent className="p-8 text-center space-y-6">
           {showError || error ? (
             <>
@@ -223,7 +251,7 @@ export function EnhancedLoading({
                 <Button 
                   onClick={handleRetry} 
                   disabled={isConnecting}
-                  className="flex-1"
+                  className="flex-1 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 transition-all duration-300 shadow-lg"
                 >
                   {isConnecting ? (
                     <>
@@ -242,27 +270,43 @@ export function EnhancedLoading({
           ) : (
             <>
               {/* Loading indicator */}
-              <div className="relative">
+              <div className="relative flex justify-center items-center py-4">
                 {getLoadingIcon()}
-                {timeElapsed > 5000 && (
-                  <div className="absolute inset-0 rounded-full border-2 border-primary/20 animate-pulse" />
-                )}
               </div>
 
               {/* Status text */}
-              <div className="space-y-2">
-                <p className="text-lg font-medium">{getStageText()}</p>
+              <div className="space-y-3">
+                <p className="text-xl font-semibold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+                  {getStageText()}
+                </p>
                 {timeElapsed > 5000 && (
-                  <p className="text-sm text-muted-foreground">
-                    Eltelt idő: {Math.floor(timeElapsed / 1000)} másodperc
-                  </p>
+                  <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                    <Clock className="h-4 w-4" />
+                    <span>Eltelt idő: {Math.floor(timeElapsed / 1000)} másodperc</span>
+                  </div>
+                )}
+                
+                {/* Progress bar visual */}
+                {timeElapsed > 3000 && (
+                  <div className="w-full bg-muted/50 rounded-full h-2 overflow-hidden">
+                    <div 
+                      className="h-full bg-gradient-to-r from-primary to-primary/80 transition-all duration-1000 ease-out rounded-full"
+                      style={{ 
+                        width: `${Math.min((timeElapsed / timeout) * 100, 95)}%`,
+                        animation: timeElapsed > 10000 ? 'pulse 2s infinite' : undefined
+                      }}
+                    />
+                  </div>
                 )}
               </div>
 
-              {/* Tips section - always show when loading, not just after delay */}
+              {/* Tips section with improved styling */}
               {(showTips || timeElapsed > 2000) && (
-                <div className="text-left space-y-4 border-t pt-4">
-                  <h4 className="font-medium text-center">Miért tart ez ilyen sokáig?</h4>
+                <div className="text-left space-y-4 border-t border-border/50 pt-6">
+                  <h4 className="font-semibold text-center text-lg flex items-center justify-center gap-2">
+                    <Sparkles className="h-5 w-5 text-primary" />
+                    Miért tart ez ilyen sokáig?
+                  </h4>
                   {getTipsContent()}
                 </div>
               )}
