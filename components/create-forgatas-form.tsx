@@ -98,7 +98,7 @@ export function CreateForgatásForm() {
     
     try {
       // Prepare submission data
-      let submissionData = { ...formData }
+      const submissionData = { ...formData }
 
       // Handle manual partner institution input
       if (partnerInput && !formData.location_id) {

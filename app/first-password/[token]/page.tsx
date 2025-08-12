@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -36,13 +36,7 @@ export default function FirstPasswordPage() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
 
-  useEffect(() => {
-    if (token) {
-      validateToken()
-    }
-  }, [token])
-
-  const validateToken = async () => {
+  const validateToken = useCallback(async () => {
     try {
       // This would be a specific endpoint for first-password token validation
       const response = await apiClient.get<TokenValidation>(`first-password/validate/${token}`)
@@ -56,7 +50,13 @@ export default function FirstPasswordPage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [token])
+
+  useEffect(() => {
+    if (token) {
+      validateToken()
+    }
+  }, [token, validateToken])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
