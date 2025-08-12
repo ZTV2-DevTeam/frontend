@@ -2,7 +2,7 @@ import { ProtectedRoute } from '@/components/protected-route'
 import { useAuth } from '@/hooks/use-permissions'
 
 // Example 1: Simple page protection
-export default function AdminOnlyPage() {
+export function AdminOnlyPage() {
   return (
     <ProtectedRoute requiredPermission="is_admin">
       <div>
@@ -80,7 +80,7 @@ export function DashboardWidgets() {
 }
 
 // Example 3: Page with fallback for unauthorized users
-export default function ConditionalAccessPage() {
+export function ConditionalAccessPage() {
   return (
     <ProtectedRoute 
       requiredPermission="can_view_all_forgatas"
@@ -117,7 +117,7 @@ export function ConditionalButton() {
 
 // Example 5: Navigation with permission filtering
 export function CustomNavigation() {
-  const { canAccessPage, canManageUsers, canManageForgatas } = useAuth()
+  const { canAccessPage, canManageUsers, canManageForgatas, hasPermission } = useAuth()
   
   const navItems = [
     { href: '/app/iranyitopult', label: 'Dashboard', permission: null },
