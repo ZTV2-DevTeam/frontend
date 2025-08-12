@@ -1642,6 +1642,83 @@ class ApiClient {
       method: 'DELETE',
     })
   }
+
+  // Setup wizard methods
+  async saveSchoolYear(data: any): Promise<any> {
+    return this.request(`/api/setup/school-year`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async saveClasses(data: any): Promise<any> {
+    return this.request(`/api/setup/classes`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async saveStaffs(data: any): Promise<any> {
+    return this.request(`/api/setup/staffs`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async saveStudents(data: any): Promise<any> {
+    return this.request(`/api/setup/students`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async saveTeachers(data: any): Promise<any> {
+    return this.request(`/api/setup/teachers`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async savePartners(data: any): Promise<any> {
+    return this.request(`/api/setup/partners`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async saveEquipment(data: any): Promise<any> {
+    return this.request(`/api/setup/equipment`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async completeSetup(data: any): Promise<any> {
+    return this.request(`/api/setup/complete`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async createTeacher(data: any): Promise<any> {
+    return this.request(`/api/teachers`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async getTeacherRegistrationLink(teacherId: string): Promise<any> {
+    return this.request(`/api/teachers/${teacherId}/registration-link`, {
+      method: 'GET',
+    })
+  }
+
+  async sendStudentRegistrationEmails(data: any): Promise<any> {
+    return this.request(`/api/students/registration-emails`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
 }
 
 export const apiClient = new ApiClient(API_CONFIG.BASE_URL)
