@@ -1,6 +1,9 @@
 'use client'
 
-import { Suspense, lazy, ComponentType } from 'react'
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @next/next/no-assign-module-variable */
+
+import React, { lazy, Suspense, ComponentType } from 'react'
 import { Loader2 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 

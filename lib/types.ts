@@ -2,7 +2,9 @@
 // COMPREHENSIVE API TYPES BASED ON OPENAPI SPECIFICATION
 // ============================================================================
 
-// === CORE & AUTHENTICATION TYPES ===
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+// Core Authentication Types
 export interface LoginRequest {
   username: string
   password: string

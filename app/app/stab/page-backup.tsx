@@ -91,75 +91,83 @@ export default function StabPage() {
   const availableClasses = [...new Set(users.map((user: UserDetailSchema) => user.osztaly?.name).filter(Boolean))]
   const availableCrews = [...new Set(users.map((user: UserDetailSchema) => user.stab?.name).filter(Boolean))]
 
+  // Sample student data - this should be moved to the beginning of the file or removed if using API data
+  const studentData = [
+    { id: 27, name: "Kiss Fanni", class: "9F", crew: "A", status: "Aktív", email: "kiss.fanni@szlgbp.hu", phone: "+36 30 222 2229", role: "Diák" },
+    
+    // 9F osztály - B stáb (példa, további 9 diák)
+    { id: 28, name: "Oláh Máté", class: "9F", crew: "B", status: "Aktív", email: "olah.mate@szlgbp.hu", phone: "+36 30 222 2231", role: "Diák" },
+    { id: 29, name: "Pálinkás Sára", class: "9F", crew: "B", status: "Aktív", email: "palinkas.sara@szlgbp.hu", phone: "+36 30 222 2232", role: "Diák" },
+    { id: 30, name: "Vincze Alex", class: "9F", crew: "B", status: "Aktív", email: "vincze.alex@szlgbp.hu", phone: "+36 30 222 2233", role: "Diák" },
+    
+    // 10F osztály példa diákok
+    { id: 31, name: "Borbély Dániel", class: "10F", crew: "A", status: "Aktív", email: "borbely.daniel@szlgbp.hu", phone: "+36 30 333 3331", role: "Diák" },
+    { id: 32, name: "Csík Vivien", class: "10F", crew: "A", status: "Aktív", email: "csik.vivien@szlgbp.hu", phone: "+36 30 333 3332", role: "Diák" },
+    { id: 33, name: "Dorogi Bence", class: "10F", crew: "B", status: "Aktív", email: "dorogi.bence@szlgbp.hu", phone: "+36 30 333 3333", role: "Diák" },
+    
+    // 11F osztály példa diákok
+    { id: 34, name: "Erdős Petra", class: "11F", crew: "A", status: "Aktív", email: "erdos.petra@szlgbp.hu", phone: "+36 30 444 4441", role: "Diák" },
+    { id: 35, name: "Fekete Zoltán", class: "11F", crew: "A", status: "Aktív", email: "fekete.zoltan@szlgbp.hu", phone: "+36 30 444 4442", role: "Diák" },
+    { id: 36, name: "Gál Noémi", class: "11F", crew: "B", status: "Aktív", email: "gal.noemi@szlgbp.hu", phone: "+36 30 444 4443", role: "Diák" },
+    
+    // 12F osztály példa diákok
+    { id: 37, name: "Hegedűs Kristóf", class: "12F", crew: "A", status: "Aktív", email: "hegedus.kristof@szlgbp.hu", phone: "+36 30 555 5551", role: "Diák" },
+    { id: 38, name: "Illés Boglárka", class: "12F", crew: "A", status: "Aktív", email: "illes.boglarka@szlgbp.hu", phone: "+36 30 555 5552", role: "Diák" },
+    { id: 39, name: "Jakab Roland", class: "12F", crew: "B", status: "Aktív", email: "jakab.roland@szlgbp.hu", phone: "+36 30 555 5553", role: "Diák" },
+  ]
+
+  // Administrator data
+  const adminData = [
+    {
+      id: 101,
+      name: "Dr. Kovács János",
+      role: "Médiatanár",
+      status: "Aktív",
+      email: "kovacs.janos@szlgbp.hu",
+      phone: "+36 30 123 4567",
+      department: "Média Oktatás",
+      type: "admin"
+    },
+    {
+      id: 102,
+      name: "Nagy Anna",
+      role: "Médiatanár",
+      status: "Aktív",
+      email: "nagy.anna@szlgbp.hu",
+      phone: "+36 30 234 5678",
+      department: "Média Oktatás",
+      type: "admin"
+    },
+    {
+      id: 103,
+      name: "Dr. Szabó Péter",
+      role: "Vezető Médiatanár",
+      status: "Aktív",
+      email: "szabo.peter@szlgbp.hu",
+      phone: "+36 30 345 6789",
+      department: "Média Oktatás",
+      type: "admin"
+    },
+    {
+      id: 104,
+      name: "Tóth Mária",
+      role: "Médiatanár",
+      status: "Aktív",
+      email: "toth.maria@szlgbp.hu",
+      phone: "+36 30 456 7890",
+      department: "Média Oktatós",
+      type: "admin"
+    }
+  ]
+
+  const [searchTerm, setSearchTerm] = useState("")
+  const [selectedClass, setSelectedClass] = useState("all")
+  const [selectedCrew, setSelectedCrew] = useState("all")
+  const [activeTab, setActiveTab] = useState("students")
+
+  const classes = ["9F", "10F", "11F", "12F"]
+
   return (
-  { id: 27, name: "Kiss Fanni", class: "9F", crew: "A", status: "Aktív", email: "kiss.fanni@szlgbp.hu", phone: "+36 30 222 2229", role: "Diák" },
-  
-  // 9F osztály - B stáb (példa, további 9 diák)
-  { id: 28, name: "Oláh Máté", class: "9F", crew: "B", status: "Aktív", email: "olah.mate@szlgbp.hu", phone: "+36 30 222 2231", role: "Diák" },
-  { id: 29, name: "Pálinkás Sára", class: "9F", crew: "B", status: "Aktív", email: "palinkas.sara@szlgbp.hu", phone: "+36 30 222 2232", role: "Diák" },
-  { id: 30, name: "Vincze Alex", class: "9F", crew: "B", status: "Aktív", email: "vincze.alex@szlgbp.hu", phone: "+36 30 222 2233", role: "Diák" },
-  
-  // 10F osztály példa diákok
-  { id: 31, name: "Borbély Dániel", class: "10F", crew: "A", status: "Aktív", email: "borbely.daniel@szlgbp.hu", phone: "+36 30 333 3331", role: "Diák" },
-  { id: 32, name: "Csík Vivien", class: "10F", crew: "A", status: "Aktív", email: "csik.vivien@szlgbp.hu", phone: "+36 30 333 3332", role: "Diák" },
-  { id: 33, name: "Dorogi Bence", class: "10F", crew: "B", status: "Aktív", email: "dorogi.bence@szlgbp.hu", phone: "+36 30 333 3333", role: "Diák" },
-  
-  // 11F osztály példa diákok
-  { id: 34, name: "Erdős Petra", class: "11F", crew: "A", status: "Aktív", email: "erdos.petra@szlgbp.hu", phone: "+36 30 444 4441", role: "Diák" },
-  { id: 35, name: "Fekete Zoltán", class: "11F", crew: "A", status: "Aktív", email: "fekete.zoltan@szlgbp.hu", phone: "+36 30 444 4442", role: "Diák" },
-  { id: 36, name: "Gál Noémi", class: "11F", crew: "B", status: "Aktív", email: "gal.noemi@szlgbp.hu", phone: "+36 30 444 4443", role: "Diák" },
-  
-  // 12F osztály példa diákok
-  { id: 37, name: "Hegedűs Kristóf", class: "12F", crew: "A", status: "Aktív", email: "hegedus.kristof@szlgbp.hu", phone: "+36 30 555 5551", role: "Diák" },
-  { id: 38, name: "Illés Boglárka", class: "12F", crew: "A", status: "Aktív", email: "illes.boglarka@szlgbp.hu", phone: "+36 30 555 5552", role: "Diák" },
-  { id: 39, name: "Jakab Roland", class: "12F", crew: "B", status: "Aktív", email: "jakab.roland@szlgbp.hu", phone: "+36 30 555 5553", role: "Diák" },
-]
-
-// Administrator data
-const adminData = [
-  {
-    id: 101,
-    name: "Dr. Kovács János",
-    role: "Médiatanár",
-    status: "Aktív",
-    email: "kovacs.janos@szlgbp.hu",
-    phone: "+36 30 123 4567",
-    department: "Média Oktatás",
-    type: "admin"
-  },
-  {
-    id: 102,
-    name: "Nagy Anna",
-    role: "Médiatanár",
-    status: "Aktív",
-    email: "nagy.anna@szlgbp.hu",
-    phone: "+36 30 234 5678",
-    department: "Média Oktatás",
-    type: "admin"
-  },
-  {
-    id: 103,
-    name: "Dr. Szabó Péter",
-    role: "Vezető Médiatanár",
-    status: "Aktív",
-    email: "szabo.peter@szlgbp.hu",
-    phone: "+36 30 345 6789",
-    department: "Média Oktatás",
-    type: "admin"
-  },
-  {
-    id: 104,
-    name: "Tóth Mária",
-    role: "Médiatanár",
-    status: "Aktív",
-    email: "toth.maria@szlgbp.hu",
-    phone: "+36 30 456 7890",
-    department: "Média Oktatás",
-    type: "admin"
-  }
-]
-
-export default function StaffPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedClass, setSelectedClass] = useState("all")
   const [selectedCrew, setSelectedCrew] = useState("all")

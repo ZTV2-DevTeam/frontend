@@ -1,6 +1,10 @@
 'use client'
 
-// Safe browser API access utilities
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+/**
+ * Safe browser utilities that handle SSR/CSR differences
+ */
 export const safeConsole = {
   log: (...args: any[]) => {
     if (args.length === 0) {

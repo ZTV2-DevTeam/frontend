@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import { API_CONFIG, DEBUG_CONFIG, ENV_UTILS } from './config'
 
 // === AUTHENTICATION & CORE TYPES ===

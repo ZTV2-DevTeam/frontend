@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { API_CONFIG, BACKEND_CONFIG, DEBUG_CONFIG, ENV_UTILS } from '@/lib/config';
 
 export default function EnvironmentTest() {
@@ -121,27 +122,27 @@ export default function EnvironmentTest() {
         <div className="bg-card p-6 rounded-lg border">
           <h2 className="text-xl font-semibold mb-4">API Test</h2>
           <p className="text-muted-foreground mb-4">
-            Open your browser's console to see the API logging in action when you visit pages that make API calls.
+            Open your browser&apos;s console to see the API logging in action when you visit pages that make API calls.
           </p>
           <div className="flex gap-4">
-            <a 
+            <Link 
               href="/app/iranyitopult" 
               className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90"
             >
               Test Dashboard APIs
-            </a>
-            <a 
+            </Link>
+            <Link 
               href="/app/felszereles" 
               className="px-4 py-2 bg-secondary text-secondary-foreground rounded hover:bg-secondary/90"
             >
               Test Equipment APIs
-            </a>
-            <a 
+            </Link>
+            <Link 
               href="/app/forgatasok" 
               className="px-4 py-2 bg-accent text-accent-foreground rounded hover:bg-accent/90"
             >
               Test Forgatasok APIs
-            </a>
+            </Link>
           </div>
         </div>
       </div>

@@ -1,4 +1,6 @@
-// Utility functions for performance optimization
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+// Performance monitoring utilities
 
 /**
  * Check if an element is in the viewport

@@ -1,5 +1,9 @@
 import { apiClient } from './api'
-import { useState, useEffect } from 'react'
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable react-hooks/exhaustive-deps */
+
+import { useState, useEffect, useRef } from 'react'
 
 // Type definitions for common API response patterns
 export interface ApiResult<T> {

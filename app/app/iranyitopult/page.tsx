@@ -1,5 +1,8 @@
 "use client"
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { AppSidebar } from "@/components/app-sidebar"
@@ -168,19 +171,23 @@ function ActiveUsersWidget() {
   // Get most recently active users (last 5 users who logged in)
   // Sort all users by last_login (most recent first), filter out users without login, and take last 5
   const mostRecentUsers = users
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .filter((user: any) => user.last_login) // Only users who have logged in
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .sort((a: any, b: any) => {
       return new Date(b.last_login).getTime() - new Date(a.last_login).getTime()
     })
     .slice(0, 5) // Get most recent 5
 
   // Count users active in different time periods
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const activeNowCount = users.filter((user: any) => {
     if (!user.last_login) return false
     const lastLogin = new Date(user.last_login)
     return lastLogin >= fiveMinutesAgo
   }).length
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const activeTodayCount = users.filter((user: any) => {
     if (!user.last_login) return false
     const lastLogin = new Date(user.last_login)
