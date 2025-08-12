@@ -858,6 +858,13 @@ class ApiClient {
     return this.request<TanevConfigStatusSchema>('/api/tanev-config-status')
   }
 
+  async getSetupStatus(): Promise<{ needs_setup: boolean }> {
+    const status = await this.getTanevConfigStatus()
+    return {
+      needs_setup: status.config_necessary || status.system_admin_setup_required
+    }
+  }
+
   async login(credentials: LoginRequest): Promise<LoginResponse> {
     // Use URL-encoded form data as per OpenAPI specification
     const formData = new URLSearchParams()
