@@ -71,6 +71,7 @@ import {
   SidebarHeader,
 } from "@/components/ui/sidebar"
 import { useUserRole, type UserRole } from "@/contexts/user-role-context"
+import { usePermissions } from "@/contexts/permissions-context"
 import { 
   DATABASE_MODELS, 
   getDatabaseAdminUrl, 
@@ -296,6 +297,53 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { currentRole } = useUserRole()
+  const { permissions, canAccessPage, hasPermission } = usePermissions()
+  
+  // Filter navigation items based on permissions
+  const getFilteredNavMain = () => {
+    return data.navMain[currentRole].filter(item => canAccessPage(item.url))
+  }
+
+  const getFilteredShootings = () => {
+    return data.shootings[currentRole].filter(item => canAccessPage(item.url))
+  }
+
+  const getFilteredUtils = () => {
+    return data.utils[currentRole].filter(item => canAccessPage(item.url))
+  }
+
+  const getFilteredMyClass = () => {
+    return data.myClass[currentRole].filter(item => canAccessPage(item.url))
+  }
+
+  const getFilteredNavSecondary = () => {
+    return data.navSecondary[currentRole].filter(item => canAccessPage(item.url))
+  }
+
+  // Show loading state while permissions are loading
+  if (!permissions) {
+    return (
+      <Sidebar collapsible="offcanvas" {...props}>
+        <SidebarHeader>
+          <TeamSwitcher teams={data.teams} />
+        </SidebarHeader>
+        <SidebarContent>
+          <div className="p-4 text-center text-sm text-muted-foreground">
+            Navigáció betöltése...
+          </div>
+        </SidebarContent>
+        <SidebarFooter>
+          <NavUser />
+        </SidebarFooter>
+      </Sidebar>
+    )
+  }
+
+  const filteredNavMain = getFilteredNavMain()
+  const filteredShootings = getFilteredShootings()
+  const filteredUtils = getFilteredUtils()
+  const filteredMyClass = getFilteredMyClass()
+  const filteredNavSecondary = getFilteredNavSecondary()
   
   return (
     <Sidebar collapsible="offcanvas" {...props}>
@@ -303,17 +351,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <TeamSwitcher teams={data.teams} />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain[currentRole]} />
-        {data.shootings[currentRole].length > 0 && (
-          <NavCategory category="Tevékenység" items={data.shootings[currentRole]} />
+        <NavMain items={filteredNavMain} />
+        {filteredShootings.length > 0 && (
+          <NavCategory category="Tevékenység" items={filteredShootings} />
         )}
-        {data.utils[currentRole].length > 0 && (
-          <NavCategory category="Eszközök" items={data.utils[currentRole]} />
+        {filteredUtils.length > 0 && (
+          <NavCategory category="Eszközök" items={filteredUtils} />
         )}
-        {data.myClass[currentRole].length > 0 && (
-          <NavCategory category="Osztályom" items={data.myClass[currentRole]} />
+        {filteredMyClass.length > 0 && (
+          <NavCategory category="Osztályom" items={filteredMyClass} />
         )}
-        <NavSecondary items={data.navSecondary[currentRole]} className="mt-auto" />
+        <NavSecondary items={filteredNavSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
         <NavUser />

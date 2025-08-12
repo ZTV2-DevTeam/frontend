@@ -19,6 +19,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import { useUserRole, type UserRole } from "@/contexts/user-role-context"
+import { usePermissions } from "@/contexts/permissions-context"
 
 interface Team {
   name: string
@@ -34,11 +35,52 @@ export function TeamSwitcher({
 }) {
   const { isMobile } = useSidebar()
   const { currentRole, setRole } = useUserRole()
+  const { permissions, getAvailableRoles, isLoading } = usePermissions()
   
-  const activeTeam = teams.find(team => team.role === currentRole) || teams[0]
+  // Filter teams based on user permissions
+  const availableRoles = getAvailableRoles()
+  const allowedTeams = teams.filter(team => availableRoles.includes(team.role))
+  
+  const activeTeam = allowedTeams.find(team => team.role === currentRole) || allowedTeams[0]
+
+  // Show loading state
+  if (isLoading || !permissions) {
+    return (
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <SidebarMenuButton size="lg" disabled>
+            <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg animate-pulse" />
+            <div className="grid flex-1 text-left text-sm leading-tight">
+              <span className="truncate font-medium">Betöltés...</span>
+              <span className="truncate text-xs">Szerepkör betöltése</span>
+            </div>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      </SidebarMenu>
+    )
+  }
 
   if (!activeTeam) {
     return null
+  }
+
+  // If user only has one role, don't show dropdown
+  if (allowedTeams.length === 1) {
+    return (
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <SidebarMenuButton size="lg" className="cursor-default">
+            <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+              <activeTeam.logo className="size-4" />
+            </div>
+            <div className="grid flex-1 text-left text-sm leading-tight">
+              <span className="truncate font-medium">{activeTeam.name}</span>
+              <span className="truncate text-xs">{activeTeam.plan}</span>
+            </div>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      </SidebarMenu>
+    )
   }
 
   const handleTeamChange = (team: Team) => {
@@ -71,9 +113,9 @@ export function TeamSwitcher({
             sideOffset={4}
           >
             <DropdownMenuLabel className="text-muted-foreground text-xs">
-              Szerepkörök
+              Elérhető szerepkörök
             </DropdownMenuLabel>
-            {teams.map((team, index) => (
+            {allowedTeams.map((team, index) => (
               <DropdownMenuItem
                 key={team.name}
                 onClick={() => handleTeamChange(team)}
@@ -86,13 +128,7 @@ export function TeamSwitcher({
                 <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
               </DropdownMenuItem>
             ))}
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="gap-2 p-2">
-              <div className="flex size-6 items-center justify-center rounded-md border bg-transparent">
-                <Plus className="size-4" />
-              </div>
-              <div className="text-muted-foreground font-medium">Új szerepkör</div>
-            </DropdownMenuItem>
+            {/* Remove "Új szerepkör" button - users can't create new roles */}
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>

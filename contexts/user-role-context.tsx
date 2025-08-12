@@ -29,7 +29,7 @@ export function useUserRole() {
 }
 
 export function UserRoleProvider({ children }: { children: React.ReactNode }) {
-  const [currentRole, setCurrentRole] = useState<UserRole>('admin')
+  const [currentRole, setCurrentRole] = useState<UserRole>('student')
   const router = useRouter()
 
   const teams: Team[] = [

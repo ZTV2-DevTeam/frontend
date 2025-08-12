@@ -5,8 +5,10 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeProvider as ColorThemeProvider } from "@/contexts/theme-context";
 import { UserRoleProvider } from "@/contexts/user-role-context";
 import { AuthProvider } from "@/contexts/auth-context";
+import { PermissionsProvider } from "@/contexts/permissions-context";
 import { GlobalErrorHandler } from "@/components/global-error-handler";
 import { ConsoleDebugger } from "@/components/console-debugger";
+import { RoleSynchronizer } from "@/components/role-synchronizer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -43,11 +45,14 @@ export default function RootLayout({
         >
           <ColorThemeProvider>
             <AuthProvider>
-              <UserRoleProvider>
-                <div className="relative flex min-h-screen flex-col">
-                  {children}
-                </div>
-              </UserRoleProvider>
+              <PermissionsProvider>
+                <UserRoleProvider>
+                  <RoleSynchronizer />
+                  <div className="relative flex min-h-screen flex-col">
+                    {children}
+                  </div>
+                </UserRoleProvider>
+              </PermissionsProvider>
             </AuthProvider>
           </ColorThemeProvider>
         </ThemeProvider>

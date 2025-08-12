@@ -562,6 +562,8 @@ class ApiClient {
       const response = await fetch(url, {
         ...options,
         headers,
+        mode: 'cors', // Explicitly set CORS mode
+        credentials: 'omit', // Don't send credentials to avoid CORS preflight issues
       })
 
       // Log response in development
@@ -611,6 +613,8 @@ class ApiClient {
             const retryResponse = await fetch(url, {
               ...options,
               headers,
+              mode: 'cors',
+              credentials: 'omit',
             })
             
             if (retryResponse.ok) {
@@ -673,6 +677,20 @@ class ApiClient {
           baseUrl: this.baseUrl,
           environment: ENV_UTILS.getCurrentEnvironment()
         })
+      }
+      
+      // Check for CORS errors specifically and provide helpful message
+      if (error instanceof TypeError && 
+          (error.message.includes('Failed to fetch') || 
+           error.message.includes('NetworkError') ||
+           error.message.includes('CORS'))) {
+        const corsMessage = `CORS error: Cannot connect to backend at ${this.baseUrl}. The backend needs to allow CORS from ${typeof window !== 'undefined' ? window.location.origin : 'the frontend'}.`
+        console.error('🚫 CORS Error Details:', {
+          frontendOrigin: typeof window !== 'undefined' ? window.location.origin : 'unknown',
+          backendUrl: this.baseUrl,
+          suggestion: 'Add CORS middleware to your Django backend to allow requests from the frontend origin.'
+        })
+        throw new Error(corsMessage)
       }
       
       // Re-throw the error for the calling code
