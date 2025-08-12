@@ -14,7 +14,9 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useAuth } from "@/contexts/auth-context"
+import { usePermissions } from "@/contexts/permissions-context"
 import { ConnectionIndicator } from "@/components/connection-indicator"
+import { EnhancedLoading } from "@/components/enhanced-loading"
 
 export function LoginForm({
   className,
@@ -23,9 +25,11 @@ export function LoginForm({
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [isNavigating, setIsNavigating] = useState(false)
   const [error, setError] = useState('')
   
   const { login } = useAuth()
+  const { isLoading: permissionsLoading } = usePermissions()
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -47,8 +51,15 @@ export function LoginForm({
 
       console.log('Attempting login with username:', username)
       await login({ username: username.trim(), password: password.trim() })
-      console.log('Login successful, redirecting...')
-      router.push('/app/iranyitopult') // Redirect to dashboard after successful login
+      console.log('Login successful, setting navigation state...')
+      
+      // Set navigating state to show loading screen
+      setIsNavigating(true)
+      
+      // Small delay to ensure permissions context starts loading
+      setTimeout(() => {
+        router.push('/app/iranyitopult')
+      }, 100)
     } catch (error) {
       console.error('Login error in form:', error)
       
@@ -65,6 +76,19 @@ export function LoginForm({
     } finally {
       setIsLoading(false)
     }
+  }
+
+  // Show enhanced loading screen when navigating after successful login
+  if (isNavigating) {
+    return (
+      <EnhancedLoading
+        isLoading={true}
+        error={null}
+        stage="auth"
+        loadingText="Bejelentkezés sikeres, jogosultságok betöltése..."
+        timeout={15000}
+      />
+    )
   }
 
   return (

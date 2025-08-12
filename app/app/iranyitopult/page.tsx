@@ -401,7 +401,7 @@ function PendingForgatásokWidget() {
               <AlertCircle className="h-5 w-5 text-white" />
             </div>
             <div>
-              <CardTitle className="text-lg">Függő Forgatások Központ</CardTitle>
+              <CardTitle className="text-lg">Függő Forgatások</CardTitle>
               <CardDescription>Beosztásra váró munkák és sürgős feladatok</CardDescription>
             </div>
           </div>

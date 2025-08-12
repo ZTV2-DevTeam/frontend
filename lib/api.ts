@@ -527,7 +527,8 @@ class ApiClient {
 
   private async request<T>(
     endpoint: string,
-    options: RequestInit = {}
+    options: RequestInit = {},
+    timeout: number = 30000 // 30 seconds default timeout
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`
     const headers: Record<string, string> = {
@@ -554,9 +555,14 @@ class ApiClient {
         hasAuthHeader: !!headers.Authorization,
         authHeaderPreview: headers.Authorization ? `${headers.Authorization.substring(0, 20)}...` : 'none',
         headers: DEBUG_CONFIG.ENABLED ? { ...headers, Authorization: headers.Authorization ? '[PRESENT]' : '[MISSING]' } : '[hidden]',
-        body: options.body ? JSON.parse(options.body as string) : undefined
+        body: options.body ? JSON.parse(options.body as string) : undefined,
+        timeout
       })
     }
+
+    // Create abort controller for timeout
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), timeout)
 
     try {
       const response = await fetch(url, {
@@ -564,7 +570,10 @@ class ApiClient {
         headers,
         mode: 'cors', // Explicitly set CORS mode
         credentials: 'omit', // Don't send credentials to avoid CORS preflight issues
+        signal: controller.signal,
       })
+
+      clearTimeout(timeoutId)
 
       // Log response in development
       if (DEBUG_CONFIG.LOG_API_CALLS) {
@@ -669,14 +678,22 @@ class ApiClient {
 
       return data
     } catch (error) {
+      clearTimeout(timeoutId)
+      
       // Enhanced error handling with environment context
       if (DEBUG_CONFIG.ENABLED) {
         console.error(`💥 API Request Failed [${ENV_UTILS.getCurrentEnvironment()}]:`, {
           url,
           error: error instanceof Error ? error.message : String(error),
           baseUrl: this.baseUrl,
-          environment: ENV_UTILS.getCurrentEnvironment()
+          environment: ENV_UTILS.getCurrentEnvironment(),
+          isAbortError: error instanceof Error && error.name === 'AbortError'
         })
+      }
+      
+      // Check for timeout/abort errors
+      if (error instanceof Error && error.name === 'AbortError') {
+        throw new Error(`Kérés időtúllépés: A szerver nem válaszolt ${timeout / 1000} másodperc alatt. Kérjük, próbálja újra.`)
       }
       
       // Check for CORS errors specifically and provide helpful message
@@ -684,11 +701,12 @@ class ApiClient {
           (error.message.includes('Failed to fetch') || 
            error.message.includes('NetworkError') ||
            error.message.includes('CORS'))) {
-        const corsMessage = `CORS error: Cannot connect to backend at ${this.baseUrl}. The backend needs to allow CORS from ${typeof window !== 'undefined' ? window.location.origin : 'the frontend'}.`
-        console.error('🚫 CORS Error Details:', {
+        const corsMessage = `Hálózati hiba: Nem sikerült csatlakozni a szerverhez (${this.baseUrl}). Ellenőrizze az internetkapcsolatot és próbálja újra.`
+        console.error('🚫 Network Error Details:', {
           frontendOrigin: typeof window !== 'undefined' ? window.location.origin : 'unknown',
           backendUrl: this.baseUrl,
-          suggestion: 'Add CORS middleware to your Django backend to allow requests from the frontend origin.'
+          error: error.message,
+          suggestion: 'Check internet connection and server availability.'
         })
         throw new Error(corsMessage)
       }
@@ -696,6 +714,78 @@ class ApiClient {
       // Re-throw the error for the calling code
       throw error
     }
+  }
+
+  // === RETRY WRAPPER METHODS ===
+  private async withRetry<T>(
+    operation: () => Promise<T>,
+    context: string,
+    maxRetries: number = 3,
+    timeout?: number
+  ): Promise<T> {
+    let lastError: Error | null = null
+
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        return await operation()
+      } catch (error) {
+        lastError = error instanceof Error ? error : new Error(String(error))
+
+        // Don't retry on certain errors
+        if (this.shouldNotRetry(lastError)) {
+          throw lastError
+        }
+
+        // If this was the last attempt, throw the error
+        if (attempt === maxRetries) {
+          console.error(`❌ Final retry attempt failed for ${context}:`, lastError.message)
+          throw lastError
+        }
+
+        const delay = Math.min(1000 * Math.pow(2, attempt), 10000) // Exponential backoff with max 10s
+        console.warn(`⚠️ Attempt ${attempt + 1} failed for ${context}, retrying in ${delay}ms:`, lastError.message)
+        
+        await new Promise(resolve => setTimeout(resolve, delay))
+      }
+    }
+
+    throw lastError || new Error('Maximum retries reached')
+  }
+
+  private shouldNotRetry(error: Error): boolean {
+    // Don't retry on authentication errors
+    if (error.message.includes('401') || error.message.includes('Unauthorized') || 
+        error.message.includes('munkamenet lejárt')) {
+      return true
+    }
+
+    // Don't retry on permission errors
+    if (error.message.includes('403') || error.message.includes('Forbidden') ||
+        error.message.includes('jogosultság')) {
+      return true
+    }
+
+    // Don't retry on client errors (except timeout)
+    if (error.message.includes('400') && !error.message.includes('időtúllépés')) {
+      return true
+    }
+
+    return false
+  }
+
+  // Retry-enabled request wrapper
+  private async requestWithRetry<T>(
+    endpoint: string,
+    options: RequestInit = {},
+    timeout?: number,
+    maxRetries?: number
+  ): Promise<T> {
+    return this.withRetry(
+      () => this.request<T>(endpoint, options, timeout),
+      `${options.method || 'GET'} ${endpoint}`,
+      maxRetries,
+      timeout
+    )
   }
 
   // === CORE & AUTH METHODS ===
@@ -709,7 +799,7 @@ class ApiClient {
   }
 
   async getPermissions(): Promise<UserPermissionsSchema> {
-    return this.request<UserPermissionsSchema>('/api/permissions')
+    return this.requestWithRetry<UserPermissionsSchema>('/api/permissions', {}, 20000, 2) // 20s timeout, 2 retries
   }
 
   async getTanevConfigStatus(): Promise<TanevConfigStatusSchema> {
@@ -836,7 +926,7 @@ class ApiClient {
   }
 
   async getProfile(): Promise<LoginResponse> {
-    return this.request<LoginResponse>('/api/profile')
+    return this.requestWithRetry<LoginResponse>('/api/profile', {}, 15000, 2) // 15s timeout, 2 retries
   }
 
   async dashboard(): Promise<any> {

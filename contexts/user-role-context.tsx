@@ -54,9 +54,18 @@ export function UserRoleProvider({ children }: { children: React.ReactNode }) {
   ]
 
   const setRole = (role: UserRole) => {
+    // Prevent unnecessary navigation if role hasn't actually changed
+    if (role === currentRole) {
+      console.log(`🔄 Role unchanged (${role}), skipping navigation`)
+      return
+    }
+    
+    console.log(`🎭 Role changed: ${currentRole} -> ${role}`)
     setCurrentRole(role)
-    // Navigate to dashboard when role changes
-    router.push('/app/iranyitopult')
+    
+    // Don't auto-navigate on role change - let the user choose where to go
+    // Only navigate to dashboard if we're on a page that doesn't exist for the new role
+    // This prevents unwanted navigation interruptions
   }
 
   return (

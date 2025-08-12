@@ -4,8 +4,10 @@ import { useRouter } from 'next/navigation'
 import { useEffect, ReactNode } from 'react'
 import { usePermissions } from '@/contexts/permissions-context'
 import { useAuth } from '@/contexts/auth-context'
+import { useConnectionStatus } from '@/hooks/use-connection'
+import { EnhancedLoading } from '@/components/enhanced-loading'
 import { Card, CardContent } from '@/components/ui/card'
-import { AlertCircle, Loader2, Shield } from 'lucide-react'
+import { AlertCircle, Shield } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 interface ProtectedRouteProps {
@@ -22,8 +24,16 @@ export function ProtectedRoute({
   showFallback = true 
 }: ProtectedRouteProps) {
   const router = useRouter()
-  const { isAuthenticated, isLoading: authLoading } = useAuth()
-  const { permissions, hasPermission, canAccessPage, isLoading: permissionsLoading } = usePermissions()
+  const { isAuthenticated, isLoading: authLoading, login } = useAuth()
+  const { 
+    permissions, 
+    hasPermission, 
+    canAccessPage, 
+    isLoading: permissionsLoading,
+    error: permissionsError,
+    refresh: refreshPermissions
+  } = usePermissions()
+  const { checkConnection } = useConnectionStatus()
 
   // Get current page path
   const currentPath = typeof window !== 'undefined' ? window.location.pathname : ''
@@ -36,7 +46,7 @@ export function ProtectedRoute({
     }
 
     // If permissions are loaded and user doesn't have access
-    if (!permissionsLoading && permissions) {
+    if (!permissionsLoading && permissions && !permissionsError) {
       const hasPageAccess = canAccessPage(currentPath)
       const hasRequiredPermission = requiredPermission ? hasPermission(requiredPermission) : true
 
@@ -55,6 +65,7 @@ export function ProtectedRoute({
     authLoading,
     permissions,
     permissionsLoading,
+    permissionsError,
     currentPath,
     requiredPermission,
     hasPermission,
@@ -64,23 +75,36 @@ export function ProtectedRoute({
     showFallback
   ])
 
-  // Loading state
-  if (authLoading || permissionsLoading) {
+  const handleRetry = async () => {
+    try {
+      await checkConnection()
+      await refreshPermissions()
+    } catch (error) {
+      console.error('Retry failed:', error)
+    }
+  }
+
+  // Loading state with enhanced loading component - show immediately if any loading
+  if (authLoading || (permissionsLoading && !permissions)) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="text-center space-y-4">
-          <div className="relative">
-            <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto" />
-            <div className="absolute inset-0 rounded-full border-2 border-primary/20 animate-pulse" />
-          </div>
-          <div className="space-y-2">
-            <p className="text-lg font-medium">Betöltés...</p>
-            <p className="text-sm text-muted-foreground">
-              Jogosultságok ellenőrzése...
-            </p>
-          </div>
-        </div>
-      </div>
+      <EnhancedLoading
+        isLoading={true}
+        error={null}
+        stage={authLoading ? "auth" : "permissions"}
+        onRetry={handleRetry}
+        timeout={authLoading ? 15000 : 30000}
+      />
+    )
+  }
+
+  // Handle permissions error
+  if (permissionsError && !permissions) {
+    return (
+      <EnhancedLoading
+        isLoading={false}
+        error={permissionsError}
+        onRetry={handleRetry}
+      />
     )
   }
 

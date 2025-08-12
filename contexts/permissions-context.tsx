@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { apiClient, UserPermissionsSchema } from '@/lib/api'
 import { DEBUG_CONFIG } from '@/lib/config'
+import { useAuth } from '@/contexts/auth-context'
 
 export interface UserPermissions {
   user_info: Record<string, any>
@@ -38,6 +39,7 @@ export function PermissionsProvider({ children }: { children: React.ReactNode })
   const [permissions, setPermissions] = useState<UserPermissions | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth()
 
   const fetchPermissions = async () => {
     try {
@@ -49,11 +51,18 @@ export function PermissionsProvider({ children }: { children: React.ReactNode })
           console.log('🔐 Not authenticated, skipping permissions fetch')
         }
         setPermissions(null)
-        setIsLoading(false)
         return
       }
 
-      const data = await apiClient.getPermissions()
+      // Add timeout and retry for permissions fetch
+      console.log('🔄 Fetching permissions for authenticated user...')
+      const data = await Promise.race([
+        apiClient.getPermissions(),
+        new Promise<never>((_, reject) => 
+          setTimeout(() => reject(new Error('Permissions fetch timeout')), 15000) // Reduced to 15s
+        )
+      ])
+      
       setPermissions(data)
       
       if (DEBUG_CONFIG.LOG_API_CALLS) {
@@ -68,60 +77,28 @@ export function PermissionsProvider({ children }: { children: React.ReactNode })
       const errorMessage = err instanceof Error ? err.message : 'Failed to load permissions'
       setError(errorMessage)
       
+      // If it's a timeout or connection error, don't clear permissions immediately
+      if (errorMessage.includes('timeout') || 
+          errorMessage.includes('Hálózati hiba') ||
+          errorMessage.includes('időtúllépés')) {
+        console.warn('⚠️ Permissions fetch timeout - keeping existing permissions if available')
+        // Don't clear existing permissions on timeout to prevent user logout
+        if (!permissions) {
+          // Only provide fallback if no permissions exist at all
+          provideFallbackPermissions()
+        }
+        return
+      }
+      
       // If it's a CORS or network error, provide fallback permissions for development
       if (errorMessage.includes('CORS') || errorMessage.includes('NetworkError') || errorMessage.includes('Failed to fetch')) {
         console.warn('🚧 CORS/Network error detected, providing fallback permissions for development')
-        
-        // Create minimal fallback permissions for development
-        const fallbackPermissions: UserPermissions = {
-          user_info: {
-            id: 1,
-            username: 'dev-user',
-            first_name: 'Development',
-            last_name: 'User',
-            email: 'dev@example.com',
-            full_name: 'Development User',
-            is_staff: true,
-            is_superuser: true,
-            is_active: true,
-            date_joined: new Date().toISOString(),
-            has_profile: true
-          },
-          permissions: {
-            is_admin: true,
-            is_developer_admin: true,
-            is_teacher_admin: false,
-            is_system_admin: false,
-            is_superuser: true,
-            is_staff: true,
-            can_manage_users: true,
-            can_manage_partners: true,
-            can_manage_equipment: true,
-            can_manage_forgatas: true,
-            can_manage_announcements: true,
-            can_access_admin_panel: true,
-            can_view_all_users: true,
-            can_view_all_forgatas: true,
-            can_create_forgatas: true
-          },
-          display_properties: {
-            show_admin_menu: true,
-            show_teacher_menu: false,
-            show_student_menu: true,
-            navigation_items: ['dashboard', 'forgatas', 'users', 'partners', 'equipment', 'announcements', 'profile']
-          },
-          role_info: {
-            primary_role: 'developer_admin',
-            admin_type: 'dev',
-            roles: ['Developer Admin']
-          }
-        }
-        
-        setPermissions(fallbackPermissions)
-        console.log('🔧 Using fallback permissions for development')
-      } else {
-        setPermissions(null)
+        provideFallbackPermissions()
+        return
       }
+      
+      // For other errors, clear permissions
+      setPermissions(null)
       
       if (DEBUG_CONFIG.ENABLED) {
         console.error('❌ Failed to fetch permissions:', err)
@@ -131,9 +108,77 @@ export function PermissionsProvider({ children }: { children: React.ReactNode })
     }
   }
 
+  const provideFallbackPermissions = () => {
+    // Create minimal fallback permissions for development
+    const fallbackPermissions: UserPermissions = {
+      user_info: {
+        id: 1,
+        username: 'dev-user',
+        first_name: 'Development',
+        last_name: 'User',
+        email: 'dev@example.com',
+        full_name: 'Development User',
+        is_staff: true,
+        is_superuser: true,
+        is_active: true,
+        date_joined: new Date().toISOString(),
+        has_profile: true
+      },
+      permissions: {
+        is_admin: true,
+        is_developer_admin: true,
+        is_teacher_admin: false,
+        is_system_admin: false,
+        is_superuser: true,
+        is_staff: true,
+        can_manage_users: true,
+        can_manage_partners: true,
+        can_manage_equipment: true,
+        can_manage_forgatas: true,
+        can_manage_announcements: true,
+        can_access_admin_panel: true,
+        can_view_all_users: true,
+        can_view_all_forgatas: true,
+        can_create_forgatas: true
+      },
+      display_properties: {
+        show_admin_menu: true,
+        show_teacher_menu: false,
+        show_student_menu: true,
+        navigation_items: ['dashboard', 'forgatas', 'users', 'partners', 'equipment', 'announcements', 'profile']
+      },
+      role_info: {
+        primary_role: 'developer_admin',
+        admin_type: 'dev',
+        roles: ['Developer Admin']
+      }
+    }
+    
+    setPermissions(fallbackPermissions)
+    console.log('🔧 Using fallback permissions for development')
+  }
+
   useEffect(() => {
-    fetchPermissions()
-  }, [])
+    console.log('🔍 Permissions useEffect triggered:', { 
+      authLoading, 
+      isAuthenticated, 
+      hasUser: !!user,
+      username: user?.username 
+    })
+    
+    // Only fetch permissions when auth is ready and user is authenticated
+    if (!authLoading) {
+      if (isAuthenticated && user) {
+        console.log('🔄 Auth state changed - fetching permissions for user:', user.username)
+        fetchPermissions()
+      } else {
+        console.log('🔄 User logged out - clearing permissions')
+        setPermissions(null)
+        setIsLoading(false)
+        setError(null)
+      }
+    }
+  }, [authLoading, isAuthenticated, user])
 
   const hasPermission = (permission: string): boolean => {
     return permissions?.permissions[permission] || false

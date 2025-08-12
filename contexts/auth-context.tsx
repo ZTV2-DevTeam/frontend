@@ -45,7 +45,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         
         if (apiClient.isAuthenticated()) {
           try {
-            const profile = await apiClient.getProfile()
+            // Use a timeout for profile fetch to avoid infinite loading
+            const profile = await Promise.race([
+              apiClient.getProfile(),
+              new Promise<never>((_, reject) => 
+                setTimeout(() => reject(new Error('Profile fetch timeout')), 15000)
+              )
+            ])
+            
             setUser({
               user_id: profile.user_id,
               username: profile.username,
@@ -67,10 +74,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             if (profileError instanceof Error && (
               profileError.message.includes('401') ||
               profileError.message.includes('Unauthorized') ||
-              profileError.message.includes('munkamenet lejárt')
+              profileError.message.includes('munkamenet lejárt') ||
+              profileError.message.includes('Profile fetch timeout')
             )) {
-              console.log('🔑 Clearing token due to profile fetch auth error')
+              console.log('🔑 Clearing token due to profile fetch error:', profileError.message)
               apiClient.setToken(null)
+              setUser(null)
+            } else {
+              // For other errors (network, server), don't clear token immediately
+              // Let the user retry or handle it gracefully
+              console.warn('⚠️ Profile fetch failed but token preserved for retry')
               setUser(null)
             }
           }
@@ -93,7 +106,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           apiClient.setToken(null)
         }
         
-        // Don't clear user state here - let the pages handle the errors
         setUser(null)
       } finally {
         setIsLoading(false)

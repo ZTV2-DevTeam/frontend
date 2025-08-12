@@ -1,37 +1,47 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { usePermissions } from '@/contexts/permissions-context'
 import { useUserRole } from '@/contexts/user-role-context'
 
 export function RoleSynchronizer() {
   const { permissions, getCurrentRole, isLoading, error } = usePermissions()
   const { setRole, currentRole } = useUserRole()
+  const lastSyncedRole = useRef<string | null>(null)
+  const syncInProgress = useRef(false)
 
   useEffect(() => {
     // Only sync role when permissions are loaded and we have valid permissions
-    if (!isLoading && permissions) {
+    if (!isLoading && permissions && !syncInProgress.current) {
       try {
         const primaryRole = getCurrentRole()
         
-        // Only update role if it's different from current and not the default
-        if (primaryRole !== currentRole) {
+        // Only update role if it's different from current AND it's different from last synced
+        // This prevents infinite loops and unnecessary role changes
+        if (primaryRole !== currentRole && primaryRole !== lastSyncedRole.current) {
           console.log(`🔄 Syncing role from '${currentRole}' to '${primaryRole}'`)
+          
+          syncInProgress.current = true
           setRole(primaryRole)
+          lastSyncedRole.current = primaryRole
+          
+          // Reset sync flag after a short delay to allow state updates
+          setTimeout(() => {
+            syncInProgress.current = false
+          }, 500)
         }
       } catch (err) {
         console.warn('⚠️ Failed to sync role:', err)
         // If role sync fails, ensure we at least have a basic role set
-        if (currentRole === 'student') {
-          // Don't change anything, student is a safe default
-        }
+        // Don't change the current role if sync fails to prevent disruption
       }
     }
     
     // If there's an error loading permissions but we're authenticated, 
-    // keep the current role (likely student which is the default)
+    // keep the current role and don't force logout
     if (error && !isLoading) {
-      console.warn('⚠️ Permissions error, keeping current role:', currentRole)
+      console.warn('⚠️ Permissions error, preserving current role to prevent logout:', currentRole)
+      // Don't sync roles when there's an error to prevent unwanted logouts
     }
   }, [isLoading, permissions, error, getCurrentRole, currentRole, setRole])
 

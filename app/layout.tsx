@@ -9,6 +9,8 @@ import { PermissionsProvider } from "@/contexts/permissions-context";
 import { GlobalErrorHandler } from "@/components/global-error-handler";
 import { ConsoleDebugger } from "@/components/console-debugger";
 import { RoleSynchronizer } from "@/components/role-synchronizer";
+import { EnhancedErrorBoundary } from "@/components/enhanced-error-boundary";
+import { ConnectionStatus } from "@/components/connection-status";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,27 +37,30 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased font-sans`}
       >
-        <GlobalErrorHandler />
-        <ConsoleDebugger />
-        <ThemeProvider 
-          attribute="class" 
-          defaultTheme="system" 
-          enableSystem
-          disableTransitionOnChange
-        >
-          <ColorThemeProvider>
-            <AuthProvider>
-              <PermissionsProvider>
-                <UserRoleProvider>
-                  <RoleSynchronizer />
-                  <div className="relative flex min-h-screen flex-col">
-                    {children}
-                  </div>
-                </UserRoleProvider>
-              </PermissionsProvider>
-            </AuthProvider>
-          </ColorThemeProvider>
-        </ThemeProvider>
+        <EnhancedErrorBoundary>
+          <GlobalErrorHandler />
+          <ConsoleDebugger />
+          <ThemeProvider 
+            attribute="class" 
+            defaultTheme="system" 
+            enableSystem
+            disableTransitionOnChange
+          >
+            <ColorThemeProvider>
+              <AuthProvider>
+                <PermissionsProvider>
+                  <UserRoleProvider>
+                    <RoleSynchronizer />
+                    <ConnectionStatus showText={false} />
+                    <div className="relative flex min-h-screen flex-col">
+                      {children}
+                    </div>
+                  </UserRoleProvider>
+                </PermissionsProvider>
+              </AuthProvider>
+            </ColorThemeProvider>
+          </ThemeProvider>
+        </EnhancedErrorBoundary>
       </body>
     </html>
   );
