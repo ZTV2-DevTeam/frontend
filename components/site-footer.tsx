@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Code } from "lucide-react"
+import { Code, MessageSquare } from "lucide-react"
 import { ThemeSelector } from "@/components/theme-selector"
 import { CONTACT_CONFIG } from "@/lib/config"
 
@@ -31,6 +31,15 @@ export function SiteFooter() {
             >
               Felhasználási feltételek
             </Link>
+            <a
+              href="https://forms.gle/ATyvgiutqNNaKT46A"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 text-xs underline transition-colors text-muted-foreground hover:text-primary"
+            >
+              <MessageSquare className="w-3 h-3" />
+              <span>Visszajelzés</span>
+            </a>
             <Link
               href="/login"
               className="flex items-center gap-1 text-xs underline transition-colors text-muted-foreground/50 hover:text-primary"

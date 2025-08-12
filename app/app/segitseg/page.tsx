@@ -36,7 +36,11 @@ import {
   Calendar,
   Database,
   Activity,
-  ExternalLink
+  ExternalLink,
+  MessageSquare,
+  Bug,
+  Lightbulb,
+  AlertOctagon
 } from "lucide-react"
 
 export default function HelpPage() {
@@ -217,6 +221,10 @@ export default function HelpPage() {
 
   const generalFaqs = [
     {
+      question: "Hogyan adhatok visszajelzést vagy jelenthetek be hibát?",
+      answer: "Használhatod az általános visszajelzési űrlapunkat kisebb hibák, javaslatok és általános visszajelzések esetén. Kritikus hibáknál (rendszer leállás, adatvesztés, biztonsági problémák) azonnal írj emailt a fejlesztőknek. A Visszajelzés fülön találod az összes opciót."
+    },
+    {
       question: "Kihez fordulhatok technikai problémák esetén?",
       answer: `Technikai támogatás esetén a ${CONTACT_CONFIG.DEVELOPER_EMAIL} e-mail címen érheted el a fejlesztőket. A válaszidő legfeljebb 24 óra.`
     },
@@ -226,7 +234,7 @@ export default function HelpPage() {
     },
     {
       question: "Javaslatom van a rendszer fejlesztésére, hová írhatom?",
-      answer: `Javaslatokat a ${CONTACT_CONFIG.SUPPORT_EMAIL} e-mail címen vár a fejlesztői csapat. Kérjük, hogy a javaslatokat részletesen írjátok le, hogy minél jobban megérthessük az igényeiteket.`
+      answer: `Javaslatokat a ${CONTACT_CONFIG.SUPPORT_EMAIL} e-mail címen vár a fejlesztői csapat, vagy még egyszerűbb, ha a visszajelzési űrlapunkat használod. Kérjük, hogy a javaslatokat részletesen írjátok le, hogy minél jobban megérthessük az igényeiteket.`
     },
     {
       question: "Elfejtettem a jelszavam, mit tegyek?",
@@ -268,6 +276,87 @@ export default function HelpPage() {
           </div>
 
           {/* Contact Information Card */}
+          {/* Feedback and Issue Reporting Card */}
+          <Card className="border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-green-800 dark:text-green-200">
+                <MessageSquare className="h-5 w-5" />
+                Visszajelzés és Hibabejelentés
+              </CardTitle>
+              <CardDescription className="text-green-700 dark:text-green-300">
+                Segítsd a rendszer fejlesztését visszajelzéseiddel és javaslatoddal
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4 text-green-700 dark:text-green-300">
+              <div className="grid gap-4 md:grid-cols-3">
+                {/* General Feedback */}
+                <div className="flex flex-col items-center p-4 rounded-lg bg-white dark:bg-gray-900 border border-green-200 dark:border-green-800">
+                  <Lightbulb className="h-8 w-8 mb-2 text-green-600" />
+                  <h3 className="font-medium text-center mb-2">Általános visszajelzés</h3>
+                  <p className="text-xs text-center text-muted-foreground mb-3">
+                    Fejlesztési javaslatok, funkció kérések
+                  </p>
+                  <Button 
+                    size="sm" 
+                    className="w-full bg-green-600 hover:bg-green-700"
+                    onClick={() => window.open('https://forms.gle/ATyvgiutqNNaKT46A', '_blank')}
+                  >
+                    <ExternalLink className="w-3 h-3 mr-1" />
+                    Kitöltés
+                  </Button>
+                </div>
+
+                {/* Minor Issues */}
+                <div className="flex flex-col items-center p-4 rounded-lg bg-white dark:bg-gray-900 border border-yellow-200 dark:border-yellow-800">
+                  <Bug className="h-8 w-8 mb-2 text-yellow-600" />
+                  <h3 className="font-medium text-center mb-2">Kisebb hibák</h3>
+                  <p className="text-xs text-center text-muted-foreground mb-3">
+                    Kezelői hibák, megjelenítési problémák
+                  </p>
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    className="w-full border-yellow-600 text-yellow-700 hover:bg-yellow-50 dark:hover:bg-yellow-950"
+                    onClick={() => window.open('https://forms.gle/ATyvgiutqNNaKT46A', '_blank')}
+                  >
+                    <ExternalLink className="w-3 h-3 mr-1" />
+                    Bejelentés
+                  </Button>
+                </div>
+
+                {/* Critical Issues */}
+                <div className="flex flex-col items-center p-4 rounded-lg bg-white dark:bg-gray-900 border border-red-200 dark:border-red-800">
+                  <AlertOctagon className="h-8 w-8 mb-2 text-red-600" />
+                  <h3 className="font-medium text-center mb-2">Kritikus hibák</h3>
+                  <p className="text-xs text-center text-muted-foreground mb-3">
+                    Rendszerleállás, adatvesztés, biztonsági problémák
+                  </p>
+                  <Button 
+                    size="sm" 
+                    variant="destructive"
+                    className="w-full"
+                    onClick={() => window.open(`mailto:${CONTACT_CONFIG.PRIMARY_EMAIL}?subject=KRITIKUS HIBA - Azonnali intézkedés szükséges&body=Kritikus hiba részletes leírása:%0A%0AFelhasználó: ${user?.username || 'N/A'}%0ASzerepkör: ${currentRole}%0AIdőpont: ${new Date().toLocaleString('hu-HU')}%0A%0A⚠️ KRITIKUS HIBA - Azonnali figyelmet igényel!`, '_blank')}
+                  >
+                    <Mail className="w-3 h-3 mr-1" />
+                    Email küldése
+                  </Button>
+                </div>
+              </div>
+
+              {/* Instructions */}
+              <div className="mt-4 p-3 rounded-lg bg-white dark:bg-gray-900 border border-green-200 dark:border-green-800">
+                <h4 className="font-medium mb-2 flex items-center gap-2">
+                  <HelpCircle className="w-4 h-4" />
+                  Mikor melyik opciót használjam?
+                </h4>
+                <div className="text-sm space-y-1 text-muted-foreground">
+                  <p><strong>Google Form:</strong> Általános visszajelzések, javaslatok, kisebb hibák</p>
+                  <p><strong>Azonnali email:</strong> Kritikus hibák, amelyek megakadályozzák a munkát vagy adatvesztést okozhatnak</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           <Card className="border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-blue-800 dark:text-blue-200">
@@ -299,7 +388,7 @@ export default function HelpPage() {
 
           {/* Main Content Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="general" className="flex items-center gap-2">
                 <HelpCircle className="w-4 h-4" />
                 Általános
@@ -307,6 +396,10 @@ export default function HelpPage() {
               <TabsTrigger value="role-specific" className="flex items-center gap-2">
                 <roleContent.icon className="w-4 h-4" />
                 {currentRole === 'admin' ? 'Admin' : currentRole === 'class-teacher' ? 'Osztályfőnök' : 'Hallgató'}
+              </TabsTrigger>
+              <TabsTrigger value="feedback" className="flex items-center gap-2">
+                <MessageSquare className="w-4 h-4" />
+                Visszajelzés
               </TabsTrigger>
               <TabsTrigger value="resources" className="flex items-center gap-2">
                 <FileText className="w-4 h-4" />
@@ -367,6 +460,153 @@ export default function HelpPage() {
                       </div>
                     ))}
                   </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Feedback Tab */}
+            <TabsContent value="feedback" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <MessageSquare className="h-5 w-5" />
+                    Visszajelzés és Hibabejelentés
+                  </CardTitle>
+                  <CardDescription>
+                    Segítsd a rendszer fejlesztését visszajelzéseiddel, hibák bejelentésével és új funkciók javaslásával
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {/* Main feedback form link */}
+                  <div className="text-center p-6 rounded-lg bg-gradient-to-br from-green-50 to-blue-50 dark:from-green-950 dark:to-blue-950 border border-green-200 dark:border-green-800">
+                    <MessageSquare className="h-12 w-12 mx-auto mb-4 text-green-600" />
+                    <h3 className="text-lg font-semibold mb-2">Általános Visszajelzési Űrlap</h3>
+                    <p className="text-muted-foreground mb-4 max-w-md mx-auto">
+                      Használd ezt az űrlapot általános visszajelzések, fejlesztési javaslatok és kisebb hibák bejelentésére
+                    </p>
+                    <Button 
+                      size="lg"
+                      className="bg-green-600 hover:bg-green-700"
+                      onClick={() => window.open('https://forms.gle/ATyvgiutqNNaKT46A', '_blank')}
+                    >
+                      <ExternalLink className="w-4 h-4 mr-2" />
+                      Visszajelzési Űrlap Megnyitása
+                    </Button>
+                  </div>
+
+                  {/* Issue severity guide */}
+                  <div className="grid gap-4 md:grid-cols-3">
+                    <Card className="border-green-200">
+                      <CardHeader className="pb-3">
+                        <CardTitle className="flex items-center gap-2 text-green-700">
+                          <Lightbulb className="h-5 w-5" />
+                          Javaslatok és Visszajelzések
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-2">
+                        <p className="text-sm text-muted-foreground">Használd az űrlapot az alábbiak esetén:</p>
+                        <ul className="text-sm space-y-1 text-muted-foreground">
+                          <li>• Új funkciók javaslása</li>
+                          <li>• UI/UX fejlesztési ötletek</li>
+                          <li>• Általános visszajelzések</li>
+                          <li>• Workflow javítási javaslatok</li>
+                        </ul>
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          className="w-full mt-3 border-green-200 hover:bg-green-50"
+                          onClick={() => window.open('https://forms.gle/ATyvgiutqNNaKT46A', '_blank')}
+                        >
+                          Javaslat beküldése
+                        </Button>
+                      </CardContent>
+                    </Card>
+
+                    <Card className="border-yellow-200">
+                      <CardHeader className="pb-3">
+                        <CardTitle className="flex items-center gap-2 text-yellow-700">
+                          <Bug className="h-5 w-5" />
+                          Kisebb Hibák
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-2">
+                        <p className="text-sm text-muted-foreground">Használd az űrlapot az alábbiak esetén:</p>
+                        <ul className="text-sm space-y-1 text-muted-foreground">
+                          <li>• Megjelenítési problémák</li>
+                          <li>• Kezelői felület hibái</li>
+                          <li>• Lassú betöltési idők</li>
+                          <li>• Nem kritikus funkcióhibák</li>
+                        </ul>
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          className="w-full mt-3 border-yellow-200 hover:bg-yellow-50"
+                          onClick={() => window.open('https://forms.gle/ATyvgiutqNNaKT46A', '_blank')}
+                        >
+                          Hiba bejelentése
+                        </Button>
+                      </CardContent>
+                    </Card>
+
+                    <Card className="border-red-200">
+                      <CardHeader className="pb-3">
+                        <CardTitle className="flex items-center gap-2 text-red-700">
+                          <AlertOctagon className="h-5 w-5" />
+                          Kritikus Problémák
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-2">
+                        <p className="text-sm text-muted-foreground">Írj AZONNALI emailt az alábbiak esetén:</p>
+                        <ul className="text-sm space-y-1 text-muted-foreground">
+                          <li>• Rendszer leállás</li>
+                          <li>• Adatvesztés</li>
+                          <li>• Biztonsági rések</li>
+                          <li>• Bejelentkezési problémák</li>
+                        </ul>
+                        <Button 
+                          size="sm" 
+                          variant="destructive"
+                          className="w-full mt-3"
+                          onClick={() => window.open(`mailto:${CONTACT_CONFIG.PRIMARY_EMAIL}?subject=KRITIKUS HIBA - Azonnali intézkedés szükséges&body=Kritikus hiba részletes leírása:%0A%0AFelhasználó: ${user?.username || 'N/A'}%0ASzerepkör: ${currentRole}%0AIdőpont: ${new Date().toLocaleString('hu-HU')}%0A%0A⚠️ KRITIKUS HIBA - Azonnali figyelmet igényel!`, '_blank')}
+                        >
+                          <Mail className="w-3 h-3 mr-1" />
+                          Azonnali Email
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  {/* Best practices */}
+                  <Card className="bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-blue-800 dark:text-blue-200">
+                        <HelpCircle className="h-5 w-5" />
+                        Hogyan írj hatékony visszajelzést?
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="text-blue-700 dark:text-blue-300">
+                      <div className="grid gap-4 md:grid-cols-2">
+                        <div>
+                          <h4 className="font-medium mb-2">Hibák bejelentésekor:</h4>
+                          <ul className="text-sm space-y-1">
+                            <li>• Írd le lépésről lépésre, hogyan reprodukálható</li>
+                            <li>• Add meg a böngésző típusát és verzióját</li>
+                            <li>• Csatolj képernyőképet, ha lehetséges</li>
+                            <li>• Írd meg, mit vártál volna helyette</li>
+                          </ul>
+                        </div>
+                        <div>
+                          <h4 className="font-medium mb-2">Javaslatok esetén:</h4>
+                          <ul className="text-sm space-y-1">
+                            <li>• Írd le részletesen az ötletedet</li>
+                            <li>• Magyarázd el, miért lenne hasznos</li>
+                            <li>• Add meg, hogy ki használná</li>
+                            <li>• Ha van, adj példát hasonló megoldásokra</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
                 </CardContent>
               </Card>
             </TabsContent>
