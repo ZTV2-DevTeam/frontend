@@ -2,10 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { teacherId: string } }
+  { params }: { params: Promise<{ teacherId: string }> }
 ) {
   try {
-    const { teacherId } = params
+    const { teacherId } = await params
 
     // This is a mock implementation
     // In a real application, you would:
