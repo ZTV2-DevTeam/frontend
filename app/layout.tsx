@@ -11,6 +11,7 @@ import { ConsoleDebugger } from "@/components/console-debugger";
 import { RoleSynchronizer } from "@/components/role-synchronizer";
 import { EnhancedErrorBoundary } from "@/components/enhanced-error-boundary";
 import { ConnectionStatus } from "@/components/connection-status";
+import { Analytics } from "@vercel/analytics/next"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
