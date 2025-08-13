@@ -179,14 +179,7 @@ export default function ShootingsPage() {
   // NOW we can have conditional returns - ALL HOOKS HAVE BEEN CALLED
   if (loading) {
     return (
-      <SidebarProvider
-        style={
-          {
-            "--sidebar-width": "calc(var(--spacing) * 72)",
-            "--header-height": "calc(var(--spacing) * 12)",
-          } as React.CSSProperties
-        }
-      >
+      <SidebarProvider>
         <AppSidebar variant="inset" />
         <SidebarInset>
           <SiteHeader />
@@ -201,14 +194,7 @@ export default function ShootingsPage() {
 
   if (error) {
     return (
-      <SidebarProvider
-        style={
-          {
-            "--sidebar-width": "calc(var(--spacing) * 72)",
-            "--header-height": "calc(var(--spacing) * 12)",
-          } as React.CSSProperties
-        }
-      >
+      <SidebarProvider>
         <AppSidebar variant="inset" />
         <SidebarInset>
           <SiteHeader />
@@ -223,14 +209,7 @@ export default function ShootingsPage() {
 
   return (
     <ApiErrorBoundary fallback={ApiErrorFallback}>
-      <SidebarProvider
-        style={
-          {
-            "--sidebar-width": "calc(var(--spacing) * 72)",
-            "--header-height": "calc(var(--spacing) * 12)",
-          } as React.CSSProperties
-        }
-      >
+      <SidebarProvider>
         <AppSidebar variant="inset" />
         <SidebarInset>
           <SiteHeader />

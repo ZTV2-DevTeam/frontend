@@ -35,17 +35,17 @@ export function NavMain({
             <SidebarMenuItem className="flex items-center gap-2">
               <SidebarMenuButton
                 tooltip="Quick Create"
-                className="bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground min-w-8 duration-200 ease-linear"
+                className="bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground flex-1 justify-start"
               >
-                <IconCirclePlusFilled />
-                <span>Új Forgatás</span>
+                <IconCirclePlusFilled className="h-4 w-4" />
+                <span className="group-data-[collapsible=icon]:hidden">Új Forgatás</span>
               </SidebarMenuButton>
               <Button
                 size="icon"
-                className="size-8 group-data-[collapsible=icon]:opacity-0"
+                className="size-8 group-data-[collapsible=icon]:opacity-0 shrink-0"
                 variant="outline"
               >
-                <IconMail />
+                <IconMail className="h-4 w-4" />
                 <span className="sr-only">Inbox</span>
               </Button>
             </SidebarMenuItem>

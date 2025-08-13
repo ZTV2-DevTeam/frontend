@@ -130,52 +130,86 @@ export function FirstStepsWizard({ onComplete }: FirstStepsWizardProps) {
 
   const handleFinish = async () => {
     try {
-      // Save all configuration step by step
-      await apiClient.saveSchoolYear({
+      // Step 1: Create school year
+      await apiClient.createSchoolYear({
         start_date: schoolYear.startDate,
         end_date: schoolYear.endDate
       })
 
-      await apiClient.saveClasses(classes.map(cls => ({
-        starting_year: cls.startingYear,
-        section: cls.section
-      })))
-
-      await apiClient.saveStaffs(staffs)
-
-      if (students.length > 0) {
-        await apiClient.saveStudents(students)
+      // Step 2: Create classes
+      for (const cls of classes) {
+        await apiClient.createClass({
+          start_year: cls.startingYear,
+          szekcio: cls.section
+        })
       }
 
-      if (teachers.length > 0) {
-        await apiClient.saveTeachers(teachers)
+      // Step 3: Create staff (stabs)
+      for (const staff of staffs) {
+        await apiClient.createStab({
+          name: staff.name
+        })
       }
 
-      if (partners.length > 0) {
-        await apiClient.savePartners(partners)
+      // Step 4: Create students
+      for (const student of students) {
+        await apiClient.createUser({
+          username: `${student.last_name.toLowerCase()}.${student.first_name.toLowerCase()}`,
+          first_name: student.first_name,
+          last_name: student.last_name,
+          email: student.email,
+          admin_type: 'student',
+          telefonszam: student.phone
+        })
       }
 
-      if (equipment.length > 0) {
-        await apiClient.saveEquipment(equipment)
+      // Step 5: Create teachers
+      for (const teacher of teachers) {
+        await apiClient.createUser({
+          username: `${teacher.last_name.toLowerCase()}.${teacher.first_name.toLowerCase()}`,
+          first_name: teacher.first_name,
+          last_name: teacher.last_name,
+          email: teacher.email,
+          admin_type: teacher.role === 'media_teacher' ? 'teacher' : 'class_teacher',
+          telefonszam: teacher.phone
+        })
       }
 
-      // Complete the setup
-      await apiClient.completeSetup({
-        email_notifications: emailNotifications
-      })
-      
+      // Step 6: Create partners
+      for (const partner of partners) {
+        await apiClient.createPartner({
+          name: partner.name,
+          address: partner.address,
+          institution: partner.type
+        })
+      }
+
+      // Step 7: Create equipment
+      for (const equip of equipment) {
+        await apiClient.createEquipment({
+          nickname: equip.nickname,
+          brand: equip.brand,
+          model: equip.model,
+          serial_number: equip.serial_number,
+          functional: equip.functional,
+          notes: equip.notes
+        })
+      }
+
+      // Step 8: Complete setup (this would be a custom endpoint or just mark as complete)
+      // For now, we'll just show success
       toast({
-        title: 'Siker',
-        description: 'A rendszer sikeresen konfigurálva lett!',
+        title: "Sikeres beállítás",
+        description: "A rendszer sikeresen konfigurálva lett!",
       })
-      
+
       onComplete()
-    } catch (error) {
+    } catch (error: any) {
       console.error('Setup error:', error)
       toast({
-        title: 'Hiba',
-        description: 'Hiba történt a konfiguráció mentése során.',
-        variant: 'destructive',
+        title: "Hiba történt",
+        description: error.message || "Ismeretlen hiba történt a beállítás során",
+        variant: "destructive"
       })
     }
   }

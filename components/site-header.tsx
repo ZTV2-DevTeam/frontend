@@ -31,17 +31,16 @@ export function SiteHeader() {
   const currentPageName = getCurrentPageName(pathname)
 
   return (
-    <header className="flex h-(--header-height) shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
-      <div className="flex items-center w-full gap-1 px-4 lg:gap-2 lg:px-6">
-        <SidebarTrigger className="-ml-1" />
+    <header className="flex h-16 md:h-14 shrink-0 items-center gap-2 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 transition-[width,height] ease-linear">
+      <div className="flex items-center w-full gap-3 px-4 lg:gap-4 lg:px-6">
+        <SidebarTrigger className="-ml-1 h-9 w-9 md:h-8 md:w-8" />
         <Separator
           orientation="vertical"
-          className="mx-2 data-[orientation=vertical]:h-4"
+          className="mx-1 h-6 data-[orientation=vertical]:h-6"
         />
-        <div className="flex items-center gap-2">
-          {/* icon */}
-          <Clapperboard className="size-5 text-primary" />
-          <h1 className="text-base font-medium">{currentPageName}</h1>
+        <div className="flex items-center gap-3 min-h-[2.5rem] md:min-h-[2rem]">
+          <Clapperboard className="h-6 w-6 md:h-5 md:w-5 text-primary flex-shrink-0" />
+          <h1 className="text-lg md:text-base font-semibold tracking-tight">{currentPageName}</h1>
         </div>
       </div>
     </header>

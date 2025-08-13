@@ -446,15 +446,17 @@ export interface SzerepkorRelacioCreateSchema {
 
 export interface BeosztasSchema {
   id: number
+  forgatas: ForgatSchema
+  szerepkor_relaciok: SzerepkorRelacioSchema[]
   kesz: boolean
   author?: UserBasicSchema
-  tanev?: Record<string, any>
   created_at: string
-  role_relation_count: number
+  student_count: number
+  roles_summary: { role: string, count: number }[]
 }
 
 export interface BeosztasDetailSchema extends BeosztasSchema {
-  szerepkor_relaciok: SzerepkorRelacioSchema[]
+  // Additional detail fields if needed
 }
 
 export interface BeosztasCreateSchema {
@@ -1059,11 +1061,11 @@ class ApiClient {
 
   // === RADIO ===
   async getRadioStabs(): Promise<RadioStabSchema[]> {
-    return this.request<RadioStabSchema[]>('/api/radio-stabs')
+    return this.request<RadioStabSchema[]>('/api/radio/radio-stabs')
   }
 
   async createRadioStab(data: RadioStabCreateSchema): Promise<RadioStabSchema> {
-    return this.request<RadioStabSchema>('/api/radio-stabs', {
+    return this.request<RadioStabSchema>('/api/radio/radio-stabs', {
       method: 'POST',
       body: JSON.stringify(data),
     })
@@ -1074,11 +1076,11 @@ class ApiClient {
     if (startDate) params.append('start_date', startDate)
     if (endDate) params.append('end_date', endDate)
     const query = params.toString() ? `?${params.toString()}` : ''
-    return this.request<RadioSessionSchema[]>(`/api/radio-sessions${query}`)
+    return this.request<RadioSessionSchema[]>(`/api/radio/radio-sessions${query}`)
   }
 
   async createRadioSession(data: RadioSessionCreateSchema): Promise<RadioSessionSchema> {
-    return this.request<RadioSessionSchema>('/api/radio-sessions', {
+    return this.request<RadioSessionSchema>('/api/radio/radio-sessions', {
       method: 'POST',
       body: JSON.stringify(data),
     })
@@ -1095,6 +1097,10 @@ class ApiClient {
 
   async getRadioStudents(): Promise<UserProfileSchema[]> {
     return this.request<UserProfileSchema[]>('/api/users/radio-students')
+  }
+
+  async getActiveUsers(): Promise<Record<string, any>> {
+    return this.request<Record<string, any>>('/api/users/active')
   }
 
   async checkUserAvailability(
@@ -1152,19 +1158,20 @@ class ApiClient {
   }
 
   async verifyFirstLoginToken(token: string): Promise<Record<string, any>> {
-    return this.request<Record<string, any>>(`/api/first-login/verify-token?token=${encodeURIComponent(token)}`, {
+    return this.request<Record<string, any>>(`/api/first-login/verify-token`, {
       method: 'POST',
+      body: JSON.stringify({ token }),
     })
   }
 
   async setFirstPassword(token: string, password: string, confirmPassword: string): Promise<Record<string, any>> {
-    const params = new URLSearchParams({
-      token,
-      password,
-      confirm_password: confirmPassword,
-    })
-    return this.request<Record<string, any>>(`/api/first-login/set-password?${params.toString()}`, {
+    return this.request<Record<string, any>>(`/api/first-login/set-password`, {
       method: 'POST',
+      body: JSON.stringify({
+        token,
+        password,
+        confirm_password: confirmPassword,
+      }),
     })
   }
 
@@ -1268,13 +1275,17 @@ class ApiClient {
 
   async checkEquipmentAvailability(
     equipmentId: number,
-    startDatetime: string,
-    endDatetime: string
+    startDate: string,
+    startTime: string,
+    endDate?: string,
+    endTime?: string
   ): Promise<EquipmentAvailabilitySchema> {
     const params = new URLSearchParams({
-      start_datetime: startDatetime,
-      end_datetime: endDatetime,
+      start_date: startDate,
+      start_time: startTime,
     })
+    if (endDate) params.append('end_date', endDate)
+    if (endTime) params.append('end_time', endTime)
     return this.request<EquipmentAvailabilitySchema>(`/api/equipment/${equipmentId}/availability?${params.toString()}`)
   }
 
@@ -1307,11 +1318,11 @@ class ApiClient {
 
   // === PRODUCTION ===
   async getContactPersons(): Promise<ContactPersonSchema[]> {
-    return this.request<ContactPersonSchema[]>('/api/contact-persons')
+    return this.request<ContactPersonSchema[]>('/api/production/contact-persons')
   }
 
   async createContactPerson(data: ContactPersonCreateSchema): Promise<ContactPersonSchema> {
-    return this.request<ContactPersonSchema>('/api/contact-persons', {
+    return this.request<ContactPersonSchema>('/api/production/contact-persons', {
       method: 'POST',
       body: JSON.stringify(data),
     })
@@ -1323,73 +1334,73 @@ class ApiClient {
     if (endDate) params.append('end_date', endDate)
     if (type) params.append('type', type)
     const query = params.toString() ? `?${params.toString()}` : ''
-    return this.request<ForgatSchema[]>(`/api/filming-sessions${query}`)
+    return this.request<ForgatSchema[]>(`/api/production/filming-sessions${query}`)
   }
 
   async getFilmingSession(forgatId: number): Promise<ForgatSchema> {
-    return this.request<ForgatSchema>(`/api/filming-sessions/${forgatId}`)
+    return this.request<ForgatSchema>(`/api/production/filming-sessions/${forgatId}`)
   }
 
   async createFilmingSession(data: ForgatCreateSchema): Promise<ForgatSchema> {
-    return this.request<ForgatSchema>('/api/filming-sessions', {
+    return this.request<ForgatSchema>('/api/production/filming-sessions', {
       method: 'POST',
       body: JSON.stringify(data),
     })
   }
 
   async updateFilmingSession(forgatId: number, data: ForgatUpdateSchema): Promise<ForgatSchema> {
-    return this.request<ForgatSchema>(`/api/filming-sessions/${forgatId}`, {
+    return this.request<ForgatSchema>(`/api/production/filming-sessions/${forgatId}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     })
   }
 
   async deleteFilmingSession(forgatId: number): Promise<Record<string, any>> {
-    return this.request<Record<string, any>>(`/api/filming-sessions/${forgatId}`, {
+    return this.request<Record<string, any>>(`/api/production/filming-sessions/${forgatId}`, {
       method: 'DELETE',
     })
   }
 
   async getFilmingTypes(): Promise<ForgatoTipusSchema[]> {
-    return this.request<ForgatoTipusSchema[]>('/api/filming-sessions/types')
+    return this.request<ForgatoTipusSchema[]>('/api/production/filming-sessions/types')
   }
 
   // === COMMUNICATIONS ===
   async getAnnouncements(myAnnouncements = false): Promise<AnnouncementSchema[]> {
     const params = myAnnouncements ? '?my_announcements=true' : ''
-    return this.request<AnnouncementSchema[]>(`/api/announcements${params}`)
+    return this.request<AnnouncementSchema[]>(`/api/communications/announcements${params}`)
   }
 
   async getPublicAnnouncements(): Promise<AnnouncementSchema[]> {
-    return this.request<AnnouncementSchema[]>('/api/announcements/public')
+    return this.request<AnnouncementSchema[]>('/api/communications/announcements/public')
   }
 
   async getAnnouncementDetails(announcementId: number): Promise<AnnouncementDetailSchema> {
-    return this.request<AnnouncementDetailSchema>(`/api/announcements/${announcementId}`)
+    return this.request<AnnouncementDetailSchema>(`/api/communications/announcements/${announcementId}`)
   }
 
   async createAnnouncement(data: AnnouncementCreateSchema): Promise<AnnouncementDetailSchema> {
-    return this.request<AnnouncementDetailSchema>('/api/announcements', {
+    return this.request<AnnouncementDetailSchema>('/api/communications/announcements', {
       method: 'POST',
       body: JSON.stringify(data),
     })
   }
 
   async updateAnnouncement(announcementId: number, data: AnnouncementUpdateSchema): Promise<AnnouncementDetailSchema> {
-    return this.request<AnnouncementDetailSchema>(`/api/announcements/${announcementId}`, {
+    return this.request<AnnouncementDetailSchema>(`/api/communications/announcements/${announcementId}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     })
   }
 
   async deleteAnnouncement(announcementId: number): Promise<Record<string, any>> {
-    return this.request<Record<string, any>>(`/api/announcements/${announcementId}`, {
+    return this.request<Record<string, any>>(`/api/communications/announcements/${announcementId}`, {
       method: 'DELETE',
     })
   }
 
   async getAnnouncementRecipients(announcementId: number): Promise<UserBasicSchema[]> {
-    return this.request<UserBasicSchema[]>(`/api/announcements/${announcementId}/recipients`)
+    return this.request<UserBasicSchema[]>(`/api/communications/announcements/${announcementId}/recipients`)
   }
 
   // === ORGANIZATION ===
@@ -1468,6 +1479,55 @@ class ApiClient {
     })
   }
 
+  // === FILMING ASSIGNMENTS ===
+  async getFilmingAssignments(forgatotId?: number, kesz?: boolean, startDate?: string, endDate?: string): Promise<BeosztasSchema[]> {
+    const params = new URLSearchParams()
+    if (forgatotId) params.append('forgatas_id', forgatotId.toString())
+    if (kesz !== undefined) params.append('kesz', kesz.toString())
+    if (startDate) params.append('start_date', startDate)
+    if (endDate) params.append('end_date', endDate)
+    const query = params.toString() ? `?${params.toString()}` : ''
+    return this.request<BeosztasSchema[]>(`/api/assignments/filming-assignments${query}`)
+  }
+
+  async getFilmingAssignmentDetails(assignmentId: number): Promise<BeosztasDetailSchema> {
+    return this.request<BeosztasDetailSchema>(`/api/assignments/filming-assignments/${assignmentId}`)
+  }
+
+  async createFilmingAssignment(data: { forgatas_id: number, student_role_pairs: { user_id: number, szerepkor_id: number }[] }): Promise<BeosztasDetailSchema> {
+    return this.request<BeosztasDetailSchema>('/api/assignments/filming-assignments', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async updateFilmingAssignment(assignmentId: number, data: { student_role_pairs?: { user_id: number, szerepkor_id: number }[], kesz?: boolean }): Promise<BeosztasDetailSchema> {
+    return this.request<BeosztasDetailSchema>(`/api/assignments/filming-assignments/${assignmentId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async finalizeFilmingAssignment(assignmentId: number): Promise<BeosztasDetailSchema> {
+    return this.request<BeosztasDetailSchema>(`/api/assignments/filming-assignments/${assignmentId}/finalize`, {
+      method: 'POST',
+    })
+  }
+
+  async deleteFilmingAssignment(assignmentId: number): Promise<Record<string, any>> {
+    return this.request<Record<string, any>>(`/api/assignments/filming-assignments/${assignmentId}`, {
+      method: 'DELETE',
+    })
+  }
+
+  async getFilmingAssignmentAbsences(assignmentId: number): Promise<Record<string, any>[]> {
+    return this.request<Record<string, any>[]>(`/api/assignments/filming-assignments/${assignmentId}/absences`)
+  }
+
+  async getAssignmentRoles(): Promise<SzerepkorSchema[]> {
+    return this.request<SzerepkorSchema[]>('/api/assignments/roles')
+  }
+
   // === ABSENCE ===
   async getAbsences(
     userId?: number,
@@ -1481,41 +1541,41 @@ class ApiClient {
     if (endDate) params.append('end_date', endDate)
     if (myAbsences) params.append('my_absences', 'true')
     const query = params.toString() ? `?${params.toString()}` : ''
-    return this.request<TavolletSchema[]>(`/api/absences${query}`)
+    return this.request<TavolletSchema[]>(`/api/absence/absences${query}`)
   }
 
   async getAbsenceDetails(absenceId: number): Promise<TavolletSchema> {
-    return this.request<TavolletSchema>(`/api/absences/${absenceId}`)
+    return this.request<TavolletSchema>(`/api/absence/absences/${absenceId}`)
   }
 
   async createAbsence(data: TavolletCreateSchema): Promise<TavolletSchema> {
-    return this.request<TavolletSchema>('/api/absences', {
+    return this.request<TavolletSchema>('/api/absence/absences', {
       method: 'POST',
       body: JSON.stringify(data),
     })
   }
 
   async updateAbsence(absenceId: number, data: TavolletUpdateSchema): Promise<TavolletSchema> {
-    return this.request<TavolletSchema>(`/api/absences/${absenceId}`, {
+    return this.request<TavolletSchema>(`/api/absence/absences/${absenceId}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     })
   }
 
   async deleteAbsence(absenceId: number): Promise<Record<string, any>> {
-    return this.request<Record<string, any>>(`/api/absences/${absenceId}`, {
+    return this.request<Record<string, any>>(`/api/absence/absences/${absenceId}`, {
       method: 'DELETE',
     })
   }
 
   async approveAbsence(absenceId: number): Promise<TavolletSchema> {
-    return this.request<TavolletSchema>(`/api/absences/${absenceId}/approve`, {
+    return this.request<TavolletSchema>(`/api/absence/absences/${absenceId}/approve`, {
       method: 'PUT',
     })
   }
 
   async denyAbsence(absenceId: number): Promise<TavolletSchema> {
-    return this.request<TavolletSchema>(`/api/absences/${absenceId}/deny`, {
+    return this.request<TavolletSchema>(`/api/absence/absences/${absenceId}/deny`, {
       method: 'PUT',
     })
   }
@@ -1529,7 +1589,7 @@ class ApiClient {
       start_date: startDate,
       end_date: endDate,
     })
-    return this.request<Record<string, any>>(`/api/absences/user/${userId}/conflicts?${params.toString()}`)
+    return this.request<Record<string, any>>(`/api/absence/absences/user/${userId}/conflicts?${params.toString()}`)
   }
 
   // === CONFIGURATION ===
@@ -1640,83 +1700,6 @@ class ApiClient {
   async delete<T = unknown>(route: string): Promise<T> {
     return this.request<T>(`/api/${route}`, {
       method: 'DELETE',
-    })
-  }
-
-  // Setup wizard methods
-  async saveSchoolYear(data: any): Promise<any> {
-    return this.request(`/api/setup/school-year`, {
-      method: 'POST',
-      body: JSON.stringify(data),
-    })
-  }
-
-  async saveClasses(data: any): Promise<any> {
-    return this.request(`/api/setup/classes`, {
-      method: 'POST',
-      body: JSON.stringify(data),
-    })
-  }
-
-  async saveStaffs(data: any): Promise<any> {
-    return this.request(`/api/setup/staffs`, {
-      method: 'POST',
-      body: JSON.stringify(data),
-    })
-  }
-
-  async saveStudents(data: any): Promise<any> {
-    return this.request(`/api/setup/students`, {
-      method: 'POST',
-      body: JSON.stringify(data),
-    })
-  }
-
-  async saveTeachers(data: any): Promise<any> {
-    return this.request(`/api/setup/teachers`, {
-      method: 'POST',
-      body: JSON.stringify(data),
-    })
-  }
-
-  async savePartners(data: any): Promise<any> {
-    return this.request(`/api/setup/partners`, {
-      method: 'POST',
-      body: JSON.stringify(data),
-    })
-  }
-
-  async saveEquipment(data: any): Promise<any> {
-    return this.request(`/api/setup/equipment`, {
-      method: 'POST',
-      body: JSON.stringify(data),
-    })
-  }
-
-  async completeSetup(data: any): Promise<any> {
-    return this.request(`/api/setup/complete`, {
-      method: 'POST',
-      body: JSON.stringify(data),
-    })
-  }
-
-  async createTeacher(data: any): Promise<any> {
-    return this.request(`/api/teachers`, {
-      method: 'POST',
-      body: JSON.stringify(data),
-    })
-  }
-
-  async getTeacherRegistrationLink(teacherId: string): Promise<any> {
-    return this.request(`/api/teachers/${teacherId}/registration-link`, {
-      method: 'GET',
-    })
-  }
-
-  async sendStudentRegistrationEmails(data: any): Promise<any> {
-    return this.request(`/api/students/registration-emails`, {
-      method: 'POST',
-      body: JSON.stringify(data),
     })
   }
 }

@@ -145,14 +145,7 @@ const generatePDF = async (users: any[]) => {
 // Enhanced Loading Component
 function LoadingSpinner({ message = "Betöltés..." }) {
   return (
-    <SidebarProvider
-      style={
-        {
-          "--sidebar-width": "19rem",
-          "--header-height": "3.5rem",
-        } as React.CSSProperties
-      }
-    >
+    <SidebarProvider>
       <AppSidebar variant="inset" />
       <SidebarInset>
         <SiteHeader />
@@ -214,14 +207,7 @@ function ErrorDisplay({
   }
 
   return (
-    <SidebarProvider
-      style={
-        {
-          "--sidebar-width": "19rem",
-          "--header-height": "3.5rem",
-        } as React.CSSProperties
-      }
-    >
+    <SidebarProvider>
       <AppSidebar variant="inset" />
       <SidebarInset>
         <SiteHeader />
@@ -544,18 +530,11 @@ export default function StabPage() {
   return (
     <ProtectedRoute>
       <TooltipProvider>
-        <SidebarProvider
-          style={
-            {
-              "--sidebar-width": "19rem",
-              "--header-height": "3.5rem",
-            } as React.CSSProperties
-          }
-        >
+        <SidebarProvider>
           <AppSidebar variant="inset" />
           <SidebarInset>
             <SiteHeader />
-            <div className="flex-1 space-y-6 p-6">
+            <div className="flex-1 space-y-6 p-6">{/* Fixed content */}
               {/* Header */}
               <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div className="space-y-1">

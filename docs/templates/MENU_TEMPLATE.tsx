@@ -18,7 +18,7 @@ export default function YourMenuPage() {
       <AppSidebar variant="inset" />
       <SidebarInset>
         <SiteHeader />
-        <div className="p-4">
+        <div className="flex-1 space-y-4 p-4 md:p-6">
           
           {/* 2. CHANGE THIS: Update the loading message */}
           {loading && <div>Loading your data...</div>}

@@ -249,14 +249,7 @@ export default function HelpPage() {
   const roleContent = getCurrentRoleContent()
 
   return (
-    <SidebarProvider
-      style={
-        {
-          "--sidebar-width": "calc(var(--spacing) * 72)",
-          "--header-height": "calc(var(--spacing) * 12)",
-        } as React.CSSProperties
-      }
-    >
+    <SidebarProvider>
       <AppSidebar variant="inset" />
       <SidebarInset>
         <SiteHeader />
@@ -613,6 +606,101 @@ export default function HelpPage() {
 
             {/* Resources Tab */}
             <TabsContent value="resources" className="space-y-4">
+              {/* Future Development Plans */}
+              <Card className="border-purple-200 bg-purple-50 dark:border-purple-800 dark:bg-purple-950">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-purple-800 dark:text-purple-200">
+                    <Lightbulb className="h-5 w-5" />
+                    Mik várhatóak a jövőben?
+                  </CardTitle>
+                  <CardDescription className="text-purple-700 dark:text-purple-300">
+                    Tervezett funkciók és fejlesztések a rendszerben
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="text-purple-700 dark:text-purple-300">
+                  <div className="space-y-4">
+                    <div>
+                      <h4 className="font-medium mb-2 flex items-center gap-2">
+                        <Database className="w-4 h-4" />
+                        Minden adat kezelése ezen a modern felületen
+                      </h4>
+                      <p className="text-sm mb-3 text-muted-foreground">
+                        Jelenleg vannak olyan információk, melyek csak közvetlenül a backend (ftvapi) felületen kezelhetőek, 
+                        ezek szerkesztésére a jövőben új felületeket hozunk létre ezen az oldalon:
+                      </p>
+                      <ul className="text-sm space-y-1 pl-4">
+                        <li>• <strong>Partnerkezelő felület</strong> - Minden partner áttekintése és kezelése</li>
+                        <li>• <strong>Eszközkezelő felület</strong> - Minden eszköz áttekintése és kezelése</li>
+                        <li>• <strong>Felhasználókezelő felület</strong> - Minden felhasználó áttekintése és kezelése (szerepkörök, stábok, rádiós stábok)</li>
+                      </ul>
+                    </div>
+
+                    <div>
+                      <h4 className="font-medium mb-2 flex items-center gap-2">
+                        <MessageSquare className="w-4 h-4" />
+                        Reakciók az üzenőfalon
+                      </h4>
+                      <p className="text-sm text-muted-foreground">
+                        Emoji alapú reakciók, valamint kommentek bekapcsolásának lehetősége adminisztrátorok számára
+                      </p>
+                    </div>
+
+                    <div>
+                      <h4 className="font-medium mb-2 flex items-center gap-2">
+                        <Activity className="w-4 h-4" />
+                        Forgatástörténet, statisztika
+                      </h4>
+                      <p className="text-sm text-muted-foreground">
+                        Minden múltbeli forgatás adatainak és abból készített statisztikák áttekintése
+                      </p>
+                    </div>
+
+                    <div>
+                      <h4 className="font-medium mb-2 flex items-center gap-2">
+                        <FileText className="w-4 h-4" />
+                        Stáb adatainak exportálása
+                      </h4>
+                      <p className="text-sm text-muted-foreground">
+                        Teljes stáb adatainak exportálása nyomtatható (PDF) formátumban
+                      </p>
+                    </div>
+
+                    <Separator />
+
+                    <div>
+                      <h4 className="font-medium mb-2 flex items-center gap-2">
+                        <Settings className="w-4 h-4" />
+                        Technikai módosítások
+                      </h4>
+                      <ul className="text-sm space-y-2">
+                        <li>
+                          <strong>Gyorsabb felület</strong><br />
+                          <span className="text-muted-foreground">
+                            Felhasználói felület betöltési idejének csökkentése, a biztonsági protokollok megtartásával
+                          </span>
+                        </li>
+                        <li>
+                          <strong>Adatkímélő megoldások</strong><br />
+                          <span className="text-muted-foreground">
+                            Internetes kommunikáció optimalizálása, közlekedő adatmennyiség csökkentése érdekében - 
+                            jelenleg a főoldaltól, a belépés és forgatási adatok lekérdezése 10-20 MB adatmennyiséget igényel.
+                          </span>
+                        </li>
+                      </ul>
+                    </div>
+
+                    <div className="mt-4 p-3 rounded-lg bg-white dark:bg-gray-900 border border-purple-200 dark:border-purple-800">
+                      <p className="text-sm font-medium text-center text-purple-800 dark:text-purple-200">
+                        💡 Hiányolsz valamit? Jelezd a fejleszőknek!
+                      </p>
+                      <p className="text-xs text-center text-muted-foreground mt-1">
+                        Használd a visszajelzési űrlapunkat új funkciók javaslására
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
               <div className="grid gap-4 md:grid-cols-2">
                 {/* System Status */}
                 <Card>

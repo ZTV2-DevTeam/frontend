@@ -38,8 +38,8 @@ export default function FirstPasswordPage() {
 
   const validateToken = useCallback(async () => {
     try {
-      // This would be a specific endpoint for first-password token validation
-      const response = await apiClient.get<TokenValidation>(`first-password/validate/${token}`)
+      // Use the correct endpoint for first-login token validation
+      const response = await apiClient.verifyFirstLoginToken(token)
       setTokenValid(response.valid)
       if (response.valid && response.user_info) {
         setUserInfo(response.user_info)
@@ -75,11 +75,7 @@ export default function FirstPasswordPage() {
     setIsSubmitting(true)
 
     try {
-      await apiClient.post(`first-password/set`, {
-        token,
-        password,
-        confirmPassword
-      })
+      await apiClient.setFirstPassword(token, password, confirmPassword)
       
       setSuccess(true)
       

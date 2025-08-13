@@ -40,14 +40,7 @@ export default function MessageBoardPage() {
 
   if (loading) {
     return (
-      <SidebarProvider
-        style={
-          {
-            "--sidebar-width": "calc(var(--spacing) * 72)",
-            "--header-height": "calc(var(--spacing) * 12)",
-          } as React.CSSProperties
-        }
-      >
+      <SidebarProvider>
         <AppSidebar variant="inset" />
         <SidebarInset>
           <SiteHeader />
@@ -61,14 +54,7 @@ export default function MessageBoardPage() {
 
   if (error) {
     return (
-      <SidebarProvider
-        style={
-          {
-            "--sidebar-width": "calc(var(--spacing) * 72)",
-            "--header-height": "calc(var(--spacing) * 12)",
-          } as React.CSSProperties
-        }
-      >
+      <SidebarProvider>
         <AppSidebar variant="inset" />
         <SidebarInset>
           <SiteHeader />
@@ -143,14 +129,7 @@ export default function MessageBoardPage() {
   }
 
   return (
-    <SidebarProvider
-      style={
-        {
-          "--sidebar-width": "calc(var(--spacing) * 72)",
-          "--header-height": "calc(var(--spacing) * 12)",
-        } as React.CSSProperties
-      }
-    >
+    <SidebarProvider>
       <AppSidebar variant="inset" />
       <SidebarInset>
         <SiteHeader />

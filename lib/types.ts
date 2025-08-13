@@ -103,6 +103,7 @@ export interface UserDetailSchema {
   first_login_token_sent: boolean
   date_joined: string
   last_login?: string
+  absences?: TavolletSchema[] // Optional absences property
 }
 
 export interface UserCreateSchema {
@@ -502,15 +503,17 @@ export interface SzerepkorRelacioCreateSchema {
 
 export interface BeosztasSchema {
   id: number
+  forgatas: ForgatSchema
+  szerepkor_relaciok: SzerepkorRelacioSchema[]
   kesz: boolean
   author?: UserBasicSchema
-  tanev?: Record<string, any>
   created_at: string
-  role_relation_count: number
+  student_count: number
+  roles_summary: { role: string, count: number }[]
 }
 
 export interface BeosztasDetailSchema extends BeosztasSchema {
-  szerepkor_relaciok: SzerepkorRelacioSchema[]
+  // Additional detail fields if needed
 }
 
 export interface BeosztasCreateSchema {
