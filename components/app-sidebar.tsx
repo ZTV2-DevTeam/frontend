@@ -204,16 +204,13 @@ const data = {
         url: "/app/forgatasok",
         icon: BellDot,
       },
-      {
-        name: "KaCsa",
-        url: "/app/kacsa",
-        icon: Bird,
-      },
-      {
-        name: "Beosztás",
-        url: "/app/beosztas",
-        icon: TableProperties,
-      },
+      // KaCsa funkciót ideiglenesen kikapcsolta a fejlesztő
+      // {
+      //   name: "KaCsa",
+      //   url: "/app/kacsa",
+      //   icon: Bird,
+      // },
+      // Beosztás removed - now managed within forgatások
       {
         name: "Távollét",
         url: "/app/tavollet",
@@ -227,11 +224,12 @@ const data = {
         url: "/app/forgatasok",
         icon: BellDot,
       },
-      {
-        name: "KaCsa",
-        url: "/app/kacsa",
-        icon: Bird,
-      },
+      // KaCsa funkciót ideiglenesen kikapcsolta a fejlesztő
+      // {
+      //   name: "KaCsa",
+      //   url: "/app/kacsa",
+      //   icon: Bird,
+      // },
       {
         name: "Távollét",
         url: "/app/tavollet",

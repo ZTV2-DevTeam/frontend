@@ -126,7 +126,7 @@ export default function DatabaseAdminPage() {
             </Badge>
           </div>
 
-          {/* Disclaimer for Advanced Users */}
+          {/* Disclaimer for Advanced Users
           <Card className="border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-amber-800 dark:text-amber-200">
@@ -152,7 +152,7 @@ export default function DatabaseAdminPage() {
                 </a>
               </p>
             </CardContent>
-          </Card>
+          </Card> */}
 
           {/* Statistics Cards */}
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

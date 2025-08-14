@@ -465,6 +465,56 @@ export interface BeosztasCreateSchema {
   szerepkor_relacio_ids?: number[]
 }
 
+// === LEGACY BEOSZTAS TYPES ===
+export interface LegacyBeosztasItemSchema {
+  id: number
+  user_id: number
+  role: string
+}
+
+export interface LegacyForgatBeosztasSchema {
+  id: number
+  name: string
+  description: string
+  date: string | null
+  time_from: string | null
+  time_to: string | null
+  location: {
+    id: number
+    name: string
+    address: string
+  } | null
+  contact_person: {
+    id: number
+    name: string
+    email: string
+    phone: string
+  } | null
+  notes: string | null
+  type: string
+  type_display: string
+  related_kacsa: {
+    id: number
+    name: string
+    date: string
+  } | null
+  equipment_ids: number[]
+  equipment_count: number
+  beosztas: LegacyBeosztasItemSchema[]
+  tanev: {
+    id: number
+    display_name: string
+    is_active: boolean
+  } | null
+}
+
+export interface LegacyBeosztasCreateSchema {
+  beosztas: number
+  forgatas: number
+  user: number
+  role: string
+}
+
 // === ABSENCE ===
 export interface TavolletSchema {
   id: number
@@ -1700,6 +1750,18 @@ class ApiClient {
   async delete<T = unknown>(route: string): Promise<T> {
     return this.request<T>(`/api/${route}`, {
       method: 'DELETE',
+    })
+  }
+
+  // === LEGACY BEOSZTAS ===
+  async getLegacyBeosztasView(): Promise<LegacyForgatBeosztasSchema[]> {
+    return this.request<LegacyForgatBeosztasSchema[]>('/legacy/beosztasview/')
+  }
+
+  async createLegacyBeosztas(data: LegacyBeosztasCreateSchema): Promise<any> {
+    return this.request<any>('/legacy/beosztas/', {
+      method: 'POST',
+      body: JSON.stringify(data)
     })
   }
 }

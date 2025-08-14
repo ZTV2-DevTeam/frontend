@@ -453,7 +453,7 @@ function PendingForgatásokWidget() {
                 className="flex items-center gap-2"
               >
                 <Users className="h-4 w-4" />
-                Stábok
+                Stáb
               </Button>
             </div>
 
@@ -618,7 +618,7 @@ function QuickActionsWidget() {
       color: "bg-blue-500"
     },
     { 
-      name: "Stábok", 
+      name: "Stáb", 
       description: "Csapat kezelése",
       icon: Users, 
       route: "/app/stab",

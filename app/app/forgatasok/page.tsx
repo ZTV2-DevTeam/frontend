@@ -56,7 +56,9 @@ import {
   Filter,
   Phone,
   Mail,
-  ExternalLink
+  ExternalLink,
+  Edit,
+  Users
 } from "lucide-react"
 import { format } from "date-fns"
 import { hu } from "date-fns/locale"
@@ -221,10 +223,14 @@ export default function ShootingsPage() {
           }} />
           <div className="flex-1 space-y-4 p-4 md:p-6">
           {/* Header */}
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-bold">Forgatások</h1>
-              <Badge variant="secondary">{filteredSessions.length}</Badge>
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div className="space-y-1">
+              <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                Forgatások
+              </h1>
+              <p className="text-muted-foreground">
+                Filmkészítési projektek és forgatások • {filteredSessions.length} forgatás
+              </p>
             </div>
             {canCreate && <CreateForgatásDialog />}
           </div>
@@ -356,6 +362,21 @@ export default function ShootingsPage() {
                               </Button>
                             )}
                           </div>
+                        </div>
+                      )}
+                      
+                      {/* Admin Actions */}
+                      {permissions?.permissions?.can_manage_forgatas && (
+                        <div className="flex gap-2 pt-3 border-t border-border">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="flex-1"
+                            onClick={() => window.open(`/app/beosztas-legacy?forgatas=${session.id}`, '_blank')}
+                          >
+                            <Users className="h-4 w-4 mr-2" />
+                            Beosztás szerkesztése
+                          </Button>
                         </div>
                       )}
                     </CardContent>

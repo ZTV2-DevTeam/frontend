@@ -255,9 +255,11 @@ export default function HelpPage() {
         <SiteHeader />
         <div className="flex-1 space-y-6 p-4 md:p-8 pt-6">
           {/* Header */}
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">Súgó és Tudásbázis</h1>
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div className="space-y-1">
+              <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                Súgó és Tudásbázis
+              </h1>
               <p className="text-muted-foreground">
                 Útmutatók, gyakran ismételt kérdések és technikai támogatás
               </p>
