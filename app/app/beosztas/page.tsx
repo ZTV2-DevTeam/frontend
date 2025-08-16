@@ -273,7 +273,7 @@ export default function CrewAssignmentsPage() {
                 {/* KaCsa Assignments */}
                 {kacsaAssignments.length > 0 && (
                   <AssignmentSection
-                    title="KaCsa Forgatások"
+                    title="KaCsa Összejátszások"
                     assignments={kacsaAssignments}
                     icon={Star}
                     iconColor="text-yellow-400 fill-yellow-400"

@@ -1,18 +1,13 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import { AppSidebar } from "@/components/app-sidebar"
-import { SiteHeader } from "@/components/site-header"
+import { StandardizedLayout } from "@/components/standardized-layout"
 import { useApiQuery } from "@/lib/api-helpers"
 import { apiClient } from "@/lib/api"
 import { useAuth } from "@/contexts/auth-context"
-import type { ForgatSchema } from "@/lib/types"
+import type { ForgatSchema, BeosztasSchema } from "@/lib/types"
 import { ApiErrorBoundary } from "@/components/api-error-boundary"
 import { ApiErrorFallback } from "@/components/api-error-fallback"
-import {
-  SidebarInset,
-  SidebarProvider,
-} from "@/components/ui/sidebar"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -55,17 +50,97 @@ export default function FilmingSessionsPage() {
     [isAuthenticated]
   )
 
-  const { data: filmingData = [], loading, error } = filmingQuery
+  const { data: filmingData = [], loading: sessionsLoading, error } = filmingQuery
 
   // Computed values
   const sessions = useMemo(() => Array.isArray(filmingData) ? filmingData : [], [filmingData])
 
+  // Fetch assignments for each filming session individually
+  const assignmentsQueries = useApiQuery(
+    () => {
+      if (!isAuthenticated || sessions.length === 0) return Promise.resolve([])
+      return Promise.all(
+        sessions.map(async (session: ForgatSchema) => {
+          try {
+            const assignment = await apiClient.getFilmingAssignments(session.id) as BeosztasSchema
+            return assignment
+          } catch (error) {
+            // Some sessions might not have assignments yet
+            console.warn(`No assignment found for session ${session.id}:`, error)
+            return null
+          }
+        })
+      )
+    },
+    [isAuthenticated, sessions]
+  )
+
+  const { data: assignmentsData = [], loading: assignmentsLoading } = assignmentsQueries
+
+  // Combined loading state
+  const loading = sessionsLoading || assignmentsLoading
+
+  // Create a map of assignments by filming session ID for quick lookup
+  const assignmentMap = useMemo(() => {
+    const map = new Map<number, BeosztasSchema>()
+    if (assignmentsData && Array.isArray(assignmentsData)) {
+      assignmentsData.forEach((assignment: BeosztasSchema | null) => {
+        if (assignment) {
+          map.set(assignment.forgatas.id, assignment)
+        }
+      })
+    }
+    return map
+  }, [assignmentsData])
+
+  // Helper functions
+  const getSessionAssignment = (sessionId: number): BeosztasSchema | undefined => {
+    return assignmentMap.get(sessionId)
+  }
+
+  const isUserInvolvedInSession = (sessionId: number): boolean => {
+    if (!user) return false
+    const assignment = getSessionAssignment(sessionId)
+    if (!assignment) return false
+    
+    return assignment.szerepkor_relaciok.some(relation => relation.user.id === user.user_id)
+  }
+
+  const isSessionLive = (sessionId: number): boolean => {
+    const assignment = getSessionAssignment(sessionId)
+    if (!assignment) return false
+    
+    // Consider a session "live" if it's finalized and happening today
+    const today = new Date()
+    const sessionDate = new Date(assignment.forgatas.date)
+    const isToday = sessionDate.toDateString() === today.toDateString()
+    
+    return assignment.kesz && isToday
+  }
+
+  const getSessionCrewData = (sessionId: number) => {
+    const assignment = getSessionAssignment(sessionId)
+    if (!assignment) return { count: 0, roles: [], crewMembers: [] }
+    
+    return {
+      count: assignment.student_count,
+      roles: assignment.roles_summary,
+      crewMembers: assignment.szerepkor_relaciok.map(relation => ({
+        id: relation.user.id,
+        name: relation.user.full_name || `${relation.user.first_name} ${relation.user.last_name}`,
+        role: relation.szerepkor.name,
+        // We don't have detailed user info here, but we have basic info
+        class: 'N/A', // Would need separate API call for details
+        team: relation.user.username?.includes('A') ? 'A' : 'B'
+      }))
+    }
+  }
+
   // Filter sessions by user involvement if needed
   const filteredSessions = useMemo(() => {
     if (!showUserOnly) return sessions
-    // TODO: Add logic to filter by user involvement
-    return sessions
-  }, [sessions, showUserOnly])
+    return sessions.filter(session => isUserInvolvedInSession(session.id))
+  }, [sessions, showUserOnly, assignmentMap, user])
 
   // Group sessions by type
   const kacsaSessions = useMemo(() => filteredSessions.filter((s: ForgatSchema) => s.type === "kacsa"), [filteredSessions])
@@ -99,23 +174,45 @@ export default function FilmingSessionsPage() {
 
   const ShootingGridCard = ({ session }: { session: ForgatSchema }) => {
     const TypeIcon = getTypeIcon(session.type)
+    const isUserInvolved = isUserInvolvedInSession(session.id)
+    const isLive = isSessionLive(session.id)
+    const crewData = getSessionCrewData(session.id)
 
     return (
       <Link href={`/app/forgatasok/${session.id}`} className="block">
-        <Card className="border-border/50 bg-card/50 backdrop-blur-sm hover:bg-card/80 transition-all duration-200 hover:scale-[1.02] cursor-pointer h-full">
+        <Card
+          className={`border-border/50 backdrop-blur-sm hover:bg-card/80 transition-all duration-200 hover:scale-[1.02] cursor-pointer h-full ${
+            isUserInvolved
+              ? "bg-blue-500/10 border-blue-500/30 shadow-lg ring-1 ring-blue-500/20"
+              : "bg-card/50"
+          }`}
+        >
           <CardContent className="p-4 h-full flex flex-col">
             {/* Header */}
             <div className="flex items-start justify-between mb-3">
-              <TypeIcon
-                className={`h-5 w-5 flex-shrink-0 ${
-                  session.type === "kacsa"
-                    ? "text-yellow-400 fill-yellow-400"
-                    : session.type === "rendezveny"
-                      ? "text-purple-400"
-                      : "text-blue-400"
-                }`}
-              />
+              <div className="flex items-center gap-2">
+                <TypeIcon
+                  className={`h-5 w-5 flex-shrink-0 ${
+                    session.type === "kacsa"
+                      ? "text-yellow-400 fill-yellow-400"
+                      : session.type === "rendezveny"
+                        ? "text-purple-400"
+                        : "text-blue-400"
+                  }`}
+                />
+                {isUserInvolved && (
+                  <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-blue-500/20 border border-blue-500/30">
+                    <Star className="h-3 w-3 text-blue-400 fill-blue-400" />
+                    <span className="text-xs font-medium text-blue-400">Részt veszek</span>
+                  </div>
+                )}
+              </div>
               <div className="flex flex-col gap-1 items-end">
+                {isLive && (
+                  <Badge variant="destructive" className="text-xs animate-pulse px-2 py-0">
+                    LIVE
+                  </Badge>
+                )}
                 <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30 text-xs px-2 py-0">
                   Aktív
                 </Badge>
@@ -137,9 +234,46 @@ export default function FilmingSessionsPage() {
                 </div>
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <Users className="h-3 w-3 flex-shrink-0" />
-                  <span>{session.equipment_count || 0} eszköz</span>
+                  <span>{crewData.count} fő stáb</span>
                 </div>
               </div>
+
+              {/* Real Crew Preview - Compact */}
+              {crewData.crewMembers.length > 0 && (
+                <div className="space-y-2">
+                  <div className="text-xs font-medium text-muted-foreground">Stáb:</div>
+                  <div className="space-y-1">
+                    {crewData.crewMembers.slice(0, 3).map((member, index) => (
+                      <div key={member.id} className="text-xs">
+                        <div className="font-medium truncate">{member.name}</div>
+                        <div className="text-muted-foreground text-[10px] flex items-center gap-1">
+                          <span className="truncate">{member.role}</span>
+                          <span>•</span>
+                          <span>{member.class}</span>
+                          {member.team && (
+                            <>
+                              <span>•</span>
+                              <Badge
+                                variant="outline"
+                                className={`text-[8px] px-1 py-0 h-3 ${
+                                  member.team === "A"
+                                    ? "bg-blue-500/10 text-blue-400 border-blue-500/30"
+                                    : "bg-green-500/10 text-green-400 border-green-500/30"
+                                }`}
+                              >
+                                {member.team}
+                              </Badge>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                    {crewData.crewMembers.length > 3 && (
+                      <div className="text-xs text-muted-foreground">+{crewData.crewMembers.length - 3} további</div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Footer */}
@@ -157,15 +291,24 @@ export default function FilmingSessionsPage() {
 
   const ShootingListItem = ({ session }: { session: ForgatSchema }) => {
     const TypeIcon = getTypeIcon(session.type)
+    const isUserInvolved = isUserInvolvedInSession(session.id)
+    const isLive = isSessionLive(session.id)
+    const crewData = getSessionCrewData(session.id)
 
     return (
       <Link href={`/app/forgatasok/${session.id}`} className="block">
-        <Card className="border-border/50 bg-card/50 backdrop-blur-sm hover:bg-card/80 transition-all duration-200 hover:scale-[1.01] cursor-pointer">
+        <Card
+          className={`border-border/50 backdrop-blur-sm hover:bg-card/80 transition-all duration-200 hover:scale-[1.01] cursor-pointer ${
+            isUserInvolved
+              ? "bg-blue-500/10 border-blue-500/30 shadow-lg ring-1 ring-blue-500/20"
+              : "bg-card/50"
+          }`}
+        >
           <CardContent className="p-4">
-            <div className="flex items-center gap-4">
+            <div className="flex items-start gap-4">
               {/* Icon */}
               <TypeIcon
-                className={`h-5 w-5 flex-shrink-0 ${
+                className={`h-5 w-5 flex-shrink-0 mt-1 ${
                   session.type === "kacsa"
                     ? "text-yellow-400 fill-yellow-400"
                     : session.type === "rendezveny"
@@ -175,25 +318,77 @@ export default function FilmingSessionsPage() {
               />
 
               {/* Content */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <h3 className="font-semibold text-sm truncate">{session.name}</h3>
+              <div className="flex-1 min-w-0 space-y-3">
+                <div>
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
+                    <h3 className="font-semibold text-sm truncate">{session.name}</h3>
+                    {isUserInvolved && (
+                      <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-blue-500/20 border border-blue-500/30">
+                        <Star className="h-3 w-3 text-blue-400 fill-blue-400" />
+                        <span className="text-xs font-medium text-blue-400">Részt veszek</span>
+                      </div>
+                    )}
+                    {isLive && (
+                      <Badge variant="destructive" className="text-xs animate-pulse px-2 py-0">
+                        LIVE
+                      </Badge>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1">
+                      <MapPin className="h-3 w-3" />
+                      <span className="truncate max-w-[120px]">{session.location?.name || 'Hely nincs megadva'}</span>
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Calendar className="h-3 w-3" />
+                      <span className="truncate">{formatSessionDate(session.date)}</span>
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Users className="h-3 w-3" />
+                      <span>{crewData.count} fő stáb</span>
+                    </span>
+                  </div>
                 </div>
 
-                <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                  <span className="flex items-center gap-1">
-                    <MapPin className="h-3 w-3" />
-                    <span className="truncate max-w-[120px]">{session.location?.name || 'Hely nincs megadva'}</span>
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Calendar className="h-3 w-3" />
-                    <span className="truncate">{formatSessionDate(session.date)}</span>
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Users className="h-3 w-3" />
-                    <span>{session.equipment_count || 0} eszköz</span>
-                  </span>
-                </div>
+                {/* Real Crew List - Compact */}
+                {crewData.crewMembers.length > 0 && (
+                  <div className="space-y-2">
+                    <div className="text-xs font-medium text-muted-foreground">Stáb:</div>
+                    <div className="text-xs space-y-1">
+                      {crewData.crewMembers.slice(0, 4).map((member, index) => (
+                        <span key={member.id} className="inline-block">
+                          <span className="font-medium">{member.name}</span>
+                          <span className="text-muted-foreground ml-1">
+                            ({member.role}
+                            {member.team && (
+                              <>
+                                <span> • </span>
+                                <Badge
+                                  variant="outline"
+                                  className={`text-[8px] px-1 py-0 h-3 inline-flex items-center ${
+                                    member.team === "A"
+                                      ? "bg-blue-500/10 text-blue-400 border-blue-500/30"
+                                      : "bg-green-500/10 text-green-400 border-green-500/30"
+                                  }`}
+                                >
+                                  {member.team}
+                                </Badge>
+                              </>
+                            )}
+                            )
+                          </span>
+                          {index < Math.min(crewData.crewMembers.length, 4) - 1 && (
+                            <span className="text-muted-foreground">, </span>
+                          )}
+                        </span>
+                      ))}
+                      {crewData.crewMembers.length > 4 && (
+                        <span className="text-muted-foreground"> és +{crewData.crewMembers.length - 4} további</span>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Status & Action */}
@@ -211,97 +406,85 @@ export default function FilmingSessionsPage() {
   // Loading state
   if (loading) {
     return (
-      <SidebarProvider>
-        <AppSidebar variant="inset" />
-        <SidebarInset>
-          <SiteHeader />
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-6 w-6 animate-spin mr-2" />
-            Forgatások betöltése...
-          </div>
-        </SidebarInset>
-      </SidebarProvider>
+      <StandardizedLayout>
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-6 w-6 animate-spin mr-2" />
+          Forgatások betöltése...
+        </div>
+      </StandardizedLayout>
     )
   }
 
   // Error state
   if (error) {
     return (
-      <SidebarProvider>
-        <AppSidebar variant="inset" />
-        <SidebarInset>
-          <SiteHeader />
-          <div className="flex items-center justify-center py-12 text-destructive">
-            <AlertCircle className="h-6 w-6 mr-2" />
-            Hiba a forgatások betöltésekor: {error}
-          </div>
-        </SidebarInset>
-      </SidebarProvider>
+      <StandardizedLayout>
+        <div className="flex items-center justify-center py-12 text-destructive">
+          <AlertCircle className="h-6 w-6 mr-2" />
+          Hiba a forgatások betöltésekor: {error}
+        </div>
+      </StandardizedLayout>
     )
   }
 
   return (
     <ApiErrorBoundary fallback={ApiErrorFallback}>
-      <SidebarProvider>
-        <AppSidebar variant="inset" />
-        <SidebarInset>
-          <SiteHeader />
-          
-          <div className="flex-1 space-y-6 p-4 md:p-6 animate-in fade-in-50 duration-500">
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="space-y-1">
-                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-                  Forgatások
-                </h1>
-                <p className="text-sm text-muted-foreground">
-                  {filteredSessions.length} forgatás • KaCsa: {kacsaSessions.length} • Egyéb: {normalSessions.length} •
-                  Események: {eventSessions.length} • Egyéb: {egyebSessions.length}
-                </p>
-              </div>
+      <StandardizedLayout>
+        <div className="space-y-6 animate-in fade-in-50 duration-500">
+          {/* Header */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+                Forgatások
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                {filteredSessions.length} forgatás • KaCsa: {kacsaSessions.length} • Egyéb: {normalSessions.length} •
+                Események: {eventSessions.length}
+              </p>
+            </div>
 
-              <div className="flex items-center gap-2">
-                {/* View Mode Toggle */}
-                <div className="flex items-center border border-border/50 rounded-lg p-1 bg-background/50">
-                  <Button
-                    variant={viewMode === "grid" ? "default" : "ghost"}
-                    size="sm"
-                    onClick={() => setViewMode("grid")}
-                    className="h-8 px-3"
-                  >
-                    <Grid3X3 className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant={viewMode === "list" ? "default" : "ghost"}
-                    size="sm"
-                    onClick={() => setViewMode("list")}
-                    className="h-8 px-3"
-                  >
-                    <List className="h-4 w-4" />
-                  </Button>
-                </div>
-
-                {/* Filter Toggle */}
+            <div className="flex items-center gap-2">
+              {/* View Mode Toggle */}
+              <div className="flex items-center border border-border/50 rounded-lg p-1 bg-background/50">
                 <Button
-                  variant={showUserOnly ? "default" : "outline"}
-                  onClick={() => setShowUserOnly(!showUserOnly)}
+                  variant={viewMode === "grid" ? "default" : "ghost"}
                   size="sm"
-                  className="flex items-center gap-2"
+                  onClick={() => setViewMode("grid")}
+                  className="h-8 px-3"
                 >
-                  <Filter className="h-4 w-4" />
-                  <span className="hidden sm:inline">{showUserOnly ? "Összes" : "Saját"}</span>
+                  <Grid3X3 className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant={viewMode === "list" ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => setViewMode("list")}
+                  className="h-8 px-3"
+                >
+                  <List className="h-4 w-4" />
                 </Button>
               </div>
+
+              {/* Filter Toggle */}
+              <Button
+                variant={showUserOnly ? "default" : "outline"}
+                onClick={() => setShowUserOnly(!showUserOnly)}
+                size="sm"
+                className="flex items-center gap-2"
+              >
+                <Filter className="h-4 w-4" />
+                <span className="hidden sm:inline">{showUserOnly ? "Összes" : "Saját"}</span>
+              </Button>
             </div>
+          </div>
 
             {!showUserOnly && (
               <>
-                {/* KaCsa Forgatások */}
+                {/* KaCsa Összejátszások */}
                 {kacsaSessions.length > 0 && (
                   <div className="space-y-4">
                     <div className="flex items-center gap-2 flex-wrap">
                       <Star className="h-5 w-5 text-yellow-400 fill-yellow-400" />
-                      <h2 className="text-lg sm:text-xl font-semibold">KaCsa Forgatások</h2>
+                      <h2 className="text-lg sm:text-xl font-semibold">KaCsa Összejátszások</h2>
                       <Badge variant="secondary" className="text-xs">
                         {kacsaSessions.length}
                       </Badge>
@@ -499,8 +682,7 @@ export default function FilmingSessionsPage() {
               </div>
             )}
           </div>
-        </SidebarInset>
-      </SidebarProvider>
+      </StandardizedLayout>
     </ApiErrorBoundary>
   )
 }

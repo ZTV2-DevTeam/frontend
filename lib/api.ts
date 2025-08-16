@@ -1443,7 +1443,7 @@ class ApiClient {
     // Static filming types as per backend specification
     return Promise.resolve([
       { value: 'rendes', label: 'Rendes forgatás' },
-      { value: 'kacsa', label: 'Kacsa forgatás' },
+      { value: 'kacsa', label: 'Kacsa összejátszás' },
       { value: 'rendezveny', label: 'Rendezvény forgatás' },
       { value: 'egyeb', label: 'Egyéb forgatás' }
     ])
