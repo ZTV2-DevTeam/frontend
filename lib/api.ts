@@ -1591,41 +1591,41 @@ class ApiClient {
     if (endDate) params.append('end_date', endDate)
     if (myAbsences) params.append('my_absences', 'true')
     const query = params.toString() ? `?${params.toString()}` : ''
-    return this.request<TavolletSchema[]>(`/api/absence/absences${query}`)
+    return this.request<TavolletSchema[]>(`/api/absences${query}`)
   }
 
   async getAbsenceDetails(absenceId: number): Promise<TavolletSchema> {
-    return this.request<TavolletSchema>(`/api/absence/absences/${absenceId}`)
+    return this.request<TavolletSchema>(`/api/absences/${absenceId}`)
   }
 
   async createAbsence(data: TavolletCreateSchema): Promise<TavolletSchema> {
-    return this.request<TavolletSchema>('/api/absence/absences', {
+    return this.request<TavolletSchema>('/api/absences', {
       method: 'POST',
       body: JSON.stringify(data),
     })
   }
 
   async updateAbsence(absenceId: number, data: TavolletUpdateSchema): Promise<TavolletSchema> {
-    return this.request<TavolletSchema>(`/api/absence/absences/${absenceId}`, {
+    return this.request<TavolletSchema>(`/api/absences/${absenceId}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     })
   }
 
   async deleteAbsence(absenceId: number): Promise<Record<string, any>> {
-    return this.request<Record<string, any>>(`/api/absence/absences/${absenceId}`, {
+    return this.request<Record<string, any>>(`/api/absences/${absenceId}`, {
       method: 'DELETE',
     })
   }
 
   async approveAbsence(absenceId: number): Promise<TavolletSchema> {
-    return this.request<TavolletSchema>(`/api/absence/absences/${absenceId}/approve`, {
+    return this.request<TavolletSchema>(`/api/absences/${absenceId}/approve`, {
       method: 'PUT',
     })
   }
 
   async denyAbsence(absenceId: number): Promise<TavolletSchema> {
-    return this.request<TavolletSchema>(`/api/absence/absences/${absenceId}/deny`, {
+    return this.request<TavolletSchema>(`/api/absences/${absenceId}/deny`, {
       method: 'PUT',
     })
   }
@@ -1639,7 +1639,7 @@ class ApiClient {
       start_date: startDate,
       end_date: endDate,
     })
-    return this.request<Record<string, any>>(`/api/absence/absences/user/${userId}/conflicts?${params.toString()}`)
+    return this.request<Record<string, any>>(`/api/absences/user/${userId}/conflicts?${params.toString()}`)
   }
 
   // === CONFIGURATION ===
