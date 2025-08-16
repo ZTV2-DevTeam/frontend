@@ -24,16 +24,16 @@ export function ThemeSelector() {
   }
 
   const themeColors = [
-    { name: "Piros", value: "red" as const, color: "oklch(0.637 0.245 27.325)" },
-    { name: "Narancs", value: "orange" as const, color: "oklch(0.689 0.184 41.116)" },
-    { name: "Sárga", value: "yellow" as const, color: "oklch(0.795 0.184 86.047)" },
-    { name: "Zöld", value: "green" as const, color: "oklch(0.696 0.17 162.48)" },
-    { name: "Türkiz", value: "cyan" as const, color: "oklch(0.696 0.17 195.293)" },
-    { name: "Kék", value: "blue" as const, color: "oklch(0.6 0.243 244.376)" },
-    { name: "Indigó", value: "indigo" as const, color: "oklch(0.488 0.243 264.376)" },
-    { name: "Lila", value: "purple" as const, color: "oklch(0.627 0.265 303.9)" },
-    { name: "Rózsaszín", value: "pink" as const, color: "oklch(0.645 0.246 16.439)" },
+    { name: "Tűzpiros", value: "red" as const, color: "oklch(0.62 0.28 27)" },
     { name: "Borostyán", value: "amber" as const, color: "oklch(0.689 0.184 61.116)" },
+    { name: "Banán", value: "yellow" as const, color: "oklch(0.795 0.184 86.047)" },
+    { name: "Friss Fű", value: "green" as const, color: "oklch(0.696 0.17 162.48)" },
+    { name: "Óceán", value: "cyan" as const, color: "oklch(0.696 0.17 195.293)" },
+    { name: "Égbolt", value: "blue" as const, color: "oklch(0.6 0.243 244.376)" },
+    { name: "Éjfél", value: "indigo" as const, color: "oklch(0.488 0.243 264.376)" },
+    { name: "Levendula", value: "purple" as const, color: "oklch(0.627 0.265 303.9)" },
+    { name: "Rózsaköd", value: "pink" as const, color: "oklch(0.645 0.265 330)" },
+    { name: "Palahegy", value: "slate" as const, color: "oklch(0.4313 0.0543 213.13)" },
   ]
 
   return (
