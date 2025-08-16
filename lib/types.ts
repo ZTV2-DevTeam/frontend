@@ -513,13 +513,35 @@ export interface BeosztasSchema {
 }
 
 export interface BeosztasDetailSchema extends BeosztasSchema {
-  // Additional detail fields if needed
+  student_role_assignments: Array<{
+    id: number
+    user: UserProfileSchema
+    szerepkor: SzerepkorSchema
+  }>
+  created_by: UserProfileSchema | null
+  created_at: string
+  updated_at: string
 }
 
 export interface BeosztasCreateSchema {
+  forgatas_id: number
+  student_role_pairs: { user_id: number, szerepkor_id: number }[]
+}
+
+export interface BeosztasUpdateSchema {
+  student_role_pairs?: { user_id: number, szerepkor_id: number }[]
   kesz?: boolean
-  tanev_id?: number
-  szerepkor_relacio_ids?: number[]
+}
+
+export interface AbsenceFromAssignmentSchema {
+  id: number
+  student: UserBasicSchema
+  date: string
+  time_from: string
+  time_to: string
+  excused: boolean
+  unexcused: boolean
+  affected_classes: string[]
 }
 
 // === LEGACY BEOSZTAS TYPES ===

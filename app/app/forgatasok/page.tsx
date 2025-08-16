@@ -1,186 +1,214 @@
 "use client"
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
-import React, { useState, useMemo } from "react"
+import { useState, useMemo } from "react"
 import { AppSidebar } from "@/components/app-sidebar"
 import { SiteHeader } from "@/components/site-header"
 import { useApiQuery } from "@/lib/api-helpers"
 import { apiClient } from "@/lib/api"
-import { usePermissions } from "@/contexts/permissions-context"
 import { useAuth } from "@/contexts/auth-context"
-import { useUserRole } from "@/contexts/user-role-context"
-import type { ForgatSchema, ForgatoTipusSchema } from "@/lib/types"
+import type { ForgatSchema } from "@/lib/types"
 import { ApiErrorBoundary } from "@/components/api-error-boundary"
 import { ApiErrorFallback } from "@/components/api-error-fallback"
-import { DebugConsole } from "@/components/debug-console"
 import {
   SidebarInset,
   SidebarProvider,
 } from "@/components/ui/sidebar"
-import { Card, CardTitle, CardHeader, CardContent, CardDescription } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { Separator } from "@/components/ui/separator"
-import { Textarea } from "@/components/ui/textarea"
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-import { 
-  CalendarDays, 
-  Clock, 
-  MapPin, 
-  User, 
-  Camera, 
-  CheckCircle, 
-  XCircle, 
-  AlertTriangle,
-  Loader2,
-  AlertCircle,
-  Plus,
-  Search,
-  Filter,
-  Phone,
-  Mail,
-  ExternalLink,
-  Edit,
-  Users
-} from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Calendar, MapPin, Users, Star, Filter, Grid3X3, List, Music, Camera, Eye, Loader2, AlertCircle } from "lucide-react"
+import Link from "next/link"
 import { format } from "date-fns"
 import { hu } from "date-fns/locale"
-import { CreateForgatásDialog } from "@/components/create-forgatas-dialog"
 
-// Status badge helper
-const getStatusBadge = (status: string) => {
-  switch (status) {
-    case 'completed':
-      return { icon: CheckCircle, variant: 'default' as const, label: 'Befejezett', color: 'text-green-600' }
-    case 'in_progress':
-      return { icon: Clock, variant: 'secondary' as const, label: 'Folyamatban', color: 'text-blue-600' }
-    case 'cancelled':
-      return { icon: XCircle, variant: 'destructive' as const, label: 'Törölve', color: 'text-red-600' }
-    case 'planned':
-      return { icon: CalendarDays, variant: 'outline' as const, label: 'Tervezett', color: 'text-gray-600' }
-    default:
-      return { icon: AlertTriangle, variant: 'outline' as const, label: 'Ismeretlen', color: 'text-gray-600' }
+// Date helper for better formatting
+const formatSessionDate = (dateStr: string) => {
+  try {
+    const date = new Date(dateStr)
+    return format(date, 'yyyy. MMMM dd. (EEEE)', { locale: hu })
+  } catch {
+    return dateStr
   }
 }
 
-// Priority badge helper
-const getPriorityBadge = (priority: string) => {
-  switch (priority) {
-    case 'high':
-      return { variant: 'destructive', label: 'Magas' }
-    case 'medium':
-      return { variant: 'default', label: 'Közepes' }
-    case 'low':
-      return { variant: 'secondary', label: 'Alacsony' }
-    default:
-      return { variant: 'outline', label: 'Nincs' }
+// Time helper
+const formatTime = (timeStr: string) => {
+  try {
+    const [hours, minutes] = timeStr.split(':')
+    return `${hours}:${minutes}`
+  } catch {
+    return timeStr
   }
 }
 
-export default function ShootingsPage() {
-  // State hooks - MUST be at the very top
-  const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState("all")
-  const [typeFilter, setTypeFilter] = useState("all")
-  const [createOpen, setCreateOpen] = useState(false)
+export default function FilmingSessionsPage() {
+  // State hooks
+  const [showUserOnly, setShowUserOnly] = useState(false)
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   
-  // Context hooks - MUST be called before any conditional returns
-  const { hasPermission, permissions } = usePermissions()
+  // Context hooks
   const { user, isAuthenticated } = useAuth()
-  const { currentRole } = useUserRole()
   
-  // TEMPORARILY DISABLED FOR DEBUGGING - filming sessions API call causes logout
-  // const filmingQuery = useApiQuery(() => isAuthenticated ? apiClient.getFilmingSessions() : Promise.resolve([]), [isAuthenticated])
-  // const typesQuery = useApiQuery(() => isAuthenticated ? apiClient.getFilmingTypes() : Promise.resolve([]), [isAuthenticated])
-  const filmingQuery = { data: [], loading: false, error: null }
-  const typesQuery = { data: [], loading: false, error: null }
+  // API queries
+  const filmingQuery = useApiQuery(
+    () => isAuthenticated ? apiClient.getFilmingSessions() : Promise.resolve([]),
+    [isAuthenticated]
+  )
 
-  const { data: filmingData, loading, error } = filmingQuery
-  const { data: typesData } = typesQuery
+  const { data: filmingData = [], loading, error } = filmingQuery
 
-  // Computed values using useMemo - MUST be called before conditional returns
-  const sessions = useMemo(() => {
-    if (!Array.isArray(filmingData)) return []
-    return filmingData
-  }, [filmingData])
+  // Computed values
+  const sessions = useMemo(() => Array.isArray(filmingData) ? filmingData : [], [filmingData])
 
-  const types = useMemo(() => {
-    if (!Array.isArray(typesData)) return []
-    return typesData
-  }, [typesData])
-
-  // Safe data handling - MUST be before conditional returns
-  const safeSessions = useMemo(() => {
-    return sessions.map((session: any) => {
-      try {
-        return {
-          ...session,
-          // Safely extract string values to avoid React object rendering errors
-          displayName: String(session.name || 'Ismeretlen forgatás'),
-          displayDescription: String(session.description || session.notes || ''),
-          displayLocation: typeof session.location === 'object' && session.location?.name ? 
-                          String(session.location.name) : String(session.location || 'Nincs helyszín'),
-          displayContactPerson: typeof session.contact_person === 'object' && session.contact_person?.name ?
-                               String(session.contact_person.name) : String(session.contact_person || ''),
-          displayDate: String(session.date || ''),
-          // Safely handle phone and email from contact_person object
-          phone: typeof session.contact_person === 'object' && session.contact_person?.phone ?
-                 String(session.contact_person.phone) : String(session.phone || ''),
-          email: typeof session.contact_person === 'object' && session.contact_person?.email ?
-                 String(session.contact_person.email) : String(session.email || '')
-        }
-      } catch (err) {
-        console.error('Error processing session:', session, err)
-        return {
-          ...session,
-          displayName: 'Hibás adat',
-          displayDescription: '',
-          displayLocation: 'Nincs helyszín',
-          displayContactPerson: '',
-          displayDate: '',
-          phone: '',
-          email: ''
-        }
-      }
-    })
-  }, [sessions])
-
-  // Filtered sessions - MUST be before conditional returns
+  // Filter sessions by user involvement if needed
   const filteredSessions = useMemo(() => {
-    return safeSessions.filter((session: any) => {
-      const matchesSearch = (session.displayName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           (session.displayLocation || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           (session.type || '').toString().toLowerCase().includes(searchTerm.toLowerCase())
-      const matchesStatus = statusFilter === "all" || session.status === statusFilter
-      const matchesType = typeFilter === "all" || session.type === typeFilter
-      return matchesSearch && matchesStatus && matchesType
-    })
-  }, [safeSessions, searchTerm, statusFilter, typeFilter])
+    if (!showUserOnly) return sessions
+    // TODO: Add logic to filter by user involvement
+    return sessions
+  }, [sessions, showUserOnly])
 
-  // Permission calculations - MUST be before conditional returns
-  const classDisplayName = permissions?.role_info?.class_display_name || 
-                          permissions?.role_info?.class_assignment?.display_name
-  const is10FStudent = currentRole === 'student' && classDisplayName === '10F'
-  const canCreate = hasPermission('can_create_forgatas') || hasPermission('is_admin') || is10FStudent
+  // Group sessions by type
+  const kacsaSessions = useMemo(() => filteredSessions.filter((s: ForgatSchema) => s.type === "kacsa"), [filteredSessions])
+  const normalSessions = useMemo(() => filteredSessions.filter((s: ForgatSchema) => s.type === "rendes"), [filteredSessions])
+  const eventSessions = useMemo(() => filteredSessions.filter((s: ForgatSchema) => s.type === "rendezveny"), [filteredSessions])
+  const egyebSessions = useMemo(() => filteredSessions.filter((s: ForgatSchema) => s.type === "egyeb"), [filteredSessions])
 
-  // NOW we can have conditional returns - ALL HOOKS HAVE BEEN CALLED
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "Tervezett":
+        return "bg-blue-500/20 text-blue-400 border-blue-500/30"
+      case "Folyamatban":
+        return "bg-green-500/20 text-green-400 border-green-500/30"
+      case "Befejezve":
+        return "bg-gray-500/20 text-gray-400 border-gray-500/30"
+      default:
+        return "bg-gray-500/20 text-gray-400 border-gray-500/30"
+    }
+  }
+
+  const getTypeIcon = (type: string) => {
+    switch (type) {
+      case "kacsa":
+        return Star
+      case "rendezveny":
+        return Music
+      default:
+        return Camera
+    }
+  }
+
+  const ShootingGridCard = ({ session }: { session: ForgatSchema }) => {
+    const TypeIcon = getTypeIcon(session.type)
+
+    return (
+      <Link href={`/app/forgatasok/${session.id}`} className="block">
+        <Card className="border-border/50 bg-card/50 backdrop-blur-sm hover:bg-card/80 transition-all duration-200 hover:scale-[1.02] cursor-pointer h-full">
+          <CardContent className="p-4 h-full flex flex-col">
+            {/* Header */}
+            <div className="flex items-start justify-between mb-3">
+              <TypeIcon
+                className={`h-5 w-5 flex-shrink-0 ${
+                  session.type === "kacsa"
+                    ? "text-yellow-400 fill-yellow-400"
+                    : session.type === "rendezveny"
+                      ? "text-purple-400"
+                      : "text-blue-400"
+                }`}
+              />
+              <div className="flex flex-col gap-1 items-end">
+                <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30 text-xs px-2 py-0">
+                  Aktív
+                </Badge>
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="flex-1 space-y-3">
+              <h3 className="font-semibold text-sm leading-tight line-clamp-2 min-h-[2.5rem]">{session.name}</h3>
+
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <MapPin className="h-3 w-3 flex-shrink-0" />
+                  <span className="truncate">{session.location?.name || 'Hely nincs megadva'}</span>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <Calendar className="h-3 w-3 flex-shrink-0" />
+                  <span className="truncate">{formatSessionDate(session.date)}</span>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <Users className="h-3 w-3 flex-shrink-0" />
+                  <span>{session.equipment_count || 0} eszköz</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="mt-4 pt-3 border-t border-border/30 flex items-center justify-between">
+              <span className="text-xs text-muted-foreground">
+                {session.type === "kacsa" ? "KaCsa" : session.type === "rendezveny" ? "Esemény" : "Forgatás"}
+              </span>
+              <Eye className="h-3 w-3 text-muted-foreground" />
+            </div>
+          </CardContent>
+        </Card>
+      </Link>
+    )
+  }
+
+  const ShootingListItem = ({ session }: { session: ForgatSchema }) => {
+    const TypeIcon = getTypeIcon(session.type)
+
+    return (
+      <Link href={`/app/forgatasok/${session.id}`} className="block">
+        <Card className="border-border/50 bg-card/50 backdrop-blur-sm hover:bg-card/80 transition-all duration-200 hover:scale-[1.01] cursor-pointer">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-4">
+              {/* Icon */}
+              <TypeIcon
+                className={`h-5 w-5 flex-shrink-0 ${
+                  session.type === "kacsa"
+                    ? "text-yellow-400 fill-yellow-400"
+                    : session.type === "rendezveny"
+                      ? "text-purple-400"
+                      : "text-blue-400"
+                }`}
+              />
+
+              {/* Content */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <h3 className="font-semibold text-sm truncate">{session.name}</h3>
+                </div>
+
+                <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1">
+                    <MapPin className="h-3 w-3" />
+                    <span className="truncate max-w-[120px]">{session.location?.name || 'Hely nincs megadva'}</span>
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Calendar className="h-3 w-3" />
+                    <span className="truncate">{formatSessionDate(session.date)}</span>
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Users className="h-3 w-3" />
+                    <span>{session.equipment_count || 0} eszköz</span>
+                  </span>
+                </div>
+              </div>
+
+              {/* Status & Action */}
+              <div className="flex items-center gap-3 flex-shrink-0">
+                <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30 text-xs px-2 py-1">Aktív</Badge>
+                <Eye className="h-4 w-4 text-muted-foreground" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </Link>
+    )
+  }
+
+  // Loading state
   if (loading) {
     return (
       <SidebarProvider>
@@ -196,6 +224,7 @@ export default function ShootingsPage() {
     )
   }
 
+  // Error state
   if (error) {
     return (
       <SidebarProvider>
@@ -217,179 +246,261 @@ export default function ShootingsPage() {
         <AppSidebar variant="inset" />
         <SidebarInset>
           <SiteHeader />
-          <DebugConsole label="Forgatasok Page Data" data={{ 
-            sessionsCount: safeSessions.length,
-            filteredCount: filteredSessions.length,
-            hasData: filmingData && Array.isArray(filmingData),
-            firstSession: safeSessions[0]
-          }} />
-          <div className="flex-1 space-y-4 p-4 md:p-6">
-          {/* Header */}
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div className="space-y-1">
-              <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-                Forgatások
-              </h1>
-              <p className="text-muted-foreground">
-                Filmkészítési projektek és forgatások • {filteredSessions.length} forgatás
-              </p>
-            </div>
-            {canCreate && <CreateForgatásDialog />}
-          </div>
+          
+          <div className="flex-1 space-y-6 p-4 md:p-6 animate-in fade-in-50 duration-500">
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                  Forgatások
+                </h1>
+                <p className="text-sm text-muted-foreground">
+                  {filteredSessions.length} forgatás • KaCsa: {kacsaSessions.length} • Egyéb: {normalSessions.length} •
+                  Események: {eventSessions.length} • Egyéb: {egyebSessions.length}
+                </p>
+              </div>
 
-          {/* Search and Filters */}
-          <div className="flex flex-col md:flex-row gap-4 mb-6">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Keresés forgatások között..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-8"
-                />
+              <div className="flex items-center gap-2">
+                {/* View Mode Toggle */}
+                <div className="flex items-center border border-border/50 rounded-lg p-1 bg-background/50">
+                  <Button
+                    variant={viewMode === "grid" ? "default" : "ghost"}
+                    size="sm"
+                    onClick={() => setViewMode("grid")}
+                    className="h-8 px-3"
+                  >
+                    <Grid3X3 className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant={viewMode === "list" ? "default" : "ghost"}
+                    size="sm"
+                    onClick={() => setViewMode("list")}
+                    className="h-8 px-3"
+                  >
+                    <List className="h-4 w-4" />
+                  </Button>
+                </div>
+
+                {/* Filter Toggle */}
+                <Button
+                  variant={showUserOnly ? "default" : "outline"}
+                  onClick={() => setShowUserOnly(!showUserOnly)}
+                  size="sm"
+                  className="flex items-center gap-2"
+                >
+                  <Filter className="h-4 w-4" />
+                  <span className="hidden sm:inline">{showUserOnly ? "Összes" : "Saját"}</span>
+                </Button>
               </div>
             </div>
-            <div className="flex gap-2">
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-40">
-                  <Filter className="h-4 w-4 mr-2" />
-                  <SelectValue placeholder="Státusz" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Minden státusz</SelectItem>
-                  <SelectItem value="planned">Tervezett</SelectItem>
-                  <SelectItem value="in_progress">Folyamatban</SelectItem>
-                  <SelectItem value="completed">Befejezett</SelectItem>
-                  <SelectItem value="cancelled">Törölve</SelectItem>
-                </SelectContent>
-              </Select>
 
-              <Select value={typeFilter} onValueChange={setTypeFilter}>
-                <SelectTrigger className="w-40">
-                  <SelectValue placeholder="Típus" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Minden típus</SelectItem>
-                  {types.map((type: any) => (
-                    <SelectItem key={type.id} value={type.id.toString()}>
-                      {type.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
+            {!showUserOnly && (
+              <>
+                {/* KaCsa Forgatások */}
+                {kacsaSessions.length > 0 && (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Star className="h-5 w-5 text-yellow-400 fill-yellow-400" />
+                      <h2 className="text-lg sm:text-xl font-semibold">KaCsa Forgatások</h2>
+                      <Badge variant="secondary" className="text-xs">
+                        {kacsaSessions.length}
+                      </Badge>
+                      <Badge variant="outline" className="text-xs hidden sm:inline-flex">
+                        Minden második csütörtök
+                      </Badge>
+                    </div>
 
-          {/* Sessions Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredSessions.length === 0 ? (
-              <div className="col-span-full text-center py-12 text-muted-foreground">
-                {searchTerm || statusFilter !== "all" || typeFilter !== "all" 
-                  ? "Nincs találat a keresési feltételeknek megfelelően."
-                  : "Még nincsenek forgatások."
-                }
-              </div>
-            ) : (
-              filteredSessions.map((session: any) => {
-                const status = getStatusBadge(session.status)
-                const StatusIcon = status.icon
-                
-                return (
-                  <Card key={session.id} className="hover:shadow-lg transition-all duration-200 cursor-pointer">
-                    <CardHeader className="pb-3">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <CardTitle className="text-lg leading-tight">{session.displayName}</CardTitle>
-                          {session.displayDescription && (
-                            <CardDescription className="mt-1 line-clamp-2">
-                              {session.displayDescription}
-                            </CardDescription>
-                          )}
-                        </div>
-                        <Badge variant={status.variant} className="ml-2 shrink-0">
-                          <StatusIcon className="h-3 w-3 mr-1" />
-                          {status.label}
-                        </Badge>
-                      </div>
-                    </CardHeader>
-                    
-                    <CardContent className="space-y-3">
-                      {/* Date and Time */}
-                      <div className="flex items-center text-sm text-muted-foreground">
-                        <CalendarDays className="h-4 w-4 mr-2 flex-shrink-0" />
-                        <div>
-                          <div>{session.displayDate ? format(new Date(session.displayDate), 'yyyy. MM. dd.', { locale: hu }) : 'Nincs dátum'}</div>
-                          <span>{session.time_from && session.time_to ? `${session.time_from} - ${session.time_to}` : 'Nincs időpont'}</span>
-                        </div>
-                      </div>
-
-                      {/* Location */}
-                      <div className="flex items-center text-sm">
-                        <MapPin className="h-4 w-4 mr-2 flex-shrink-0 text-muted-foreground" />
-                        <span className="font-medium">{session.displayLocation}</span>
-                      </div>
-
-                      {/* Contact Person */}
-                      {session.displayContactPerson && (
-                        <div className="flex items-center justify-between text-sm">
-                          <div className="flex items-center">
-                            <User className="h-4 w-4 mr-2 flex-shrink-0 text-muted-foreground" />
-                            <div className="text-sm font-medium">{session.displayContactPerson}</div>
-                          </div>
-                          <div className="flex items-center gap-4">
-                            {session.phone && (
-                              <Button variant="ghost" size="sm" className="h-8 px-2" asChild>
-                                <a href={`tel:${session.phone}`}>
-                                  <Phone className="h-4 w-4" />
-                                </a>
-                              </Button>
-                            )}
-                            {session.email && (
-                              <Button variant="ghost" size="sm" className="h-8 px-2" asChild>
-                                <a href={`mailto:${session.email}`}>
-                                  <Mail className="h-4 w-4" />
-                                </a>
-                              </Button>
-                            )}
-                            {session.displayLocation && session.displayLocation !== 'Nincs helyszín' && (
-                              <Button variant="ghost" size="sm" className="h-8 px-2" asChild>
-                                <a 
-                                  href={`https://maps.google.com/?q=${encodeURIComponent(session.displayLocation)}`}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                >
-                                  <ExternalLink className="h-4 w-4" />
-                                </a>
-                              </Button>
-                            )}
-                          </div>
-                        </div>
-                      )}
-                      
-                      {/* Admin Actions */}
-                      {permissions?.permissions?.can_manage_forgatas && (
-                        <div className="flex gap-2 pt-3 border-t border-border">
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            className="flex-1"
-                            onClick={() => window.open(`/app/beosztas-legacy?forgatas=${session.id}`, '_blank')}
+                    {viewMode === "grid" ? (
+                      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                        {kacsaSessions.map((session, index) => (
+                          <div
+                            key={session.id}
+                            className="animate-in slide-in-from-bottom-4 duration-500"
+                            style={{ animationDelay: `${index * 100}ms` }}
                           >
-                            <Users className="h-4 w-4 mr-2" />
-                            Beosztás szerkesztése
-                          </Button>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                )
-              })
+                            <ShootingGridCard session={session} />
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {kacsaSessions.map((session, index) => (
+                          <div
+                            key={session.id}
+                            className="animate-in slide-in-from-bottom-4 duration-500"
+                            style={{ animationDelay: `${index * 100}ms` }}
+                          >
+                            <ShootingListItem session={session} />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Esemény Forgatások */}
+                {eventSessions.length > 0 && (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Music className="h-5 w-5 text-purple-400" />
+                      <h2 className="text-lg sm:text-xl font-semibold">Esemény Forgatások</h2>
+                      <Badge variant="secondary" className="text-xs">
+                        {eventSessions.length}
+                      </Badge>
+                      <Badge variant="outline" className="text-xs hidden sm:inline-flex">
+                        Független események
+                      </Badge>
+                    </div>
+
+                    {viewMode === "grid" ? (
+                      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                        {eventSessions.map((session, index) => (
+                          <div
+                            key={session.id}
+                            className="animate-in slide-in-from-bottom-4 duration-500"
+                            style={{ animationDelay: `${index * 100}ms` }}
+                          >
+                            <ShootingGridCard session={session} />
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {eventSessions.map((session, index) => (
+                          <div
+                            key={session.id}
+                            className="animate-in slide-in-from-bottom-4 duration-500"
+                            style={{ animationDelay: `${index * 100}ms` }}
+                          >
+                            <ShootingListItem session={session} />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Rendes Forgatások */}
+                {normalSessions.length > 0 && (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Camera className="h-5 w-5 text-blue-400" />
+                      <h2 className="text-lg sm:text-xl font-semibold">KaCsa-hoz Kapcsolódó</h2>
+                      <Badge variant="secondary" className="text-xs">
+                        {normalSessions.length}
+                      </Badge>
+                    </div>
+
+                    {viewMode === "grid" ? (
+                      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                        {normalSessions.map((session, index) => (
+                          <div
+                            key={session.id}
+                            className="animate-in slide-in-from-bottom-4 duration-500"
+                            style={{ animationDelay: `${index * 100}ms` }}
+                          >
+                            <ShootingGridCard session={session} />
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {normalSessions.map((session, index) => (
+                          <div
+                            key={session.id}
+                            className="animate-in slide-in-from-bottom-4 duration-500"
+                            style={{ animationDelay: `${index * 100}ms` }}
+                          >
+                            <ShootingListItem session={session} />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Egyéb Forgatások */}
+                {egyebSessions.length > 0 && (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Camera className="h-5 w-5 text-slate-400" />
+                      <h2 className="text-lg sm:text-xl font-semibold">Egyéb Forgatások</h2>
+                      <Badge variant="secondary" className="text-xs">
+                        {egyebSessions.length}
+                      </Badge>
+                    </div>
+
+                    {viewMode === "grid" ? (
+                      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                        {egyebSessions.map((session, index) => (
+                          <div
+                            key={session.id}
+                            className="animate-in slide-in-from-bottom-4 duration-500"
+                            style={{ animationDelay: `${index * 100}ms` }}
+                          >
+                            <ShootingGridCard session={session} />
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {egyebSessions.map((session, index) => (
+                          <div
+                            key={session.id}
+                            className="animate-in slide-in-from-bottom-4 duration-500"
+                            style={{ animationDelay: `${index * 100}ms` }}
+                          >
+                            <ShootingListItem session={session} />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </>
+            )}
+
+            {/* Filtered View */}
+            {showUserOnly && (
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <Star className="h-5 w-5 text-yellow-400 fill-yellow-400" />
+                  <h2 className="text-lg sm:text-xl font-semibold">Saját Forgatások</h2>
+                  <Badge variant="secondary" className="text-xs">
+                    {filteredSessions.length}
+                  </Badge>
+                </div>
+
+                {viewMode === "grid" ? (
+                  <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    {filteredSessions.map((session, index) => (
+                      <div
+                        key={session.id}
+                        className="animate-in slide-in-from-bottom-4 duration-500"
+                        style={{ animationDelay: `${index * 100}ms` }}
+                      >
+                        <ShootingGridCard session={session} />
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {filteredSessions.map((session, index) => (
+                      <div
+                        key={session.id}
+                        className="animate-in slide-in-from-bottom-4 duration-500"
+                        style={{ animationDelay: `${index * 100}ms` }}
+                      >
+                        <ShootingListItem session={session} />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             )}
           </div>
-        </div>
-      </SidebarInset>
-    </SidebarProvider>
+        </SidebarInset>
+      </SidebarProvider>
     </ApiErrorBoundary>
   )
 }

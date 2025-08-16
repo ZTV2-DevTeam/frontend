@@ -456,7 +456,31 @@ export interface BeosztasSchema {
 }
 
 export interface BeosztasDetailSchema extends BeosztasSchema {
-  // Additional detail fields if needed
+  student_role_assignments: Array<{
+    id: number
+    user: UserProfileSchema
+    szerepkor: SzerepkorSchema
+  }>
+  created_by: UserProfileSchema | null
+  created_at: string
+  updated_at: string
+}
+
+export interface AbsenceFromAssignmentSchema {
+  id: number
+  student: UserBasicSchema
+  date: string
+  time_from: string
+  time_to: string
+  excused: boolean
+  unexcused: boolean
+  affected_classes: string[]
+  assignment_role?: {
+    role: string
+  }
+  reason: string
+  created_at: string
+  created_by?: UserBasicSchema
 }
 
 export interface BeosztasCreateSchema {
@@ -1380,6 +1404,8 @@ class ApiClient {
     })
   }
 
+  // === PRODUCTION / FILMING SESSIONS ===
+
   async getFilmingSessions(startDate?: string, endDate?: string, type?: string): Promise<ForgatSchema[]> {
     const params = new URLSearchParams()
     if (startDate) params.append('start_date', startDate)
@@ -1414,8 +1440,16 @@ class ApiClient {
   }
 
   async getFilmingTypes(): Promise<ForgatoTipusSchema[]> {
-    return this.request<ForgatoTipusSchema[]>('/api/production/filming-sessions/types')
+    // Static filming types as per backend specification
+    return Promise.resolve([
+      { value: 'rendes', label: 'Rendes forgatás' },
+      { value: 'kacsa', label: 'Kacsa forgatás' },
+      { value: 'rendezveny', label: 'Rendezvény forgatás' },
+      { value: 'egyeb', label: 'Egyéb forgatás' }
+    ])
   }
+
+  // === ASSIGNMENTS ===
 
   // === COMMUNICATIONS ===
   async getAnnouncements(myAnnouncements = false): Promise<AnnouncementSchema[]> {
@@ -1572,8 +1606,15 @@ class ApiClient {
     })
   }
 
-  async getFilmingAssignmentAbsences(assignmentId: number): Promise<Record<string, any>[]> {
-    return this.request<Record<string, any>[]>(`/api/assignments/filming-assignments/${assignmentId}/absences`)
+  async getFilmingAssignmentAbsences(assignmentId: number): Promise<AbsenceFromAssignmentSchema[]> {
+    return this.request<AbsenceFromAssignmentSchema[]>(`/api/assignments/filming-assignments/${assignmentId}/absences`)
+  }
+
+  async createAbsenceFromAssignment(data: AbsenceFromAssignmentSchema): Promise<AbsenceFromAssignmentSchema> {
+    return this.request<AbsenceFromAssignmentSchema>('/api/assignments/filming-assignments/absences', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
   }
 
   async getAssignmentRoles(): Promise<SzerepkorSchema[]> {
