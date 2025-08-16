@@ -24,8 +24,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "FTV",
-  description: "FTV Adminisztációs felület",
+  title: "FTV (BETA)",
+  description: "FTV Adminisztációs felület - Early Access BETA verzió",
 };
 
 export default function RootLayout({

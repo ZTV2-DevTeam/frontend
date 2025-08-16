@@ -74,7 +74,12 @@ export function TeamSwitcher({
               <activeTeam.logo className="size-4" />
             </div>
             <div className="grid flex-1 text-left text-sm leading-tight">
-              <span className="truncate font-medium">{activeTeam.name}</span>
+              <div className="flex items-center gap-2">
+                <span className="truncate font-medium">{activeTeam.name}</span>
+                <span className="px-1 py-0.5 text-[9px] font-semibold bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200 rounded border border-orange-200 dark:border-orange-700">
+                  BETA
+                </span>
+              </div>
               <span className="truncate text-xs">{activeTeam.plan}</span>
             </div>
           </SidebarMenuButton>
@@ -100,7 +105,12 @@ export function TeamSwitcher({
                 <activeTeam.logo className="size-4" />
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{activeTeam.name}</span>
+                <div className="flex items-center gap-2">
+                  <span className="truncate font-medium">{activeTeam.name}</span>
+                  <span className="px-1 py-0.5 text-[9px] font-semibold bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200 rounded border border-orange-200 dark:border-orange-700">
+                    BETA
+                  </span>
+                </div>
                 <span className="truncate text-xs">{activeTeam.plan}</span>
               </div>
               <ChevronsUpDown className="ml-auto" />

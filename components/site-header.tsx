@@ -40,7 +40,12 @@ export function SiteHeader() {
         />
         <div className="flex items-center gap-3 min-h-[2.5rem] md:min-h-[2rem]">
           <Clapperboard className="h-6 w-6 md:h-5 md:w-5 text-primary flex-shrink-0" />
-          <h1 className="text-lg md:text-base font-semibold tracking-tight">{currentPageName}</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-lg md:text-base font-semibold tracking-tight">{currentPageName}</h1>
+            <span className="px-1.5 py-0.5 text-[10px] font-semibold bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200 rounded border border-orange-200 dark:border-orange-700">
+              BETA
+            </span>
+          </div>
         </div>
       </div>
     </header>

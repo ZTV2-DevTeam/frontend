@@ -221,6 +221,14 @@ export default function HelpPage() {
 
   const generalFaqs = [
     {
+      question: "Mi az Early Access BETA verzió?",
+      answer: "Az FTV platform jelenleg Early Access BETA verzióban érhető el. Ez azt jelenti, hogy a rendszer még fejlesztés alatt áll, és előfordulhatnak hibák, hiányos funkciók vagy nem várt viselkedések. A BETA verzió célja, hogy valós környezetben tesztelhessük a funkciókat és visszajelzéseket gyűjthessünk a fejlesztéshez. Köszönjük a türelmedet és aktív részvételedet a tesztelésben!"
+    },
+    {
+      question: "Mire számíthatok a BETA verzió használata során?",
+      answer: "BETA verzió használata során előfordulhatnak: betöltési problémák, lassabb válaszidők, hiányos vagy váratlanul működő funkciók, adatok átmeneti nem elérhetősége. Ha bármilyen hibát észlelsz, kérjük jelezd a fejlesztőknek a visszajelzési űrlapon vagy emailben."
+    },
+    {
       question: "Hogyan adhatok visszajelzést vagy jelenthetek be hibát?",
       answer: "Használhatod az általános visszajelzési űrlapunkat kisebb hibák, javaslatok és általános visszajelzések esetén. Kritikus hibáknál (rendszer leállás, adatvesztés, biztonsági problémák) azonnal írj emailt a fejlesztőknek. A Visszajelzés fülön találod az összes opciót."
     },
@@ -271,6 +279,56 @@ export default function HelpPage() {
           </div>
 
           {/* Contact Information Card */}
+          {/* Beta Version Notice */}
+          <Card className="border-orange-200 bg-orange-50 dark:border-orange-800 dark:bg-orange-950">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-orange-800 dark:text-orange-200">
+                <div className="px-2 py-1 text-xs font-semibold bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200 rounded-full border border-orange-200 dark:border-orange-700">
+                  EARLY ACCESS BETA
+                </div>
+                Korai hozzáférési verzió
+              </CardTitle>
+              <CardDescription className="text-orange-700 dark:text-orange-300">
+                Ez a platform jelenleg fejlesztés alatt áll és még nem tökéletes
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4 text-orange-700 dark:text-orange-300">
+              <div className="space-y-3">
+                <p className="text-sm">
+                  Az FTV platform <strong>Early Access BETA verzióban</strong> érhető el. Ez azt jelenti:
+                </p>
+                <div className="grid gap-3 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-sm">Mire számíthatsz:</h4>
+                    <ul className="text-xs space-y-1 text-orange-600 dark:text-orange-400">
+                      <li>• Előfordulhatnak hibák vagy váratlan viselkedések</li>
+                      <li>• Egyes funkciók még hiányosak lehetnek</li>
+                      <li>• Alkalmanként lassabb betöltési idők</li>
+                      <li>• Rendszeres frissítések és változások</li>
+                    </ul>
+                  </div>
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-sm">Hogyan segíthetsz:</h4>
+                    <ul className="text-xs space-y-1 text-orange-600 dark:text-orange-400">
+                      <li>• Jelezd a hibákat és problémákat</li>
+                      <li>• Oszd meg ötleteidet és javaslataidat</li>
+                      <li>• Légy türelmes a fejlesztési folyamattal</li>
+                      <li>• Használd a visszajelzési űrlapunkat</li>
+                    </ul>
+                  </div>
+                </div>
+                <div className="mt-4 p-3 rounded-lg bg-white dark:bg-gray-900 border border-orange-200 dark:border-orange-800">
+                  <p className="text-sm font-medium text-center text-orange-800 dark:text-orange-200">
+                    🙏 Köszönjük a türelmedet és aktív részvételedet a fejlesztésben!
+                  </p>
+                  <p className="text-xs text-center text-muted-foreground mt-1">
+                    A te visszajelzéseid segítenek tökéletesíteni a platformot
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Feedback and Issue Reporting Card */}
           <Card className="border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950">
             <CardHeader>

@@ -41,7 +41,12 @@ export default function LandingPage() {
         <Link href="/" className="flex items-center gap-3 text-2xl font-bold hover:opacity-80 transition-opacity">
           <Clapperboard className="w-8 h-8 text-primary" />
           <div className="flex flex-col">
-            <span>FTV</span>
+            <div className="flex items-center gap-2">
+              <span>FTV</span>
+              <span className="px-2 py-0.5 text-xs font-semibold bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200 rounded-full border border-orange-200 dark:border-orange-700">
+                BETA
+              </span>
+            </div>
             <span className="text-xs text-muted-foreground font-normal leading-none">Hiányzás Áttekintő Platform</span>
           </div>
         </Link>
@@ -116,6 +121,21 @@ export default function LandingPage() {
           <p className="text-sm text-muted-foreground">
         A regisztráció nem lehetséges. Ez az alkalmazás kizárólag a Kőbányai Szent László Gimnázium Média Tagozata
         számára készült.
+          </p>
+        </div>
+      </div>
+
+      <div className="flex justify-center mt-4">
+        <div className="max-w-2xl p-4 border rounded-lg bg-orange-50 dark:bg-orange-950 border-orange-200 dark:border-orange-800">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="px-2 py-1 text-xs font-semibold bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200 rounded-full border border-orange-200 dark:border-orange-700">
+              EARLY ACCESS BETA
+            </div>
+            <h3 className="font-medium leading-none tracking-tight text-orange-800 dark:text-orange-200">Korai hozzáférés</h3>
+          </div>
+          <p className="text-sm text-orange-700 dark:text-orange-300">
+            Ez a platform jelenleg Early Access BETA verzióban érhető el. Előfordulhatnak hibák, hiányos funkciók, 
+            és a rendszer még nem tökéletes. Köszönjük a türelmedet és visszajelzéseidet!
           </p>
         </div>
       </div>
