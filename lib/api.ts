@@ -1566,9 +1566,14 @@ class ApiClient {
   }
 
   // === FILMING ASSIGNMENTS ===
-  async getFilmingAssignments(forgatotId?: number, kesz?: boolean, startDate?: string, endDate?: string): Promise<BeosztasSchema[]> {
+  async getFilmingAssignments(forgatotId?: number, kesz?: boolean, startDate?: string, endDate?: string): Promise<BeosztasSchema[] | BeosztasSchema> {
+    // If forgatotId is provided, use direct endpoint
+    if (forgatotId) {
+      return this.request<BeosztasSchema>(`/api/assignments/filming-assignments/${forgatotId}`)
+    }
+    
+    // Otherwise, use general endpoint with query parameters
     const params = new URLSearchParams()
-    if (forgatotId) params.append('forgatas_id', forgatotId.toString())
     if (kesz !== undefined) params.append('kesz', kesz.toString())
     if (startDate) params.append('start_date', startDate)
     if (endDate) params.append('end_date', endDate)

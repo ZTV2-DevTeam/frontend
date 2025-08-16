@@ -6,7 +6,7 @@ import { SiteHeader } from "@/components/site-header"
 import { useApiQuery } from "@/lib/api-helpers"
 import { apiClient } from "@/lib/api"
 import { useAuth } from "@/contexts/auth-context"
-import type { ForgatSchema, BeosztasDetailSchema, EquipmentSchema } from "@/lib/types"
+import type { ForgatSchema, BeosztasDetailSchema, EquipmentSchema, BeosztasSchema } from "@/lib/types"
 import { ApiErrorBoundary } from "@/components/api-error-boundary"
 import { ApiErrorFallback } from "@/components/api-error-fallback"
 import {
@@ -69,6 +69,7 @@ interface CrewMember {
   name: string
   role: string
   class: string
+  stab: string
   phone?: string
   email?: string
   team?: string
@@ -87,60 +88,64 @@ export default function FilmingSessionDetail({ params }: PageProps) {
   )
 
   const assignmentsQuery = useApiQuery(
-    () => isAuthenticated ? apiClient.getAssignments(undefined, undefined) : Promise.resolve([]),
+    () => isAuthenticated ? apiClient.getFilmingAssignments(parseInt(params.id)) as Promise<BeosztasSchema | null> : Promise.resolve(null),
     [isAuthenticated, params.id]
   )
+
+  const { data: session, loading, error } = sessionQuery
+  const { data: assignment = null } = assignmentsQuery
 
   // Equipment queries - fetch equipment details for the session
   const equipmentQueries = useApiQuery(
     () => {
-      if (!isAuthenticated || !sessionQuery.data?.equipment_ids) return Promise.resolve([])
+      if (!isAuthenticated || !session?.equipment_ids) return Promise.resolve([])
       return Promise.all(
-        sessionQuery.data.equipment_ids.map((id: number) => 
+        session.equipment_ids.map((id: number) => 
           apiClient.getEquipmentDetails(id)
         )
       )
     },
-    [isAuthenticated, sessionQuery.data]
+    [isAuthenticated, session]
   )
 
-  const { data: session, loading, error } = sessionQuery
-  const { data: assignments = [] } = assignmentsQuery
+  // User queries - fetch detailed user info for crew members
+  const userQueries = useApiQuery(
+    () => {
+      if (!isAuthenticated || !assignment?.szerepkor_relaciok) return Promise.resolve([])
+      return Promise.all(
+        assignment.szerepkor_relaciok.map((relation: any) => 
+          apiClient.getUserDetails(relation.user.id)
+        )
+      )
+    },
+    [isAuthenticated, assignment]
+  )
+
   const { data: equipmentList = [], loading: equipmentLoading } = equipmentQueries
+  const { data: userDetailsList = [], loading: usersLoading } = userQueries
 
-  // Computed values
+  // Computed values - get crew from assignment with detailed user info
   const crew: CrewMember[] = useMemo(() => {
-    if (!Array.isArray(assignments)) return []
-    // Filter assignments for this specific filming session
-    const sessionAssignments = assignments.filter((assignment: any) => 
-      assignment.forgatas.id === parseInt(params.id)
-    )
+    if (!assignment || !assignment.szerepkor_relaciok || !userDetailsList) return []
     
-    // For demonstration purposes, add some sample crew data
-    // TODO: Implement proper crew data fetching from assignments
-    return [
-      {
-        id: 1,
-        name: "Minta Péter",
-        role: "Kamerás",
-        class: "10A",
-        phone: "+36 20 123 4567",
-        email: "minta.peter@example.com",
-        team: "A"
-      },
-      {
-        id: 2,
-        name: "Teszt Anna",
-        role: "Hangos",
-        class: "10B",
-        phone: "+36 30 987 6543",
-        email: "teszt.anna@example.com",
-        team: "B"
+    // Convert role relations to crew members with detailed user info
+    return assignment.szerepkor_relaciok.map((relation: any) => {
+      const userDetails = userDetailsList.find((user: any) => user.id === relation.user.id)
+      
+      return {
+        id: relation.user.id,
+        name: relation.user.full_name || `${relation.user.first_name} ${relation.user.last_name}`,
+        role: relation.szerepkor.name,
+        class: userDetails?.osztaly_name || 'N/A',
+        stab: userDetails?.stab_name || 'N/A',
+        phone: userDetails?.telefonszam || '',
+        email: userDetails?.email || '',
+        team: relation.user.username?.includes('A') ? 'A' : 'B' // Basic team detection
       }
-    ]
-  }, [assignments, params.id])
+    })
+  }, [assignment, userDetailsList])
 
-  if (loading) {
+  if (loading || usersLoading) {
     return (
       <SidebarProvider>
         <AppSidebar variant="inset" />
@@ -296,6 +301,53 @@ export default function FilmingSessionDetail({ params }: PageProps) {
                         </div>
                       </div>
                     </div>
+
+                    {/* Assignment Status */}
+                    {(() => {
+                      if (!assignment) {
+                        return (
+                          <div className="p-3 rounded-lg bg-orange-500/10 border border-orange-500/30">
+                            <div className="flex items-center gap-2">
+                              <AlertCircle className="h-4 w-4 text-orange-400" />
+                              <span className="font-medium text-orange-400">
+                                Nincs beosztás létrehozva ehhez a forgatáshoz
+                              </span>
+                            </div>
+                          </div>
+                        )
+                      }
+                      
+                      return (
+                        <div className="p-3 rounded-lg bg-blue-500/10 border border-blue-500/30">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <Users className="h-4 w-4 text-blue-400" />
+                              <span className="font-medium text-blue-400">
+                                Beosztás: {assignment.student_count} diák hozzárendelve
+                              </span>
+                            </div>
+                            <Badge 
+                              variant={assignment.kesz ? "default" : "outline"}
+                              className={assignment.kesz ? 
+                                "bg-green-500/20 text-green-400 border-green-500/30" : 
+                                "bg-yellow-500/20 text-yellow-400 border-yellow-500/30"
+                              }
+                            >
+                              {assignment.kesz ? "Végleges" : "Tervezet"}
+                            </Badge>
+                          </div>
+                          {assignment.roles_summary && assignment.roles_summary.length > 0 && (
+                            <div className="mt-2 flex flex-wrap gap-1">
+                              {assignment.roles_summary.map((role: any, index: number) => (
+                                <Badge key={index} variant="secondary" className="text-xs">
+                                  {role.role}: {role.count}
+                                </Badge>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })()}
 
                     {session.type === "kacsa" && (
                       <div className="p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/30">
@@ -453,7 +505,14 @@ export default function FilmingSessionDetail({ params }: PageProps) {
                       <Users className="h-5 w-5 text-purple-400" />
                       Stáb ({crew.length} fő)
                     </CardTitle>
-                    <CardDescription>Forgatásban résztvevő diákok</CardDescription>
+                    <CardDescription>
+                      Forgatásban résztvevő diákok
+                      {assignment && (
+                        <span className="ml-2">
+                          • {assignment.kesz ? 'Végleges beosztás' : 'Tervezet'}
+                        </span>
+                      )}
+                    </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
@@ -480,16 +539,16 @@ export default function FilmingSessionDetail({ params }: PageProps) {
                               <div className="flex-1 min-w-0">
                                 <div className="font-medium text-sm flex items-center gap-2">
                                   {member.name}
-                                  {member.team && (
+                                  {member.stab && (
                                     <Badge
                                       variant="outline"
                                       className={`text-xs px-1 py-0 ${
-                                        member.team === "A"
+                                        member.stab === "A stáb"
                                           ? "bg-blue-500/10 text-blue-400 border-blue-500/30"
                                           : "bg-green-500/10 text-green-400 border-green-500/30"
                                       }`}
                                     >
-                                      {member.team}
+                                      {member.stab}
                                     </Badge>
                                   )}
                                 </div>
@@ -528,7 +587,18 @@ export default function FilmingSessionDetail({ params }: PageProps) {
                         <Camera className="h-4 w-4 mr-2" />
                         Eszköz Állapot
                       </Button>
-                    )} */}
+                    )}
+                    {assignments && assignments.length > 0 && (() => {
+                      const sessionAssignment = assignments.find((assignment: BeosztasSchema) => 
+                        assignment.forgatas.id === parseInt(params.id)
+                      )
+                      return sessionAssignment && (
+                        <Button className="w-full bg-transparent" variant="outline" size="sm">
+                          <Users className="h-4 w-4 mr-2" />
+                          {sessionAssignment.kesz ? 'Beosztás megtekintése' : 'Beosztás szerkesztése'}
+                        </Button>
+                      )
+                    })()} */}
                     <div className="text-muted-foreground text-sm text-center py-4">
                       Nincsenek elérhető gyors műveletek.
                     </div>
@@ -562,15 +632,15 @@ export default function FilmingSessionDetail({ params }: PageProps) {
                       <div className="flex items-center justify-center gap-2">
                         <Badge variant="secondary">{selectedCrewMember.role}</Badge>
                         <Badge variant="outline">{selectedCrewMember.class}</Badge>
-                        {selectedCrewMember.team && (
+                        {selectedCrewMember.stab && (
                           <Badge
                             className={
-                              selectedCrewMember.team === "A"
+                              selectedCrewMember.stab === "A stáb"
                                 ? "bg-blue-500/20 text-blue-400 border-blue-500/30"
                                 : "bg-green-500/20 text-green-400 border-green-500/30"
                             }
                           >
-                            {selectedCrewMember.team} stáb
+                            {selectedCrewMember.stab}
                           </Badge>
                         )}
                       </div>
