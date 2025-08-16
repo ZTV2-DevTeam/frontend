@@ -1752,6 +1752,89 @@ class ApiClient {
     return this.request<Record<string, any>>('/api/config/status')
   }
 
+  // === SCHOOL ABSENCES (for class teachers) ===
+  async getSchoolAbsences(params?: {
+    class_id?: number
+    student_id?: number
+    start_date?: string
+    end_date?: string
+    status?: string
+  }): Promise<any[]> {
+    const queryParams = new URLSearchParams()
+    
+    if (params?.class_id) queryParams.append('class_id', params.class_id.toString())
+    if (params?.student_id) queryParams.append('student_id', params.student_id.toString())
+    if (params?.start_date) queryParams.append('start_date', params.start_date)
+    if (params?.end_date) queryParams.append('end_date', params.end_date)
+    if (params?.status) queryParams.append('status', params.status)
+    
+    const query = queryParams.toString() ? `?${queryParams.toString()}` : ''
+    return this.request<any[]>(`/api/school-absences${query}`)
+  }
+
+  async getSchoolAbsenceDetails(absenceId: number): Promise<any> {
+    return this.request<any>(`/api/school-absences/${absenceId}`)
+  }
+
+  async updateSchoolAbsence(absenceId: number, data: {
+    excused?: boolean
+    unexcused?: boolean
+  }): Promise<any> {
+    return this.request<any>(`/api/school-absences/${absenceId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async bulkUpdateSchoolAbsences(data: {
+    absence_ids: number[]
+    excused?: boolean
+    unexcused?: boolean
+  }): Promise<{
+    message: string
+    updated_count: number
+    total_requested: number
+  }> {
+    return this.request<{
+      message: string
+      updated_count: number
+      total_requested: number
+    }>('/api/school-absences/bulk-update', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async getClassAbsences(
+    classId: number, 
+    params?: {
+      start_date?: string
+      end_date?: string
+    }
+  ): Promise<any[]> {
+    const queryParams = new URLSearchParams()
+    if (params?.start_date) queryParams.append('start_date', params.start_date)
+    if (params?.end_date) queryParams.append('end_date', params.end_date)
+    
+    const query = queryParams.toString() ? `?${queryParams.toString()}` : ''
+    return this.request<any[]>(`/api/school-absences/class/${classId}${query}`)
+  }
+
+  async getClassAbsenceStatistics(
+    classId: number,
+    params?: {
+      start_date?: string
+      end_date?: string
+    }
+  ): Promise<any> {
+    const queryParams = new URLSearchParams()
+    if (params?.start_date) queryParams.append('start_date', params.start_date)
+    if (params?.end_date) queryParams.append('end_date', params.end_date)
+    
+    const query = queryParams.toString() ? `?${queryParams.toString()}` : ''
+    return this.request<any>(`/api/school-absences/stats/class/${classId}${query}`)
+  }
+
   // === UTILITY METHODS ===
   isAuthenticated(): boolean {
     // Always check fresh token from storage
