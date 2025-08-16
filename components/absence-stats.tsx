@@ -23,8 +23,9 @@ export function AbsenceStats({ absences, isAdmin }: AbsenceStatsProps) {
   const stats = {
     total: absences.length,
     ongoing: absences.filter(a => a.status === 'folyamatban').length,
-    approved: absences.filter(a => !a.denied && a.status !== 'folyamatban').length,
+    approved: absences.filter(a => a.approved && !a.denied).length,
     denied: absences.filter(a => a.denied).length,
+    pending: absences.filter(a => !a.approved && !a.denied).length,
     upcoming: absences.filter(a => a.status === 'jövőbeli').length,
     totalDays: absences.reduce((sum, a) => sum + a.duration_days, 0),
     uniqueStudents: isAdmin ? new Set(absences.map(a => a.user.id)).size : 1,
@@ -51,6 +52,13 @@ export function AbsenceStats({ absences, isAdmin }: AbsenceStatsProps) {
       icon: CheckCircle,
       color: 'text-green-500',
       bgColor: 'bg-green-50',
+    },
+    {
+      title: 'Függőben',
+      value: stats.pending,
+      icon: AlertTriangle,
+      color: 'text-yellow-500',
+      bgColor: 'bg-yellow-50',
     },
     {
       title: 'Elutasítva',
@@ -123,7 +131,15 @@ export function AbsenceStats({ absences, isAdmin }: AbsenceStatsProps) {
 }
 
 // Status badge component
-export function StatusBadge({ status, denied }: { status: string; denied: boolean }) {
+export function StatusBadge({ 
+  status, 
+  denied, 
+  approved 
+}: { 
+  status: string; 
+  denied: boolean; 
+  approved?: boolean;
+}) {
   if (denied) {
     return (
       <Badge variant="destructive" className="flex items-center gap-1">
@@ -133,7 +149,23 @@ export function StatusBadge({ status, denied }: { status: string; denied: boolea
     )
   }
 
+  if (approved) {
+    return (
+      <Badge variant="default" className="flex items-center gap-1 bg-green-600 hover:bg-green-700">
+        <CheckCircle className="h-3 w-3" />
+        Jóváhagyva
+      </Badge>
+    )
+  }
+
   switch (status) {
+    case 'függőben':
+      return (
+        <Badge variant="secondary" className="flex items-center gap-1">
+          <AlertTriangle className="h-3 w-3" />
+          Függőben
+        </Badge>
+      )
     case 'jövőbeli':
       return (
         <Badge variant="secondary" className="flex items-center gap-1">

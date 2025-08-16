@@ -129,7 +129,9 @@ export function AbsenceManagement() {
       if (filters.status === 'denied') {
         filtered = filtered.filter(a => a.denied)
       } else if (filters.status === 'approved') {
-        filtered = filtered.filter(a => !a.denied && a.status !== 'folyamatban')
+        filtered = filtered.filter(a => a.approved && !a.denied)
+      } else if (filters.status === 'pending') {
+        filtered = filtered.filter(a => !a.approved && !a.denied)
       } else {
         filtered = filtered.filter(a => a.status === filters.status)
       }
@@ -238,11 +240,11 @@ export function AbsenceManagement() {
     }
   }
 
-  // Approve/Deny absence (admin only)
+  // Approve/Deny/Reset absence (admin only)
   const handleApprove = async (absence: TavolletSchema) => {
     try {
       await apiClient.approveAbsence(absence.id)
-      toast.success('Távollét jóváhagyva')
+      toast.success(`${absence.user.full_name || `${absence.user.first_name} ${absence.user.last_name}`} távollétét jóváhagyva`)
       fetchAbsences()
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Hiba történt a jóváhagyáskor'
@@ -253,7 +255,7 @@ export function AbsenceManagement() {
   const handleDeny = async (absence: TavolletSchema) => {
     try {
       await apiClient.denyAbsence(absence.id)
-      toast.success('Távollét elutasítva')
+      toast.success(`${absence.user.full_name || `${absence.user.first_name} ${absence.user.last_name}`} távollétét elutasítva`)
       fetchAbsences()
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Hiba történt az elutasításkor'
@@ -261,26 +263,68 @@ export function AbsenceManagement() {
     }
   }
 
+  const handleReset = async (absence: TavolletSchema) => {
+    try {
+      await apiClient.resetAbsenceStatus(absence.id)
+      toast.success(`${absence.user.full_name || `${absence.user.first_name} ${absence.user.last_name}`} távollétének státusza visszaállítva`)
+      fetchAbsences()
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Hiba történt a státusz visszaállításakor'
+      toast.error(message)
+    }
+  }
+
   // Bulk actions (admin only)
   const handleBulkApprove = async (ids: number[]) => {
-    const promises = ids.map(id => apiClient.approveAbsence(id))
-    await Promise.all(promises)
-    toast.success(`${ids.length} távollét jóváhagyva`)
-    fetchAbsences()
+    try {
+      const promises = ids.map(id => apiClient.approveAbsence(id))
+      await Promise.all(promises)
+      toast.success(`${ids.length} távollét jóváhagyva`)
+      setSelectedIds([])
+      fetchAbsences()
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Hiba történt a tömeges jóváhagyáskor'
+      toast.error(message)
+    }
   }
 
   const handleBulkDeny = async (ids: number[]) => {
-    const promises = ids.map(id => apiClient.denyAbsence(id))
-    await Promise.all(promises)
-    toast.success(`${ids.length} távollét elutasítva`)
-    fetchAbsences()
+    try {
+      const promises = ids.map(id => apiClient.denyAbsence(id))
+      await Promise.all(promises)
+      toast.success(`${ids.length} távollét elutasítva`)
+      setSelectedIds([])
+      fetchAbsences()
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Hiba történt a tömeges elutasításkor'
+      toast.error(message)
+    }
+  }
+
+  const handleBulkReset = async (ids: number[]) => {
+    try {
+      const promises = ids.map(id => apiClient.resetAbsenceStatus(id))
+      await Promise.all(promises)
+      toast.success(`${ids.length} távollét státusza visszaállítva`)
+      setSelectedIds([])
+      fetchAbsences()
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Hiba történt a tömeges státusz visszaállításkor'
+      toast.error(message)
+    }
   }
 
   const handleBulkDelete = async (ids: number[]) => {
-    const promises = ids.map(id => apiClient.deleteAbsence(id))
-    await Promise.all(promises)
-    toast.success(`${ids.length} távollét törölve`)
-    fetchAbsences()
+    try {
+      const promises = ids.map(id => apiClient.deleteAbsence(id))
+      await Promise.all(promises)
+      toast.success(`${ids.length} távollét törölve`)
+      setSelectedIds([])
+      fetchAbsences()
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Hiba történt a tömeges törléskor'
+      toast.error(message)
+    }
   }
 
   // Table columns
@@ -364,8 +408,8 @@ export function AbsenceManagement() {
       columnHelper.accessor('status', {
         header: 'Státusz',
         cell: ({ row }) => {
-          const { status, denied } = row.original
-          return <StatusBadge status={status} denied={denied} />
+          const { status, denied, approved } = row.original
+          return <StatusBadge status={status} denied={denied} approved={approved} />
         },
       }),
       
@@ -424,26 +468,44 @@ export function AbsenceManagement() {
                 />
               )}
               
-              {isAdmin && !absence.denied && (
-                <>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleApprove(absence)}
-                    className="text-green-600 hover:text-green-700"
-                  >
-                    <Check className="h-4 w-4" />
-                  </Button>
+              {isAdmin && (
+                <div className="flex items-center gap-1">
+                  {!absence.approved && !absence.denied && (
+                    <>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleApprove(absence)}
+                        className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                        title="Jóváhagyás"
+                      >
+                        <Check className="h-4 w-4" />
+                      </Button>
+                      
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeny(absence)}
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        title="Elutasítás"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </>
+                  )}
                   
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleDeny(absence)}
-                    className="text-red-600 hover:text-red-700"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </>
+                  {(absence.approved || absence.denied) && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleReset(absence)}
+                      className="text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+                      title="Státusz visszaállítása függőben állapotra"
+                    >
+                      <AlertTriangle className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
               )}
             </div>
           )
@@ -522,6 +584,7 @@ export function AbsenceManagement() {
           onSelectionChange={setSelectedIds}
           onBulkApprove={handleBulkApprove}
           onBulkDeny={handleBulkDeny}
+          onBulkReset={handleBulkReset}
           onBulkDelete={handleBulkDelete}
           loading={loading}
         />
@@ -705,7 +768,7 @@ export function AbsenceManagement() {
             <div>
               <Label>Státusz</Label>
               <div className="mt-1">
-                <StatusBadge status={selectedAbsence.status} denied={selectedAbsence.denied} />
+                <StatusBadge status={selectedAbsence.status} denied={selectedAbsence.denied} approved={selectedAbsence.approved} />
               </div>
             </div>
             
@@ -718,24 +781,35 @@ export function AbsenceManagement() {
 
             {isAdmin && (
               <div className="flex gap-2 pt-4 border-t">
-                <Button
-                  onClick={() => handleApprove(selectedAbsence)}
-                  disabled={selectedAbsence.denied}
-                  className="flex items-center gap-2"
-                >
-                  <Check className="h-4 w-4" />
-                  Jóváhagyás
-                </Button>
-                
-                <Button
-                  variant="destructive"
-                  onClick={() => handleDeny(selectedAbsence)}
-                  disabled={selectedAbsence.denied}
-                  className="flex items-center gap-2"
-                >
-                  <X className="h-4 w-4" />
-                  Elutasítás
-                </Button>
+                {!selectedAbsence.approved && !selectedAbsence.denied ? (
+                  <>
+                    <Button
+                      onClick={() => handleApprove(selectedAbsence)}
+                      className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
+                    >
+                      <Check className="h-4 w-4" />
+                      Jóváhagyás
+                    </Button>
+                    
+                    <Button
+                      variant="destructive"
+                      onClick={() => handleDeny(selectedAbsence)}
+                      className="flex items-center gap-2"
+                    >
+                      <X className="h-4 w-4" />
+                      Elutasítás
+                    </Button>
+                  </>
+                ) : (
+                  <Button
+                    variant="outline"
+                    onClick={() => handleReset(selectedAbsence)}
+                    className="flex items-center gap-2 text-orange-600 border-orange-200 hover:bg-orange-50"
+                  >
+                    <AlertTriangle className="h-4 w-4" />
+                    Státusz visszaállítása
+                  </Button>
+                )}
               </div>
             )}
           </div>

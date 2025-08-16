@@ -523,6 +523,7 @@ export interface TavolletSchema {
   end_date: string
   reason?: string
   denied: boolean
+  approved: boolean
   duration_days: number
   status: string
 }
@@ -539,6 +540,7 @@ export interface TavolletUpdateSchema {
   end_date?: string
   reason?: string
   denied?: boolean
+  approved?: boolean
 }
 
 // === CONFIGURATION ===
@@ -1626,6 +1628,12 @@ class ApiClient {
 
   async denyAbsence(absenceId: number): Promise<TavolletSchema> {
     return this.request<TavolletSchema>(`/api/absences/${absenceId}/deny`, {
+      method: 'PUT',
+    })
+  }
+
+  async resetAbsenceStatus(absenceId: number): Promise<TavolletSchema> {
+    return this.request<TavolletSchema>(`/api/absences/${absenceId}/reset`, {
       method: 'PUT',
     })
   }

@@ -22,6 +22,7 @@ interface BulkActionsProps {
   onSelectionChange: (ids: number[]) => void
   onBulkApprove: (ids: number[]) => Promise<void>
   onBulkDeny: (ids: number[]) => Promise<void>
+  onBulkReset?: (ids: number[]) => Promise<void>
   onBulkDelete: (ids: number[]) => Promise<void>
   loading?: boolean
 }
@@ -32,13 +33,15 @@ export function BulkActions({
   onSelectionChange,
   onBulkApprove,
   onBulkDeny,
+  onBulkReset,
   onBulkDelete,
   loading = false
 }: BulkActionsProps) {
   const [bulkLoading, setBulkLoading] = useState<string | null>(null)
 
   const selectedAbsences = absences.filter(a => selectedIds.includes(a.id))
-  const pendingAbsences = selectedAbsences.filter(a => !a.denied)
+  const pendingAbsences = selectedAbsences.filter(a => !a.denied && !a.approved)
+  const processedAbsences = selectedAbsences.filter(a => a.denied || a.approved)
   const allSelected = absences.length > 0 && selectedIds.length === absences.length
   const someSelected = selectedIds.length > 0 && selectedIds.length < absences.length
 
@@ -51,7 +54,7 @@ export function BulkActions({
   }
 
   const handleBulkAction = async (
-    action: 'approve' | 'deny' | 'delete',
+    action: 'approve' | 'deny' | 'reset' | 'delete',
     ids: number[]
   ) => {
     if (ids.length === 0) return
@@ -65,6 +68,9 @@ export function BulkActions({
           break
         case 'deny':
           await onBulkDeny(ids)
+          break
+        case 'reset':
+          if (onBulkReset) await onBulkReset(ids)
           break
         case 'delete':
           await onBulkDelete(ids)
@@ -101,6 +107,11 @@ export function BulkActions({
             <Badge variant="secondary">
               {pendingAbsences.length} függőben
             </Badge>
+            {processedAbsences.length > 0 && (
+              <Badge variant="outline">
+                {processedAbsences.length} feldolgozott
+              </Badge>
+            )}
           </div>
           
           <div className="flex gap-2">
@@ -145,6 +156,27 @@ export function BulkActions({
                   variant="destructive"
                 />
               </>
+            )}
+            
+            {processedAbsences.length > 0 && onBulkReset && (
+              <ConfirmDialog
+                title="Státusz visszaállítása"
+                description={`Biztosan visszaállítja a kiválasztott ${processedAbsences.length} távollét státuszát függőben állapotra?`}
+                trigger={
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={loading || bulkLoading === 'reset'}
+                    className="text-orange-600 border-orange-200 hover:bg-orange-50"
+                  >
+                    <AlertTriangle className="h-4 w-4 mr-1" />
+                    Visszaállítás ({processedAbsences.length})
+                  </Button>
+                }
+                onConfirm={() => handleBulkAction('reset', processedAbsences.map(a => a.id))}
+                isLoading={bulkLoading === 'reset'}
+                confirmLabel="Visszaállítás"
+              />
             )}
             
             <ConfirmDialog

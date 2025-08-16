@@ -142,11 +142,12 @@ export function AbsenceFiltersComponent({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="">Minden státusz</SelectItem>
+                  <SelectItem value="pending">Függőben</SelectItem>
+                  <SelectItem value="approved">Jóváhagyva</SelectItem>
+                  <SelectItem value="denied">Elutasítva</SelectItem>
                   <SelectItem value="jövőbeli">Jövőbeli</SelectItem>
                   <SelectItem value="folyamatban">Folyamatban</SelectItem>
                   <SelectItem value="lezárt">Lezárt</SelectItem>
-                  <SelectItem value="denied">Elutasítva</SelectItem>
-                  <SelectItem value="approved">Jóváhagyva</SelectItem>
                 </SelectContent>
               </Select>
             </div>
