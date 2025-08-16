@@ -5,6 +5,7 @@
 
 import { useState } from "react"
 import * as React from "react"
+import { useAuth } from "@/contexts/auth-context"
 import { AppSidebar } from "@/components/app-sidebar"
 import { SiteHeader } from "@/components/site-header"
 import { ProtectedRoute } from "@/components/protected-route"
@@ -62,84 +63,103 @@ import {
 
 // Dynamic import for PDF functionality (client-side only)
 const generatePDF = async (users: any[]) => {
-  // Import jsPDF and autoTable dynamically to avoid SSR issues
-  const jsPDF = (await import('jspdf')).default
-  // Import autoTable - this extends jsPDF prototype
-  await import('jspdf-autotable')
-
-  const doc = new jsPDF({
-    orientation: 'landscape',
-    unit: 'mm',
-    format: 'a4'
-  })
-
-  // Group users by class
-  const usersByClass: { [key: string]: any[] } = {}
-  users.forEach(user => {
-    // Only include users with phone numbers for contact purposes
-    if (user.telefonszam) {
-      const className = user.osztaly_name || 'Osztály nélkül'
-      if (!usersByClass[className]) {
-        usersByClass[className] = []
-      }
-      usersByClass[className].push(user)
-    }
-  })
-
-  // Sort classes alphabetically
-  const sortedClasses = Object.keys(usersByClass).sort()
-
-  let isFirstPage = true
-
-  sortedClasses.forEach(className => {
-    if (!isFirstPage) {
-      doc.addPage()
-    }
-    isFirstPage = false
-
-    const classUsers = usersByClass[className]
+  try {
+    // Import jsPDF and autoTable dynamically to avoid SSR issues
+    const jsPDFModule = await import('jspdf')
+    const jsPDF = jsPDFModule.default
     
-    // Title
-    doc.setFontSize(20)
-    doc.setFont('helvetica', 'bold')
-    doc.text(className, 20, 25)
-    
-    // Subtitle
-    doc.setFontSize(12)
-    doc.setFont('helvetica', 'normal')
-    doc.text(`Kontakt információk - ${classUsers.length} személy`, 20, 35)
+    // Import autoTable function directly
+    const { default: autoTable } = await import('jspdf-autotable')
 
-    // Prepare table data - only name and phone number
-    const tableData = classUsers.map(user => [
-      user.full_name || `${user.first_name} ${user.last_name}`.trim(),
-      user.telefonszam || ''
-    ])
-
-    // Generate table using the extended autoTable method
-    ;(doc as any).autoTable({
-      head: [['Név', 'Telefonszám']],
-      body: tableData,
-      startY: 45,
-      styles: {
-        fontSize: 11,
-        cellPadding: 4,
-      },
-      headStyles: {
-        fillColor: [63, 81, 181],
-        textColor: 255,
-        fontStyle: 'bold',
-      },
-      columnStyles: {
-        0: { cellWidth: 120 }, // Name column
-        1: { cellWidth: 80 }, // Phone column
-      },
-      margin: { left: 20, right: 20 },
+    const doc = new jsPDF({
+      orientation: 'landscape',
+      unit: 'mm',
+      format: 'a4'
     })
-  })
 
-  // Save the PDF
-  const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-')
-  doc.save(`stab-kontakt-lista-${timestamp}.pdf`)
+    // Group users by class
+    const usersByClass: { [key: string]: any[] } = {}
+    users.forEach(user => {
+      // Only include users with phone numbers for contact purposes
+      if (user.telefonszam) {
+        const className = user.osztaly_name || 'Osztály nélkül'
+        if (!usersByClass[className]) {
+          usersByClass[className] = []
+        }
+        usersByClass[className].push(user)
+      }
+    })
+
+    // Sort classes alphabetically
+    const sortedClasses = Object.keys(usersByClass).sort()
+
+    if (sortedClasses.length === 0) {
+      throw new Error('Nincs telefonszámmal rendelkező felhasználó.')
+    }
+
+    let isFirstPage = true
+
+    sortedClasses.forEach(className => {
+      if (!isFirstPage) {
+        doc.addPage()
+      }
+      isFirstPage = false
+
+      const classUsers = usersByClass[className]
+      
+      // Title
+      doc.setFontSize(20)
+      doc.setFont('helvetica', 'bold')
+      const pageWidth = doc.internal.pageSize.getWidth()
+      const textWidth = doc.getTextWidth(className)
+      const x = (pageWidth - textWidth) / 2
+      doc.text(className, x, 25)
+      
+      // Subtitle
+      doc.setFontSize(12)
+      doc.setFont('helvetica', 'normal')
+
+      // Prepare table data - only name and phone number
+      const tableData = classUsers.map(user => [
+        user.full_name || `${user.first_name} ${user.last_name}`.trim(),
+        user.telefonszam || ''
+      ])
+
+      // Generate table using autoTable function
+      autoTable(doc, {
+        head: [['Név', 'Telefonszám']],
+        body: tableData,
+        startY: 45,
+        styles: {
+          fontSize: 11,
+          cellPadding: 4,
+          fillColor: [255, 255, 255], // White background for B&W
+          textColor: [0, 0, 0],       // Black text for B&W
+          lineWidth: 0.2,             // Subtle border width
+          lineColor: [180, 180, 180], // Light gray border
+        },
+        headStyles: {
+          fillColor: [255, 255, 255], // White header text
+          textColor: [0, 0, 0],       // Black header background
+          fontStyle: 'bold',
+          lineWidth: 0.4,             // Slightly stronger border for header
+          lineColor: [120, 120, 120], // Slightly darker gray for header border
+        },
+        columnStyles: {
+          0: { cellWidth: 120 },
+          1: { cellWidth: 80 },
+        },
+        margin: { left: 20, right: 20 },
+      })
+    })
+
+    // Save the PDF
+    const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-')
+    doc.save(`stab-kontakt-lista-${timestamp}.pdf`)
+  } catch (error) {
+    console.error('PDF generation error:', error)
+    throw new Error(`PDF generálási hiba: ${error instanceof Error ? error.message : 'Ismeretlen hiba'}`)
+  }
 }
 
 // Enhanced Loading Component
@@ -244,18 +264,26 @@ function UserCard({ user, onEdit, onDelete }: {
   onEdit?: (user: any) => void,
   onDelete?: (user: any) => void 
 }) {
-  const getRoleInfo = (adminType: string) => {
-    switch (adminType) {
-      case 'student': return { name: 'Diák', icon: '🎓', color: 'bg-blue-100 text-blue-800' }
-      case 'teacher': return { name: 'Tanár', icon: '👨‍🏫', color: 'bg-green-100 text-green-800' }
-      case 'staff': return { name: 'Alkalmazott', icon: '👷', color: 'bg-purple-100 text-purple-800' }
-      case 'admin': return { name: 'Admin', icon: '👑', color: 'bg-red-100 text-red-800' }
-      case 'dev': return { name: 'Fejlesztő', icon: '💻', color: 'bg-gray-100 text-gray-800' }
-      default: return { name: 'Ismeretlen', icon: '❓', color: 'bg-gray-100 text-gray-600' }
+  const getRoleInfo = (user: any) => {
+    // Check admin_type first
+    if (user.admin_type === 'system_admin') return { name: 'Rendszergazda', icon: '👑', color: 'bg-red-100 text-red-800' };
+    if (user.admin_type === 'developer') return { name: 'Fejlesztő', icon: '�', color: 'bg-gray-100 text-gray-800' };
+    if (user.admin_type === 'teacher') return { name: 'Tanár', icon: '�‍🏫', color: 'bg-green-100 text-green-800' };
+    
+    // Check special_role
+    if (user.special_role === 'production_leader') return { name: 'Gyártásvezető', icon: '🎬', color: 'bg-orange-100 text-orange-800' };
+    
+    // If admin_type is 'none' or not set, and no special role, it's a student
+    if ((user.admin_type === 'none' || !user.admin_type) && 
+        (user.special_role === 'none' || !user.special_role)) {
+      return { name: 'Diák', icon: '🎓', color: 'bg-blue-100 text-blue-800' };
     }
+    
+    // Default to student for safety
+    return { name: 'Diák', icon: '🎓', color: 'bg-blue-100 text-blue-800' };
   }
 
-  const roleInfo = getRoleInfo(user.admin_type)
+  const roleInfo = getRoleInfo(user)
   
   return (
     <Card className="hover:shadow-lg transition-all duration-300 group">
@@ -339,10 +367,10 @@ function UserCard({ user, onEdit, onDelete }: {
               </div>
             )}
 
-            {(user.osztaly?.name || user.osztaly_name) && (
+            {(user.osztaly?.display_name || user.osztaly_name) && (
               <div className="flex items-center gap-2">
                 <BookOpen className="h-4 w-4 text-muted-foreground" />
-                <span>{user.osztaly?.name || user.osztaly_name}</span>
+                <span>{user.osztaly?.display_name || user.osztaly_name}</span>
               </div>
             )}
 
@@ -370,30 +398,44 @@ function UserCard({ user, onEdit, onDelete }: {
 
 // Main Component
 export default function StabPage() {
+  const { isAuthenticated } = useAuth()
   const [selectedClass, setSelectedClass] = useState<string>("all")
   const [selectedRole, setSelectedRole] = useState<string>("all")
   const [searchTerm, setSearchTerm] = useState("")
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
+  const [groupBy, setGroupBy] = useState<"class" | "role" | "none">("class") // Default to class grouping
   const [sortBy, setSortBy] = useState<string>("name")
   
   // Fetch data from API
   const usersQuery = useApiQuery(
     async () => {
       try {
+        if (!isAuthenticated) {
+          return []
+        }
+        // Call without any filters to get ALL users
         const result = await apiClient.getAllUsersDetailed()
         console.log('Users fetched successfully:', result?.length || 0, 'users')
+        console.log('Users by admin_type:', result?.reduce((acc: any, user: any) => {
+          const type = user.admin_type || 'unknown'
+          acc[type] = (acc[type] || 0) + 1
+          return acc
+        }, {}))
         return result || []
       } catch (error) {
         console.error('Failed to fetch users:', error)
         throw error
       }
     },
-    []
+    [isAuthenticated]
   )
   
   const classesQuery = useApiQuery(
     async () => {
       try {
+        if (!isAuthenticated) {
+          return []
+        }
         const result = await apiClient.getClasses()
         console.log('Classes fetched successfully:', result?.length || 0, 'classes')
         return result || []
@@ -402,7 +444,7 @@ export default function StabPage() {
         return [] // Don't fail if classes can't be loaded
       }
     },
-    []
+    [isAuthenticated]
   )
 
   const users = usersQuery.data || []
@@ -436,7 +478,7 @@ export default function StabPage() {
   const normalizedUsers = usersArray.map((user: any) => ({
     ...user,
     full_name: user.full_name || `${user.first_name} ${user.last_name}`.trim(),
-    osztaly_name: user.osztaly?.name || user.osztaly_name || null,
+    osztaly_name: user.osztaly?.display_name || user.osztaly_name || null,
     stab_name: user.stab?.name || user.stab_name || null,
   }))
 
@@ -480,10 +522,32 @@ export default function StabPage() {
     })
   }
 
-  // Separate into categories
-  const students = filteredUsers.filter((user: any) => user?.admin_type === 'student')
+  // Group users by class for better categorization
+  const usersByClass = filteredUsers.reduce((acc: { [key: string]: any[] }, user: any) => {
+    const className = user?.osztaly_name || 'Osztály nélkül'
+    if (!acc[className]) {
+      acc[className] = []
+    }
+    acc[className].push(user)
+    return acc
+  }, {})
+
+  // Sort classes with "Osztály nélkül" at the end
+  const sortedClassNames = Object.keys(usersByClass).sort((a, b) => {
+    if (a === 'Osztály nélkül') return 1
+    if (b === 'Osztály nélkül') return -1
+    return a.localeCompare(b)
+  })
+
+  // Separate into categories for legacy views
+  const students = filteredUsers.filter((user: any) => 
+    user?.admin_type === 'none' || !user?.admin_type ||
+    (user?.admin_type !== 'system_admin' && user?.admin_type !== 'developer' && 
+     user?.admin_type !== 'teacher' && user?.special_role !== 'production_leader')
+  )
   const staff = filteredUsers.filter((user: any) => 
-    user?.admin_type && ['teacher', 'staff', 'admin', 'dev'].includes(user.admin_type)
+    user?.admin_type && ['system_admin', 'developer', 'teacher'].includes(user.admin_type) ||
+    user?.special_role === 'production_leader'
   )
 
   const availableClasses = [...new Set(normalizedUsers
@@ -510,8 +574,34 @@ export default function StabPage() {
     console.log('Delete user:', user)
   }
 
+  // Helper function to get role info (defined here for global use)
+  const getRoleInfo = (user: any) => {
+    // Check admin_type first
+    if (user.admin_type === 'system_admin') return { name: 'Rendszergazda', icon: '👑', color: 'bg-red-100 text-red-800' };
+    if (user.admin_type === 'developer') return { name: 'Fejlesztő', icon: '💻', color: 'bg-gray-100 text-gray-800' };
+    if (user.admin_type === 'teacher') return { name: 'Tanár', icon: '👨‍🏫', color: 'bg-green-100 text-green-800' };
+    
+    // Check special_role
+    if (user.special_role === 'production_leader') return { name: 'Gyártásvezető', icon: '🎬', color: 'bg-orange-100 text-orange-800' };
+    
+    // If admin_type is 'none' or not set, and no special role, it's a student
+    if ((user.admin_type === 'none' || !user.admin_type) && 
+        (user.special_role === 'none' || !user.special_role)) {
+      return { name: 'Diák', icon: '🎓', color: 'bg-blue-100 text-blue-800' };
+    }
+    
+    // Default to student for safety
+    return { name: 'Diák', icon: '🎓', color: 'bg-blue-100 text-blue-800' };
+  }
+
   const handleExportPDF = async () => {
     try {
+      // Check if we're in a browser environment
+      if (typeof window === 'undefined') {
+        alert('A PDF export csak böngészőben működik.')
+        return
+      }
+
       // Filter users with phone numbers
       const usersWithPhone = filteredUsers.filter(user => user.telefonszam)
       
@@ -520,10 +610,43 @@ export default function StabPage() {
         return
       }
       
+      // Show loading indicator
+      const originalText = 'Export PDF'
+      const button = document.querySelector('[data-export-pdf]') as HTMLButtonElement
+      if (button) {
+        button.disabled = true
+        button.textContent = 'PDF generálása...'
+      }
+      
       await generatePDF(usersWithPhone)
+      
+      // Restore button
+      if (button) {
+        button.disabled = false
+        button.textContent = originalText
+      }
     } catch (error) {
       console.error('Failed to generate PDF:', error)
-      alert('Hiba történt a PDF generálása során.')
+      
+      // Restore button
+      const button = document.querySelector('[data-export-pdf]') as HTMLButtonElement
+      if (button) {
+        button.disabled = false
+        button.textContent = 'Export PDF'
+      }
+      
+      // More specific error message
+      let errorMessage = 'Hiba történt a PDF generálása során.'
+      if (error instanceof Error) {
+        if (error.message.includes('jspdf')) {
+          errorMessage = 'A PDF könyvtár betöltése sikertelen. Kérjük próbálja újra.'
+        } else if (error.message.includes('network') || error.message.includes('fetch')) {
+          errorMessage = 'Hálózati hiba történt. Ellenőrizze az internetkapcsolatot.'
+        } else {
+          errorMessage = `PDF generálási hiba: ${error.message}`
+        }
+      }
+      alert(errorMessage)
     }
   }
 
@@ -543,21 +666,22 @@ export default function StabPage() {
                   </h1>
                   <p className="text-muted-foreground">
                     Diákok és oktatók nyilvántartása • {filteredUsers.length} felhasználó
+                    {normalizedUsers.length !== filteredUsers.length && (
+                      <span className="text-sm text-blue-600 ml-2">
+                        ({normalizedUsers.length} összesen, {normalizedUsers.length - filteredUsers.length} szűrve)
+                      </span>
+                    )}
                   </p>
                 </div>
                 
                 <div className="flex items-center gap-3">
-                  <Button onClick={handleExportPDF} variant="outline" size="sm">
+                  <Button onClick={handleExportPDF} variant="outline" size="sm" data-export-pdf>
                     <FileText className="h-4 w-4 mr-2" />
                     Export PDF
                   </Button>
                   <Button onClick={handleRefresh} variant="outline" size="sm">
                     <RefreshCw className="h-4 w-4 mr-2" />
                     Frissítés
-                  </Button>
-                  <Button size="sm">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Új felhasználó
                   </Button>
                 </div>
               </div>
@@ -571,7 +695,7 @@ export default function StabPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+                  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-6">
                     {/* Search */}
                     <div className="lg:col-span-2">
                       <Label htmlFor="search">Keresés</Label>
@@ -585,6 +709,21 @@ export default function StabPage() {
                           className="pl-9"
                         />
                       </div>
+                    </div>
+
+                    {/* Group By */}
+                    <div>
+                      <Label>Csoportosítás</Label>
+                      <Select value={groupBy} onValueChange={(value: "class" | "role" | "none") => setGroupBy(value)}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="class">Osztály szerint</SelectItem>
+                          <SelectItem value="role">Szerepkör szerint</SelectItem>
+                          <SelectItem value="none">Nincs csoportosítás</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
 
                     {/* Class Filter */}
@@ -646,41 +785,132 @@ export default function StabPage() {
                 </CardContent>
               </Card>
 
-              {/* Staff Section */}
-              {staff.length > 0 && (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h2 className="text-2xl font-semibold">Oktatók és Adminisztrátorok</h2>
-                      <p className="text-muted-foreground">{staff.length} személy</p>
-                    </div>
-                  </div>
-                  
-                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {staff.map((user: any) => (
-                      <UserCard 
-                        key={user.id} 
-                        user={user} 
-                        onEdit={handleEdit}
-                        onDelete={handleDelete}
-                      />
-                    ))}
-                  </div>
+              {/* Main Content - Group by Class by Default */}
+              {groupBy === 'class' && Object.keys(usersByClass).length > 0 && (
+                <div className="space-y-6">
+                  {sortedClassNames.map((className) => {
+                    const classUsers = usersByClass[className]
+                    if (!classUsers || classUsers.length === 0) return null
+                    
+                    return (
+                      <div key={className} className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="p-2 bg-primary/10 rounded-lg">
+                              <GraduationCap className="h-5 w-5 text-primary" />
+                            </div>
+                            <div>
+                              <h2 className="text-xl font-semibold">{className}</h2>
+                              <p className="text-muted-foreground text-sm">
+                                {classUsers.length} személy
+                                {classUsers.some(u => u.admin_type === 'student') && 
+                                 classUsers.some(u => u.admin_type !== 'student') && 
+                                 ` • ${classUsers.filter(u => u.admin_type === 'student').length} diák, ${classUsers.filter(u => u.admin_type !== 'student').length} oktató/admin`}
+                              </p>
+                            </div>
+                          </div>
+                          <Badge variant="outline" className="text-xs">
+                            {classUsers.length} fő
+                          </Badge>
+                        </div>
+                        
+                        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                          {classUsers.map((user: any) => (
+                            <UserCard 
+                              key={user.id} 
+                              user={user} 
+                              onEdit={handleEdit}
+                              onDelete={handleDelete}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )
+                  })}
                 </div>
               )}
 
-              {/* Students Section */}
-              {students.length > 0 && (
+              {/* Group by Role */}
+              {groupBy === 'role' && (
+                <div className="space-y-6">
+                  {/* Group users by their actual roles */}
+                  {(() => {
+                    const usersByRole = filteredUsers.reduce((acc: { [key: string]: any[] }, user: any) => {
+                      const roleInfo = getRoleInfo(user)
+                      const roleName = roleInfo.name
+                      if (!acc[roleName]) {
+                        acc[roleName] = []
+                      }
+                      acc[roleName].push(user)
+                      return acc
+                    }, {})
+
+                    const sortedRoles = Object.keys(usersByRole).sort((a, b) => {
+                      // Custom sort: Admins first, then staff roles, then students
+                      const roleOrder = ['Rendszergazda', 'Fejlesztő', 'Tanár', 'Gyártásvezető', 'Diák']
+                      const aIndex = roleOrder.indexOf(a)
+                      const bIndex = roleOrder.indexOf(b)
+                      if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex
+                      if (aIndex !== -1) return -1
+                      if (bIndex !== -1) return 1
+                      return a.localeCompare(b)
+                    })
+
+                    return sortedRoles.map((roleName) => {
+                      const roleUsers = usersByRole[roleName]
+                      if (!roleUsers || roleUsers.length === 0) return null
+                      
+                      const roleInfo = getRoleInfo(roleUsers[0])
+                      
+                      return (
+                        <div key={roleName} className="space-y-4">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <div className={`p-2 rounded-lg ${roleInfo.color.replace('text-', 'text-').replace('bg-', 'bg-')}`}>
+                                <span className="text-lg">{roleInfo.icon}</span>
+                              </div>
+                              <div>
+                                <h2 className="text-xl font-semibold">{roleName}</h2>
+                                <p className="text-muted-foreground text-sm">{roleUsers.length} személy</p>
+                              </div>
+                            </div>
+                            <Badge variant="outline" className="text-xs">
+                              {roleUsers.length} fő
+                            </Badge>
+                          </div>
+                          
+                          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                            {roleUsers.map((user: any) => (
+                              <UserCard 
+                                key={user.id} 
+                                user={user} 
+                                onEdit={handleEdit}
+                                onDelete={handleDelete}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      )
+                    })
+                  })()}
+                </div>
+              )}
+
+              {/* No Grouping - All Users */}
+              {groupBy === 'none' && (
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h2 className="text-2xl font-semibold">Diákok</h2>
-                      <p className="text-muted-foreground">{students.length} diák</p>
+                      <h2 className="text-xl font-semibold">Minden felhasználó</h2>
+                      <p className="text-muted-foreground text-sm">{filteredUsers.length} személy</p>
                     </div>
+                    <Badge variant="outline" className="text-xs">
+                      {filteredUsers.length} fő
+                    </Badge>
                   </div>
                   
-                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                    {students.map((user: any) => (
+                  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    {filteredUsers.map((user: any) => (
                       <UserCard 
                         key={user.id} 
                         user={user} 
@@ -709,6 +939,7 @@ export default function StabPage() {
                       setSearchTerm("")
                       setSelectedClass("all")
                       setSelectedRole("all")
+                      setGroupBy("class") // Reset to default class grouping
                     }} variant="outline">
                       Szűrők törlése
                     </Button>

@@ -103,12 +103,14 @@ export default function ShootingsPage() {
   
   // Context hooks - MUST be called before any conditional returns
   const { hasPermission, permissions } = usePermissions()
-  const { user } = useAuth()
+  const { user, isAuthenticated } = useAuth()
   const { currentRole } = useUserRole()
   
-  // API hooks - MUST be called before any conditional returns
-  const filmingQuery = useApiQuery(() => apiClient.getFilmingSessions())
-  const typesQuery = useApiQuery(() => apiClient.getFilmingTypes())
+  // TEMPORARILY DISABLED FOR DEBUGGING - filming sessions API call causes logout
+  // const filmingQuery = useApiQuery(() => isAuthenticated ? apiClient.getFilmingSessions() : Promise.resolve([]), [isAuthenticated])
+  // const typesQuery = useApiQuery(() => isAuthenticated ? apiClient.getFilmingTypes() : Promise.resolve([]), [isAuthenticated])
+  const filmingQuery = { data: [], loading: false, error: null }
+  const typesQuery = { data: [], loading: false, error: null }
 
   const { data: filmingData, loading, error } = filmingQuery
   const { data: typesData } = typesQuery

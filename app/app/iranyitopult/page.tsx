@@ -103,8 +103,10 @@ function getDynamicWelcomeMessage(firstName: string = 'Felhasználó'): string {
 
 // Admin Widget Components - Database Admin Style
 function ActiveUsersWidget() {
+  const { isAuthenticated } = useAuth()
   const { data: usersData, loading, error } = useApiQuery(
-    () => apiClient.getAllUsersDetailed()
+    () => isAuthenticated ? apiClient.getAllUsersDetailed() : Promise.resolve([]),
+    [isAuthenticated]
   )
 
   if (loading) {
@@ -347,9 +349,15 @@ function ActiveUsersWidget() {
 }
 
 function PendingForgatásokWidget() {
-  const { data: filmingData, loading, error } = useApiQuery(
-    () => apiClient.getFilmingSessions()
-  )
+  const { isAuthenticated } = useAuth()
+  // TEMPORARILY DISABLED FOR DEBUGGING - filming sessions API call causes logout
+  // const { data: filmingData, loading, error } = useApiQuery(
+  //   () => isAuthenticated ? apiClient.getFilmingSessions() : Promise.resolve([]),
+  //   [isAuthenticated]
+  // )
+  const filmingData: any[] = []
+  const loading = false
+  const error = null
   const router = useRouter()
 
   if (loading) {
@@ -713,10 +721,15 @@ function QuickActionsWidget() {
 
 // Student Widget Components
 function UpcomingShootingsWidget() {
-  const { data: filmingData, loading, error } = useApiQuery(
-    () => apiClient.getFilmingSessions()
-  )
-  const { user } = useAuth()
+  const { user, isAuthenticated } = useAuth()
+  // TEMPORARILY DISABLED FOR DEBUGGING - filming sessions API call causes logout
+  // const { data: filmingData, loading, error } = useApiQuery(
+  //   () => isAuthenticated ? apiClient.getFilmingSessions() : Promise.resolve([]),
+  //   [isAuthenticated]
+  // )
+  const filmingData: any[] = []
+  const loading = false
+  const error = null
 
   if (loading) {
     return (
@@ -821,8 +834,10 @@ function UpcomingShootingsWidget() {
 // Class Teacher Widget Components
 function IgazolasStatsWidget() {
   const router = useRouter()
+  const { isAuthenticated } = useAuth()
   const { data: absenceData, loading, error } = useApiQuery(
-    () => apiClient.getAbsences()
+    () => isAuthenticated ? apiClient.getAbsences() : Promise.resolve([]),
+    [isAuthenticated]
   )
   
   if (loading) {

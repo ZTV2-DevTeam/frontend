@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import * as React from "react"
+import { useAuth } from "@/contexts/auth-context"
 import { AppSidebar } from "@/components/app-sidebar"
 import { SiteHeader } from "@/components/site-header"
 import {
@@ -30,11 +31,16 @@ import { ApiError } from "@/components/api-error"
 export default function CalendarPage() {
   const [selectedDate, setSelectedDate] = useState(new Date())
   const [viewMode, setViewMode] = useState<"month" | "week" | "list">("month")
+  const { isAuthenticated } = useAuth()
   
-  // Fetch only filming data from API
-  const { data: filmingData = [], loading: filmingLoading, error: filmingError } = useApiQuery(
-    () => apiClient.getFilmingSessions()
-  )
+  // TEMPORARILY DISABLED FOR DEBUGGING - filming sessions API call causes logout
+  // const { data: filmingData = [], loading: filmingLoading, error: filmingError } = useApiQuery(
+  //   () => isAuthenticated ? apiClient.getFilmingSessions() : Promise.resolve([]),
+  //   [isAuthenticated]
+  // )
+  const filmingData: any[] = []
+  const filmingLoading = false
+  const filmingError = null
 
   if (filmingLoading) {
     return (

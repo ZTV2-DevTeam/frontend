@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useAuth } from "@/contexts/auth-context";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
@@ -32,10 +33,12 @@ export default function MessageBoardPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [categoryFilter, setCategoryFilter] = useState<string>('all')
   const [selectedPost, setSelectedPost] = useState<number | null>(null)
+  const { isAuthenticated } = useAuth()
   
-  // Fetch data from API
+  // Fetch data from API - only when authenticated
   const { data: announcements = [], loading, error } = useApiQuery(
-    () => apiClient.getAnnouncements()
+    () => isAuthenticated ? apiClient.getAnnouncements() : Promise.resolve([]),
+    [isAuthenticated]
   )
 
   if (loading) {
