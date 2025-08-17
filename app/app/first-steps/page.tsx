@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import { useAuth } from '@/contexts/auth-context'
 import { useUserRole } from '@/contexts/user-role-context'
-import { FirstStepsWizard } from '@/components/first-steps-wizard'
+import { ConfigurationWizard } from '@/components/configuration-wizard'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Shield, Settings, Users, GraduationCap } from 'lucide-react'
@@ -34,7 +34,7 @@ export default function FirstStepsPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Settings className="h-5 w-5" />
-              Beállítás befejezve
+              Konfiguráció befejezve
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -65,7 +65,7 @@ export default function FirstStepsPage() {
               <Settings className="h-4 w-4" />
               <AlertDescription>
                 Ez a felület azért jelenik meg Önnek, mivel úgy tűnik jelenleg nincs konfigurálva a következő tanév. 
-                A következő lépések végigvezetik Önt a tanév beállításán, amely után a rendszer teljes funkcionalitása 
+                A következő konfiguráció végigvezeti Önt a tanév beállításán és adatok importálásán, amely után a rendszer teljes funkcionalitása 
                 elérhető lesz.
               </AlertDescription>
             </Alert>
@@ -73,7 +73,7 @@ export default function FirstStepsPage() {
         </Card>
       </div>
 
-      <FirstStepsWizard onComplete={() => setIsSetupComplete(true)} />
+      <ConfigurationWizard onComplete={() => setIsSetupComplete(true)} />
     </div>
   )
 }

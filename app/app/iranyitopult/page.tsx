@@ -41,7 +41,8 @@ import {
   Shield,
   GraduationCap,
   User,
-  Loader2
+  Loader2,
+  Settings
 } from "lucide-react"
 
 // Function to get dynamic welcome message based on time of day and season
@@ -350,14 +351,17 @@ function ActiveUsersWidget() {
 
 function PendingForgatásokWidget() {
   const { isAuthenticated } = useAuth()
-  // TEMPORARILY DISABLED FOR DEBUGGING - filming sessions API call causes logout
-  // const { data: filmingData, loading, error } = useApiQuery(
-  //   () => isAuthenticated ? apiClient.getFilmingSessions() : Promise.resolve([]),
-  //   [isAuthenticated]
-  // )
-  const filmingData: any[] = []
-  const loading = false
-  const error = null
+  const { data: filmingData, loading, error } = useApiQuery(
+    () => isAuthenticated ? apiClient.getFilmingSessions() : Promise.resolve([]),
+    [isAuthenticated]
+  )
+  
+  // Also fetch filming assignments to determine which sessions are pending
+  const { data: assignmentsData } = useApiQuery(
+    () => isAuthenticated ? apiClient.getFilmingAssignments() : Promise.resolve([]),
+    [isAuthenticated]
+  )
+  
   const router = useRouter()
 
   if (loading) {
@@ -398,10 +402,25 @@ function PendingForgatásokWidget() {
   }
 
   const sessions = filmingData || []
-  const pendingSessions = sessions.filter((s: any) => s.status === 'pending' || s.status === 'planning')
-  const urgentSessions = pendingSessions.filter((s: any) => {
-    if (!s.datum) return false
-    const sessionDate = new Date(s.datum)
+  const assignments = Array.isArray(assignmentsData) ? assignmentsData : []
+  
+  // Create a map of assignments by filming session ID
+  const assignmentMap = new Map()
+  assignments.forEach((assignment: any) => {
+    if (assignment?.forgatas?.id) {
+      assignmentMap.set(assignment.forgatas.id, assignment)
+    }
+  })
+  
+  // A session is pending if it doesn't have an assignment or the assignment is not finalized
+  const pendingSessions = sessions.filter((session: any) => {
+    const assignment = assignmentMap.get(session.id)
+    return !assignment || !assignment.kesz
+  })
+  
+  const urgentSessions = pendingSessions.filter((session: any) => {
+    if (!session.date) return false
+    const sessionDate = new Date(session.date)
     const threeDaysFromNow = new Date()
     threeDaysFromNow.setDate(threeDaysFromNow.getDate() + 3)
     return sessionDate <= threeDaysFromNow
@@ -483,15 +502,15 @@ function PendingForgatásokWidget() {
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-2 mb-1">
                               <span className="font-semibold text-sm text-red-800 dark:text-red-200">
-                                {session.title}
+                                {session.name}
                               </span>
                               <Badge variant="destructive" className="text-xs">
                                 Sürgős
                               </Badge>
                             </div>
                             <div className="flex items-center gap-3 text-xs text-red-600 dark:text-red-300">
-                              <span>📅 {session.datum || 'Nincs dátum'}</span>
-                              <span>📍 {session.location || 'Nincs helyszín'}</span>
+                              <span>📅 {session.date || 'Nincs dátum'}</span>
+                              <span>📍 {session.location?.name || 'Nincs helyszín'}</span>
                             </div>
                           </div>
                         </div>
@@ -530,16 +549,16 @@ function PendingForgatásokWidget() {
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2 mb-1">
                           <span className="font-medium text-sm truncate">
-                            {session.title}
+                            {session.name}
                           </span>
                           <Badge variant="outline" className="text-xs bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/30 dark:text-purple-300 dark:border-purple-800">
-                            {session.type || 'Forgatás'}
+                            {session.type_display || session.type || 'Forgatás'}
                           </Badge>
                         </div>
                         <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <span>📅 {session.datum || 'TBD'}</span>
+                          <span>📅 {session.date || 'TBD'}</span>
                           <span>•</span>
-                          <span>📍 {session.location || 'TBD'}</span>
+                          <span>📍 {session.location?.name || 'TBD'}</span>
                         </div>
                       </div>
                     </div>
@@ -713,6 +732,68 @@ function QuickActionsWidget() {
               </div>
             </div>
           ))}
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+function ConfigurationWizardWidget() {
+  const router = useRouter()
+  const { currentRole } = useUserRole()
+  
+  // Only show for admins
+  if (currentRole !== 'admin') {
+    return null
+  }
+
+  return (
+    <Card className="border-2 border-dashed border-blue-500/20 bg-gradient-to-r from-blue-50/50 via-blue-100/30 to-blue-50/50 dark:from-blue-950/30 dark:via-blue-900/20 dark:to-blue-950/30">
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-blue-500 rounded-lg">
+              <Settings className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <CardTitle className="text-lg">Konfiguráció Varázsló</CardTitle>
+              <CardDescription>Rendszer kezdeti beállítása és adatok feltöltése</CardDescription>
+            </div>
+          </div>
+          <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-950 dark:text-blue-200 dark:border-blue-800">
+            Admin
+          </Badge>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          <div className="p-4 rounded-lg bg-white dark:bg-gray-900 border border-blue-200 dark:border-blue-800">
+            <div className="flex items-start gap-3">
+              <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
+                <FileText className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              </div>
+              <div className="flex-1">
+                <h4 className="font-medium text-sm mb-1">Adatok feltöltése</h4>
+                <p className="text-xs text-muted-foreground mb-3">
+                  Töltse fel a rendszer működéséhez szükséges alapadatokat: osztályok, stábok, tanárok, diákok.
+                </p>
+                <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
+                  <div>• Osztályok és szekciók</div>
+                  <div>• Stábok és szerepkörök</div>
+                  <div>• Tanárok adatai</div>
+                  <div>• Diákok adatai</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <Button 
+            onClick={() => router.push('/app/konfiguracio')}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+          >
+            <Settings className="h-4 w-4 mr-2" />
+            Konfiguráció Varázsló megnyitása
+          </Button>
         </div>
       </CardContent>
     </Card>
@@ -980,6 +1061,126 @@ function ShootingTrendsWidget() {
   )
 }
 
+// Role-specific First Steps Widgets
+function FirstStepsWidget() {
+  const router = useRouter()
+  const { currentRole } = useUserRole()
+  
+  const getFirstStepsConfig = () => {
+    switch (currentRole) {
+      case 'admin':
+        return {
+          title: 'Adminisztrátori Első Lépések',
+          description: 'Rendszergazdai feladatok és beállítások útmutatója',
+          icon: Shield,
+          bgColor: 'from-red-50/50 via-red-100/30 to-red-50/50 dark:from-red-950/30 dark:via-red-900/20 dark:to-red-950/30',
+          borderColor: 'border-red-500/20',
+          badgeColor: 'bg-red-100 text-red-800 border-red-200 dark:bg-red-950 dark:text-red-200 dark:border-red-800',
+          buttonColor: 'bg-red-600 hover:bg-red-700',
+          guidePath: '/app/segitseg/admin-utmutato',
+          tasks: [
+            'Felhasználók és szerepkörök kezelése',
+            'Forgatások létrehozása és beosztása',
+            'Rendszer konfigurálása',
+            'Jelentések és statisztikák'
+          ]
+        }
+      case 'class-teacher':
+        return {
+          title: 'Osztályfőnöki Első Lépések',
+          description: 'Osztályfőnöki feladatok és igazoláskezelés útmutatója',
+          icon: Users,
+          bgColor: 'from-green-50/50 via-green-100/30 to-green-50/50 dark:from-green-950/30 dark:via-green-900/20 dark:to-green-950/30',
+          borderColor: 'border-green-500/20',
+          badgeColor: 'bg-green-100 text-green-800 border-green-200 dark:bg-green-950 dark:text-green-200 dark:border-green-800',
+          buttonColor: 'bg-green-600 hover:bg-green-700',
+          guidePath: '/app/segitseg/ofonok-utmutato',
+          tasks: [
+            'Igazolások áttekintése és kezelése',
+            'Diákok hiányzásainak nyomon követése',
+            'Osztálystatisztikák megtekintése',
+            'Kommunikáció a diákokkal'
+          ]
+        }
+      case 'student':
+        return {
+          title: 'Diák Első Lépések',
+          description: 'Diákok számára készült útmutató a rendszer használatához',
+          icon: GraduationCap,
+          bgColor: 'from-blue-50/50 via-blue-100/30 to-blue-50/50 dark:from-blue-950/30 dark:via-blue-900/20 dark:to-blue-950/30',
+          borderColor: 'border-blue-500/20',
+          badgeColor: 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-950 dark:text-blue-200 dark:border-blue-800',
+          buttonColor: 'bg-blue-600 hover:bg-blue-700',
+          guidePath: '/app/segitseg/diak-utmutato',
+          tasks: [
+            'Forgatási beosztások megtekintése',
+            'Igazolás kérelmek beküldése',
+            'Naptár és eseménykezelés',
+            'Kommunikáció és üzenetek'
+          ]
+        }
+      default:
+        return null
+    }
+  }
+
+  const config = getFirstStepsConfig()
+  
+  if (!config) {
+    return null
+  }
+
+  const { title, description, icon: Icon, bgColor, borderColor, badgeColor, buttonColor, guidePath, tasks } = config
+
+  return (
+    <Card className={`border-2 border-dashed ${borderColor} bg-gradient-to-r ${bgColor}`}>
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className={`p-2 rounded-lg ${buttonColor.replace('hover:', '').replace('bg-', 'bg-').replace('600', '500')}`}>
+              <Icon className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <CardTitle className="text-lg">{title}</CardTitle>
+              <CardDescription>{description}</CardDescription>
+            </div>
+          </div>
+          <Badge variant="secondary" className={`text-xs ${badgeColor}`}>
+            Útmutató
+          </Badge>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          <div className="p-4 rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
+            <div className="flex items-start gap-3">
+              <div className="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                <FileText className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+              </div>
+              <div className="flex-1">
+                <h4 className="font-medium text-sm mb-1">Mit találsz az útmutatóban?</h4>
+                <div className="grid grid-cols-1 gap-1 text-xs text-muted-foreground">
+                  {tasks.map((task, index) => (
+                    <div key={index}>• {task}</div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <Button 
+            onClick={() => router.push(guidePath)}
+            className={`w-full ${buttonColor} text-white`}
+          >
+            <FileText className="h-4 w-4 mr-2" />
+            Első Lépések Útmutató
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
 export default function Page() {
   const { currentRole } = useUserRole()
   const { user } = useAuth()
@@ -1011,6 +1212,12 @@ export default function Page() {
             {/* Quick Actions at the top */}
             <QuickActionsWidget />
             
+            {/* Configuration Wizard */}
+            <ConfigurationWizardWidget />
+            
+            {/* First Steps Widget */}
+            <FirstStepsWidget />
+            
             {/* Main widgets grid - Prioritizing pending shootings */}
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               <div className="col-span-1 lg:col-span-2">
@@ -1026,6 +1233,7 @@ export default function Page() {
       case 'student':
         return (
           <div className="grid gap-6">
+            <FirstStepsWidget />
             <div className="col-span-full">
               <UpcomingShootingsWidget />
             </div>
@@ -1035,6 +1243,9 @@ export default function Page() {
       case 'class-teacher':
         return (
           <div className="grid gap-6 md:grid-cols-2">
+            <div className="col-span-1 md:col-span-2">
+              <FirstStepsWidget />
+            </div>
             <div className="col-span-1">
               <IgazolasStatsWidget />
             </div>

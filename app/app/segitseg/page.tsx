@@ -40,7 +40,9 @@ import {
   MessageSquare,
   Bug,
   Lightbulb,
-  AlertOctagon
+  AlertOctagon,
+  CheckCircle,
+  GraduationCap
 } from "lucide-react"
 
 export default function HelpPage() {
@@ -428,7 +430,7 @@ export default function HelpPage() {
 
           {/* Main Content Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="general" className="flex items-center gap-2">
                 <HelpCircle className="w-4 h-4" />
                 Általános
@@ -436,6 +438,10 @@ export default function HelpPage() {
               <TabsTrigger value="role-specific" className="flex items-center gap-2">
                 <roleContent.icon className="w-4 h-4" />
                 {currentRole === 'admin' ? 'Admin' : currentRole === 'class-teacher' ? 'Osztályfőnök' : 'Hallgató'}
+              </TabsTrigger>
+              <TabsTrigger value="guides" className="flex items-center gap-2">
+                <BookOpen className="w-4 h-4" />
+                Útmutatók
               </TabsTrigger>
               <TabsTrigger value="feedback" className="flex items-center gap-2">
                 <MessageSquare className="w-4 h-4" />
@@ -500,6 +506,207 @@ export default function HelpPage() {
                       </div>
                     ))}
                   </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Guides Tab */}
+            <TabsContent value="guides" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <BookOpen className="h-5 w-5" />
+                    Részletes Útmutatók
+                  </CardTitle>
+                  <CardDescription>
+                    Szerepkör-specifikus útmutatók részletes lépésenkénti instrukciókkal
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="grid gap-4 md:grid-cols-3">
+                    {/* Admin Guide */}
+                    <Card className="border-2 transition-all hover:shadow-md">
+                      <CardHeader className="text-center pb-3">
+                        <div className="p-3 bg-red-100 dark:bg-red-900 rounded-lg mx-auto mb-3 w-fit">
+                          <Shield className="h-8 w-8 text-red-600 dark:text-red-400" />
+                        </div>
+                        <CardTitle className="text-lg">Adminisztrátori Útmutató</CardTitle>
+                        <CardDescription className="text-sm">
+                          Rendszergazdai feladatok és beállítások részletes útmutatója
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-3">
+                        <div className="space-y-2 text-sm">
+                          <div className="flex items-center gap-2">
+                            <CheckCircle className="h-4 w-4 text-green-500" />
+                            <span>Rendszer konfigurálása</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <CheckCircle className="h-4 w-4 text-green-500" />
+                            <span>Felhasználó kezelés</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <CheckCircle className="h-4 w-4 text-green-500" />
+                            <span>Forgatások adminisztrálása</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <CheckCircle className="h-4 w-4 text-green-500" />
+                            <span>Hibaelhárítás</span>
+                          </div>
+                        </div>
+                        <Button 
+                          className="w-full mt-4" 
+                          variant={currentRole === 'admin' ? 'default' : 'outline'}
+                          disabled={currentRole !== 'admin'}
+                          asChild={currentRole === 'admin'}
+                        >
+                          {currentRole === 'admin' ? (
+                            <a href="/app/segitseg/admin-utmutato">
+                              <Shield className="w-4 h-4 mr-2" />
+                              Útmutató megnyitása
+                            </a>
+                          ) : (
+                            <>
+                              <Shield className="w-4 h-4 mr-2" />
+                              Adminisztrátori hozzáférés szükséges
+                            </>
+                          )}
+                        </Button>
+                      </CardContent>
+                    </Card>
+
+                    {/* Class Teacher Guide */}
+                    <Card className="border-2 transition-all hover:shadow-md">
+                      <CardHeader className="text-center pb-3">
+                        <div className="p-3 bg-blue-100 dark:bg-blue-900 rounded-lg mx-auto mb-3 w-fit">
+                          <GraduationCap className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+                        </div>
+                        <CardTitle className="text-lg">Osztályfőnöki Útmutató</CardTitle>
+                        <CardDescription className="text-sm">
+                          Osztálykezelés, hiányzások és forgatási koordináció útmutatója
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-3">
+                        <div className="space-y-2 text-sm">
+                          <div className="flex items-center gap-2">
+                            <CheckCircle className="h-4 w-4 text-green-500" />
+                            <span>Osztály áttekintése</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <CheckCircle className="h-4 w-4 text-green-500" />
+                            <span>Hiányzások kezelése</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <CheckCircle className="h-4 w-4 text-green-500" />
+                            <span>Forgatási koordináció</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <CheckCircle className="h-4 w-4 text-green-500" />
+                            <span>Kommunikáció</span>
+                          </div>
+                        </div>
+                        <Button 
+                          className="w-full mt-4" 
+                          variant={currentRole === 'class-teacher' || currentRole === 'admin' ? 'default' : 'outline'}
+                          disabled={currentRole !== 'class-teacher' && currentRole !== 'admin'}
+                          asChild={currentRole === 'class-teacher' || currentRole === 'admin'}
+                        >
+                          {currentRole === 'class-teacher' || currentRole === 'admin' ? (
+                            <a href="/app/segitseg/ofonok-utmutato">
+                              <GraduationCap className="w-4 h-4 mr-2" />
+                              Útmutató megnyitása
+                            </a>
+                          ) : (
+                            <>
+                              <GraduationCap className="w-4 h-4 mr-2" />
+                              Osztályfőnöki hozzáférés szükséges
+                            </>
+                          )}
+                        </Button>
+                      </CardContent>
+                    </Card>
+
+                    {/* Student Guide */}
+                    <Card className="border-2 transition-all hover:shadow-md">
+                      <CardHeader className="text-center pb-3">
+                        <div className="p-3 bg-green-100 dark:bg-green-900 rounded-lg mx-auto mb-3 w-fit">
+                          <User className="h-8 w-8 text-green-600 dark:text-green-400" />
+                        </div>
+                        <CardTitle className="text-lg">Diák Útmutató</CardTitle>
+                        <CardDescription className="text-sm">
+                          Minden, amit tudnod kell a rendszer használatáról és a forgatásokról
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-3">
+                        <div className="space-y-2 text-sm">
+                          <div className="flex items-center gap-2">
+                            <CheckCircle className="h-4 w-4 text-green-500" />
+                            <span>Profil beállítása</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <CheckCircle className="h-4 w-4 text-green-500" />
+                            <span>Forgatásokra jelentkezés</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <CheckCircle className="h-4 w-4 text-green-500" />
+                            <span>Hiányzások kezelése</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <CheckCircle className="h-4 w-4 text-green-500" />
+                            <span>Forgatási tippek és tanácsok</span>
+                          </div>
+                        </div>
+                        <Button 
+                          className="w-full mt-4" 
+                          variant={currentRole === 'student' || currentRole === 'admin' ? 'default' : 'outline'}
+                          disabled={currentRole !== 'student' && currentRole !== 'admin'}
+                          asChild={currentRole === 'student' || currentRole === 'admin'}
+                        >
+                          {currentRole === 'student' || currentRole === 'admin' ? (
+                            <a href="/app/segitseg/diak-utmutato">
+                              <User className="w-4 h-4 mr-2" />
+                              Útmutató megnyitása
+                            </a>
+                          ) : (
+                            <>
+                              <User className="w-4 h-4 mr-2" />
+                              Diák hozzáférés szükséges
+                            </>
+                          )}
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  {/* Additional Information */}
+                  <Card className="border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-blue-800 dark:text-blue-200">
+                        <Lightbulb className="h-5 w-5" />
+                        Útmutató használati tippek
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="text-blue-700 dark:text-blue-300">
+                      <div className="grid gap-4 md:grid-cols-2">
+                        <div>
+                          <h4 className="font-medium mb-2">Navigáció:</h4>
+                          <ul className="text-sm space-y-1">
+                            <li>• Használd a lapokat a témák között váltáshoz</li>
+                            <li>• A keresés funkció segít gyorsan megtalálni az információkat</li>
+                            <li>• A gyors műveletek sorban találod a legfontosabb linkeket</li>
+                          </ul>
+                        </div>
+                        <div>
+                          <h4 className="font-medium mb-2">Hozzáférés:</h4>
+                          <ul className="text-sm space-y-1">
+                            <li>• Csak a szerepkörödhöz tartozó útmutató érhető el</li>
+                            <li>• Az adminisztrátorok minden útmutatót megtekinthetnek</li>
+                            <li>• A FirstSteps widgetből is elérhetőek az útmutatók</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
                 </CardContent>
               </Card>
             </TabsContent>
