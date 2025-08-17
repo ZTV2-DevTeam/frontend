@@ -75,31 +75,18 @@ export default function HelpPage() {
         items: [
           {
             question: "Mikor látom a forgatási beosztásomat?",
-            answer: "A beosztások általában egy héttel a forgatás előtt jelennek meg. Értesítést kapsz, ha felkerültél egy forgatásra."
+            answer: "A forgatásokat a kiírásuk pillanatától látod a Forgatások menüpontban. A stáb és a felszerelések beosztása később történik, várj türelemmel. Amint egy beosztás kiírásra vagy módosításra kerül, E-mailes értesítést kapsz."
           },
           {
             question: "Mit tegyek, ha nem tudok részt venni egy forgatáson?",
-            answer: "Minél előbb jelezd az adminisztrátornak vagy az ofősnek. A lemondási határidők változhatnak."
+            answer: "Ha nem tudsz egy forgatáson részt venni, azonnal értesítsd a beosztást készítő szaktanárt."
           },
           {
             question: "Hol találom a forgatási információkat?",
-            answer: "A forgatás részleteit a 'Forgatások' menüpontban, vagy a naptáradban tekintheted meg."
+            answer: "A forgatás részleteit a 'Forgatások' menüpontban tekintheted meg."
           }
         ]
       },
-      {
-        title: "Felszerelések",
-        items: [
-          {
-            question: "Hogyan béreljem ki a felszereléseket?",
-            answer: "A 'Felszerelések' menüpontban láthatod az elérhető eszközöket. A kölcsönzési kérelmet az adminisztrátorok hagyják jóvá."
-          },
-          {
-            question: "Meddig használhatom a kibérelt felszerelést?",
-            answer: "A kölcsönzési időtartam eszközönként változik. A visszaadási határidőt mindig tartsd be."
-          }
-        ]
-      }
     ]
   }
 
@@ -112,15 +99,15 @@ export default function HelpPage() {
         items: [
           {
             question: "Hogyan adhatok hozzá új felhasználót?",
-            answer: "A Django admin felületen keresztül a 'Felhasználók' menüpontban adhatsz hozzá új felhasználókat. Ügyelj a megfelelő jogosultságok beállítására."
+            answer: "A Django admin felületen keresztül a 'Felhasználók' menüpontban adhat hozzá új felhasználókat. Ügyeljen a megfelelő jogosultságok beállítására!"
           },
           {
             question: "Hogyan változtathatom meg egy felhasználó jogosultságait?",
-            answer: "A felhasználó profiljában szerkesztheted a csoporttagságokat és az egyedi jogosultságokat."
+            answer: "A felhasználó profiljában szerkesztheti a csoporttagságokat és az egyedi jogosultságokat."
           },
           {
             question: "Mi a különbség a szerepkörök között?",
-            answer: "Hallgató: alapvető funkciók, Admin: teljes rendszerkezelés, Ofős: forgatások és beosztások kezelése."
+            answer: "Diák: alapvető funkciók, Admin: teljes rendszerkezelés, Ofők: igazolások megtekintése."
           }
         ]
       },
@@ -129,16 +116,12 @@ export default function HelpPage() {
         items: [
           {
             question: "Hogyan hozok létre új forgatást?",
-            answer: "A 'Forgatások' adminisztráció alatt adhatsz hozzá új forgatást. Add meg az összes szükséges információt és határidőket."
+            answer: "A 'Forgatások' menüpontban található Új Forgatás gombra kattintva hozhat létre új forgatást."
           },
           {
-            question: "Hogyan osztom be a hallgatókat forgatásokra?",
-            answer: "A beosztások kezelése menüpontban tudod létrehozni és szerkeszteni a beosztásokat."
+            question: "Hogyan osztom be a diákokat forgatásokra?",
+            answer: "Egylőre a Django Admin felületen egy új Beosztás rekordot kell létrehoznia, majd ezen belül a diákokat úgynevezett Szerepkör Relációk segítségével lehet a megfelelő mezőhöz hozzáadni. Amennyiben nem létezik még megfelelő reláció, a + gombbal hozhat létre újat."
           },
-          {
-            question: "Hogyan kezeljem a forgatási jelentkezéseket?",
-            answer: "A jelentkezések automatikusan megjelennek a rendszerben. Döntsd el, kit veszel fel az adott forgatásra."
-          }
         ]
       },
       {
@@ -146,11 +129,11 @@ export default function HelpPage() {
         items: [
           {
             question: "Hogyan készítek biztonsági másolatot?",
-            answer: "A biztonsági mentések automatikusan készülnek. Kritikus változtatások előtt mindig készíts manuális mentést."
+            answer: "Vegye fel a kapcsolatot az üzemeltetővel."
           },
           {
             question: "Mit tegyek adatbázis hiba esetén?",
-            answer: "Azonnal vedd fel a kapcsolatot a fejlesztővel! Ne próbálj meg egyedül javítani kritikus hibákat."
+            answer: "Azonnal vegye fel a kapcsolatot a fejlesztővel! Ne próbálja meg egyedül javítani kritikus hibákat. Az adatbázis véletlenszerű szerkesztése még több problémát okozhat."
           }
         ]
       }
@@ -166,11 +149,11 @@ export default function HelpPage() {
         items: [
           {
             question: "Hogyan hagyok jóvá igazolásokat?",
-            answer: "Az igazolások menüpontban áttekintheted a beérkezett kéréseket és egyenként jóváhagyhatod vagy elutasíthatod azokat."
+            answer: "Az igazolások menüpontban áttekintheti a beérkezett kéréseket és egyenként jóváhagyhatja vagy elutasíthatja azokat. Best practice: akkor jelezzen vissza, ha a KRÉTA rendszerbe már naplózta az igazolást."
           },
           {
-            question: "Milyen igazolásokat adhatok ki?",
-            answer: "Távolmaradási igazolások, részvételi igazolások és egyéb iskolai igazolások tartoznak a hatáskörödhöz."
+            question: "Minden igazolás hiteles?",
+            answer: "Igen, minden igazolás hiteles, amely jelenleg megjelenik a rendszerben. Kizárólag adminisztrátori jogosultsággal rendelkező felhasználók módosíthatják a forgatásokat és a beosztásokat, melyek alapján automatikusan generálódnak az igazolások."
           },
           {
             question: "Hogyan értesülnek a diákok az igazolás állapotáról?",
@@ -182,12 +165,8 @@ export default function HelpPage() {
         title: "Diák nyomon követése",
         items: [
           {
-            question: "Hogyan követhetem figyelemmel a diákok részvételét?",
-            answer: "A naptár menüpontban láthatod a diákok aktivitását és részvételi statisztikáit."
-          },
-          {
             question: "Hogyan készítek jelentést a diákok teljesítményéről?",
-            answer: "A naptár és egyéb menüpontokon keresztül követheted nyomon az osztályod aktivitását."
+            answer: "Az ilyen jellegű egyedi jelentések elkészítéséhez, vegye fel a kapcsolatot a fejlesztőkkel."
           }
         ]
       },
@@ -196,12 +175,8 @@ export default function HelpPage() {
         items: [
           {
             question: "Hogyan kezeljem a hiányzásokat?",
-            answer: "A hiányzások automatikusan rögzítésre kerülnek, de szükség esetén manuálisan is módosíthatod őket."
+            answer: "A hiányzások automatikusan rögzítésre kerülnek, de szükség esetén manuálisan is módosíthatja őket."
           },
-          {
-            question: "Mikor és hogyan készítsek összefoglalót?",
-            answer: "Havi rendszerességgel készíts összefoglalót az osztályod aktivitásáról és küldd meg az igazgatóságnak."
-          }
         ]
       }
     ]
@@ -234,7 +209,7 @@ export default function HelpPage() {
     },
     {
       question: "Kihez fordulhatok technikai problémák esetén?",
-      answer: `Technikai támogatás esetén a ${CONTACT_CONFIG.DEVELOPER_EMAIL} e-mail címen érheted el a fejlesztőket. A válaszidő legfeljebb 24 óra.`
+      answer: `Technikai támogatás esetén a ${CONTACT_CONFIG.DEVELOPER_EMAIL} e-mail címen érheted el a fejlesztőket. Postafordultával válaszolunk a megkeresésekre.`
     },
     {
       question: "Honnan tudhatom mi számít technikai problémának?",
@@ -242,11 +217,11 @@ export default function HelpPage() {
     },
     {
       question: "Javaslatom van a rendszer fejlesztésére, hová írhatom?",
-      answer: `Javaslatokat a ${CONTACT_CONFIG.SUPPORT_EMAIL} e-mail címen vár a fejlesztői csapat, vagy még egyszerűbb, ha a visszajelzési űrlapunkat használod. Kérjük, hogy a javaslatokat részletesen írjátok le, hogy minél jobban megérthessük az igényeiteket.`
+      answer: `Javaslatokat a ${CONTACT_CONFIG.SUPPORT_EMAIL} e-mail címen vár a fejlesztői csapat, vagy még egyszerűbb, ha a visszajelzési űrlapunkat használod. Kérjük, hogy a javaslatokat részletesen írjátok le, hogy minél jobban megérthessük az igényeiteket. Ne habozzatok írni nekünk, a rendszer nektek készül!`
     },
     {
       question: "Elfejtettem a jelszavam, mit tegyek?",
-      answer: "Keresd meg az adminisztrátort személyesen vagy írj a támogatásnak. Biztonsági okokból jelszó visszaállítás csak személyes egyeztetés után lehetséges."
+      answer: "Használd az \"Elfelejtett jelszó?\" funkciót a bejelentkezési oldalon."
     },
     {
       question: "Miért nem látom az összes menüpontot?",
@@ -343,12 +318,15 @@ export default function HelpPage() {
             <CardContent className="space-y-4 text-green-700 dark:text-green-300">
               <div className="grid gap-4 md:grid-cols-3">
                 {/* General Feedback */}
-                <div className="flex flex-col items-center p-4 rounded-lg bg-white dark:bg-gray-900 border border-green-200 dark:border-green-800">
+                <Card className="border-green-200 dark:border-green-800 bg-white dark:bg-gray-900 flex flex-col items-center p-4">
+                  <CardHeader className="items-center">
                   <Lightbulb className="h-8 w-8 mb-2 text-green-600" />
-                  <h3 className="font-medium text-center mb-2">Általános visszajelzés</h3>
-                  <p className="text-xs text-center text-muted-foreground mb-3">
+                  <CardTitle className="font-medium text-center mb-1">Általános visszajelzés</CardTitle>
+                  <CardDescription className="text-xs text-center text-muted-foreground mb-2">
                     Fejlesztési javaslatok, funkció kérések
-                  </p>
+                  </CardDescription>
+                  </CardHeader>
+                  <CardContent className="w-full flex justify-center">
                   <Button 
                     size="sm" 
                     className="w-full bg-green-600 hover:bg-green-700"
@@ -357,15 +335,19 @@ export default function HelpPage() {
                     <ExternalLink className="w-3 h-3 mr-1" />
                     Kitöltés
                   </Button>
-                </div>
+                  </CardContent>
+                </Card>
 
                 {/* Minor Issues */}
-                <div className="flex flex-col items-center p-4 rounded-lg bg-white dark:bg-gray-900 border border-yellow-200 dark:border-yellow-800">
+                <Card className="border-yellow-200 dark:border-yellow-800 bg-white dark:bg-gray-900 flex flex-col items-center p-4">
+                  <CardHeader className="items-center">
                   <Bug className="h-8 w-8 mb-2 text-yellow-600" />
-                  <h3 className="font-medium text-center mb-2">Kisebb hibák</h3>
-                  <p className="text-xs text-center text-muted-foreground mb-3">
+                  <CardTitle className="font-medium text-center mb-1">Kisebb hibák</CardTitle>
+                  <CardDescription className="text-xs text-center text-muted-foreground mb-2">
                     Kezelői hibák, megjelenítési problémák
-                  </p>
+                  </CardDescription>
+                  </CardHeader>
+                  <CardContent className="w-full flex justify-center">
                   <Button 
                     size="sm" 
                     variant="outline"
@@ -375,15 +357,19 @@ export default function HelpPage() {
                     <ExternalLink className="w-3 h-3 mr-1" />
                     Bejelentés
                   </Button>
-                </div>
+                  </CardContent>
+                </Card>
 
                 {/* Critical Issues */}
-                <div className="flex flex-col items-center p-4 rounded-lg bg-white dark:bg-gray-900 border border-red-200 dark:border-red-800">
+                <Card className="border-red-200 dark:border-red-800 bg-white dark:bg-gray-900 flex flex-col items-center p-4">
+                  <CardHeader className="items-center">
                   <AlertOctagon className="h-8 w-8 mb-2 text-red-600" />
-                  <h3 className="font-medium text-center mb-2">Kritikus hibák</h3>
-                  <p className="text-xs text-center text-muted-foreground mb-3">
+                  <CardTitle className="font-medium text-center mb-1">Kritikus hibák</CardTitle>
+                  <CardDescription className="text-xs text-center text-muted-foreground mb-2">
                     Rendszerleállás, adatvesztés, biztonsági problémák
-                  </p>
+                  </CardDescription>
+                  </CardHeader>
+                  <CardContent className="w-full flex justify-center">
                   <Button 
                     size="sm" 
                     variant="destructive"
@@ -393,7 +379,8 @@ export default function HelpPage() {
                     <Mail className="w-3 h-3 mr-1" />
                     Email küldése
                   </Button>
-                </div>
+                  </CardContent>
+                </Card>
               </div>
 
               {/* Instructions */}
@@ -643,9 +630,9 @@ export default function HelpPage() {
                           <h4 className="font-medium mb-2">Hibák bejelentésekor:</h4>
                           <ul className="text-sm space-y-1">
                             <li>• Írd le lépésről lépésre, hogyan reprodukálható</li>
-                            <li>• Add meg a böngésző típusát és verzióját</li>
+                            <li>• Add meg az eszközöd típusát</li>
                             <li>• Csatolj képernyőképet, ha lehetséges</li>
-                            <li>• Írd meg, mit vártál volna helyette</li>
+                            <li>• Írd meg, milyen viselkedésre számítottál</li>
                           </ul>
                         </div>
                         <div>
@@ -653,7 +640,7 @@ export default function HelpPage() {
                           <ul className="text-sm space-y-1">
                             <li>• Írd le részletesen az ötletedet</li>
                             <li>• Magyarázd el, miért lenne hasznos</li>
-                            <li>• Add meg, hogy ki használná</li>
+                            <li>• Add meg, hogy kit érintene</li>
                             <li>• Ha van, adj példát hasonló megoldásokra</li>
                           </ul>
                         </div>

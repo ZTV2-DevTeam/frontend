@@ -603,6 +603,82 @@ export interface BulkStudentCreateSchema {
   send_emails?: boolean
 }
 
+// === FILMING/FORGATAS SCHEMAS ===
+export interface ContactPersonSchema {
+  id: number
+  name: string
+  email?: string
+  phone?: string
+  organization?: string
+}
+
+export interface ForgatoTipusSchema {
+  value: string
+  label: string
+  description?: string
+}
+
+export interface ForgatCreateSchema {
+  name: string
+  description: string
+  date: string
+  time_from: string
+  time_to: string
+  location_id?: number
+  contact_person_id?: number
+  riporter_id?: number
+  notes?: string
+  type: string
+  related_kacsa_id?: number
+  equipment_ids?: number[]
+}
+
+// === STUDENT/REPORTER SCHEMAS ===
+export interface StudentSchema {
+  id: number
+  username: string
+  first_name: string
+  last_name: string
+  full_name: string
+  email: string
+  osztaly?: {
+    id: number
+    display_name: string
+    section: string
+    start_year: number
+  }
+  can_be_reporter: boolean
+  is_media_student: boolean
+}
+
+export interface ReporterSchema {
+  id: number
+  username: string
+  full_name: string
+  osztaly_display: string
+  grade_level: number
+  is_experienced: boolean
+}
+
+// === KACSA SESSION SCHEMAS ===
+export interface KacsaAvailableSchema {
+  id: number
+  name: string
+  date: string
+  time_from: string
+  time_to: string
+  can_link: boolean
+  already_linked: boolean
+}
+
+// === SCHOOL YEAR SCHEMAS ===
+export interface SchoolYearForDateSchema {
+  id: number
+  display_name: string
+  is_active: boolean
+  date_in_range: boolean
+}
+
 // API Client class
 class ApiClient {
   private baseUrl: string
@@ -1447,6 +1523,37 @@ class ApiClient {
       { value: 'rendezveny', label: 'Rendezvény forgatás' },
       { value: 'egyeb', label: 'Egyéb forgatás' }
     ])
+  }
+
+  // === STUDENTS/REPORTERS ===
+  async getStudents(params?: {
+    section?: string
+    grade?: number
+    can_be_reporter?: boolean
+    search?: string
+  }): Promise<StudentSchema[]> {
+    const queryParams = new URLSearchParams()
+    if (params?.section) queryParams.append('section', params.section)
+    if (params?.grade) queryParams.append('grade', params.grade.toString())
+    if (params?.can_be_reporter) queryParams.append('can_be_reporter', 'true')
+    if (params?.search) queryParams.append('search', params.search)
+    
+    const query = queryParams.toString() ? `?${queryParams.toString()}` : ''
+    return this.request<StudentSchema[]>(`/api/students${query}`)
+  }
+
+  async getReporters(): Promise<ReporterSchema[]> {
+    return this.request<ReporterSchema[]>('/api/students/reporters')
+  }
+
+  // === KACSA SESSIONS ===
+  async getKacsaAvailableSessions(): Promise<KacsaAvailableSchema[]> {
+    return this.request<KacsaAvailableSchema[]>('/api/production/filming-sessions/kacsa-available')
+  }
+
+  // === SCHOOL YEARS ===
+  async getSchoolYearForDate(date: string): Promise<SchoolYearForDateSchema> {
+    return this.request<SchoolYearForDateSchema>(`/api/school-years/for-date/${date}`)
   }
 
   // === ASSIGNMENTS ===

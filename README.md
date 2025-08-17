@@ -279,6 +279,34 @@ The build system automatically:
 - **[API Documentation](./lib/api.ts)**: Complete API client documentation
 - **[Type Definitions](./lib/types.ts)**: TypeScript type reference
 - **[Configuration Reference](./lib/config.ts)**: Configuration system documentation
+- **[Date/Time Picker Guide](./docs/DATE_TIME_PICKER_GUIDE.md)**: Standardized date and time components
+
+### UI Components
+
+#### Standardized Date/Time Pickers (NEW)
+The application now uses standardized date and time picker components with 24-hour format:
+
+```tsx
+import { DatePicker, TimePicker, DateTimePicker } from "@/components/ui/date-time-components"
+
+// Date selection with calendar popup
+<DatePicker date={date} onSelect={setDate} placeholder="Válassz dátumot" />
+
+// Time selection (24-hour format)
+<TimePicker time={time} onTimeChange={setTime} placeholder="Válassz időt" />
+
+// Combined date and time picker
+<DateTimePicker date={dateTime} onSelect={setDateTime} showTime={true} />
+```
+
+**Features:**
+- 24-hour time format (HH:mm) - no AM/PM
+- Hungarian localization (yyyy. MM. dd.)
+- Built-in "Ma" (Today) and "Most" (Now) buttons
+- Keyboard accessibility
+- Form validation support
+
+See [Date/Time Picker Guide](./docs/DATE_TIME_PICKER_GUIDE.md) for complete documentation and migration instructions.
 
 ## 🤝 Contributing
 

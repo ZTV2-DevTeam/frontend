@@ -11,10 +11,12 @@ import { ApiErrorFallback } from "@/components/api-error-fallback"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Calendar, MapPin, Users, Star, Filter, Grid3X3, List, Music, Camera, Eye, Loader2, AlertCircle } from "lucide-react"
+import { Calendar, MapPin, Users, Star, Filter, Grid3X3, List, Music, Camera, Eye, Loader2, AlertCircle, Plus } from "lucide-react"
 import Link from "next/link"
 import { format } from "date-fns"
 import { hu } from "date-fns/locale"
+import { useUserRole } from "@/contexts/user-role-context"
+import { usePermissions } from "@/contexts/permissions-context"
 
 // Date helper for better formatting
 const formatSessionDate = (dateStr: string) => {
@@ -43,6 +45,8 @@ export default function FilmingSessionsPage() {
   
   // Context hooks
   const { user, isAuthenticated } = useAuth()
+  const { currentRole } = useUserRole()
+  const { hasPermission, permissions } = usePermissions()
   
   // API queries
   const filmingQuery = useApiQuery(
@@ -79,6 +83,11 @@ export default function FilmingSessionsPage() {
 
   // Combined loading state
   const loading = sessionsLoading || assignmentsLoading
+
+  // Permission check - students can only create 'rendes', admins can create any type
+  const classDisplayName = permissions?.role_info?.class_display_name || permissions?.role_info?.class_assignment?.display_name
+  const is10FStudent = currentRole === 'student' && classDisplayName === '10F'
+  const canCreateForgatás = hasPermission('can_create_forgatas') || hasPermission('is_admin') || currentRole === 'admin' || is10FStudent
 
   // Create a map of assignments by filming session ID for quick lookup
   const assignmentMap = useMemo(() => {
@@ -444,6 +453,16 @@ export default function FilmingSessionsPage() {
             </div>
 
             <div className="flex items-center gap-2">
+              {/* Create New Button */}
+              {canCreateForgatás && (
+                <Link href="/app/forgatasok/uj">
+                  <Button size="sm" className="flex items-center gap-2">
+                    <Plus className="h-4 w-4" />
+                    <span className="hidden sm:inline">Új forgatás</span>
+                  </Button>
+                </Link>
+              )}
+
               {/* View Mode Toggle */}
               <div className="flex items-center border border-border/50 rounded-lg p-1 bg-background/50">
                 <Button
