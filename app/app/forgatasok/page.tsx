@@ -81,8 +81,35 @@ export default function FilmingSessionsPage() {
 
   const { data: assignmentsData = [], loading: assignmentsLoading } = assignmentsQueries
 
+  // Fetch detailed user information for all crew members
+  const userDetailsQueries = useApiQuery(
+    () => {
+      if (!isAuthenticated || !assignmentsData || assignmentsData.length === 0) return Promise.resolve([])
+      
+      // Collect all unique user IDs from all assignments
+      const userIds = new Set<number>()
+      assignmentsData.forEach((assignment: BeosztasSchema | null) => {
+        if (assignment?.szerepkor_relaciok) {
+          assignment.szerepkor_relaciok.forEach((relation: any) => {
+            userIds.add(relation.user.id)
+          })
+        }
+      })
+      
+      // Fetch detailed info for all users
+      return Promise.all(
+        Array.from(userIds).map(userId => 
+          apiClient.getUserDetails(userId).catch(() => null) // Handle errors gracefully
+        )
+      )
+    },
+    [isAuthenticated, assignmentsData]
+  )
+
+  const { data: userDetailsList = [], loading: usersLoading } = userDetailsQueries
+
   // Combined loading state
-  const loading = sessionsLoading || assignmentsLoading
+  const loading = sessionsLoading || assignmentsLoading || usersLoading
 
   // Permission check - students can only create 'rendes', admins can create any type
   const classDisplayName = permissions?.role_info?.class_display_name || permissions?.role_info?.class_assignment?.display_name
@@ -119,12 +146,33 @@ export default function FilmingSessionsPage() {
     const assignment = getSessionAssignment(sessionId)
     if (!assignment) return false
     
-    // Consider a session "live" if it's finalized and happening today
-    const today = new Date()
-    const sessionDate = new Date(assignment.forgatas.date)
-    const isToday = sessionDate.toDateString() === today.toDateString()
+    // Only finalized sessions can be live
+    if (!assignment.kesz) return false
     
-    return assignment.kesz && isToday
+    const now = new Date()
+    const sessionDate = new Date(assignment.forgatas.date)
+    
+    // Check if it's the same date
+    const isToday = sessionDate.toDateString() === now.toDateString()
+    if (!isToday) return false
+    
+    // Check if the session is currently happening (between start and end time)
+    if (assignment.forgatas.time_from && assignment.forgatas.time_to) {
+      const [startHour, startMin] = assignment.forgatas.time_from.split(':').map(Number)
+      const [endHour, endMin] = assignment.forgatas.time_to.split(':').map(Number)
+      
+      const startTime = new Date(sessionDate)
+      startTime.setHours(startHour, startMin, 0, 0)
+      
+      const endTime = new Date(sessionDate)
+      endTime.setHours(endHour, endMin, 0, 0)
+      
+      // Session is live if current time is between start and end
+      return now >= startTime && now <= endTime
+    }
+    
+    // If no time specified, consider it live all day if it's today and finalized
+    return true
   }
 
   const getSessionCrewData = (sessionId: number) => {
@@ -134,14 +182,30 @@ export default function FilmingSessionsPage() {
     return {
       count: assignment.student_count,
       roles: assignment.roles_summary,
-      crewMembers: assignment.szerepkor_relaciok.map(relation => ({
-        id: relation.user.id,
-        name: relation.user.full_name || `${relation.user.first_name} ${relation.user.last_name}`,
-        role: relation.szerepkor.name,
-        // We don't have detailed user info here, but we have basic info
-        class: 'N/A', // Would need separate API call for details
-        team: relation.user.username?.includes('A') ? 'A' : 'B'
-      }))
+      crewMembers: assignment.szerepkor_relaciok.map(relation => {
+        // Find detailed user information
+        const userDetails = userDetailsList?.find((user: any) => user?.id === relation.user.id)
+        
+        // Extract class from username as fallback if detailed info not available
+        const extractClassFromUsername = (username: string) => {
+          const match = username.match(/^(\d{1,2}[a-zA-Z]+)_/)
+          if (match) {
+            return match[1].toUpperCase()
+          }
+          return null
+        }
+
+        const extractedClass = extractClassFromUsername(relation.user.username)
+        
+        return {
+          id: relation.user.id,
+          name: relation.user.full_name || `${relation.user.first_name} ${relation.user.last_name}`,
+          role: relation.szerepkor.name,
+          class: userDetails?.osztaly_name || extractedClass || 'Osztály nincs megadva',
+          team: relation.user.username?.includes('a') ? 'A' : 
+                relation.user.username?.includes('b') ? 'B' : undefined
+        }
+      })
     }
   }
 

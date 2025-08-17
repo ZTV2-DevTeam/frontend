@@ -22,11 +22,6 @@ import { apiClient } from "@/lib/api"
 import type { ForgatCreateSchema, PartnerSchema, ContactPersonSchema, ForgatoTipusSchema, ReporterSchema, KacsaAvailableSchema } from "@/lib/api"
 import { DatePicker, TimePicker } from "@/components/ui/date-time-components"
 import {
-  reporters,
-  locations,
-  contacts,
-  kacsaShootings,
-  shootingTypes,
   getCurrentSchoolYear,
   getSchoolYearFromDate,
 } from "@/lib/config/form-data"
@@ -174,14 +169,36 @@ export default function NewShooting() {
       if (!formData.name.trim()) {
         throw new Error("A forgatás neve kötelező")
       }
+      if (!formData.description.trim()) {
+        throw new Error("A leírás kötelező")
+      }
       if (!formData.date) {
         throw new Error("A dátum kötelező")
       }
       if (!formData.startTime.trim()) {
         throw new Error("A kezdési idő kötelező")
       }
+      if (!formData.endTime.trim()) {
+        throw new Error("A befejezés ideje kötelező")
+      }
       if (!formData.type) {
         throw new Error("A forgatás típusa kötelező")
+      }
+
+      // Validate API-dependent fields
+      if (studentsError) {
+        throw new Error("A riporter mező jelenleg nem elérhető API hiba miatt. Próbálja újra később.")
+      }
+      if (!formData.reporterId && reporterOptions.length === 0) {
+        throw new Error("Nincs elérhető riporter a rendszerben")
+      }
+      if (!formData.reporterId) {
+        throw new Error("A riporter kiválasztása kötelező")
+      }
+
+      // Validate location (this should be available due to critical error handling above)
+      if (!formData.locationId) {
+        throw new Error("A helyszín kiválasztása kötelező")
       }
 
       // Convert form data to API format with Django-compatible formatting
@@ -253,55 +270,46 @@ export default function NewShooting() {
     handleInputChange("date", today)
   }
 
-  // Transform data for comboboxes - use real API data where available
+  // Transform data for comboboxes with proper error handling
   
-  // Use real API data for students/reporters, fallback to mock data
-  const reporterOptions = students && students.length > 0 ? students.map((student: ReporterSchema) => ({
+  // Reporters - only show if API data is available
+  const reporterOptions = students && !studentsError ? students.map((student: ReporterSchema) => ({
     value: student.id.toString(),
     label: student.full_name,
     description: `${student.osztaly_display} • ${student.is_experienced ? 'Tapasztalt' : 'Új'} riporter`,
-  })) : reporters.map((r) => ({
-    value: r.id,
-    label: r.name,
-    description: `${r.class} • ${r.email}`,
-  }))
+  })) : []
 
-  // Use real API data for partners (locations)
-  const locationOptions = partners ? partners.map((partner: PartnerSchema) => ({
+  // Locations - only show if API data is available
+  const locationOptions = partners && !partnersError ? partners.map((partner: PartnerSchema) => ({
     value: partner.id.toString(),
     label: partner.name,
     description: `${partner.institution || 'Partnerintézmény'} • ${partner.address || 'Cím nincs megadva'}`,
-  })) : locations.map((l) => ({
-    value: l.id,
-    label: l.name,
-    description: `${l.address} • ${l.type === "internal" ? "Belső" : "Külső"}`,
-  }))
+  })) : []
 
-  // Use real API data for contact persons
-  const contactOptions = contactPersons ? contactPersons.map((contact: ContactPersonSchema) => ({
+  // Contact persons - only show if API data is available
+  const contactOptions = contactPersons && !contactPersonsError ? contactPersons.map((contact: ContactPersonSchema) => ({
     value: contact.id.toString(),
     label: contact.name,
     description: `${contact.email || 'Email nincs megadva'} • ${contact.phone || 'Telefon nincs megadva'}`,
-  })) : contacts.map((c) => ({
-    value: c.id,
-    label: c.name,
-    description: `${c.organization} • ${c.phone}`,
-  }))
+  })) : []
 
-  // Use real API data for KaCsa sessions, fallback to mock data
-  const kacsaOptions = kacsaSessions && kacsaSessions.length > 0 ? kacsaSessions.map((kacsa: KacsaAvailableSchema) => ({
+  // KaCsa sessions - only show if API data is available
+  const kacsaOptions = kacsaSessions && !kacsaError ? kacsaSessions.map((kacsa: KacsaAvailableSchema) => ({
     value: kacsa.id.toString(),
     label: kacsa.name,
     description: `${kacsa.date} • ${kacsa.can_link ? 'Linkelhető' : 'Már hozzárendelve'}`,
-  })) : kacsaShootings.map((k) => ({
-    value: k.id,
-    label: k.title,
-    description: `${k.date} • ${k.week === "first" ? "Első" : "Második"} hét`,
-  }))
+  })) : []
 
   // Filter shooting types based on role - use real API data where available
   const availableShootingTypes = useMemo(() => {
-    const types = filmingTypes && filmingTypes.length > 0 ? filmingTypes : shootingTypes
+    if (typesError || !filmingTypes) {
+      // Return minimal default types if API fails
+      return [
+        { value: 'rendes', label: 'Rendes forgatás', description: 'Normál forgatási típus' }
+      ]
+    }
+    
+    const types = filmingTypes
     
     if (currentRole === 'admin' || hasPermission('is_admin')) {
       return types
@@ -309,13 +317,17 @@ export default function NewShooting() {
       // Students can only create 'rendes' type
       return types.filter((type: any) => type.value === 'rendes')
     }
-  }, [filmingTypes, currentRole, hasPermission])
+  }, [filmingTypes, typesError, currentRole, hasPermission])
 
   const selectedType = availableShootingTypes.find((t: any) => t.value === formData.type)
   const showKacsaConnection = formData.type === "rendes"
 
-  // Handle API errors
-  if (partnersError || contactPersonsError || typesError) {
+  // Handle critical API errors (those that prevent form functionality)
+  const criticalErrors = []
+  if (partnersError) criticalErrors.push("Helyszínek betöltése sikertelen")
+  if (typesError) criticalErrors.push("Forgatás típusok betöltése sikertelen")
+  
+  if (criticalErrors.length > 0) {
     return (
       <StandardizedLayout>
         <div className="space-y-6 animate-in fade-in-50 duration-500">
@@ -332,9 +344,14 @@ export default function NewShooting() {
             <CardContent className="p-6">
               <div className="text-center">
                 <div className="h-12 w-12 mx-auto text-destructive mb-4">⚠️</div>
-                <p className="text-lg font-medium text-destructive">Hiba történt az adatok betöltésekor</p>
-                <p className="text-sm text-muted-foreground mt-2">
-                  {partnersError || contactPersonsError || typesError}
+                <p className="text-lg font-medium text-destructive">Kritikus adatok betöltése sikertelen</p>
+                <div className="text-sm text-muted-foreground mt-2">
+                  {criticalErrors.map((error, index) => (
+                    <div key={index}>• {error}</div>
+                  ))}
+                </div>
+                <p className="text-sm text-muted-foreground mt-4">
+                  Ezek az adatok szükségesek a forgatás létrehozásához.
                 </p>
                 <Button 
                   onClick={() => window.location.reload()} 
@@ -370,6 +387,28 @@ export default function NewShooting() {
               <p className="text-sm text-muted-foreground">Új forgatás létrehozása a rendszerben</p>
             </div>
           </div>
+
+          {/* API Status Warnings */}
+          {(studentsError || contactPersonsError || kacsaError) && (
+            <Card className="border-amber-500/50 bg-amber-500/10">
+              <CardContent className="p-4">
+                <div className="flex items-start gap-3">
+                  <div className="text-amber-500 text-lg">⚠️</div>
+                  <div className="flex-1">
+                    <p className="font-medium text-amber-800">Néhány mező jelenleg nem elérhető</p>
+                    <div className="text-sm text-amber-700 mt-1 space-y-1">
+                      {studentsError && <div>• Riporterek betöltése sikertelen</div>}
+                      {contactPersonsError && <div>• Kapcsolattartók betöltése sikertelen</div>}
+                      {kacsaError && <div>• KaCsa forgatások betöltése sikertelen</div>}
+                    </div>
+                    <p className="text-sm text-amber-700 mt-2">
+                      Ezek a mezők opcionálisak vagy később módosíthatók. A forgatás továbbra is létrehozható.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Basic Information */}
@@ -418,7 +457,7 @@ export default function NewShooting() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="description">Leírás</Label>
+                  <Label htmlFor="description">Leírás *</Label>
                   <Textarea
                     id="description"
                     placeholder="A forgatás részletes leírása (maximum 500 karakter)"
@@ -427,6 +466,7 @@ export default function NewShooting() {
                     maxLength={500}
                     className="bg-transparent resize-none"
                     rows={3}
+                    required
                   />
                   <div className="text-xs text-muted-foreground text-right">
                     {formData.description.length}/500 karakter
@@ -442,13 +482,43 @@ export default function NewShooting() {
 
                   <div className="space-y-2">
                     <Label htmlFor="reporter">Riporter *</Label>
-                    <Combobox
-                      options={reporterOptions}
-                      value={formData.reporterId}
-                      onValueChange={(value) => handleInputChange("reporterId", value)}
-                      placeholder="Válassz riportert..."
-                      searchPlaceholder="Riporter keresése..."
-                    />
+                    {studentsError ? (
+                      <div className="space-y-2">
+                        <div className="p-3 text-sm text-amber-800 bg-amber-100 border border-amber-300 rounded-md">
+                          ⚠️ Riporterek betöltése sikertelen. Ez a mező jelenleg nem használható.
+                        </div>
+                        <input 
+                          disabled 
+                          placeholder="Riporterek betöltése sikertelen" 
+                          className="w-full px-3 py-2 border border-destructive/30 rounded-md bg-destructive/10 text-destructive cursor-not-allowed"
+                        />
+                      </div>
+                    ) : studentsLoading ? (
+                      <div className="space-y-2">
+                        <div className="w-full px-3 py-2 border rounded-md bg-muted animate-pulse">
+                          Riporterek betöltése...
+                        </div>
+                      </div>
+                    ) : reporterOptions.length === 0 ? (
+                      <div className="space-y-2">
+                        <div className="p-3 text-sm text-amber-800 bg-amber-100 border border-amber-300 rounded-md">
+                          ℹ️ Nincs elérhető riporter a rendszerben.
+                        </div>
+                        <input 
+                          disabled 
+                          placeholder="Nincs elérhető riporter" 
+                          className="w-full px-3 py-2 border border-muted rounded-md bg-muted text-muted-foreground cursor-not-allowed"
+                        />
+                      </div>
+                    ) : (
+                      <Combobox
+                        options={reporterOptions}
+                        value={formData.reporterId}
+                        onValueChange={(value) => handleInputChange("reporterId", value)}
+                        placeholder="Válassz riportert..."
+                        searchPlaceholder="Riporter keresése..."
+                      />
+                    )}
                   </div>
                 </div>
               </CardContent>
@@ -485,7 +555,7 @@ export default function NewShooting() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="endTime">Befejezés ideje</Label>
+                    <Label htmlFor="endTime">Befejezés ideje *</Label>
                     <TimePicker
                       time={formData.endTime}
                       onTimeChange={(time) => handleTimeChange("endTime", time)}
@@ -520,13 +590,43 @@ export default function NewShooting() {
 
                   <div className="space-y-2">
                     <Label htmlFor="contact">Kapcsolattartó</Label>
-                    <Combobox
-                      options={contactOptions}
-                      value={formData.contactId}
-                      onValueChange={(value) => handleInputChange("contactId", value)}
-                      placeholder="Válassz kapcsolattartót..."
-                      searchPlaceholder="Kapcsolattartó keresése..."
-                    />
+                    {contactPersonsError ? (
+                      <div className="space-y-2">
+                        <div className="p-3 text-sm text-amber-800 bg-amber-100 border border-amber-300 rounded-md">
+                          ⚠️ Kapcsolattartók betöltése sikertelen. Ez a mező jelenleg nem használható.
+                        </div>
+                        <input 
+                          disabled 
+                          placeholder="Kapcsolattartók betöltése sikertelen" 
+                          className="w-full px-3 py-2 border border-destructive/30 rounded-md bg-destructive/10 text-destructive cursor-not-allowed"
+                        />
+                      </div>
+                    ) : contactPersonsLoading ? (
+                      <div className="space-y-2">
+                        <div className="w-full px-3 py-2 border rounded-md bg-muted animate-pulse">
+                          Kapcsolattartók betöltése...
+                        </div>
+                      </div>
+                    ) : contactOptions.length === 0 ? (
+                      <div className="space-y-2">
+                        <div className="p-3 text-sm text-blue-800 bg-blue-100 border border-blue-300 rounded-md">
+                          ℹ️ Nincs elérhető kapcsolattartó. Ez opcionális mező.
+                        </div>
+                        <input 
+                          disabled 
+                          placeholder="Nincs elérhető kapcsolattartó" 
+                          className="w-full px-3 py-2 border border-muted rounded-md bg-muted text-muted-foreground cursor-not-allowed"
+                        />
+                      </div>
+                    ) : (
+                      <Combobox
+                        options={contactOptions}
+                        value={formData.contactId}
+                        onValueChange={(value) => handleInputChange("contactId", value)}
+                        placeholder="Válassz kapcsolattartót..."
+                        searchPlaceholder="Kapcsolattartó keresése..."
+                      />
+                    )}
                   </div>
                 </div>
               </CardContent>
@@ -545,13 +645,43 @@ export default function NewShooting() {
                 <CardContent>
                   <div className="space-y-2">
                     <Label htmlFor="relatedKacsa">Kapcsolódó KaCsa</Label>
-                    <Combobox
-                      options={kacsaOptions}
-                      value={formData.relatedKacsaId}
-                      onValueChange={(value) => handleInputChange("relatedKacsaId", value)}
-                      placeholder="Válassz KaCsa forgatást..."
-                      searchPlaceholder="KaCsa keresése..."
-                    />
+                    {kacsaError ? (
+                      <div className="space-y-2">
+                        <div className="p-3 text-sm text-amber-800 bg-amber-100 border border-amber-300 rounded-md">
+                          ⚠️ KaCsa forgatások betöltése sikertelen. Ez a mező jelenleg nem használható.
+                        </div>
+                        <input 
+                          disabled 
+                          placeholder="KaCsa forgatások betöltése sikertelen" 
+                          className="w-full px-3 py-2 border border-destructive/30 rounded-md bg-destructive/10 text-destructive cursor-not-allowed"
+                        />
+                      </div>
+                    ) : kacsaLoading ? (
+                      <div className="space-y-2">
+                        <div className="w-full px-3 py-2 border rounded-md bg-muted animate-pulse">
+                          KaCsa forgatások betöltése...
+                        </div>
+                      </div>
+                    ) : kacsaOptions.length === 0 ? (
+                      <div className="space-y-2">
+                        <div className="p-3 text-sm text-blue-800 bg-blue-100 border border-blue-300 rounded-md">
+                          ℹ️ Nincs linkelhető KaCsa forgatás. Ez opcionális mező.
+                        </div>
+                        <input 
+                          disabled 
+                          placeholder="Nincs linkelhető KaCsa forgatás" 
+                          className="w-full px-3 py-2 border border-muted rounded-md bg-muted text-muted-foreground cursor-not-allowed"
+                        />
+                      </div>
+                    ) : (
+                      <Combobox
+                        options={kacsaOptions}
+                        value={formData.relatedKacsaId}
+                        onValueChange={(value) => handleInputChange("relatedKacsaId", value)}
+                        placeholder="Válassz KaCsa forgatást..."
+                        searchPlaceholder="KaCsa keresése..."
+                      />
+                    )}
                   </div>
                 </CardContent>
               </Card>
