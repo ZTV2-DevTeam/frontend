@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { useUserRole } from "@/contexts/user-role-context"
+import Link from "next/link"
 import { 
   User, 
   Video, 
@@ -122,7 +123,7 @@ export default function StudentGuidePage() {
                     <h4 className="font-medium">Jelentkezz be</h4>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    Kattints a "Bejelentkezés" gombra. Ha első alkalommal jelentkezel be, állíts be egy új jelszót.
+                    Kattints a &quot;Bejelentkezés&quot; gombra. Ha első alkalommal jelentkezel be, állíts be egy új jelszót.
                   </p>
                 </div>
               </div>
@@ -319,17 +320,17 @@ export default function StudentGuidePage() {
                     <h4 className="font-medium">Menj a Forgatások oldalra</h4>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    Kattints a "Forgatások" menüpontra a bal oldali navigációban.
+                    Kattints a &quot;Forgatások&quot; menüpontra a bal oldali navigációban.
                   </p>
                 </div>
 
                 <div className="p-4 border rounded-lg">
                   <div className="flex items-center gap-2 mb-2">
                     <div className="w-6 h-6 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-sm font-bold">2</div>
-                    <h4 className="font-medium">Keresd az "Új forgatás" gombot</h4>
+                    <h4 className="font-medium">Keresd az &quot;Új forgatás&quot; gombot</h4>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    Ha megvan a jogosultságod, látni fogsz egy "Új forgatás" gombot az oldal tetején.
+                    Ha megvan a jogosultságod, látni fogsz egy &quot;Új forgatás&quot; gombot az oldal tetején.
                   </p>
                 </div>
 
@@ -349,7 +350,7 @@ export default function StudentGuidePage() {
                     <h4 className="font-medium">Mentsd el</h4>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    Kattints a "Forgatás létrehozása" gombra. A forgatás létrejön és megjelenik a forgatások listájában.
+                    Kattints a &quot;Forgatás létrehozása&quot; gombra. A forgatás létrejön és megjelenik a forgatások listájában.
                   </p>
                 </div>
               </div>
@@ -372,10 +373,10 @@ export default function StudentGuidePage() {
             <CardContent>
               <div className="grid gap-3 md:grid-cols-4">
                 <Button variant="outline" className="justify-start" asChild>
-                  <a href="/app/forgatasok">
+                  <Link href="/app/forgatasok">
                     <Video className="h-4 w-4 mr-2" />
                     Forgatások
-                  </a>
+                  </Link>
                 </Button>
                 <Button variant="outline" className="justify-start" asChild>
                   <a href="/app/tavollet">

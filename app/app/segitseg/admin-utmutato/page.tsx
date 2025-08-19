@@ -381,7 +381,7 @@ export default function AdminGuidePage() {
                       <h4 className="font-medium">Adatbázis Admin menü</h4>
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      Kattints az "Adatbázis Admin" menüpontra a bal oldali navigációban.
+                      Kattints az &quot;Adatbázis Admin&quot; menüpontra a bal oldali navigációban.
                     </p>
                   </div>
 

@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { useUserRole } from "@/contexts/user-role-context"
+import Link from "next/link"
 import { 
   Shield, 
   Users, 
@@ -332,7 +333,7 @@ export default function AdminGuidePage() {
                       <h4 className="font-medium">Adatbázis Admin menü</h4>
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      Kattints az "Adatbázis Admin" menüpontra a bal oldali navigációban.
+                      Kattints az &quot;Adatbázis Admin&quot; menüpontra a bal oldali navigációban.
                     </p>
                   </div>
 
@@ -361,8 +362,8 @@ export default function AdminGuidePage() {
                       <span className="font-medium">Lépések:</span>
                     </div>
                     <ol className="text-sm text-muted-foreground space-y-2 ml-6">
-                      <li><strong>1.</strong> Menj az "Adatbázis Admin" → "Beosztások" menüpontra</li>
-                      <li><strong>2.</strong> Kattints a "Add Beosztas" (Új hozzáadása) gombra</li>
+                      <li><strong>1.</strong> Menj az &quot;Adatbázis Admin&quot; → &quot;Beosztások&quot; menüpontra</li>
+                      <li><strong>2.</strong> Kattints a &quot;Add Beosztas&quot; (Új hozzáadása) gombra</li>
                       <li><strong>3.</strong> Töltsd ki a kötelező mezőket:
                         <ul className="ml-4 mt-1 space-y-1">
                           <li>• <strong>Forgatas:</strong> Válaszd ki, melyik forgatáshoz tartozik</li>
@@ -389,8 +390,8 @@ export default function AdminGuidePage() {
                       <span className="font-medium">Lépések:</span>
                     </div>
                     <ol className="text-sm text-muted-foreground space-y-2 ml-6">
-                      <li><strong>1.</strong> Menj az "Adatbázis Admin" → "Közlemények" menüpontra</li>
-                      <li><strong>2.</strong> Kattints a "Add Announcement" (Új hozzáadása) gombra</li>
+                      <li><strong>1.</strong> Menj az &quot;Adatbázis Admin&quot; → &quot;Közlemények&quot; menüpontra</li>
+                      <li><strong>2.</strong> Kattints a &quot;Add Announcement&quot; (Új hozzáadása) gombra</li>
                       <li><strong>3.</strong> Töltsd ki a kötelező mezőket:
                         <ul className="ml-4 mt-1 space-y-1">
                           <li>• <strong>Title:</strong> A közlemény címe</li>
@@ -495,9 +496,9 @@ export default function AdminGuidePage() {
                 <h4 className="font-medium text-blue-800 dark:text-blue-200 mb-2">💡 Hasznos tippek</h4>
                 <ul className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
                   <li>• Használd a keresést és szűrőket nagyobb adatmennyiség esetén</li>
-                  <li>• A "Change" linkre kattintva szerkesztheted a meglévő elemeket</li>
+                  <li>• A &quot;Change&quot; linkre kattintva szerkesztheted a meglévő elemeket</li>
                   <li>• A tömeges műveletek (Bulk actions) segítségével egyszerre több elemet kezelhetsz</li>
-                  <li>• Az "Add another" gombbal gyorsan adhatsz hozzá több elemet</li>
+                  <li>• Az &quot;Add another&quot; gombbal gyorsan adhatsz hozzá több elemet</li>
                 </ul>
               </div>
 
@@ -534,10 +535,10 @@ export default function AdminGuidePage() {
                   </a>
                 </Button>
                 <Button variant="outline" className="justify-start" asChild>
-                  <a href="/app/forgatasok">
+                  <Link href="/app/forgatasok">
                     <Video className="h-4 w-4 mr-2" />
                     Forgatások
-                  </a>
+                  </Link>
                 </Button>
                 <Button variant="outline" className="justify-start" asChild>
                   <a href="/app/stab">

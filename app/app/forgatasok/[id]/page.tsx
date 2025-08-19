@@ -2,7 +2,14 @@
 
 import { useState, useMemo } from "react"
 import { AppSidebar } from "@/components/app-sidebar"
-import { SiteHeader } from "@/components/site-header"
+import { Site  const getAssignmentCrewMembers = useMemo(() => {
+    if (!assignment || !assignment.szerepkor_relaciok || !userDetailsList) return []
+    
+    // Convert role relations to crew members with detailed user info
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return assignment.szerepkor_relaciok.map((relation: any) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const userDetails = userDetailsList.find((user: any) => user.id === relation.user.id) } from "@/components/site-header"
 import { useApiQuery } from "@/lib/api-helpers"
 import { apiClient } from "@/lib/api"
 import { useAuth } from "@/contexts/auth-context"

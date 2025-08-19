@@ -5,7 +5,9 @@ import { SiteHeader } from "@/components/site-header"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import                  <p className="text-sm text-muted-foreground">
+                    Kattints a &quot;Forgatás létrehozása&quot; gombra. A forgatás létrejön és megjelenik a forgatások listájában.
+                  </p>Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { useUserRole } from "@/contexts/user-role-context"
 import { 
@@ -122,7 +124,7 @@ export default function StudentGuidePage() {
                     <h4 className="font-medium">Jelentkezz be</h4>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    Kattints a "Bejelentkezés" gombra. Ha első alkalommal jelentkezel be, állíts be egy új jelszót.
+                    Kattints a &quot;Bejelentkezés&quot; gombra. Ha első alkalommal jelentkezel be, állíts be egy új jelszót.
                   </p>
                 </div>
               </div>
@@ -319,17 +321,17 @@ export default function StudentGuidePage() {
                     <h4 className="font-medium">Menj a Forgatások oldalra</h4>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    Kattints a "Forgatások" menüpontra a bal oldali navigációban.
+                    Kattints a &quot;Forgatások&quot; menüpontra a bal oldali navigációban.
                   </p>
                 </div>
 
                 <div className="p-4 border rounded-lg">
                   <div className="flex items-center gap-2 mb-2">
                     <div className="w-6 h-6 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-sm font-bold">2</div>
-                    <h4 className="font-medium">Keresd az "Új forgatás" gombot</h4>
+                    <h4 className="font-medium">Keresd az &quot;Új forgatás&quot; gombot</h4>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    Ha megvan a jogosultságod, látni fogsz egy "Új forgatás" gombot az oldal tetején.
+                    Ha megvan a jogosultságod, látni fogsz egy &quot;Új forgatás&quot; gombot az oldal tetején.
                   </p>
                 </div>
 
