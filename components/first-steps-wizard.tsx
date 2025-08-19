@@ -275,11 +275,21 @@ export function FirstStepsWizard({ onComplete }: FirstStepsWizardProps) {
     }
 
     try {
-      const response = await apiClient.createTeacher(teacher)
+      // Convert Teacher to UserCreateSchema
+      const userData = {
+        username: teacher.email, // Use email as username
+        first_name: teacher.first_name,
+        last_name: teacher.last_name,
+        email: teacher.email,
+        telefonszam: teacher.phone,
+        special_role: teacher.role
+      }
+      
+      const response = await apiClient.createUser(userData)
       const updatedTeachers = [...teachers]
       updatedTeachers[index] = { 
         ...updatedTeachers[index], 
-        id: response.teacher_id,
+        id: response.id.toString(),
         created: true 
       }
       setTeachers(updatedTeachers)
@@ -302,16 +312,16 @@ export function FirstStepsWizard({ onComplete }: FirstStepsWizardProps) {
     if (!teacher.id || !teacher.created) return
 
     try {
-      const response = await apiClient.getTeacherRegistrationLink(teacher.id)
+      const response = await apiClient.generateUserFirstLoginToken(parseInt(teacher.id))
       const updatedTeachers = [...teachers]
       updatedTeachers[index] = { 
         ...updatedTeachers[index], 
-        registration_link: response.registration_link 
+        registration_link: response.token_url 
       }
       setTeachers(updatedTeachers)
       
       // Copy to clipboard
-      await navigator.clipboard.writeText(response.registration_link)
+      await navigator.clipboard.writeText(response.token_url)
       toast({
         title: 'Link másolva',
         description: 'A regisztrációs link a vágólapra került.'
@@ -327,14 +337,15 @@ export function FirstStepsWizard({ onComplete }: FirstStepsWizardProps) {
 
   const sendStudentEmails = async (classData: { startingYear: number, section: string }) => {
     try {
-      const response = await apiClient.sendStudentRegistrationEmails({
-        class_year: classData.startingYear,
-        class_section: classData.section
-      })
+      // TODO: Implement student email sending functionality
+      // const response = await apiClient.sendStudentRegistrationEmails({
+      //   class_year: classData.startingYear,
+      //   class_section: classData.section
+      // })
       
       toast({
-        title: 'E-mailek elküldve',
-        description: `${response.sent_count} diáknak sikeresen elküldve a regisztrációs link.`
+        title: 'Funkció fejlesztés alatt',
+        description: 'A diák e-mail küldés funkció hamarosan elérhető lesz.'
       })
     } catch (error) {
       toast({
