@@ -591,7 +591,7 @@ export default function FilmingSessionDetail({ params }: PageProps) {
                     )}
                     {assignments && assignments.length > 0 && (() => {
                       const sessionAssignment = assignments.find((assignment: BeosztasSchema) => 
-                        assignment.forgatas.id === parseInt(params.id)
+                        assignment.forgatas.id === parseInt(id)
                       )
                       return sessionAssignment && (
                         <Button className="w-full bg-transparent" variant="outline" size="sm">
