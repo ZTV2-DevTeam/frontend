@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, use } from "react"
 import { AppSidebar } from "@/components/app-sidebar"
 import { SiteHeader } from "@/components/site-header"
 import { useApiQuery } from "@/lib/api-helpers"
@@ -39,9 +39,9 @@ import { hu } from "date-fns/locale"
 import { notFound } from "next/navigation"
 
 interface PageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 // Date helper for better formatting
@@ -76,6 +76,7 @@ interface CrewMember {
 }
 
 export default function FilmingSessionDetail({ params }: PageProps) {
+  const { id } = use(params)
   const [selectedCrewMember, setSelectedCrewMember] = useState<CrewMember | null>(null)
   
   // Context hooks
@@ -83,13 +84,13 @@ export default function FilmingSessionDetail({ params }: PageProps) {
   
   // API queries
   const sessionQuery = useApiQuery(
-    () => isAuthenticated ? apiClient.getFilmingSession(parseInt(params.id)) : Promise.resolve(null),
-    [isAuthenticated, params.id]
+    () => isAuthenticated ? apiClient.getFilmingSession(parseInt(id)) : Promise.resolve(null),
+    [isAuthenticated, id]
   )
 
   const assignmentsQuery = useApiQuery(
-    () => isAuthenticated ? apiClient.getFilmingAssignments(parseInt(params.id)) as Promise<BeosztasSchema | null> : Promise.resolve(null),
-    [isAuthenticated, params.id]
+    () => isAuthenticated ? apiClient.getFilmingAssignments(parseInt(id)) as Promise<BeosztasSchema | null> : Promise.resolve(null),
+    [isAuthenticated, id]
   )
 
   const { data: session, loading, error } = sessionQuery
