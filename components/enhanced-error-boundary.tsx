@@ -4,6 +4,7 @@ import React, { Component, ErrorInfo, ReactNode } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { AlertTriangle, RefreshCw, Home, Mail } from 'lucide-react'
+import { CONTACT_CONFIG } from '@/lib/config'
 
 interface Props {
   children: ReactNode
@@ -167,7 +168,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
                   </p>
                 </div>
                 <p className="text-sm text-blue-800 dark:text-blue-200">
-                  Lépjen kapcsolatba a fejlesztőkkel: support@ftv-media.hu
+                  Lépjen kapcsolatba a fejlesztőkkel: {CONTACT_CONFIG.SUPPORT_EMAIL}
                 </p>
               </div>
             </CardContent>

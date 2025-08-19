@@ -222,12 +222,25 @@ function ActiveUsersWidget() {
     }
   }
 
-  // Get user role display
+  // Get user role display - using the same logic as in stab page
   const getUserRoleDisplay = (user: any) => {
-    if (user.admin_type === 'system') return 'Rendszeradmin'
-    if (user.admin_type === 'teacher') return 'Tanár'
+    // Check admin_type first
+    if (user.admin_type === 'system_admin') return 'Rendszeradmin'
+    if (user.admin_type === 'developer') return 'Fejlesztő'
+    if (user.admin_type === 'teacher') return 'Szaktanár'
+    
+    // Check special_role
     if (user.special_role === 'class_teacher') return 'Osztályfőnök'
-    return 'Diák'
+    if (user.special_role === 'production_leader') return 'Gyártásvezető'
+    
+    // If admin_type is 'none' or not set, and no special role, it's a student
+    if ((user.admin_type === 'none' || !user.admin_type) && 
+        (user.special_role === 'none' || !user.special_role)) {
+      return 'Diák'
+    }
+    
+    // Default to unknown for safety if we can't determine the role
+    return 'Ismeretlen'
   }
 
   // Check if user is currently active (last login within 5 minutes)
