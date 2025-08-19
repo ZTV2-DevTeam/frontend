@@ -751,68 +751,6 @@ function QuickActionsWidget() {
   )
 }
 
-function ConfigurationWizardWidget() {
-  const router = useRouter()
-  const { currentRole } = useUserRole()
-  
-  // Only show for admins
-  if (currentRole !== 'admin') {
-    return null
-  }
-
-  return (
-    <Card className="border-2 border-dashed border-blue-500/20 bg-gradient-to-r from-blue-50/50 via-blue-100/30 to-blue-50/50 dark:from-blue-950/30 dark:via-blue-900/20 dark:to-blue-950/30">
-      <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-500 rounded-lg">
-              <Settings className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <CardTitle className="text-lg">Konfiguráció Varázsló</CardTitle>
-              <CardDescription>Rendszer kezdeti beállítása és adatok feltöltése</CardDescription>
-            </div>
-          </div>
-          <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-950 dark:text-blue-200 dark:border-blue-800">
-            Admin
-          </Badge>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          <div className="p-4 rounded-lg bg-white dark:bg-gray-900 border border-blue-200 dark:border-blue-800">
-            <div className="flex items-start gap-3">
-              <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
-                <FileText className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-              </div>
-              <div className="flex-1">
-                <h4 className="font-medium text-sm mb-1">Adatok feltöltése</h4>
-                <p className="text-xs text-muted-foreground mb-3">
-                  Töltse fel a rendszer működéséhez szükséges alapadatokat: osztályok, stábok, tanárok, diákok.
-                </p>
-                <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
-                  <div>• Osztályok és szekciók</div>
-                  <div>• Stábok és szerepkörök</div>
-                  <div>• Tanárok adatai</div>
-                  <div>• Diákok adatai</div>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <Button 
-            onClick={() => router.push('/app/konfiguracio')}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-          >
-            <Settings className="h-4 w-4 mr-2" />
-            Konfiguráció Varázsló megnyitása
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-  )
-}
-
 // Student Widget Components
 function UpcomingShootingsWidget() {
   const { user, isAuthenticated } = useAuth()
@@ -1224,9 +1162,6 @@ export default function Page() {
           <>
             {/* Quick Actions at the top */}
             <QuickActionsWidget />
-            
-            {/* Configuration Wizard */}
-            <ConfigurationWizardWidget />
             
             {/* First Steps Widget */}
             <FirstStepsWidget />

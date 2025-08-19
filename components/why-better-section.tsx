@@ -25,7 +25,7 @@ const modernFrameworkFeatures: Improvement[] = [
     badges: ["Kevesebb hiba", "Gyors betöltés"]
   },
   {
-    icon: Zap,
+    icon: Shield,
     title: "Mindig Elérhető",
     description: "Szinte soha nem okoz problémát az elérése - megbízhatóan működik akkor is, amikor szükséged van rá.",
     badges: ["99.9% Uptime", "Stabil kapcsolat"]

@@ -67,9 +67,6 @@ export default function TermsOfServicePage() {
                   <p className="text-sm">
                     A regisztráció nem nyilvános és csak a tagozat tanulói számára biztosított.
                   </p>
-                  <div className="p-2 mt-3 text-xs text-blue-800 rounded bg-blue-50 dark:bg-blue-950/20 dark:text-blue-200">
-                    Zárt közösségi platform
-                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -79,21 +76,18 @@ export default function TermsOfServicePage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Shield className="w-5 h-5" />
-                  Felhasználói kötelezettségek
+                  Felhasználói kötelességek
                 </CardTitle>
                 <CardDescription>Elvárások és szabályok</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
                   <ul className="space-y-2 text-sm">
-                    <li>• A platform rendeltetésszerű használata</li>
-                    <li>• Más felhasználók tiszteletben tartása</li>
-                    <li>• Jogellenes tartalom közzétételének tilalma</li>
-                    <li>• Hozzáférési adatok bizalmasan kezelése</li>
+                    <li>• A felhasználók kötelesek a platformot a rendeltetése szerint használni</li>
+                    <li>• Tilos jogellenes, mások jogait sértő vagy obszcén tartalmat közzétenni, minden tartalmat abban a tudatban kell közzétenni, hogy azokat szaktanárok, osztályfőnökök és más diákok is láthatják.</li>
+                    <li>• Minden felhasználó köteles a saját hozzáférési adatait bizalmasan kezelni.</li>
+                    <li>• Informatikai rendszerek hibáit és hiányosságait kihasználni szigorúan tilos. Amennyiben a felhasználó tudomására jut ilyen módszer, azt haladéktalanul jelenteni kell a rendszergazdának.</li>
                   </ul>
-                  <div className="p-2 mt-3 text-xs text-green-800 rounded bg-green-50 dark:bg-green-950/20 dark:text-green-200">
-                    Közösségi irányelvek betartása
-                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -115,9 +109,6 @@ export default function TermsOfServicePage() {
                   <p className="text-sm">
                     A tartalmak engedély nélküli felhasználása tilos és jogi következményekkel járhat.
                   </p>
-                  <div className="p-2 mt-3 text-xs rounded text-amber-800 bg-amber-50 dark:bg-amber-950/20 dark:text-amber-200">
-                    Szerzői jogok védve
-                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -137,11 +128,8 @@ export default function TermsOfServicePage() {
                     A szolgáltató nem vállal felelősséget a platform használatából eredő esetleges károkért.
                   </p>
                   <p className="text-sm">
-                    Kivétel: jogszabály által előírt esetek és szándékos károkozás.
+                    Kivétel: szándékos károkozás.
                   </p>
-                  <div className="p-2 mt-3 text-xs text-red-800 rounded bg-red-50 dark:bg-red-950/20 dark:text-red-200">
-                    Korlátozott felelősség
-                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -163,9 +151,6 @@ export default function TermsOfServicePage() {
                   <p className="text-sm">
                     A módosításokról a felhasználók előzetes értesítést kapnak.
                   </p>
-                  <div className="p-2 mt-3 text-xs text-purple-800 rounded bg-purple-50 dark:bg-purple-950/20 dark:text-purple-200">
-                    Előzetes értesítés garantált
-                  </div>
                 </div>
               </CardContent>
             </Card>

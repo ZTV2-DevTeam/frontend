@@ -26,6 +26,17 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "FTV (BETA)",
   description: "FTV Adminisztációs felület - Early Access BETA verzió",
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+    viewportFit: "cover"
+  },
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "oklch(0.929 0.013 255.508)" },
+    { media: "(prefers-color-scheme: dark)", color: "oklch(1 0 0 / 10%)" }
+  ]
 };
 
 export default function RootLayout({
@@ -54,7 +65,9 @@ export default function RootLayout({
                     <RoleSynchronizer />
                     <ConnectionStatus showText={false} />
                     <div className="relative flex min-h-screen flex-col">
-                      {children}
+                      <div className="transition-opacity duration-500 ease-in-out opacity-100" id="page-transition">
+                        {children}
+                      </div>
                     </div>
                   </UserRoleProvider>
                 </PermissionsProvider>

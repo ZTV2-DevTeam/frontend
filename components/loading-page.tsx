@@ -5,7 +5,7 @@ import { SimpleLoading, LoadingOverlay } from '@/components/simple-loading'
 import { EnhancedLoading } from '@/components/enhanced-loading'
 import { Card, CardContent } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
-import { Sparkles, Zap, Shield, Server } from 'lucide-react'
+import { Sparkles, Shield, Server } from 'lucide-react'
 
 interface LoadingPageProps {
   variant?: 'simple' | 'enhanced' | 'splash' | 'progress'
@@ -139,7 +139,7 @@ export function LoadingPage({
         {/* Animated Logo */}
         <div className="relative">
           <div className="w-24 h-24 mx-auto rounded-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-2xl">
-            <Zap className="h-12 w-12 text-primary-foreground animate-pulse" />
+            <Sparkles className="h-12 w-12 text-primary-foreground animate-pulse" />
           </div>
           <div className="absolute inset-0 w-24 h-24 mx-auto rounded-full border-4 border-primary/20 animate-ping" />
         </div>

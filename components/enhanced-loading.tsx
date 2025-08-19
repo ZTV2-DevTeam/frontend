@@ -158,7 +158,7 @@ export function EnhancedLoading({
         </div>
         
         <div className="flex items-start gap-3 p-3 rounded-lg bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 border border-green-100 dark:border-green-800">
-          <Zap className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+          <Wifi className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
           <div>
             <p className="font-semibold text-green-900 dark:text-green-100">Hálózati kapcsolat</p>
             <p className="text-green-800 dark:text-green-200">Ellenőrizze az internetkapcsolatot, ha a betöltés túl sokáig tart.</p>
