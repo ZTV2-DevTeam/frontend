@@ -147,10 +147,10 @@ export default function MessageBoardPage() {
                 Közlemények és bejelentések • {sortedAnnouncements.length} üzenet
               </p>
             </div>
-            <Button>
+            {/* <Button>
               <Plus className="h-4 w-4 mr-2" />
               Új közlemény
-            </Button>
+            </Button> */}
           </div>
 
           {/* Filters */}

@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { useUserRole } from "@/contexts/user-role-context"
+import Link from "next/link"
 import { 
   Shield, 
   Users, 
@@ -409,8 +410,8 @@ export default function AdminGuidePage() {
                       <span className="font-medium">Lépések:</span>
                     </div>
                     <ol className="text-sm text-muted-foreground space-y-2 ml-6">
-                      <li><strong>1.</strong> Menj az "API" → "Beosztások" menüpontra</li>
-                      <li><strong>2.</strong> Kattints a "Beosztás hozzáadása" gombra</li>
+                      <li><strong>1.</strong> Menj az &quot;API&quot; → &quot;Beosztások&quot; menüpontra</li>
+                      <li><strong>2.</strong> Kattints a &quot;Beosztás hozzáadása&quot; gombra</li>
                       <li><strong>3.</strong> Töltsd ki a mezőket:
                         <ul className="ml-4 mt-1 space-y-1">
                           <li>• <strong>Kész:</strong> Jelöld be, ha a beosztás végleges</li>
@@ -420,7 +421,7 @@ export default function AdminGuidePage() {
                           <li>• <strong>Forgatás:</strong> Válaszd ki, melyik forgatáshoz tartozik</li>
                         </ul>
                       </li>
-                      <li><strong>4.</strong> Kattints a "Mentés" gombra</li>
+                      <li><strong>4.</strong> Kattints a &quot;Mentés&quot; gombra</li>
                     </ol>
                   </div>
                 </div>
@@ -439,8 +440,8 @@ export default function AdminGuidePage() {
                       <span className="font-medium">Lépések:</span>
                     </div>
                     <ol className="text-sm text-muted-foreground space-y-2 ml-6">
-                      <li><strong>1.</strong> Menj az "API" → "Közlemények" menüpontra</li>
-                      <li><strong>2.</strong> Kattints a "Közlemény hozzáadása" gombra</li>
+                      <li><strong>1.</strong> Menj az &quot;API&quot; → &quot;Közlemények&quot; menüpontra</li>
+                      <li><strong>2.</strong> Kattints a &quot;Közlemény hozzáadása&quot; gombra</li>
                       <li><strong>3.</strong> Töltsd ki a mezőket:
                         <ul className="ml-4 mt-1 space-y-1">
                           <li>• <strong>Szerző:</strong> Válaszd ki, ki írja a közleményt</li>
@@ -449,7 +450,7 @@ export default function AdminGuidePage() {
                           <li>• <strong>Címzettek:</strong> Válaszd ki, kik kapják meg (üresen hagyva mindenki kapja)</li>
                         </ul>
                       </li>
-                      <li><strong>4.</strong> Kattints a "Mentés" gombra</li>
+                      <li><strong>4.</strong> Kattints a &quot;Mentés&quot; gombra</li>
                     </ol>
                   </div>
                 </div>
@@ -594,10 +595,10 @@ export default function AdminGuidePage() {
                 <h4 className="font-medium text-blue-800 dark:text-blue-200 mb-2">💡 Hasznos tippek</h4>
                 <ul className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
                   <li>• Használd a keresést és szűrőket nagyobb adatmennyiség esetén</li>
-                  <li>• A "Módosítás" linkre kattintva szerkesztheted a meglévő elemeket</li>
+                  <li>• A &quot;Módosítás&quot; linkre kattintva szerkesztheted a meglévő elemeket</li>
                   <li>• A tömeges műveletek segítségével egyszerre több elemet kezelhetsz</li>
-                  <li>• Az "Újabb hozzáadása" gombbal gyorsan adhatsz hozzá több elemet</li>
-                  <li>• A "Történet" fülön láthatod, ki mit változtatott</li>
+                  <li>• Az &quot;Újabb hozzáadása&quot; gombbal gyorsan adhatsz hozzá több elemet</li>
+                  <li>• A &quot;Történet&quot; fülön láthatod, ki mit változtatott</li>
                 </ul>
               </div>
 
@@ -608,7 +609,7 @@ export default function AdminGuidePage() {
                   <li>• A kapcsolatok (dropdown menük) helyesen vannak beállítva?</li>
                   <li>• A dátumok és időpontok megfelelőek?</li>
                   <li>• A felhasználók jogosultságai helyesek?</li>
-                  <li>• A beosztás "Kész" jelölése megfelelő?</li>
+                  <li>• A beosztás &quot;Kész&quot; jelölése megfelelő?</li>
                 </ul>
               </div>
 
@@ -616,9 +617,9 @@ export default function AdminGuidePage() {
                 <h4 className="font-medium text-purple-800 dark:text-purple-200 mb-2">🔍 Django admin tippek</h4>
                 <ul className="text-sm text-purple-700 dark:text-purple-300 space-y-1">
                   <li>• A magyar felület miatt a menük magyarul jelennek meg</li>
-                  <li>• Automatikus mentés nincs - mindig kattints a "Mentés" gombra</li>
-                  <li>• Ha egy kapcsolódó elemet szeretnél létrehozni, használd a "+" gombot</li>
-                  <li>• A "Mentés és újabb hozzáadása" gombbal folytathatod a munkát</li>
+                  <li>• Automatikus mentés nincs - mindig kattints a &quot;Mentés&quot; gombra</li>
+                  <li>• Ha egy kapcsolódó elemet szeretnél létrehozni, használd a &quot;+&quot; gombot</li>
+                  <li>• A &quot;Mentés és újabb hozzáadása&quot; gombbal folytathatod a munkát</li>
                   <li>• A hiányzások automatikusan létrejönnek a beosztások alapján</li>
                 </ul>
               </div>
@@ -634,28 +635,28 @@ export default function AdminGuidePage() {
             <CardContent>
               <div className="grid gap-3 md:grid-cols-4">
                 <Button variant="outline" className="justify-start" asChild>
-                  <a href="/app/iranyitopult">
+                  <Link href="/app/iranyitopult">
                     <Home className="h-4 w-4 mr-2" />
                     Irányítópult
-                  </a>
+                  </Link>
                 </Button>
                 <Button variant="outline" className="justify-start" asChild>
-                  <a href="/app/database-admin">
+                  <Link href="/app/database-admin">
                     <Database className="h-4 w-4 mr-2" />
                     Django Admin
-                  </a>
+                  </Link>
                 </Button>
                 <Button variant="outline" className="justify-start" asChild>
-                  <a href="/app/forgatasok">
+                  <Link href="/app/forgatasok">
                     <Video className="h-4 w-4 mr-2" />
                     Forgatások
-                  </a>
+                  </Link>
                 </Button>
                 <Button variant="outline" className="justify-start" asChild>
-                  <a href="/app/stab">
+                  <Link href="/app/stab">
                     <Users className="h-4 w-4 mr-2" />
                     Stáb
-                  </a>
+                  </Link>
                 </Button>
               </div>
             </CardContent>

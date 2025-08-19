@@ -193,10 +193,10 @@ export default function CalendarPage() {
                   Lista
                 </Button>
               </div>
-              <Button>
+              {/* <Button>
                 <Plus className="h-4 w-4 mr-2" />
                 Új forgatás
-              </Button>
+              </Button> */}
             </div>
           </div>
 

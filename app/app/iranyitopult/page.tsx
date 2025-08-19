@@ -363,284 +363,40 @@ function ActiveUsersWidget() {
 }
 
 function PendingForgatásokWidget() {
-  const { isAuthenticated } = useAuth()
-  const { data: filmingData, loading, error } = useApiQuery(
-    () => isAuthenticated ? apiClient.getFilmingSessions() : Promise.resolve([]),
-    [isAuthenticated]
-  )
-  
-  // Also fetch filming assignments to determine which sessions are pending
-  const { data: assignmentsData } = useApiQuery(
-    () => isAuthenticated ? apiClient.getFilmingAssignments() : Promise.resolve([]),
-    [isAuthenticated]
-  )
-  
-  const router = useRouter()
-
-  if (loading) {
-    return (
-      <Card>
-        <CardHeader className="pb-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg">
-                <AlertCircle className="h-5 w-5 text-white" />
-              </div>
-              <div>
-                <CardTitle className="text-lg">Függő Forgatások</CardTitle>
-                <CardDescription>Beosztásra váró munkák betöltése...</CardDescription>
-              </div>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="flex items-center justify-center py-12">
-          <div className="flex flex-col items-center space-y-4">
-            <Loader2 className="h-8 w-8 animate-spin text-orange-500" />
-            <p className="text-sm text-muted-foreground">Forgatások betöltése...</p>
-          </div>
-        </CardContent>
-      </Card>
-    )
-  }
-
-  if (error) {
-    return (
-      <Card>
-        <CardContent className="flex items-center justify-center py-12 text-destructive">
-          <AlertCircle className="h-6 w-6 mr-2" />
-          Hiba a forgatások betöltésekor
-        </CardContent>
-      </Card>
-    )
-  }
-
-  const sessions = filmingData || []
-  const assignments = Array.isArray(assignmentsData) ? assignmentsData : []
-  
-  // Create a map of assignments by filming session ID
-  const assignmentMap = new Map()
-  assignments.forEach((assignment: any) => {
-    if (assignment?.forgatas?.id) {
-      assignmentMap.set(assignment.forgatas.id, assignment)
-    }
-  })
-  
-  // A session is pending if it doesn't have an assignment or the assignment is not finalized
-  const pendingSessions = sessions.filter((session: any) => {
-    const assignment = assignmentMap.get(session.id)
-    return !assignment || !assignment.kesz
-  })
-  
-  const urgentSessions = pendingSessions.filter((session: any) => {
-    if (!session.date) return false
-    const sessionDate = new Date(session.date)
-    const threeDaysFromNow = new Date()
-    threeDaysFromNow.setDate(threeDaysFromNow.getDate() + 3)
-    return sessionDate <= threeDaysFromNow
-  })
-
   return (
     <Card className="h-fit">
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg">
+            <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg">
               <AlertCircle className="h-5 w-5 text-white" />
             </div>
             <div>
               <CardTitle className="text-lg">Függő Forgatások</CardTitle>
-              <CardDescription>Beosztásra váró munkák és sürgős feladatok</CardDescription>
+              <CardDescription>Hamarosan elérhető funkció</CardDescription>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Badge variant="outline" className="text-xs bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-950/30 dark:text-orange-300 dark:border-orange-800">
-              {pendingSessions.length} függő
-            </Badge>
-            {urgentSessions.length > 0 && (
-              <Badge variant="destructive" className="text-xs animate-pulse">
-                {urgentSessions.length} sürgős
-              </Badge>
-            )}
-          </div>
+          <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/30 dark:text-blue-300 dark:border-blue-800">
+            Fejlesztés alatt
+          </Badge>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        {pendingSessions.length > 0 ? (
-          <>
-            {/* Quick Action Buttons */}
-            <div className="flex items-center gap-2 mb-4">
-              <Button 
-                size="sm" 
-                onClick={() => router.push('/app/forgatasok')}
-                className="flex items-center gap-2"
-              >
-                <Plus className="h-4 w-4" />
-                Új forgatás
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => router.push('/app/forgatasok/beosztasok')}
-                className="flex items-center gap-2"
-              >
-                <Calendar className="h-4 w-4" />
-                Beosztások
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => router.push('/app/stab')}
-                className="flex items-center gap-2"
-              >
-                <Users className="h-4 w-4" />
-                Stáb
-              </Button>
-            </div>
-
-            {/* Priority Sessions */}
-            {urgentSessions.length > 0 && (
-              <div className="mb-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <AlertCircle className="h-4 w-4 text-red-500" />
-                  <h4 className="text-sm font-semibold text-red-700 dark:text-red-300">Sürgős beosztások (3 napon belül)</h4>
-                </div>
-                <div className="space-y-2">
-                  {urgentSessions.slice(0, 2).map((session: any, index: number) => (
-                    <div key={`urgent-${session.id}`} className="p-3 rounded-lg border border-red-200 bg-red-50 dark:bg-red-950/20 dark:border-red-800">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="p-2 bg-red-500 rounded-lg animate-pulse">
-                            <Video className="h-4 w-4 text-white" />
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="font-semibold text-sm text-red-800 dark:text-red-200">
-                                {session.name}
-                              </span>
-                              <Badge variant="destructive" className="text-xs">
-                                Sürgős
-                              </Badge>
-                            </div>
-                            <div className="flex items-center gap-3 text-xs text-red-600 dark:text-red-300">
-                              <span>📅 {session.date || 'Nincs dátum'}</span>
-                              <span>📍 {session.location?.name || 'Nincs helyszín'}</span>
-                            </div>
-                          </div>
-                        </div>
-                        <Button size="sm" variant="destructive">
-                          Beosztás
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Regular Pending Sessions */}
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <h4 className="text-sm font-semibold">Összes függő forgatás</h4>
-                <Button variant="ghost" size="sm" onClick={() => router.push('/app/forgatasok')}>
-                  Összes megtekintése
-                  <ExternalLink className="h-3 w-3 ml-1" />
-                </Button>
-              </div>
-              <div className="grid gap-2 md:grid-cols-2">
-                {pendingSessions.slice(0, 6).map((session: any, index: number) => (
-                  <div key={session.id} className="group flex items-center justify-between p-3 rounded-lg border border-border/50 hover:border-orange-500/30 hover:bg-accent/50 cursor-pointer transition-all duration-200">
-                    <div className="flex items-center gap-3">
-                      <div className="relative">
-                        <div className="p-2 bg-gradient-to-br from-orange-500/10 to-red-500/10 rounded-lg border border-orange-200/30 group-hover:border-orange-300/50 transition-colors">
-                          <Video className="h-4 w-4 text-orange-600 dark:text-orange-400" />
-                        </div>
-                        <div className="absolute -top-1 -right-1 w-3 h-3 bg-orange-500 rounded-full border-2 border-background flex items-center justify-center">
-                          <div className="w-1 h-1 bg-white rounded-full animate-pulse" />
-                        </div>
-                      </div>
-                      
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="font-medium text-sm truncate">
-                            {session.name}
-                          </span>
-                          <Badge variant="outline" className="text-xs bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/30 dark:text-purple-300 dark:border-purple-800">
-                            {session.type_display || session.type || 'Forgatás'}
-                          </Badge>
-                        </div>
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <span>📅 {session.date || 'TBD'}</span>
-                          <span>•</span>
-                          <span>📍 {session.location?.name || 'TBD'}</span>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-2">
-                      <Badge 
-                        variant="outline" 
-                        className="text-xs text-orange-600 border-orange-200 bg-orange-50 dark:bg-orange-950/30 dark:text-orange-300 dark:border-orange-800"
-                      >
-                        🔶 Függő
-                      </Badge>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Statistics and Overview */}
-            <div className="pt-4 border-t border-border/50">
-              <div className="grid grid-cols-3 gap-3">
-                <div className="p-3 rounded-lg bg-orange-50 dark:bg-orange-950/30 text-center">
-                  <div className="text-xl font-bold text-orange-700 dark:text-orange-300">{pendingSessions.length}</div>
-                  <div className="text-xs text-orange-600 dark:text-orange-400">Összes függő</div>
-                </div>
-                <div className="p-3 rounded-lg bg-red-50 dark:bg-red-950/30 text-center">
-                  <div className="text-xl font-bold text-red-700 dark:text-red-300">{urgentSessions.length}</div>
-                  <div className="text-xs text-red-600 dark:text-red-400">Sürgős</div>
-                </div>
-                <div className="p-3 rounded-lg bg-blue-50 dark:bg-blue-950/30 text-center">
-                  <div className="text-xl font-bold text-blue-700 dark:text-blue-300">{sessions.length - pendingSessions.length}</div>
-                  <div className="text-xs text-blue-600 dark:text-blue-400">Beosztott</div>
-                </div>
-              </div>
-            </div>
-
-            {urgentSessions.length > 0 && (
-              <div className="relative overflow-hidden rounded-lg border border-red-200 bg-gradient-to-br from-red-50 to-orange-50 p-4 dark:from-red-950/30 dark:to-orange-950/30 dark:border-red-800">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-red-500 rounded-lg animate-pulse">
-                      <Timer className="h-4 w-4 text-white" />
-                    </div>
-                    <div>
-                      <span className="text-sm font-semibold text-red-800 dark:text-red-200">Sürgős beosztás szükséges</span>
-                      <div className="text-xs text-red-600 dark:text-red-300 mt-1">
-                        {urgentSessions.length} forgatás 3 napon belül • Azonnali figyelem szükséges
-                      </div>
-                    </div>
-                  </div>
-                  <Button variant="destructive" size="sm" onClick={() => router.push('/app/forgatasok/surgos')}>
-                    Kezelés
-                  </Button>
-                </div>
-                <div className="absolute -bottom-2 -right-2 w-12 h-12 bg-red-400/20 rounded-full" />
-                <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-red-500/20 rounded-full" />
-              </div>
-            )}
-          </>
-        ) : (
-          <div className="text-center py-12">
-            <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-              <Video className="h-10 w-10 text-muted-foreground" />
-            </div>
-            <h3 className="font-semibold text-lg mb-2">Nincs függő forgatás</h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              Minden forgatás megfelelően be van osztva
-            </p>
+        <div className="text-center py-12">
+          <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-950/30 dark:to-purple-950/30 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Video className="h-10 w-10 text-blue-600 dark:text-blue-400" />
           </div>
-        )}
+          <h3 className="font-semibold text-lg mb-2">Hamarosan elérhető!</h3>
+          <p className="text-sm text-muted-foreground mb-4">
+            A függő forgatások kezelése hamarosan elérhető lesz. 
+            <br />
+            Dolgozunk rajta, hogy minél előbb rendelkezésére álljon ez a funkció.
+          </p>
+          <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+            <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+            <span>Fejlesztés folyamatban</span>
+          </div>
+        </div>
       </CardContent>
     </Card>
   )

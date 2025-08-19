@@ -21,7 +21,7 @@ import { ApiErrorBoundary } from "@/components/api-error-boundary"
 import { ForgatásErrorHandler, CriticalForgatásError, ForgatásApiWarning } from "@/components/forgatas-error-handler"
 import { AuthTokenDebug } from "@/components/auth-token-debug"
 import { apiClient } from "@/lib/api"
-import type { ForgatCreateSchema, PartnerSchema, ContactPersonSchema, ForgatoTipusSchema, ReporterSchema, KacsaAvailableSchema } from "@/lib/api"
+import type { ForgatCreateSchema, PartnerSchema, ContactPersonSchema, ReporterSchema, KacsaAvailableSchema } from "@/lib/api"
 import { DatePicker, TimePicker } from "@/components/ui/date-time-components"
 import {
   getCurrentSchoolYear,
@@ -67,6 +67,78 @@ export default function NewShooting() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
 
+  // API queries - Always call hooks unconditionally
+  const skipQueries = isLoading || !isAuthenticated || !user
+
+  const { data: partners, loading: _partnersLoading, error: partnersError } = useApiQuery(
+    async () => {
+      if (skipQueries) return []
+      return await apiClient.getPartners()
+    },
+    [skipQueries]
+  )
+  
+  const { data: contactPersons, loading: contactPersonsLoading, error: contactPersonsError } = useApiQuery(
+    async () => {
+      if (skipQueries) return []
+      return await apiClient.getContactPersons()
+    },
+    [skipQueries]
+  )
+  
+  // Fetch filming types from API
+  const { data: filmingTypes, loading: _typesLoading, error: typesError } = useApiQuery(
+    async () => {
+      if (skipQueries) return []
+      return await apiClient.getFilmingTypes()
+    },
+    [skipQueries]
+  )
+
+  // Fetch students from API  
+  const { data: students, loading: studentsLoading, error: studentsError } = useApiQuery(
+    async () => {
+      if (skipQueries) return []
+      return await apiClient.getReporters()
+    },
+    [skipQueries]
+  )
+
+  // Fetch kacsa sessions from API
+  const { data: kacsaSessions, loading: kacsaLoading, error: kacsaError } = useApiQuery(
+    async () => {
+      if (skipQueries) return []
+      return await apiClient.getKacsaAvailableSessions()
+    },
+    [skipQueries]
+  )
+
+  // Create mutation
+  const createForgatás = useApiMutation(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (data: any) => apiClient.createFilmingSession(data)
+  )
+
+  // Filter shooting types based on role - use real API data where available
+  const availableShootingTypes = useMemo(() => {
+    if (typesError || !filmingTypes) {
+      // Return minimal default types if API fails
+      return [
+        { value: 'rendes', label: 'Rendes forgatás', description: 'Normál forgatási típus' }
+      ]
+    }
+    
+    const types = filmingTypes
+    
+    if (currentRole === 'admin' || hasPermission('is_admin')) {
+      return types
+    } else {
+      // Students can only create 'rendes' type
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return types.filter((type: any) => type.value === 'rendes')
+    }
+  }, [filmingTypes, typesError, currentRole, hasPermission])
+
   // Redirect to login if not authenticated (but wait for loading to complete)
   useEffect(() => {
     if (!isLoading && !isAuthenticated && !user) {
@@ -102,57 +174,6 @@ export default function NewShooting() {
       </StandardizedLayout>
     )
   }
-
-  // API queries - Disable entirely when not authenticated
-  const skipQueries = isLoading || !isAuthenticated || !user
-
-  const { data: partners, loading: partnersLoading, error: partnersError } = useApiQuery(
-    async () => {
-      if (skipQueries) return []
-      return await apiClient.getPartners()
-    },
-    [skipQueries]
-  )
-  
-  const { data: contactPersons, loading: contactPersonsLoading, error: contactPersonsError } = useApiQuery(
-    async () => {
-      if (skipQueries) return []
-      return await apiClient.getContactPersons()
-    },
-    [skipQueries]
-  )
-  
-  // Fetch filming types from API
-  const { data: filmingTypes, loading: typesLoading, error: typesError } = useApiQuery(
-    async () => {
-      if (skipQueries) return []
-      return await apiClient.getFilmingTypes()
-    },
-    [skipQueries]
-  )
-
-  // Fetch students/reporters
-  const { data: students, loading: studentsLoading, error: studentsError } = useApiQuery(
-    async () => {
-      if (skipQueries) return []
-      return await apiClient.getReporters()
-    },
-    [skipQueries]
-  )
-
-  // Fetch available KaCsa sessions
-  const { data: kacsaSessions, loading: kacsaLoading, error: kacsaError } = useApiQuery(
-    async () => {
-      if (skipQueries) return []
-      return await apiClient.getKacsaAvailableSessions()
-    },
-    [skipQueries]
-  )
-
-  // Create mutation
-  const createForgatás = useApiMutation(
-    (data: ForgatCreateSchema) => apiClient.createFilmingSession(data)
-  )
 
   // Permission check - students can only create 'rendes', admins can create any type
   const classDisplayName = permissions?.role_info?.class_display_name || permissions?.role_info?.class_assignment?.display_name
@@ -321,6 +342,7 @@ export default function NewShooting() {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const setToday = () => {
     const today = new Date()
     handleInputChange("date", today)
@@ -329,10 +351,11 @@ export default function NewShooting() {
   // Transform data for comboboxes with proper error handling
   
   // Reporters - only show if API data is available
-  const reporterOptions = students && !studentsError ? students.map((student: ReporterSchema) => ({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const reporterOptions = students && !studentsError ? students.map((student: any) => ({
     value: student.id.toString(),
     label: student.full_name,
-    description: `${student.osztaly_display} • ${student.is_experienced ? 'Tapasztalt' : 'Új'} riporter`,
+    description: `${student.osztaly_display || student.oszta} • ${student.is_experienced ? 'Tapasztalt' : 'Új'} riporter`,
   })) : []
 
   // Locations - only show if API data is available
@@ -356,25 +379,7 @@ export default function NewShooting() {
     description: `${kacsa.date} • ${kacsa.can_link ? 'Linkelhető' : 'Már hozzárendelve'}`,
   })) : []
 
-  // Filter shooting types based on role - use real API data where available
-  const availableShootingTypes = useMemo(() => {
-    if (typesError || !filmingTypes) {
-      // Return minimal default types if API fails
-      return [
-        { value: 'rendes', label: 'Rendes forgatás', description: 'Normál forgatási típus' }
-      ]
-    }
-    
-    const types = filmingTypes
-    
-    if (currentRole === 'admin' || hasPermission('is_admin')) {
-      return types
-    } else {
-      // Students can only create 'rendes' type
-      return types.filter((type: any) => type.value === 'rendes')
-    }
-  }, [filmingTypes, typesError, currentRole, hasPermission])
-
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const selectedType = availableShootingTypes.find((t: any) => t.value === formData.type)
   const showKacsaConnection = formData.type === "rendes"
 
@@ -770,11 +775,6 @@ export default function NewShooting() {
               </Button>
             </div>
           </form>
-
-          {/* Temporary Auth Debug Component */}
-          <div className="mt-8">
-            <AuthTokenDebug />
-          </div>
         </div>
       </StandardizedLayout>
     </ApiErrorBoundary>

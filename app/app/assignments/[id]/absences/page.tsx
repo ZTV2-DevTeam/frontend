@@ -8,7 +8,7 @@ import { useApiQuery, useApiMutation } from "@/lib/api-helpers"
 import { apiClient } from "@/lib/api"
 import { usePermissions } from "@/contexts/permissions-context"
 import { useAuth } from "@/contexts/auth-context"
-import type { AbsenceFromAssignmentSchema, BeosztasDetailSchema } from "@/lib/types"
+import type { BeosztasDetailSchema } from "@/lib/types"
 import { ApiErrorBoundary } from "@/components/api-error-boundary"
 import { ApiErrorFallback } from "@/components/api-error-fallback"
 import { DebugConsole } from "@/components/debug-console"
@@ -39,18 +39,14 @@ import {
 import { 
   CalendarDays, 
   Clock, 
-  MapPin, 
-  User, 
   Users, 
   CheckCircle, 
-  XCircle, 
   AlertTriangle,
   Loader2,
   AlertCircle,
   Plus,
   ArrowLeft,
   UserCheck,
-  UserX,
   FileText
 } from "lucide-react"
 import { format } from "date-fns"
@@ -66,7 +62,7 @@ export default function AssignmentAbsencesPage() {
   
   // Context hooks
   const { hasPermission } = usePermissions()
-  const { user, isAuthenticated } = useAuth()
+  const { isAuthenticated } = useAuth()
   
   // API queries
   const assignmentQuery = useApiQuery(
@@ -84,6 +80,7 @@ export default function AssignmentAbsencesPage() {
 
   // Mutations
   const createAbsenceMutation = useApiMutation(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (data: any) => apiClient.createAbsenceFromAssignment(data)
   )
 
@@ -95,6 +92,7 @@ export default function AssignmentAbsencesPage() {
   const canManage = hasPermission('can_manage_forgatas') || hasPermission('is_admin')
 
   // Event handlers
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleCreateAbsence = async (studentId: number, reason: string) => {
     try {
       await createAbsenceMutation.execute({
@@ -304,6 +302,7 @@ export default function AssignmentAbsencesPage() {
 function CreateAbsenceDialog({ 
   open, 
   onOpenChange, 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onSuccess, 
   assignment
 }: {
