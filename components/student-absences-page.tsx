@@ -25,20 +25,6 @@ export function StudentAbsencesPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  // Check authorization
-  if (currentRole !== 'student') {
-    return (
-      <StandardizedLayout>
-        <Alert className="m-6">
-          <FileText className="h-4 w-4" />
-          <AlertDescription>
-            Ez az oldal csak diákok számára érhető el.
-          </AlertDescription>
-        </Alert>
-      </StandardizedLayout>
-    )
-  }
-
   // Load student's absences
   const loadData = async () => {
     setLoading(true)
@@ -127,7 +113,21 @@ export function StudentAbsencesPage() {
   // Load data on component mount
   useEffect(() => {
     loadData()
-  }, [user])
+  }, [loadData])
+
+  // Check authorization
+  if (currentRole !== 'student') {
+    return (
+      <StandardizedLayout>
+        <Alert className="m-6">
+          <FileText className="h-4 w-4" />
+          <AlertDescription>
+            Ez az oldal csak diákok számára érhető el.
+          </AlertDescription>
+        </Alert>
+      </StandardizedLayout>
+    )
+  }
 
   // Calculate statistics
   const stats = {
