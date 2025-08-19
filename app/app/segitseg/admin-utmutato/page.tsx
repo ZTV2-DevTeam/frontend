@@ -321,6 +321,54 @@ export default function AdminGuidePage() {
                 </p>
               </div>
 
+              {/* Django Admin Core Features */}
+              <div className="p-4 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg">
+                <div className="flex items-center gap-2 mb-3">
+                  <Database className="h-5 w-5 text-blue-600" />
+                  <h4 className="font-medium text-blue-800 dark:text-blue-200">Django Admin Központi Funkciók</h4>
+                </div>
+                <p className="text-sm text-blue-700 dark:text-blue-300 mb-3">
+                  Az adatbázis közvetlen szerkesztése, tömeges importálás és exportálás a Django Admin felületen érhető el.
+                </p>
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" size="sm" asChild className="border-blue-300 text-blue-700 hover:bg-blue-100">
+                    <a href="/app/database-admin" target="_blank">
+                      <ExternalLink className="h-3 w-3 mr-1" />
+                      Django Admin megnyitása
+                    </a>
+                  </Button>
+                </div>
+              </div>
+
+              {/* Critical Model Relationships */}
+              <div className="p-4 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg">
+                <div className="flex items-center gap-2 mb-3">
+                  <AlertTriangle className="h-5 w-5 text-red-600" />
+                  <h4 className="font-medium text-red-800 dark:text-red-200">Kritikus Kapcsolatok</h4>
+                </div>
+                <div className="space-y-3 text-sm text-red-700 dark:text-red-300">
+                  <div>
+                    <strong>🔗 Felhasználó ↔ Profil kapcsolat:</strong>
+                    <p className="mt-1">
+                      A felhasználók nem tudnak bejelentkezni vagy nem lehet őket hivatkozni a megfelelő Profil rekord nélkül. 
+                      Minden User objektumhoz kötelező egy kapcsolódó Profile rekord létrehozása!
+                    </p>
+                  </div>
+                  <div>
+                    <strong>🎬 Forgatás ↔ Beosztás kapcsolat:</strong>
+                    <p className="mt-1">
+                      A beosztások automatikusan generálják a hiányzásokat (Absence). A forgatás adatok módosítása hatással van az összes kapcsolódó hiányzásra.
+                    </p>
+                  </div>
+                  <div>
+                    <strong>🏫 Osztály ↔ Tanév kapcsolat:</strong>
+                    <p className="mt-1">
+                      Az osztályok tanév hozzárendelése nélkül nem jelennek meg megfelelően. A Tanév rekordok a dátumok alapján határozzák meg az aktív időszakokat.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
               {/* Django Admin Access */}
               <div className="space-y-4">
                 <h4 className="font-semibold text-lg">1. Django admin elérése</h4>
