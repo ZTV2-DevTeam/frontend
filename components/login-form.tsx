@@ -144,6 +144,16 @@ export function LoginForm({
                 <Button type="submit" className="w-full" disabled={isLoading} tabIndex={3}>
                   {isLoading ? 'Bejelentkezés...' : 'Bejelentkezés'}
                 </Button>
+                
+                <div className="text-center">
+                  <Link
+                    href="/first-password"
+                    className="text-sm text-muted-foreground underline-offset-4 hover:underline"
+                    tabIndex={5}
+                  >
+                    Első bejelentkezés? Jelszó beállítási link kérése
+                  </Link>
+                </div>
               </div>
             </div>
           </form>

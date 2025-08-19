@@ -1331,9 +1331,34 @@ class ApiClient {
   }
 
   async verifyFirstLoginToken(token: string): Promise<Record<string, any>> {
-    return this.request<Record<string, any>>(`/api/first-login/verify-token`, {
+    return this.request<Record<string, any>>(`/api/first-login/verify-token/${token}`, {
+      method: 'GET',
+    })
+  }
+
+  async requestFirstLoginToken(email: string): Promise<Record<string, any>> {
+    return this.request<Record<string, any>>(`/api/first-login/request-token`, {
       method: 'POST',
-      body: JSON.stringify({ token }),
+      body: JSON.stringify({ email }),
+    })
+  }
+
+  async getPasswordValidationRules(): Promise<Record<string, any>> {
+    return this.request<Record<string, any>>(`/api/password-validation/rules`, {
+      method: 'GET',
+    })
+  }
+
+  async checkPasswordValidation(data: {
+    password: string;
+    username?: string;
+    email?: string;
+    first_name?: string;
+    last_name?: string;
+  }): Promise<Record<string, any>> {
+    return this.request<Record<string, any>>(`/api/password-validation/check`, {
+      method: 'POST',
+      body: JSON.stringify(data),
     })
   }
 
