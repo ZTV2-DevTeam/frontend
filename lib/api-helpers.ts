@@ -36,33 +36,12 @@ export function useApiQuery<T>(
         setError(null)
         const result = await apiCall()
         if (!cancelled) {
-          // Handle empty arrays/results properly - these are valid responses, not errors
           setData(result)
         }
       } catch (err) {
         if (!cancelled) {
           const errorMessage = err instanceof Error ? err.message : 'Ismeretlen hiba történt'
-          
-          // Log the error for debugging
-          console.error('API Query Error:', {
-            error: err,
-            message: errorMessage,
-            endpoint: typeof apiCall === 'function' ? 'Unknown endpoint' : 'Static data'
-          })
-          
-          // Handle authentication errors specifically
-          if (errorMessage.includes('Bejelentkezés szükséges') || 
-              errorMessage.includes('munkamenet lejárt') ||
-              errorMessage.includes('401') ||
-              errorMessage.includes('Unauthorized')) {
-            // If running in browser, redirect to login
-            if (typeof window !== 'undefined') {
-              console.warn('Authentication required, redirecting to login...')
-              window.location.href = '/login'
-              return
-            }
-          }
-          
+          console.error('API Query Error:', errorMessage)
           setError(errorMessage)
         }
       } finally {

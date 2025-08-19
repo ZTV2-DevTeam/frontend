@@ -696,25 +696,20 @@ class ApiClient {
 
   private getStoredToken(): string | null {
     if (typeof window !== 'undefined') {
-      try {
-        // Try localStorage first
-        const localToken = localStorage.getItem('jwt_token')
-        if (localToken && localToken.trim() !== '' && localToken !== 'null') {
-          return localToken.trim()
-        }
-        
-        // Fallback to cookies
-        const cookieToken = document.cookie
-          .split(';')
-          .find(cookie => cookie.trim().startsWith('jwt_token='))
-          ?.split('=')[1]
-        
-        if (cookieToken && cookieToken.trim() !== '' && cookieToken !== 'null') {
-          return decodeURIComponent(cookieToken.trim())
-        }
-      } catch (error) {
-        console.warn('Error retrieving stored token:', error)
-        return null
+      // Try localStorage first
+      const localToken = localStorage.getItem('jwt_token')
+      if (localToken && localToken.trim() !== '' && localToken !== 'null') {
+        return localToken.trim()
+      }
+      
+      // Fallback to cookies
+      const cookieToken = document.cookie
+        .split(';')
+        .find(cookie => cookie.trim().startsWith('jwt_token='))
+        ?.split('=')[1]
+      
+      if (cookieToken && cookieToken.trim() !== '' && cookieToken !== 'null') {
+        return decodeURIComponent(cookieToken.trim())
       }
     }
     return null
@@ -865,25 +860,9 @@ class ApiClient {
             // For public endpoints, don't clear token and use specific error message
             throw new Error(errorData.message || 'Hitelesítési hiba történt.')
           } else {
-            // For protected endpoints, be more careful about clearing tokens
-            // Only clear token if it's explicitly an authentication error
-            if (errorData.message && (
-              errorData.message.includes('Invalid token') ||
-              errorData.message.includes('Token expired') ||
-              errorData.message.includes('Authentication failed') ||
-              errorData.message.includes('Hitelesítés sikertelen')
-            )) {
-              console.log('🔑 Clearing token due to explicit auth error:', errorData.message)
-              this.setToken(null)
-              throw new Error('A munkamenet lejárt. Kérjük, jelentkezzen be újra.')
-            } else {
-              // For other 401 errors, don't clear token - could be temporary issue
-              console.warn('⚠️ 401 error but preserving token (might be temporary):', {
-                endpoint,
-                error: errorData.message
-              })
-              throw new Error(errorData.message || 'Hitelesítési hiba történt. Próbálja újra.')
-            }
+            // For protected endpoints, clear invalid token
+            this.setToken(null)
+            throw new Error('A munkamenet lejárt. Kérjük, jelentkezzen be újra.')
           }
         } else if (response.status === 403) {
           throw new Error('Nincs jogosultsága ehhez a művelethez.')

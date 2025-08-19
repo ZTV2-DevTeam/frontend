@@ -18,8 +18,6 @@ import { useAuth } from "@/contexts/auth-context"
 import { usePermissions } from "@/contexts/permissions-context"
 import { useApiQuery, useApiMutation } from "@/lib/api-helpers"
 import { ApiErrorBoundary } from "@/components/api-error-boundary"
-import { ForgatásErrorHandler, CriticalForgatásError, ForgatásApiWarning } from "@/components/forgatas-error-handler"
-import { AuthTokenDebug } from "@/components/auth-token-debug"
 import { apiClient } from "@/lib/api"
 import type { ForgatCreateSchema, PartnerSchema, ContactPersonSchema, ForgatoTipusSchema, ReporterSchema, KacsaAvailableSchema } from "@/lib/api"
 import { DatePicker, TimePicker } from "@/components/ui/date-time-components"
@@ -46,7 +44,7 @@ interface ShootingFormData {
 export default function NewShooting() {
   const router = useRouter()
   const { currentRole } = useUserRole()
-  const { user, isAuthenticated, isLoading } = useAuth()
+  const { user } = useAuth()
   const { hasPermission, permissions } = usePermissions()
 
   const [formData, setFormData] = useState<ShootingFormData>({
@@ -67,86 +65,31 @@ export default function NewShooting() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
 
-  // Redirect to login if not authenticated (but wait for loading to complete)
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated && !user) {
-      router.push('/login?redirect=/app/forgatasok/uj')
-      return
-    }
-  }, [isLoading, isAuthenticated, user, router])
-
-  // Show loading while auth is being checked
-  if (isLoading) {
-    return (
-      <StandardizedLayout>
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="text-center">
-            <Camera className="h-12 w-12 mx-auto mb-4 opacity-50 animate-pulse" />
-            <p className="text-muted-foreground">Betöltés...</p>
-          </div>
-        </div>
-      </StandardizedLayout>
-    )
-  }
-
-  // Don't render form if not authenticated
-  if (!isAuthenticated || !user) {
-    return (
-      <StandardizedLayout>
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="text-center">
-            <Camera className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p className="text-muted-foreground">Átirányítás a bejelentkezéshez...</p>
-          </div>
-        </div>
-      </StandardizedLayout>
-    )
-  }
-
-  // API queries - Disable entirely when not authenticated
-  const skipQueries = isLoading || !isAuthenticated || !user
-
+  // API queries
   const { data: partners, loading: partnersLoading, error: partnersError } = useApiQuery(
-    async () => {
-      if (skipQueries) return []
-      return await apiClient.getPartners()
-    },
-    [skipQueries]
+    () => apiClient.getPartners()
   )
   
   const { data: contactPersons, loading: contactPersonsLoading, error: contactPersonsError } = useApiQuery(
-    async () => {
-      if (skipQueries) return []
-      return await apiClient.getContactPersons()
-    },
-    [skipQueries]
+    () => apiClient.getContactPersons()
   )
   
   // Fetch filming types from API
   const { data: filmingTypes, loading: typesLoading, error: typesError } = useApiQuery(
-    async () => {
-      if (skipQueries) return []
-      return await apiClient.getFilmingTypes()
-    },
-    [skipQueries]
+    () => apiClient.getFilmingTypes(),
+    []
   )
 
   // Fetch students/reporters
   const { data: students, loading: studentsLoading, error: studentsError } = useApiQuery(
-    async () => {
-      if (skipQueries) return []
-      return await apiClient.getReporters()
-    },
-    [skipQueries]
+    () => apiClient.getReporters(),
+    []
   )
 
   // Fetch available KaCsa sessions
   const { data: kacsaSessions, loading: kacsaLoading, error: kacsaError } = useApiQuery(
-    async () => {
-      if (skipQueries) return []
-      return await apiClient.getKacsaAvailableSessions()
-    },
-    [skipQueries]
+    () => apiClient.getKacsaAvailableSessions(),
+    []
   )
 
   // Create mutation
@@ -172,10 +115,24 @@ export default function NewShooting() {
             </Link>
           </div>
           
-          <ForgatásErrorHandler 
-            error="Nincs jogosultsága forgatás létrehozására. Ez a funkció csak 10F-es diákoknak és adminisztrátoroknak elérhető."
-            showRetryButton={false}
-          />
+          <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Camera className="h-5 w-5" />
+                Forgatás létrehozása
+              </CardTitle>
+              <CardDescription>
+                Ez a funkció csak 10F-es diákoknak és adminisztrátoroknak elérhető.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-8 text-muted-foreground">
+                <Camera className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <p>Nincs jogosultságod forgatás létrehozására.</p>
+                <p className="text-sm mt-2">Csak jogosult felhasználók (admin vagy 10F-es diák) hozhatnak létre forgatásokat.</p>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </StandardizedLayout>
     )
@@ -208,11 +165,6 @@ export default function NewShooting() {
     setSubmitError(null)
 
     try {
-      // Ensure user is authenticated before proceeding
-      if (!isAuthenticated || !user) {
-        throw new Error("Nem vagy bejelentkezve. Kérjük, jelentkezz be újra.")
-      }
-
       // Validate required fields
       if (!formData.name.trim()) {
         throw new Error("A forgatás neve kötelező")
@@ -233,17 +185,20 @@ export default function NewShooting() {
         throw new Error("A forgatás típusa kötelező")
       }
 
+      // Validate API-dependent fields
+      if (studentsError) {
+        throw new Error("A riporter mező jelenleg nem elérhető API hiba miatt. Próbálja újra később.")
+      }
+      if (!formData.reporterId && reporterOptions.length === 0) {
+        throw new Error("Nincs elérhető riporter a rendszerben")
+      }
+      if (!formData.reporterId) {
+        throw new Error("A riporter kiválasztása kötelező")
+      }
+
       // Validate location (this should be available due to critical error handling above)
       if (!formData.locationId) {
         throw new Error("A helyszín kiválasztása kötelező")
-      }
-
-      // Reporter is optional - only validate if API is working and user tries to select invalid option
-      if (!studentsError && formData.reporterId && reporterOptions.length > 0) {
-        const validReporter = reporterOptions.find(r => r.value === formData.reporterId)
-        if (!validReporter) {
-          throw new Error("A kiválasztott riporter nem érvényes")
-        }
       }
 
       // Convert form data to API format with Django-compatible formatting
@@ -288,17 +243,6 @@ export default function NewShooting() {
         endTime: formData.endTime
       })
       console.log('Submitting forgatás data:', apiData) // Debug log
-      
-      // Debug authentication state before API call
-      const token = apiClient.getToken()
-      const isAuth = apiClient.isAuthenticated()
-      console.log('🔐 Auth state before forgatás creation:', {
-        hasToken: !!token,
-        tokenLength: token?.length || 0,
-        tokenPreview: token ? `${token.substring(0, 20)}...` : 'none',
-        isAuthenticated: isAuth,
-        user: user?.username || 'none'
-      })
       
       const result = await createForgatás.execute(apiData)
       
@@ -396,7 +340,29 @@ export default function NewShooting() {
             </Link>
           </div>
           
-          <CriticalForgatásError errors={criticalErrors} />
+          <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
+            <CardContent className="p-6">
+              <div className="text-center">
+                <div className="h-12 w-12 mx-auto text-destructive mb-4">⚠️</div>
+                <p className="text-lg font-medium text-destructive">Kritikus adatok betöltése sikertelen</p>
+                <div className="text-sm text-muted-foreground mt-2">
+                  {criticalErrors.map((error, index) => (
+                    <div key={index}>• {error}</div>
+                  ))}
+                </div>
+                <p className="text-sm text-muted-foreground mt-4">
+                  Ezek az adatok szükségesek a forgatás létrehozásához.
+                </p>
+                <Button 
+                  onClick={() => window.location.reload()} 
+                  variant="outline" 
+                  className="mt-4"
+                >
+                  Újra próbálkozás
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </StandardizedLayout>
     )
@@ -424,13 +390,24 @@ export default function NewShooting() {
 
           {/* API Status Warnings */}
           {(studentsError || contactPersonsError || kacsaError) && (
-            <ForgatásApiWarning 
-              warnings={[
-                ...(studentsError ? ['Riporterek betöltése sikertelen'] : []),
-                ...(contactPersonsError ? ['Kapcsolattartók betöltése sikertelen'] : []),
-                ...(kacsaError ? ['KaCsa forgatások betöltése sikertelen'] : [])
-              ]}
-            />
+            <Card className="border-amber-500/50 bg-amber-500/10">
+              <CardContent className="p-4">
+                <div className="flex items-start gap-3">
+                  <div className="text-amber-500 text-lg">⚠️</div>
+                  <div className="flex-1">
+                    <p className="font-medium text-amber-800">Néhány mező jelenleg nem elérhető</p>
+                    <div className="text-sm text-amber-700 mt-1 space-y-1">
+                      {studentsError && <div>• Riporterek betöltése sikertelen</div>}
+                      {contactPersonsError && <div>• Kapcsolattartók betöltése sikertelen</div>}
+                      {kacsaError && <div>• KaCsa forgatások betöltése sikertelen</div>}
+                    </div>
+                    <p className="text-sm text-amber-700 mt-2">
+                      Ezek a mezők opcionálisak vagy később módosíthatók. A forgatás továbbra is létrehozható.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -504,16 +481,16 @@ export default function NewShooting() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="reporter">Riporter</Label>
+                    <Label htmlFor="reporter">Riporter *</Label>
                     {studentsError ? (
                       <div className="space-y-2">
                         <div className="p-3 text-sm text-amber-800 bg-amber-100 border border-amber-300 rounded-md">
-                          ⚠️ Riporterek betöltése sikertelen. Ez a mező opcionális - a forgatás létrehozható riporter nélkül.
+                          ⚠️ Riporterek betöltése sikertelen. Ez a mező jelenleg nem használható.
                         </div>
                         <input 
                           disabled 
-                          placeholder="Riporterek betöltése sikertelen - mező opcionális" 
-                          className="w-full px-3 py-2 border border-amber-300 rounded-md bg-amber-50 text-amber-700 cursor-not-allowed"
+                          placeholder="Riporterek betöltése sikertelen" 
+                          className="w-full px-3 py-2 border border-destructive/30 rounded-md bg-destructive/10 text-destructive cursor-not-allowed"
                         />
                       </div>
                     ) : studentsLoading ? (
@@ -525,11 +502,11 @@ export default function NewShooting() {
                     ) : reporterOptions.length === 0 ? (
                       <div className="space-y-2">
                         <div className="p-3 text-sm text-amber-800 bg-amber-100 border border-amber-300 rounded-md">
-                          ℹ️ Nincs elérhető riporter. Ez opcionális mező - a forgatás létrehozható riporter nélkül.
+                          ℹ️ Nincs elérhető riporter a rendszerben.
                         </div>
                         <input 
                           disabled 
-                          placeholder="Nincs elérhető riporter - mező opcionális" 
+                          placeholder="Nincs elérhető riporter" 
                           className="w-full px-3 py-2 border border-muted rounded-md bg-muted text-muted-foreground cursor-not-allowed"
                         />
                       </div>
@@ -738,14 +715,13 @@ export default function NewShooting() {
 
             {/* Error Display */}
             {(createForgatás.error || submitError) && (
-              <ForgatásErrorHandler 
-                error={submitError || createForgatás.error}
-                onRetry={() => {
-                  setSubmitError(null)
-                  // Clear the mutation error by re-executing without triggering
-                  // The error will be cleared when the component re-renders
-                }}
-              />
+              <Card className="border-destructive/50 bg-destructive/10">
+                <CardContent className="p-4">
+                  <div className="text-destructive">
+                    Hiba: {submitError || createForgatás.error}
+                  </div>
+                </CardContent>
+              </Card>
             )}
 
             {/* Submit Button */}
@@ -770,11 +746,6 @@ export default function NewShooting() {
               </Button>
             </div>
           </form>
-
-          {/* Temporary Auth Debug Component */}
-          <div className="mt-8">
-            <AuthTokenDebug />
-          </div>
         </div>
       </StandardizedLayout>
     </ApiErrorBoundary>
