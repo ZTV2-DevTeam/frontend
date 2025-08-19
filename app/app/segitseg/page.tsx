@@ -42,7 +42,13 @@ import {
   Lightbulb,
   AlertOctagon,
   CheckCircle,
-  GraduationCap
+  GraduationCap,
+  MailPlus,
+  TicketCheck,
+  MessageCircleQuestionIcon,
+  Calendar1,
+  CalendarRange,
+  ShieldBan
 } from "lucide-react"
 
 export default function HelpPage() {
@@ -52,7 +58,7 @@ export default function HelpPage() {
 
   // Role-specific content
   const studentContent = {
-    title: "Hallgatói tudásbázis",
+    title: "Tanulói tudásbázis",
     icon: User,
     sections: [
       {
@@ -282,6 +288,7 @@ export default function HelpPage() {
                       <li>• Egyes funkciók még hiányosak lehetnek</li>
                       <li>• Alkalmanként lassabb betöltési idők</li>
                       <li>• Rendszeres frissítések és változások</li>
+                      <li>• Megszokottnál nagyobb adatforgalom</li>
                     </ul>
                   </div>
                   <div className="space-y-2">
@@ -306,128 +313,6 @@ export default function HelpPage() {
             </CardContent>
           </Card>
 
-          {/* Feedback and Issue Reporting Card */}
-          <Card className="border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-green-800 dark:text-green-200">
-                <MessageSquare className="h-5 w-5" />
-                Visszajelzés és Hibabejelentés
-              </CardTitle>
-              <CardDescription className="text-green-700 dark:text-green-300">
-                Segítsd a rendszer fejlesztését visszajelzéseiddel és javaslatoddal
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4 text-green-700 dark:text-green-300">
-              <div className="grid gap-4 md:grid-cols-3">
-                {/* General Feedback */}
-                <Card className="border-green-200 dark:border-green-800 bg-white dark:bg-gray-900 flex flex-col items-center p-4">
-                  <CardHeader className="items-center">
-                  <Lightbulb className="h-8 w-8 mb-2 text-green-600" />
-                  <CardTitle className="font-medium text-center mb-1">Általános visszajelzés</CardTitle>
-                  <CardDescription className="text-xs text-center text-muted-foreground mb-2">
-                    Fejlesztési javaslatok, funkció kérések
-                  </CardDescription>
-                  </CardHeader>
-                  <CardContent className="w-full flex justify-center">
-                  <Button 
-                    size="sm" 
-                    className="w-full bg-green-600 hover:bg-green-700"
-                    onClick={() => window.open('https://forms.gle/ATyvgiutqNNaKT46A', '_blank')}
-                  >
-                    <ExternalLink className="w-3 h-3 mr-1" />
-                    Kitöltés
-                  </Button>
-                  </CardContent>
-                </Card>
-
-                {/* Minor Issues */}
-                <Card className="border-yellow-200 dark:border-yellow-800 bg-white dark:bg-gray-900 flex flex-col items-center p-4">
-                  <CardHeader className="items-center">
-                  <Bug className="h-8 w-8 mb-2 text-yellow-600" />
-                  <CardTitle className="font-medium text-center mb-1">Kisebb hibák</CardTitle>
-                  <CardDescription className="text-xs text-center text-muted-foreground mb-2">
-                    Kezelői hibák, megjelenítési problémák
-                  </CardDescription>
-                  </CardHeader>
-                  <CardContent className="w-full flex justify-center">
-                  <Button 
-                    size="sm" 
-                    variant="outline"
-                    className="w-full border-yellow-600 text-yellow-700 hover:bg-yellow-50 dark:hover:bg-yellow-950"
-                    onClick={() => window.open('https://forms.gle/ATyvgiutqNNaKT46A', '_blank')}
-                  >
-                    <ExternalLink className="w-3 h-3 mr-1" />
-                    Bejelentés
-                  </Button>
-                  </CardContent>
-                </Card>
-
-                {/* Critical Issues */}
-                <Card className="border-red-200 dark:border-red-800 bg-white dark:bg-gray-900 flex flex-col items-center p-4">
-                  <CardHeader className="items-center">
-                  <AlertOctagon className="h-8 w-8 mb-2 text-red-600" />
-                  <CardTitle className="font-medium text-center mb-1">Kritikus hibák</CardTitle>
-                  <CardDescription className="text-xs text-center text-muted-foreground mb-2">
-                    Rendszerleállás, adatvesztés, biztonsági problémák
-                  </CardDescription>
-                  </CardHeader>
-                  <CardContent className="w-full flex justify-center">
-                  <Button 
-                    size="sm" 
-                    variant="destructive"
-                    className="w-full"
-                    onClick={() => window.open(`mailto:${CONTACT_CONFIG.PRIMARY_EMAIL}?subject=KRITIKUS HIBA - Azonnali intézkedés szükséges&body=Kritikus hiba részletes leírása:%0A%0AFelhasználó: ${user?.username || 'N/A'}%0ASzerepkör: ${currentRole}%0AIdőpont: ${new Date().toLocaleString('hu-HU')}%0A%0A⚠️ KRITIKUS HIBA - Azonnali figyelmet igényel!`, '_blank')}
-                  >
-                    <Mail className="w-3 h-3 mr-1" />
-                    Email küldése
-                  </Button>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Instructions */}
-              <div className="mt-4 p-3 rounded-lg bg-white dark:bg-gray-900 border border-green-200 dark:border-green-800">
-                <h4 className="font-medium mb-2 flex items-center gap-2">
-                  <HelpCircle className="w-4 h-4" />
-                  Mikor melyik opciót használjam?
-                </h4>
-                <div className="text-sm space-y-1 text-muted-foreground">
-                  <p><strong>Google Form:</strong> Általános visszajelzések, javaslatok, kisebb hibák</p>
-                  <p><strong>Azonnali email:</strong> Kritikus hibák, amelyek megakadályozzák a munkát vagy adatvesztést okozhatnak</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-blue-800 dark:text-blue-200">
-                <Mail className="h-5 w-5" />
-                Gyors kapcsolatfelvétel
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="grid gap-3 md:grid-cols-2 text-blue-700 dark:text-blue-300">
-              <div>
-                <p className="font-medium">Technikai támogatás:</p>
-                <a 
-                  href={`mailto:${CONTACT_CONFIG.DEVELOPER_EMAIL}?subject=Technikai támogatás kérése`}
-                  className="text-sm underline hover:text-blue-800 dark:hover:text-blue-200"
-                >
-                  {CONTACT_CONFIG.DEVELOPER_EMAIL}
-                </a>
-              </div>
-              <div>
-                <p className="font-medium">Általános kérdések:</p>
-                <a 
-                  href={`mailto:${CONTACT_CONFIG.SUPPORT_EMAIL}?subject=Általános kérdés`}
-                  className="text-sm underline hover:text-blue-800 dark:hover:text-blue-200"
-                >
-                  {CONTACT_CONFIG.SUPPORT_EMAIL}
-                </a>
-              </div>
-            </CardContent>
-          </Card>
-
           {/* Main Content Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-5">
@@ -437,7 +322,7 @@ export default function HelpPage() {
               </TabsTrigger>
               <TabsTrigger value="role-specific" className="flex items-center gap-2">
                 <roleContent.icon className="w-4 h-4" />
-                {currentRole === 'admin' ? 'Admin' : currentRole === 'class-teacher' ? 'Osztályfőnök' : 'Hallgató'}
+                {currentRole === 'admin' ? 'Admin' : currentRole === 'class-teacher' ? 'Osztályfőnök' : 'Diák'}
               </TabsTrigger>
               <TabsTrigger value="guides" className="flex items-center gap-2">
                 <BookOpen className="w-4 h-4" />
@@ -484,7 +369,7 @@ export default function HelpPage() {
                     {roleContent.title}
                   </CardTitle>
                   <CardDescription>
-                    Specializált útmutatók a te szerepkörödhöz ({currentRole === 'admin' ? 'Adminisztrátor' : currentRole === 'class-teacher' ? 'Osztályfőnök' : 'Hallgató'})
+                    Specializált útmutatók a te szerepkörödhöz ({currentRole === 'admin' ? 'Adminisztrátor' : currentRole === 'class-teacher' ? 'Osztályfőnök' : 'Diák'})
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -678,35 +563,6 @@ export default function HelpPage() {
                     </Card>
                   </div>
 
-                  {/* Additional Information */}
-                  <Card className="border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2 text-blue-800 dark:text-blue-200">
-                        <Lightbulb className="h-5 w-5" />
-                        Útmutató használati tippek
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="text-blue-700 dark:text-blue-300">
-                      <div className="grid gap-4 md:grid-cols-2">
-                        <div>
-                          <h4 className="font-medium mb-2">Navigáció:</h4>
-                          <ul className="text-sm space-y-1">
-                            <li>• Használd a lapokat a témák között váltáshoz</li>
-                            <li>• A keresés funkció segít gyorsan megtalálni az információkat</li>
-                            <li>• A gyors műveletek sorban találod a legfontosabb linkeket</li>
-                          </ul>
-                        </div>
-                        <div>
-                          <h4 className="font-medium mb-2">Hozzáférés:</h4>
-                          <ul className="text-sm space-y-1">
-                            <li>• Csak a szerepkörödhöz tartozó útmutató érhető el</li>
-                            <li>• Az adminisztrátorok minden útmutatót megtekinthetnek</li>
-                            <li>• A FirstSteps widgetből is elérhetőek az útmutatók</li>
-                          </ul>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
                 </CardContent>
               </Card>
             </TabsContent>
@@ -868,7 +724,7 @@ export default function HelpPage() {
                     Mik várhatóak a jövőben?
                   </CardTitle>
                   <CardDescription className="text-purple-700 dark:text-purple-300">
-                    Tervezett funkciók és fejlesztések a rendszerben
+                    Tervezett funkciók és fejlesztések a rendszerben (nem prioritási sorrendben)
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="text-purple-700 dark:text-purple-300">
@@ -883,10 +739,72 @@ export default function HelpPage() {
                         ezek szerkesztésére a jövőben új felületeket hozunk létre ezen az oldalon:
                       </p>
                       <ul className="text-sm space-y-1 pl-4">
+                        <li>• <strong>Beosztáskezelő felület</strong> - Egy adott forgatást kiválasztva a szaktanárok láthatják a beosztás tervezetében szereplő diákok előre bejelentett távollétét, valamint az ütközéseket rádiós összejátszásokkal. A rendszer most is tudja ezeket kezelni, csupán nincs egy összesítő felület ahol ezek könnyedén áttekinthetőek</li>
+                        <li>• <strong>Közlemények kiírása</strong> - Közlemények létrehozása és kezelése az adminisztrátorok számára</li>
                         <li>• <strong>Partnerkezelő felület</strong> - Minden partner áttekintése és kezelése</li>
                         <li>• <strong>Eszközkezelő felület</strong> - Minden eszköz áttekintése és kezelése</li>
                         <li>• <strong>Felhasználókezelő felület</strong> - Minden felhasználó áttekintése és kezelése (szerepkörök, stábok, rádiós stábok)</li>
                       </ul>
+                    </div>
+
+                    <div>
+                      <h4 className="font-medium mb-2 flex items-center gap-2">
+                        <MailPlus className="w-4 h-4" />
+                        BetterEmails - Dinamikus e-mail értesítés minden helyzetben
+                      </h4>
+                      <p className="text-sm text-muted-foreground">
+                        A rendszer által küldött e-mailek korlátozottak és csak bár kritikus esetben kerülnek kiküldésre, többnyire technikai okok miatt. Minél előbb igyekszünk ezeket orvosolni és minden lehetséges helyzetben egy informatív értesítést küldeni, melyek testreszabhatóak lennének a felhasználók számára.
+                      </p>
+                    </div>
+                    
+                    <div>
+                      <h4 className="font-medium mb-2 flex items-center gap-2">
+                        <Calendar className="w-4 h-4" />
+                        Naptár integrációk - Google, Apple
+                      </h4>
+                      <p className="text-sm text-muted-foreground">
+                        A naptár integrációk lehetővé teszik a felhasználók számára, hogy a Google és Apple naptárjaikba közvetlenül importálják az eseményeket és határidőket. Ez megkönnyíti az események nyomon követését és a határidők betartását.
+                      </p>
+                    </div>
+                    
+                    <div>
+                      <h4 className="font-medium mb-2 flex items-center gap-2">
+                        <CalendarRange className="w-4 h-4" />
+                        Megszokott felület - Operációs Rendszerek integrációja
+                      </h4>
+                      <p className="text-sm text-muted-foreground">
+                        A modern webfejlesztési technológiák lehetővé teszik, hogy a felhasználók az operációs rendszerük megszokott felületén keresztül érjék el a funkciókat. Ez például azt jelenti, hogy egy dátum megadásánál a megszokott Android (Material) vagy Apple (SwiftUI) dátumválasztó mezők jelennek meg.
+                      </p>
+                    </div>
+
+                    <div>
+                      <h4 className="font-medium mb-2 flex items-center gap-2">
+                        <ShieldBan className="w-4 h-4" />
+                        Google Fiók alapú authentikáció
+                      </h4>
+                      <p className="text-sm text-muted-foreground">
+                        A Google Fiók alapú authentikáció lehetővé teszi a felhasználók számára, hogy a Google fiókjukkal jelentkezzenek be a rendszerbe. Ez egyszerűsíti a bejelentkezési folyamatot, és növeli a biztonságot. E funkció bevezetésével megszűnnek a fiókokhoz tartozó jelszavak és az intézményi fiókokkal lehet majd belépni. Ez lehetővé teszi jelszavak helyett, Azonosítókulcsok használatát is.
+                      </p>
+                    </div>
+
+                    <div>
+                      <h4 className="font-medium mb-2 flex items-center gap-2">
+                        <MessageCircleQuestionIcon className="w-4 h-4" />
+                        Globális rendszerüzenetek
+                      </h4>
+                      <p className="text-sm text-muted-foreground">
+                        A rendszer által küldött globális üzenetek célja, hogy tájékoztassa a felhasználókat technikai problémákról, karbantartásokról, előre bejelentett leállásokról, üzemeltetői és fejlesztői támogatás szüneteiről. Az ehhez megfelelő infrastruktúrát ki fogjuk építeni az oldalon.
+                      </p>
+                    </div>
+
+                    <div>
+                      <h4 className="font-medium mb-2 flex items-center gap-2">
+                        <TicketCheck className="w-4 h-4" />
+                        Igazolásaim
+                      </h4>
+                      <p className="text-sm text-muted-foreground">
+                        A diákok igazolásait a rendszer automatikusan kezeli és generálja az aktuális beosztások alapján. A jövőben a diákok is hozzáférhetnek saját igazolásaikhoz, láthatják azok állapotát.
+                      </p>
                     </div>
 
                     <div>
@@ -909,13 +827,16 @@ export default function HelpPage() {
                       </p>
                     </div>
 
-                    <div>
+                    <div className="relative">
                       <h4 className="font-medium mb-2 flex items-center gap-2">
-                        <FileText className="w-4 h-4" />
-                        Stáb adatainak exportálása
+                      <FileText className="w-4 h-4" />
+                      Stáb adatainak exportálása
+                      <Badge  className="ml-2 text-xs px-2 py-1 bg-green-500 text-green-50 dark:bg-green-900 dark:text-green-300">
+                        Elkészült
+                      </Badge>
                       </h4>
                       <p className="text-sm text-muted-foreground">
-                        Teljes stáb adatainak exportálása nyomtatható (PDF) formátumban
+                      Teljes stáb adatainak exportálása nyomtatható (PDF) formátumban
                       </p>
                     </div>
 
@@ -934,10 +855,16 @@ export default function HelpPage() {
                           </span>
                         </li>
                         <li>
-                          <strong>Adatkímélő megoldások</strong><br />
+                          <strong>Adatforgalom Optimalizálása</strong><br />
                           <span className="text-muted-foreground">
-                            Internetes kommunikáció optimalizálása, közlekedő adatmennyiség csökkentése érdekében - 
+                            Internetes kommunikáció optimalizálása, a közlekedő adatmennyiség csökkentése érdekében - 
                             jelenleg a főoldaltól, a belépés és forgatási adatok lekérdezése 10-20 MB adatmennyiséget igényel.
+                          </span>
+                        </li>
+                        <li>
+                          <strong>Docker konténerek a backenden</strong><br />
+                          <span className="text-muted-foreground">
+                            Úgynevezett "Docker konténerek" használata a backend szerver üzemeltetése során sok időt, energiát és számítási kapacitást takarít meg, ezáltal a rendszer stabilabb és gyorsabb lesz.
                           </span>
                         </li>
                       </ul>

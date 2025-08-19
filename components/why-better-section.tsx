@@ -48,8 +48,8 @@ const securityFeatures: Improvement[] = [
   {
     icon: Server,
     title: "Folyamatos Felügyelet",
-    description: "A szerver állapotát 24/7 figyelik, és automatikus biztonsági mentések védik az adatokat.",
-    badges: ["24/7 Monitoring", "Auto mentés"]
+    description: "A szerver állapotát 24/7 figyelik, és rendszeres karbantartással biztosítják a stabil működést.",
+    badges: ["24/7 Monitoring", "Rendszeres karbantartás"]
   },
   {
     icon: Lock,
@@ -86,7 +86,7 @@ const ImprovementCard = ({ icon: Icon, title, description, badges }: Improvement
 
 export function WhyBetterSection() {
   return (
-    <section className="w-full py-12 md:py-24 lg:py-32 bg-gradient-to-b from-background to-muted/20">
+    <section className="w-full py-12 md:py-24 lg:py-32 bg-muted/10">
       <div className="container px-4 mx-auto md:px-6">
         <div className="flex flex-col items-center justify-center space-y-4 text-center mb-16">
           <div className="space-y-2">
@@ -135,7 +135,7 @@ export function WhyBetterSection() {
 
         {/* Summary Banner */}
         <div className="max-w-4xl mx-auto mt-16">
-          <Card className="bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 border-primary/20">
+          <Card className="bg-primary/5 border-primary/20">
             <CardHeader className="text-center">
               <CardTitle className="text-xl font-bold mb-2">
                 🚀 Eredmény: Egyszerűen Működik, Biztonságban Vagy

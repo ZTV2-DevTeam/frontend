@@ -56,14 +56,14 @@ export function FirstPasswordRequestForm({
             <div className="grid gap-6">
               <div className="space-y-3">
                 <p className="text-sm text-muted-foreground">
-                  Elküldtünk egy emailt a megadott címre az első jelszó beállításához szükséges utasításokkal.
+                  Elküldtünk egy emailt a megadott címre az első jelszó beállításához szükséges utasításokkal, amennyiben létezik a fiókod.
                 </p>
-                <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 dark:border-blue-800 dark:bg-blue-900">
                   <div className="flex items-start gap-3">
-                    <UserCheck className="h-5 w-5 text-blue-600 mt-0.5" />
+                    <UserCheck className="h-5 w-5 text-blue-600 mt-0.5 dark:text-blue-200" />
                     <div className="text-left">
-                      <p className="text-sm font-medium text-blue-800">Következő lépések:</p>
-                      <ul className="text-xs text-blue-700 mt-1 space-y-1">
+                      <p className="text-sm font-medium text-blue-800 dark:text-blue-200">Következő lépések:</p>
+                      <ul className="text-xs text-blue-700 mt-1 space-y-1 dark:text-blue-300">
                         <li>1. Ellenőrizd az email fiókod</li>
                         <li>2. Kattints a jelszó beállítási linkre</li>
                         <li>3. Hozd létre az első jelszavad</li>
@@ -118,13 +118,13 @@ export function FirstPasswordRequestForm({
         </CardHeader>
         <CardContent>
           <div className="mb-6">
-            <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg border border-blue-200">
+            <div className="p-4 rounded-lg border border-blue-200 dark:border-blue-800 dark:bg-blue-900">
               <div className="flex items-start gap-3">
-                <UserCheck className="h-5 w-5 text-blue-600 mt-0.5" />
+                <UserCheck className="h-5 w-5 text-blue-600 dark:text-blue-200 mt-0.5" />
                 <div>
-                  <h3 className="text-sm font-medium text-blue-800 mb-1">Üdvözlünk a FTV rendszerben!</h3>
-                  <p className="text-xs text-blue-700">
-                    Fiókod létrehozásra került, de még nem állítottál be jelszót. Az első bejelentkezéshez kérd 
+                  <h3 className="text-sm font-medium text-blue-800 mb-1 dark:text-blue-200">Üdvözlünk a FTV rendszerben!</h3>
+                  <p className="text-xs text-blue-700 dark:text-blue-300">
+                    Amennyiben fiókod létrehozásra került, de még nem állítottál be jelszót. Az első bejelentkezéshez kérd
                     el a jelszó beállítási linket email címed megadásával.
                   </p>
                 </div>
@@ -136,7 +136,7 @@ export function FirstPasswordRequestForm({
             <div className="grid gap-6">
               <div className="grid gap-6">
                 {error && (
-                  <div className="p-3 text-sm text-red-600 border border-red-200 rounded-md bg-red-50">
+                  <div className="p-3 text-sm text-red-600 border border-red-200 rounded-md bg-red-50 dark:bg-red-800 dark:text-red-200">
                     {error}
                   </div>
                 )}
@@ -153,22 +153,6 @@ export function FirstPasswordRequestForm({
                   />
                 </div>
                 
-                <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
-                  <div className="flex items-start gap-3">
-                    <Shield className="h-5 w-5 text-amber-600 mt-0.5" />
-                    <div>
-                      <h4 className="text-sm font-medium text-amber-800 mb-1">Fontos tudnivalók:</h4>
-                      <ul className="text-xs text-amber-700 space-y-1">
-                        <li>• A link 30 napig érvényes</li>
-                        <li>• Csak egyszer használható</li>
-                        <li>• Biztonságosan kódolt JWT token (csak a szerver tudja dekódolni)</li>
-                        <li>• Biztonságos jelszót válassz (min. 8 karakter)</li>
-                        <li>• A jelszó beállítása után már normálisan beléphetsz</li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? 'Küldés...' : 'Első jelszó beállítási link kérése'}
                 </Button>

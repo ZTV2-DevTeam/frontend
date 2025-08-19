@@ -816,14 +816,10 @@ function ConfigurationWizardWidget() {
 // Student Widget Components
 function UpcomingShootingsWidget() {
   const { user, isAuthenticated } = useAuth()
-  // TEMPORARILY DISABLED FOR DEBUGGING - filming sessions API call causes logout
-  // const { data: filmingData, loading, error } = useApiQuery(
-  //   () => isAuthenticated ? apiClient.getFilmingSessions() : Promise.resolve([]),
-  //   [isAuthenticated]
-  // )
-  const filmingData: any[] = []
-  const loading = false
-  const error = null
+  const { data: filmingData, loading, error } = useApiQuery(
+    () => isAuthenticated ? apiClient.getFilmingSessions() : Promise.resolve([]),
+    [isAuthenticated]
+  )
 
   if (loading) {
     return (
@@ -847,8 +843,12 @@ function UpcomingShootingsWidget() {
   }
 
   const sessions = filmingData || []
-  // Filter upcoming sessions (could be filtered by user assignment later)
-  const upcomingSessions = sessions.slice(0, 3)
+  // Filter upcoming sessions (future dates only)
+  const today = new Date().toISOString().split('T')[0]
+  const upcomingSessions = sessions
+    .filter((session: any) => session.date >= today)
+    .sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    .slice(0, 3)
 
   return (
     <Card>
@@ -889,11 +889,11 @@ function UpcomingShootingsWidget() {
                   <div className="flex items-center gap-4 text-sm text-muted-foreground">
                     <div className="flex items-center gap-1">
                       <Calendar className="h-3 w-3" />
-                      <span>{session.datum || 'Nincs dátum'}</span>
+                      <span>{session.date || 'Nincs dátum'}</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <Globe className="h-3 w-3" />
-                      <span className="truncate">{session.location || 'Nincs helyszín'}</span>
+                      <span className="truncate">{session.location?.name || 'Nincs helyszín'}</span>
                     </div>
                   </div>
                 </div>

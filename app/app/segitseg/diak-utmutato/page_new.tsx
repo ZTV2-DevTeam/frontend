@@ -113,7 +113,7 @@ export default function StudentGuidePage() {
                     <h4 className="font-medium">Add meg az adataidat</h4>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    Írd be a felhasználóneved (általában vezetékneved.keresztneved.kezdesÉveXX+F) és a jelszavad.
+                    Írd be a felhasználóneved (általában vezetékneved.keresztneved) és a jelszavad.
                   </p>
                 </div>
                 <div className="p-4 border rounded-lg">
@@ -219,7 +219,7 @@ export default function StudentGuidePage() {
                       <h5 className="font-medium">Távollét</h5>
                     </div>
                     <p className="text-sm text-muted-foreground mb-2">
-                      Ebben a menüpontban rögzítheted azt, ha előre láthatóan nem leszel elérhető egy adott időpontban (pl. betegség, családi okok). Amennyiben elfogadják ezt a tanárok, nem leszel ebben az időszakban beosztva forgatásra.
+                      Itt kezelheted a hiányzásaidat, beküldheted az igazolásokat és megnézheted a státuszukat.
                     </p>
                     <p className="text-xs text-green-600">
                       Útvonal: /app/tavollet
@@ -308,7 +308,7 @@ export default function StudentGuidePage() {
                   <h4 className="font-medium text-amber-800 dark:text-amber-200">Fontos</h4>
                 </div>
                 <p className="text-sm text-amber-700 dark:text-amber-300">
-                  Ez a funkció csak a 10F osztály diákjai számára érhető el, akik riporter jogosultsággal rendelkeznek.
+                  Ez a funkció jelenleg csak a 10F osztály diákjai számára érhető el, akik riporter jogosultsággal rendelkeznek.
                 </p>
               </div>
 
@@ -349,7 +349,7 @@ export default function StudentGuidePage() {
                     <h4 className="font-medium">Mentsd el</h4>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    Kattints a "Forgatás létrehozása" gombra. A forgatás létrejön és megjelenik a forgatások listájában.
+                    Kattints a "Mentés" gombra. A forgatás létrejön és megjelenik a forgatások listájában.
                   </p>
                 </div>
               </div>
@@ -357,7 +357,7 @@ export default function StudentGuidePage() {
               <div className="p-4 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg">
                 <h4 className="font-medium text-blue-800 dark:text-blue-200 mb-2">Tipp</h4>
                 <p className="text-sm text-blue-700 dark:text-blue-300">
-                  A forgatás beosztását a tanárok végzik el. Amint létrehozod a forgatást, a tanárok látni fogják és amint lehet beosztják diáktársaidat.
+                  A forgatás létrehozása után más diákok is jelentkezhetnek rá. Ne feledd koordinálni az osztályfőnökkel vagy a tanárokkal!
                 </p>
               </div>
             </CardContent>

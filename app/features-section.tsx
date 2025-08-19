@@ -52,15 +52,15 @@ const teacherFeatures: Feature[] = [
 ]
 
 const FeatureCard = ({ icon: Icon, title, description }: Feature) => (
-  <Card className="transition-colors duration-300 bg-background/50 border-white/10 hover:border-primary/50">
-    <CardHeader>
-      <div className="flex items-center gap-4">
-        <div className="p-3 rounded-lg bg-primary/10">
+  <Card className="transition-all duration-300 bg-background/50 border-white/10 hover:border-primary/50 hover:shadow-lg hover:scale-105 h-full">
+    <CardHeader className="p-6">
+      <div className="flex items-start gap-4">
+        <div className="p-3 rounded-xl bg-primary/10 shrink-0">
           <Icon className="w-6 h-6 text-primary" />
         </div>
-        <div>
-          <CardTitle className="text-lg font-semibold">{title}</CardTitle>
-          <CardDescription className="mt-1 text-muted-foreground">{description}</CardDescription>
+        <div className="space-y-2">
+          <CardTitle className="text-lg font-semibold leading-tight">{title}</CardTitle>
+          <CardDescription className="text-muted-foreground leading-relaxed">{description}</CardDescription>
         </div>
       </div>
     </CardHeader>
@@ -69,31 +69,31 @@ const FeatureCard = ({ icon: Icon, title, description }: Feature) => (
 
 export function FeaturesSection() {
   return (
-    <section className="w-full py-12 md:py-24 lg:py-32">
+    <section className="w-full py-16 md:py-24 lg:py-32 bg-muted/20">
       <div className="container px-4 mx-auto md:px-6">
-        <div className="flex flex-col items-center justify-center space-y-4 text-center">
-          <div className="space-y-2">
-            <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">Újdonságok</h2>
-            <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+        <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
+          <div className="space-y-3">
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">Újdonságok</h2>
+            <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-lg/relaxed xl:text-xl/relaxed">
               Mit takar az új rendszer?
             </p>
           </div>
         </div>
-        <div className="grid items-start max-w-5xl gap-6 py-12 mx-auto lg:grid-cols-3 lg:gap-8">
+        <div className="grid items-stretch max-w-6xl gap-6 mx-auto lg:grid-cols-3 lg:gap-8">
           {generalFeatures.map((feature) => (
             <FeatureCard key={feature.title} {...feature} />
           ))}
         </div>
 
-        <div className="flex flex-col items-center justify-center mt-16 space-y-4 text-center">
-          <div className="space-y-2">
-            <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">Tanároknak</h2>
-            <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+        <div className="flex flex-col items-center justify-center mt-20 space-y-4 text-center">
+          <div className="space-y-3">
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">Tanároknak</h2>
+            <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-lg/relaxed xl:text-xl/relaxed">
               Extra funkciók
             </p>
           </div>
         </div>
-        <div className="grid items-start max-w-5xl gap-6 py-12 mx-auto lg:grid-cols-3 lg:gap-8">
+        <div className="grid items-stretch max-w-6xl gap-6 py-12 mx-auto lg:grid-cols-3 lg:gap-8">
           {teacherFeatures.map((feature) => (
             <FeatureCard key={feature.title} {...feature} />
           ))}

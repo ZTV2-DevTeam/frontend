@@ -55,13 +55,13 @@ export default function AdminGuidePage() {
                   Hozzáférés megtagadva
                 </CardTitle>
                 <CardDescription>
-                  Ez a dokumentáció kizárólag rendszergazdai jogosultságokkal rendelkező felhasználók számára elérhető.
+                  Ez az útmutató csak rendszergazdák számára elérhető.
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="text-center py-8 text-muted-foreground">
                   <Shield className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>Nincs megfelelő jogosultsága a rendszergazdai dokumentáció megtekintéséhez.</p>
+                  <p>Nincs jogosultságod az adminisztrátori útmutató megtekintéséhez.</p>
                 </div>
               </CardContent>
             </Card>
@@ -81,15 +81,15 @@ export default function AdminGuidePage() {
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div className="space-y-1">
               <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-red-600 to-red-400 bg-clip-text text-transparent">
-                Rendszergazdai Dokumentáció
+                Adminisztrátor Útmutató
               </h1>
               <p className="text-muted-foreground">
-                Átfogó dokumentáció a rendszergazdai funkciók és a Django adminisztrációs felület használatához
+                Teljes útmutató minden adminisztrátori funkcióhoz és a Django admin használatához
               </p>
             </div>
             <Badge variant="outline" className="text-sm bg-red-50 text-red-700 border-red-200 dark:bg-red-950 dark:text-red-300 dark:border-red-800">
               <Shield className="w-3 h-3 mr-1" />
-              Adminisztrátori Hozzáférés
+              Admin Szint
             </Badge>
           </div>
 
@@ -98,10 +98,10 @@ export default function AdminGuidePage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <LogIn className="h-5 w-5 text-blue-600" />
-                Rendszerbe való bejelentkezés
+                Bejelentkezés
               </CardTitle>
               <CardDescription>
-                A rendszergazdai fiókkal való bejelentkezés folyamata
+                Hogyan jelentkezz be a rendszerbe adminisztrátorként
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -109,28 +109,28 @@ export default function AdminGuidePage() {
                 <div className="p-4 border rounded-lg">
                   <div className="flex items-center gap-2 mb-2">
                     <div className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-bold">1</div>
-                    <h4 className="font-medium">Adminisztrációs felület elérése</h4>
+                    <h4 className="font-medium">Nyisd meg a weboldalt</h4>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    Használja az adminisztrációs URL címet, amely kizárólag rendszergazdák számára biztosít hozzáférést.
+                    Használd az adminisztrációs URL-t, amely kizárólag adminok számára elérhető.
                   </p>
                 </div>
                 <div className="p-4 border rounded-lg">
                   <div className="flex items-center gap-2 mb-2">
                     <div className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-bold">2</div>
-                    <h4 className="font-medium">Hitelesítési adatok megadása</h4>
+                    <h4 className="font-medium">Admin adatok megadása</h4>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    Adja meg az adminisztrátori felhasználónevet és jelszót. Ezek a hitelesítési adatok kizárólag a főrendszergazdától szerezhetőek be.
+                    Írd be az admin felhasználóneved és jelszavad. Ezeket kizárólag a főrendszergazdától kaphatsz.
                   </p>
                 </div>
                 <div className="p-4 border rounded-lg">
                   <div className="flex items-center gap-2 mb-2">
                     <div className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-bold">3</div>
-                    <h4 className="font-medium">Adminisztrátori hozzáférés</h4>
+                    <h4 className="font-medium">Biztonságos bejelentkezés</h4>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    Rendszergazdai jogosultságokkal teljes hozzáférést biztosít minden rendszerfunkcióhoz. A hozzáférést felelősségteljesen kezelje.
+                    Admin joggal teljes hozzáférésed van minden funkcióhoz, kezeld felelősséggel!
                   </p>
                 </div>
               </div>
@@ -142,10 +142,10 @@ export default function AdminGuidePage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Eye className="h-5 w-5 text-green-600" />
-                Alkalmazás navigációs rendszere
+                Navigáció a fő alkalmazásban
               </CardTitle>
               <CardDescription>
-                Rendszergazdák számára elérhető menüpontok és azok funkcióinak részletes ismertetése
+                Adminisztrátorként elérhető menük és azok funkcióinak részletes bemutatása
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -153,7 +153,7 @@ export default function AdminGuidePage() {
               <div className="space-y-4">
                 <h4 className="font-semibold text-lg flex items-center gap-2">
                   <Home className="h-4 w-4" />
-                  Főmenü elemei
+                  Főmenü
                 </h4>
                 
                 <div className="grid gap-4 md:grid-cols-2">
@@ -163,10 +163,10 @@ export default function AdminGuidePage() {
                       <h5 className="font-medium">Irányítópult</h5>
                     </div>
                     <p className="text-sm text-muted-foreground mb-2">
-                      Rendszerállapot áttekintése, statisztikai adatok megjelenítése és gyors műveletek végrehajtása.
+                      Általános áttekintés a rendszer állapotáról, statisztikákról és gyors műveletek.
                     </p>
                     <p className="text-xs text-blue-600">
-                      Navigációs útvonal: /app/iranyitopult
+                      Útvonal: /app/iranyitopult
                     </p>
                   </div>
 
@@ -176,10 +176,10 @@ export default function AdminGuidePage() {
                       <h5 className="font-medium">Üzenőfal</h5>
                     </div>
                     <p className="text-sm text-muted-foreground mb-2">
-                      Közlemények publikálása, üzenetek moderálása és kommunikációs tartalmak kezelése.
+                      Közlemények publikálása, üzenetek moderálása és kommunikáció kezelése.
                     </p>
                     <p className="text-xs text-orange-600">
-                      Navigációs útvonal: /app/uzenofal
+                      Útvonal: /app/uzenofal
                     </p>
                   </div>
 
@@ -189,10 +189,10 @@ export default function AdminGuidePage() {
                       <h5 className="font-medium">Stáb</h5>
                     </div>
                     <p className="text-sm text-muted-foreground mb-2">
-                      Stábtagok kezelése, szerepkörök hozzárendelése és csapatszervezési feladatok koordinálása.
+                      Stábok kezelése, szerepkörök hozzárendelése és csapatkezelés.
                     </p>
                     <p className="text-xs text-purple-600">
-                      Navigációs útvonal: /app/stab
+                      Útvonal: /app/stab
                     </p>
                   </div>
 
@@ -202,10 +202,10 @@ export default function AdminGuidePage() {
                       <h5 className="font-medium">Naptár</h5>
                     </div>
                     <p className="text-sm text-muted-foreground mb-2">
-                      Naptár áttekintése, események szerkesztése és időpontütközések kezelése.
+                      Teljes naptár áttekintés, események szerkesztése és ütközések kezelése.
                     </p>
                     <p className="text-xs text-indigo-600">
-                      Navigációs útvonal: /app/naptar
+                      Útvonal: /app/naptar
                     </p>
                   </div>
                 </div>
@@ -217,7 +217,7 @@ export default function AdminGuidePage() {
               <div className="space-y-4">
                 <h4 className="font-semibold text-lg flex items-center gap-2">
                   <Star className="h-4 w-4" />
-                  Tevékenységi menü
+                  Tevékenység menü
                 </h4>
                 
                 <div className="grid gap-4 md:grid-cols-2">
@@ -227,10 +227,10 @@ export default function AdminGuidePage() {
                       <h5 className="font-medium">Forgatások</h5>
                     </div>
                     <p className="text-sm text-muted-foreground mb-2">
-                      Forgatások létrehozása, szerkesztése, beosztások kezelése és teljes felügyeleti tevékenység.
+                      Forgatások létrehozása, szerkesztése, beosztások kezelése és teljes felügyelet.
                     </p>
                     <p className="text-xs text-red-600">
-                      Navigációs útvonal: /app/forgatasok
+                      Útvonal: /app/forgatasok
                     </p>
                   </div>
 
@@ -240,10 +240,10 @@ export default function AdminGuidePage() {
                       <h5 className="font-medium">Távollét</h5>
                     </div>
                     <p className="text-sm text-muted-foreground mb-2">
-                      Hiányzások felügyelete, igazolások moderálása és távollétkezelési feladatok koordinálása.
+                      Hiányzások felügyelete, igazolások moderálása és távollétkezelés.
                     </p>
                     <p className="text-xs text-green-600">
-                      Navigációs útvonal: /app/tavollet
+                      Útvonal: /app/tavollet
                     </p>
                   </div>
                 </div>
@@ -253,7 +253,7 @@ export default function AdminGuidePage() {
 
               {/* Secondary Menu */}
               <div className="space-y-4">
-                <h4 className="font-semibold text-lg">Adminisztrációs menüpontok</h4>
+                <h4 className="font-semibold text-lg">Adminisztrációs menük</h4>
                 
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="p-4 border rounded-lg">
@@ -262,10 +262,10 @@ export default function AdminGuidePage() {
                       <h5 className="font-medium">Beállítások</h5>
                     </div>
                     <p className="text-sm text-muted-foreground mb-2">
-                      Rendszer globális beállításainak kezelése, konfigurációs paraméterek és adminisztrátori jogosultságok.
+                      Rendszer globális beállításai, konfiguráció és admin jogosultságok.
                     </p>
                     <p className="text-xs text-gray-600">
-                      Navigációs útvonal: /app/beallitasok
+                      Útvonal: /app/beallitasok
                     </p>
                   </div>
 
@@ -275,10 +275,10 @@ export default function AdminGuidePage() {
                       <h5 className="font-medium">Adatbázis Admin</h5>
                     </div>
                     <p className="text-sm text-muted-foreground mb-2">
-                      Django adminisztrációs felület elérése közvetlen adatbázis-kezelési műveletekhez.
+                      Django admin felület elérése közvetlen adatbázis kezeléshez.
                     </p>
                     <p className="text-xs text-emerald-600">
-                      Navigációs útvonal: /app/database-admin
+                      Útvonal: /app/database-admin
                     </p>
                   </div>
 
@@ -288,10 +288,10 @@ export default function AdminGuidePage() {
                       <h5 className="font-medium">Segítség</h5>
                     </div>
                     <p className="text-sm text-muted-foreground mb-2">
-                      Részletes dokumentáció, útmutatók és fejlesztői támogatási információk.
+                      Teljes dokumentáció, útmutatók és fejlesztői információk.
                     </p>
                     <p className="text-xs text-blue-600">
-                      Navigációs útvonal: /app/segitseg
+                      Útvonal: /app/segitseg
                     </p>
                   </div>
                 </div>
@@ -304,26 +304,26 @@ export default function AdminGuidePage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Database className="h-5 w-5 text-emerald-600" />
-                Django adminisztrációs útmutató: Adatok kezelése
+                Django Admin útmutató: Beosztás és közlemény létrehozása
               </CardTitle>
               <CardDescription>
-                Hogyan adj hozzá és módosíts adatokat a Django admin felületen
+                Hogyan adj hozzá új beosztásokat, közleményeket és egyéb adatokat a Django admin felületen
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="p-4 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg">
                 <div className="flex items-center gap-2 mb-2">
                   <AlertTriangle className="h-4 w-4 text-amber-600" />
-                  <h4 className="font-medium text-amber-800 dark:text-amber-200">Figyelmeztetés</h4>
+                  <h4 className="font-medium text-amber-800 dark:text-amber-200">Figyelem!</h4>
                 </div>
                 <p className="text-sm text-amber-700 dark:text-amber-300">
-                  A Django admin felület közvetlen adatbázis hozzáférést ad. Csak akkor használd, ha tudod mit csinálsz. Hibás adatok károsíthatják a rendszert!
+                  A Django admin közvetlen adatbázis hozzáférést biztosít. Csak akkor használd, ha pontosan tudod, mit csinálsz. Rossz adatok károsíthatják a rendszert!
                 </p>
               </div>
 
               {/* Django Admin Access */}
               <div className="space-y-4">
-                <h4 className="font-semibold text-lg">1. Django admin elérése</h4>
+                <h4 className="font-semibold text-lg">1. Django Admin elérése</h4>
                 
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="p-4 border rounded-lg">
@@ -352,7 +352,7 @@ export default function AdminGuidePage() {
 
               {/* Creating Assignments */}
               <div className="space-y-4">
-                <h4 className="font-semibold text-lg">2. Új beosztás létrehozása</h4>
+                <h4 className="font-semibold text-lg">2. Új beosztás (Assignment) létrehozása</h4>
                 
                 <div className="p-4 bg-blue-50/50 dark:bg-blue-950/20 border rounded-lg">
                   <div className="space-y-3">
@@ -361,18 +361,16 @@ export default function AdminGuidePage() {
                       <span className="font-medium">Lépések:</span>
                     </div>
                     <ol className="text-sm text-muted-foreground space-y-2 ml-6">
-                      <li><strong>1.</strong> Menj az "API" → "Beosztások" menüpontra</li>
-                      <li><strong>2.</strong> Kattints a "Beosztás hozzáadása" gombra</li>
-                      <li><strong>3.</strong> Töltsd ki a mezőket:
+                      <li><strong>1.</strong> Menj az "Adatbázis Admin" → "Beosztások" menüpontra</li>
+                      <li><strong>2.</strong> Kattints a "Add Beosztas" (Új hozzáadása) gombra</li>
+                      <li><strong>3.</strong> Töltsd ki a kötelező mezőket:
                         <ul className="ml-4 mt-1 space-y-1">
-                          <li>• <strong>Kész:</strong> Jelöld be, ha a beosztás végleges</li>
-                          <li>• <strong>Szerepkör relációk:</strong> Add hozzá a diák-szerepkör párokat</li>
-                          <li>• <strong>Szerző:</strong> Válaszd ki, ki készítette</li>
-                          <li>• <strong>Tanév:</strong> Válaszd ki a megfelelő tanévet</li>
-                          <li>• <strong>Forgatás:</strong> Válaszd ki, melyik forgatáshoz tartozik</li>
+                          <li>• <strong>Forgatas:</strong> Válaszd ki, melyik forgatáshoz tartozik</li>
+                          <li>• <strong>Szerepkor relaciok:</strong> Adj hozzá diák-szerepkör párokat</li>
+                          <li>• <strong>Kesz:</strong> Jelöld be, ha a beosztás kész</li>
                         </ul>
                       </li>
-                      <li><strong>4.</strong> Kattints a "Mentés" gombra</li>
+                      <li><strong>4.</strong> Kattints a "Save" (Mentés) gombra</li>
                     </ol>
                   </div>
                 </div>
@@ -382,7 +380,7 @@ export default function AdminGuidePage() {
 
               {/* Creating Announcements */}
               <div className="space-y-4">
-                <h4 className="font-semibold text-lg">3. Új közlemény létrehozása</h4>
+                <h4 className="font-semibold text-lg">3. Új közlemény (Announcement) létrehozása</h4>
                 
                 <div className="p-4 bg-orange-50/50 dark:bg-orange-950/20 border rounded-lg">
                   <div className="space-y-3">
@@ -391,17 +389,18 @@ export default function AdminGuidePage() {
                       <span className="font-medium">Lépések:</span>
                     </div>
                     <ol className="text-sm text-muted-foreground space-y-2 ml-6">
-                      <li><strong>1.</strong> Menj az "API" → "Közlemények" menüpontra</li>
-                      <li><strong>2.</strong> Kattints a "Közlemény hozzáadása" gombra</li>
-                      <li><strong>3.</strong> Töltsd ki a mezőket:
+                      <li><strong>1.</strong> Menj az "Adatbázis Admin" → "Közlemények" menüpontra</li>
+                      <li><strong>2.</strong> Kattints a "Add Announcement" (Új hozzáadása) gombra</li>
+                      <li><strong>3.</strong> Töltsd ki a kötelező mezőket:
                         <ul className="ml-4 mt-1 space-y-1">
-                          <li>• <strong>Szerző:</strong> Válaszd ki, ki írja a közleményt</li>
-                          <li>• <strong>Cím:</strong> A közlemény címe</li>
-                          <li>• <strong>Tartalom:</strong> A közlemény teljes szövege</li>
-                          <li>• <strong>Címzettek:</strong> Válaszd ki, kik kapják meg (üresen hagyva mindenki kapja)</li>
+                          <li>• <strong>Title:</strong> A közlemény címe</li>
+                          <li>• <strong>Content:</strong> A közlemény teljes szövege</li>
+                          <li>• <strong>Author:</strong> Ki írta a közleményt (általában te)</li>
+                          <li>• <strong>Published:</strong> Jelöld be, ha látható legyen</li>
+                          <li>• <strong>Important:</strong> Jelöld be, ha kiemelt közlemény</li>
                         </ul>
                       </li>
-                      <li><strong>4.</strong> Kattints a "Mentés" gombra</li>
+                      <li><strong>4.</strong> Kattints a "Save" (Mentés) gombra</li>
                     </ol>
                   </div>
                 </div>
@@ -411,107 +410,58 @@ export default function AdminGuidePage() {
 
               {/* Other Common Tasks */}
               <div className="space-y-4">
-                <h4 className="font-semibold text-lg">4. További gyakori feladatok Django adminban</h4>
+                <h4 className="font-semibold text-lg">4. Egyéb gyakori feladatok Django Adminban</h4>
                 
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="p-4 border rounded-lg">
-                    <h5 className="font-medium mb-2">👥 Felhasználók kezelése</h5>
+                    <h5 className="font-medium mb-2">👥 Felhasználó kezelés</h5>
                     <p className="text-sm text-muted-foreground mb-2">
-                      <strong>Útvonal:</strong> Hitelesítés és engedélyezés → Felhasználók
+                      <strong>Útvonal:</strong> Auth → Users
                     </p>
                     <ul className="text-xs text-muted-foreground space-y-1">
-                      <li>• Új felhasználók létrehozása</li>
-                      <li>• Jelszavak megváltoztatása</li>
-                      <li>• Jogosultságok beállítása</li>
+                      <li>• Új felhasználók hozzáadása</li>
+                      <li>• Jelszavak visszaállítása</li>
+                      <li>• Jogosultságok módosítása</li>
                       <li>• Felhasználók aktív/inaktív állapota</li>
                     </ul>
                   </div>
 
                   <div className="p-4 border rounded-lg">
-                    <h5 className="font-medium mb-2">📝 Profilok kezelése</h5>
+                    <h5 className="font-medium mb-2">🎬 Forgatás kezelés</h5>
                     <p className="text-sm text-muted-foreground mb-2">
-                      <strong>Útvonal:</strong> API → Profilok
-                    </p>
-                    <ul className="text-xs text-muted-foreground space-y-1">
-                      <li>• Telefonszám hozzáadása</li>
-                      <li>• Stáb és osztály beállítása</li>
-                      <li>• Admin típus megadása (developer, teacher, system_admin)</li>
-                      <li>• Különleges szerepkör beállítása (production_leader)</li>
-                    </ul>
-                  </div>
-
-                  <div className="p-4 border rounded-lg">
-                    <h5 className="font-medium mb-2">🎬 Forgatások kezelése</h5>
-                    <p className="text-sm text-muted-foreground mb-2">
-                      <strong>Útvonal:</strong> API → Forgatások
+                      <strong>Útvonal:</strong> API → Forgatas
                     </p>
                     <ul className="text-xs text-muted-foreground space-y-1">
                       <li>• Új forgatások létrehozása</li>
-                      <li>• Dátum, idő és helyszín módosítása</li>
-                      <li>• Riporter kijelölése</li>
-                      <li>• Típus beállítása (kacsa, rendes, rendezvény, egyéb)</li>
-                      <li>• Felszerelések hozzárendelése</li>
+                      <li>• Helyszín és idő módosítása</li>
+                      <li>• Forgatás törlése</li>
+                      <li>• Státusz változtatása</li>
                     </ul>
                   </div>
 
                   <div className="p-4 border rounded-lg">
-                    <h5 className="font-medium mb-2">🏫 Osztályok kezelése</h5>
+                    <h5 className="font-medium mb-2">🏫 Osztály kezelés</h5>
                     <p className="text-sm text-muted-foreground mb-2">
-                      <strong>Útvonal:</strong> API → Osztályok
+                      <strong>Útvonal:</strong> API → Osztaly
                     </p>
                     <ul className="text-xs text-muted-foreground space-y-1">
                       <li>• Új osztályok hozzáadása</li>
-                      <li>• Indulási év és szekció beállítása</li>
+                      <li>• Évfolyam és szekció beállítása</li>
                       <li>• Tanév hozzárendelése</li>
-                      <li>• Osztályfőnökök kijelölése</li>
+                      <li>• Osztály információk módosítása</li>
                     </ul>
                   </div>
 
                   <div className="p-4 border rounded-lg">
                     <h5 className="font-medium mb-2">🔧 Szerepkörök</h5>
                     <p className="text-sm text-muted-foreground mb-2">
-                      <strong>Útvonal:</strong> API → Szerepkörök
+                      <strong>Útvonal:</strong> API → Szerepkor
                     </p>
                     <ul className="text-xs text-muted-foreground space-y-1">
-                      <li>• Új szerepkörök létrehozása (pl. Riporter, Operatőr)</li>
-                      <li>• Szerepkör név és év megadása</li>
+                      <li>• Új szerepkörök létrehozása</li>
                       <li>• Szerepkör relációk kezelése</li>
-                    </ul>
-                  </div>
-
-                  <div className="p-4 border rounded-lg">
-                    <h5 className="font-medium mb-2">📅 Tanévek kezelése</h5>
-                    <p className="text-sm text-muted-foreground mb-2">
-                      <strong>Útvonal:</strong> API → Tanévek
-                    </p>
-                    <ul className="text-xs text-muted-foreground space-y-1">
-                      <li>• Új tanévek létrehozása</li>
-                      <li>• Kezdő és záró dátum beállítása</li>
-                      <li>• Osztályok hozzárendelése tanévhez</li>
-                    </ul>
-                  </div>
-
-                  <div className="p-4 border rounded-lg">
-                    <h5 className="font-medium mb-2">🤝 Partnerek kezelése</h5>
-                    <p className="text-sm text-muted-foreground mb-2">
-                      <strong>Útvonal:</strong> API → Partnerek
-                    </p>
-                    <ul className="text-xs text-muted-foreground space-y-1">
-                      <li>• Új partnerek hozzáadása</li>
-                      <li>• Név, cím és intézmény típus beállítása</li>
-                      <li>• Kapcsolattartók hozzáadása</li>
-                    </ul>
-                  </div>
-
-                  <div className="p-4 border rounded-lg">
-                    <h5 className="font-medium mb-2">📻 Rádiós stábok (9F diákoknak)</h5>
-                    <p className="text-sm text-muted-foreground mb-2">
-                      <strong>Útvonal:</strong> API → Rádiós stábok
-                    </p>
-                    <ul className="text-xs text-muted-foreground space-y-1">
-                      <li>• A1, A2, B3, B4 csapatok kezelése</li>
-                      <li>• Rádiós összejátszások ütemezése</li>
-                      <li>• Résztvevők hozzárendelése</li>
+                      <li>• Évhez kötött szerepkörök</li>
+                      <li>• Szerepkör módosítások</li>
                     </ul>
                   </div>
                 </div>
@@ -524,10 +474,10 @@ export default function AdminGuidePage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Shield className="h-5 w-5 text-red-600" />
-                Adminisztrátori szabályok és tippek
+                Adminisztrátori legjobb gyakorlatok
               </CardTitle>
               <CardDescription>
-                Fontos szabályok és hasznos tanácsok a biztonságos adminisztrációhoz
+                Fontos szabályok és tippek a biztonságos adminisztrációhoz
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -535,10 +485,9 @@ export default function AdminGuidePage() {
                 <h4 className="font-medium text-red-800 dark:text-red-200 mb-2">🚨 Kritikus szabályok</h4>
                 <ul className="text-sm text-red-700 dark:text-red-300 space-y-1">
                   <li>• Soha ne törölj adatokat a Django adminban, hacsak nem vagy 100%-ban biztos benne</li>
-                  <li>• Mindig készíts adatbázis mentést nagyobb változtatások előtt</li>
-                  <li>• Ne oszd meg az admin jelszavadat senkivel</li>
+                  <li>• Mindig készíts adatbázis biztonsági mentést nagyobb változtatások előtt</li>
+                  <li>• Ne oszd meg az admin jelszavad senkivel</li>
                   <li>• Ellenőrizd kétszer az adatokat mentés előtt</li>
-                  <li>• Figyelj a kötelező mezőkre (piros csillag *)</li>
                 </ul>
               </div>
 
@@ -546,10 +495,9 @@ export default function AdminGuidePage() {
                 <h4 className="font-medium text-blue-800 dark:text-blue-200 mb-2">💡 Hasznos tippek</h4>
                 <ul className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
                   <li>• Használd a keresést és szűrőket nagyobb adatmennyiség esetén</li>
-                  <li>• A "Módosítás" linkre kattintva szerkesztheted a meglévő elemeket</li>
-                  <li>• A tömeges műveletek segítségével egyszerre több elemet kezelhetsz</li>
-                  <li>• Az "Újabb hozzáadása" gombbal gyorsan adhatsz hozzá több elemet</li>
-                  <li>• A "Történet" fülön láthatod, ki mit változtatott</li>
+                  <li>• A "Change" linkre kattintva szerkesztheted a meglévő elemeket</li>
+                  <li>• A tömeges műveletek (Bulk actions) segítségével egyszerre több elemet kezelhetsz</li>
+                  <li>• Az "Add another" gombbal gyorsan adhatsz hozzá több elemet</li>
                 </ul>
               </div>
 
@@ -557,21 +505,9 @@ export default function AdminGuidePage() {
                 <h4 className="font-medium text-green-800 dark:text-green-200 mb-2">✅ Ellenőrző lista</h4>
                 <ul className="text-sm text-green-700 dark:text-green-300 space-y-1">
                   <li>• Minden kötelező mező ki van töltve?</li>
-                  <li>• A kapcsolatok (dropdown menük) helyesen vannak beállítva?</li>
+                  <li>• A kapcsolatok (foreign keys) helyesen vannak beállítva?</li>
                   <li>• A dátumok és időpontok megfelelőek?</li>
                   <li>• A felhasználók jogosultságai helyesek?</li>
-                  <li>• A beosztás "Kész" jelölése megfelelő?</li>
-                </ul>
-              </div>
-
-              <div className="p-4 bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800 rounded-lg">
-                <h4 className="font-medium text-purple-800 dark:text-purple-200 mb-2">🔍 Django admin tippek</h4>
-                <ul className="text-sm text-purple-700 dark:text-purple-300 space-y-1">
-                  <li>• A magyar felület miatt a menük magyarul jelennek meg</li>
-                  <li>• Automatikus mentés nincs - mindig kattints a "Mentés" gombra</li>
-                  <li>• Ha egy kapcsolódó elemet szeretnél létrehozni, használd a "+" gombot</li>
-                  <li>• A "Mentés és újabb hozzáadása" gombbal folytathatod a munkát</li>
-                  <li>• A hiányzások automatikusan létrejönnek a beosztások alapján</li>
                 </ul>
               </div>
             </CardContent>
@@ -580,8 +516,8 @@ export default function AdminGuidePage() {
           {/* Quick Actions */}
           <Card>
             <CardHeader>
-              <CardTitle>Adminisztrátori gyorselérési funkciók</CardTitle>
-              <CardDescription>Gyakran használt rendszerfunkciók közvetlen elérhetősége</CardDescription>
+              <CardTitle>Adminisztrátori Gyorshivatkozások</CardTitle>
+              <CardDescription>Gyakran használt funkciók gyors elérése</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid gap-3 md:grid-cols-4">

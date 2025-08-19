@@ -50,13 +50,13 @@ export default function ClassTeacherGuidePage() {
                   Hozzáférés megtagadva
                 </CardTitle>
                 <CardDescription>
-                  Ez az útmutató kizárólag osztályfőnökök számára érhető el.
+                  Ez az útmutató csak osztályfőnökök számára elérhető.
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="text-center py-8 text-muted-foreground">
                   <GraduationCap className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>Ön nem rendelkezik jogosultsággal az osztályfőnöki útmutató megtekintéséhez.</p>
+                  <p>Nincs jogosultságod az osztályfőnöki útmutató megtekintéséhez.</p>
                 </div>
               </CardContent>
             </Card>
@@ -76,15 +76,15 @@ export default function ClassTeacherGuidePage() {
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div className="space-y-1">
               <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
-                Osztályfőnöki Útmutató
+                Osztályfőnök Útmutató
               </h1>
               <p className="text-muted-foreground">
-                Teljes körű útmutató minden menühöz és funkcióhoz
+                Teljes útmutató minden menühöz és funkcióhoz
               </p>
             </div>
             <Badge variant="outline" className="text-sm bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950 dark:text-blue-300 dark:border-blue-800">
               <GraduationCap className="w-3 h-3 mr-1" />
-              Osztályfőnöki Szint
+              Osztályfőnök Szint
             </Badge>
           </div>
 
@@ -96,7 +96,7 @@ export default function ClassTeacherGuidePage() {
                 Bejelentkezés
               </CardTitle>
               <CardDescription>
-                A rendszerbe történő bejelentkezés lépései
+                Hogyan jelentkezz be a rendszerbe
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -104,28 +104,28 @@ export default function ClassTeacherGuidePage() {
                 <div className="p-4 border rounded-lg">
                   <div className="flex items-center gap-2 mb-2">
                     <div className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-bold">1</div>
-                    <h4 className="font-medium">Nyissa meg a weboldalt</h4>
+                    <h4 className="font-medium">Nyisd meg a weboldalt</h4>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    Lépjen a rendszer címére, amelyet a rendszergazdától kapott.
+                    Menj a rendszer címére, amelyet a rendszergazdától kaptál.
                   </p>
                 </div>
                 <div className="p-4 border rounded-lg">
                   <div className="flex items-center gap-2 mb-2">
                     <div className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-bold">2</div>
-                    <h4 className="font-medium">Adja meg adatait</h4>
+                    <h4 className="font-medium">Add meg az adataidat</h4>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    Írja be felhasználónevét és jelszavát, amelyet a rendszergazdától kapott.
+                    Írd be a felhasználóneved és jelszavad, amelyet a rendszergazdától kaptál.
                   </p>
                 </div>
                 <div className="p-4 border rounded-lg">
                   <div className="flex items-center gap-2 mb-2">
                     <div className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-bold">3</div>
-                    <h4 className="font-medium">Jelentkezzen be</h4>
+                    <h4 className="font-medium">Jelentkezz be</h4>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    Kattintson a „Bejelentkezés” gombra. Amennyiben először jelentkezik be, állítson be új jelszót.
+                    Kattints a "Bejelentkezés" gombra. Ha első alkalommal jelentkezel be, állíts be egy új jelszót.
                   </p>
                 </div>
               </div>
@@ -137,10 +137,10 @@ export default function ClassTeacherGuidePage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Eye className="h-5 w-5 text-green-600" />
-                Navigáció az osztályfőnöki rendszerben
+                Navigáció az osztályfőnök rendszerben
               </CardTitle>
               <CardDescription>
-                Az osztályfőnökök számára elérhető menüpontok és funkciók részletes bemutatása
+                Osztályfőnökként elérhető menük és azok funkcióinak részletes bemutatása
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -148,7 +148,7 @@ export default function ClassTeacherGuidePage() {
               <div className="space-y-4">
                 <h4 className="font-semibold text-lg flex items-center gap-2">
                   <Home className="h-4 w-4" />
-                  Főmenü – Irányítópult
+                  Főmenü - Irányítópult
                 </h4>
                 
                 <div className="p-4 border rounded-lg bg-blue-50/50 dark:bg-blue-950/20">
@@ -162,9 +162,9 @@ export default function ClassTeacherGuidePage() {
                   
                   <div className="space-y-3">
                     <div>
-                      <h6 className="font-medium mb-2">Megtekinthető információk:</h6>
+                      <h6 className="font-medium mb-2">Mit láthatsz itt:</h6>
                       <ul className="text-sm text-muted-foreground space-y-1 ml-4">
-                        <li>• Összefoglaló statisztikák az osztályról</li>
+                        <li>• Összefoglaló statisztikák az osztályodról</li>
                         <li>• Közelgő forgatások és események</li>
                         <li>• Függőben lévő igazolások száma</li>
                         <li>• Új üzenetek és közlemények</li>
@@ -173,10 +173,10 @@ export default function ClassTeacherGuidePage() {
                     </div>
                     
                     <div>
-                      <h6 className="font-medium mb-2">Elérhető műveletek:</h6>
+                      <h6 className="font-medium mb-2">Mit csinálhatsz itt:</h6>
                       <ul className="text-sm text-muted-foreground space-y-1 ml-4">
                         <li>• Gyors áttekintés a napi feladatokról</li>
-                        <li>• Közvetlen navigáció a fontos menüpontokra</li>
+                        <li>• Direkt navigáció a fontos menüpontokra</li>
                         <li>• Értesítések és figyelmeztetések megtekintése</li>
                         <li>• Rendszer státusz és kapcsolati információk elérése</li>
                       </ul>
@@ -191,7 +191,7 @@ export default function ClassTeacherGuidePage() {
               <div className="space-y-4">
                 <h4 className="font-semibold text-lg flex items-center gap-2">
                   <Users className="h-4 w-4" />
-                  Osztályom menü – Igazolások kezelése
+                  Osztályom menü - Igazolások kezelése
                 </h4>
                 
                 <div className="p-4 border rounded-lg bg-green-50/50 dark:bg-green-950/20">
@@ -205,9 +205,9 @@ export default function ClassTeacherGuidePage() {
                   
                   <div className="space-y-3">
                     <div>
-                      <h6 className="font-medium mb-2">Megtekinthető információk:</h6>
+                      <h6 className="font-medium mb-2">Mit láthatsz itt:</h6>
                       <ul className="text-sm text-muted-foreground space-y-1 ml-4">
-                        <li>• Beérkezett igazolási kérelmek</li>
+                        <li>• Összes beérkezett igazolási kérelem</li>
                         <li>• Igazolások státusza (Függőben, Jóváhagyva, Elutasítva)</li>
                         <li>• Hiányzás dátuma, időtartama és oka</li>
                         <li>• Diák neve és osztálya</li>
@@ -216,10 +216,10 @@ export default function ClassTeacherGuidePage() {
                     </div>
                     
                     <div>
-                      <h6 className="font-medium mb-2">Elérhető műveletek:</h6>
+                      <h6 className="font-medium mb-2">Mit csinálhatsz itt:</h6>
                       <ul className="text-sm text-muted-foreground space-y-1 ml-4">
-                        <li>• <strong>Igazolások jóváhagyása:</strong> Elfogadhatja a beérkezett kérelmeket</li>
-                        <li>• <strong>Igazolások elutasítása:</strong> Indoklással elutasíthatja a kérelmeket</li>
+                        <li>• <strong>Igazolások jóváhagyása:</strong> Elfogadhatod a beérkezett kérelmeket</li>
+                        <li>• <strong>Igazolások elutasítása:</strong> Indoklással elutasíthatod a kérelmeket</li>
                         <li>• <strong>Részletek megtekintése:</strong> Minden adat és csatolmány ellenőrzése</li>
                         <li>• <strong>Szűrés és keresés:</strong> Dátum, diák vagy státusz alapján</li>
                         <li>• <strong>Exportálás:</strong> Jelentések készítése a hiányzásokról</li>
@@ -234,7 +234,7 @@ export default function ClassTeacherGuidePage() {
 
               {/* Secondary Menu */}
               <div className="space-y-4">
-                <h4 className="font-semibold text-lg">Alsó menü – Beállítások és Súgó</h4>
+                <h4 className="font-semibold text-lg">Alsó menü - Beállítások és Segítség</h4>
                 
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="p-4 border rounded-lg">
@@ -248,21 +248,21 @@ export default function ClassTeacherGuidePage() {
                     
                     <div className="space-y-2">
                       <div>
-                        <h6 className="font-medium text-sm">Megtekinthető információk:</h6>
+                        <h6 className="font-medium text-sm">Mit láthatsz:</h6>
                         <ul className="text-xs text-muted-foreground space-y-1 ml-3">
                           <li>• Profil adatok és elérhetőségek</li>
-                          <li>• Jelszó módosítási lehetőség</li>
+                          <li>• Jelszó változtatási lehetőség</li>
                           <li>• Értesítési beállítások</li>
                           <li>• Rendszer preferenciák</li>
                         </ul>
                       </div>
                       
                       <div>
-                        <h6 className="font-medium text-sm">Elérhető műveletek:</h6>
+                        <h6 className="font-medium text-sm">Mit csinálhatsz:</h6>
                         <ul className="text-xs text-muted-foreground space-y-1 ml-3">
-                          <li>• Személyes adatok módosítása</li>
+                          <li>• Saját adatok módosítása</li>
                           <li>• Biztonságos jelszó beállítása</li>
-                          <li>• E-mail értesítések be- vagy kikapcsolása</li>
+                          <li>• Email értesítések be/kikapcsolása</li>
                           <li>• Felhasználói preferenciák testreszabása</li>
                         </ul>
                       </div>
@@ -272,7 +272,7 @@ export default function ClassTeacherGuidePage() {
                   <div className="p-4 border rounded-lg">
                     <div className="flex items-center gap-3 mb-3">
                       <Info className="h-5 w-5 text-blue-600" />
-                      <h5 className="font-medium">Súgó</h5>
+                      <h5 className="font-medium">Segítség</h5>
                     </div>
                     <p className="text-sm text-muted-foreground mb-3">
                       <strong>Útvonal:</strong> /app/segitseg
@@ -280,7 +280,7 @@ export default function ClassTeacherGuidePage() {
                     
                     <div className="space-y-2">
                       <div>
-                        <h6 className="font-medium text-sm">Megtekinthető információk:</h6>
+                        <h6 className="font-medium text-sm">Mit láthatsz:</h6>
                         <ul className="text-xs text-muted-foreground space-y-1 ml-3">
                           <li>• Általános tudásbázis és GYIK</li>
                           <li>• Specifikus osztályfőnöki útmutatók</li>
@@ -290,12 +290,12 @@ export default function ClassTeacherGuidePage() {
                       </div>
                       
                       <div>
-                        <h6 className="font-medium text-sm">Elérhető műveletek:</h6>
+                        <h6 className="font-medium text-sm">Mit csinálhatsz:</h6>
                         <ul className="text-xs text-muted-foreground space-y-1 ml-3">
                           <li>• Segítség keresése problémák esetén</li>
                           <li>• Útmutatók böngészése</li>
                           <li>• Kapcsolatfelvétel a támogatással</li>
-                          <li>• A rendszer funkcióinak megismerése</li>
+                          <li>• Rendszer funkcióinak megismerése</li>
                         </ul>
                       </div>
                     </div>
@@ -305,13 +305,68 @@ export default function ClassTeacherGuidePage() {
             </CardContent>
           </Card>
 
+          {/* Key Responsibilities */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ClipboardCheck className="h-5 w-5 text-orange-600" />
+                Főbb feladataid osztályfőnökként
+              </CardTitle>
+              <CardDescription>
+                Mit kell csinálnod rendszeresen a rendszerben
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="p-4 border rounded-lg">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-6 h-6 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center text-sm font-bold">1</div>
+                    <h4 className="font-medium">Napi igazolás-ellenőrzés</h4>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Minden nap ellenőrizd az új igazolási kérelmeket és döntsd el a jóváhagyásukat vagy elutasításukat.
+                  </p>
+                </div>
+
+                <div className="p-4 border rounded-lg">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-6 h-6 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center text-sm font-bold">2</div>
+                    <h4 className="font-medium">Hiányzási trendek figyelése</h4>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Figyeld a diákok hiányzási szokásait és lépj kapcsolatba azokkal, akiknek sokat hiányzásuk van.
+                  </p>
+                </div>
+
+                <div className="p-4 border rounded-lg">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-6 h-6 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center text-sm font-bold">3</div>
+                    <h4 className="font-medium">Dokumentáció vezetése</h4>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Készítsd el a szükséges jelentéseket és exportálj adatokat a főigazgatóság vagy adminisztráció számára.
+                  </p>
+                </div>
+
+                <div className="p-4 border rounded-lg">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-6 h-6 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center text-sm font-bold">4</div>
+                    <h4 className="font-medium">Kommunikáció a diákokkal</h4>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Indokolt esetben vedd fel a kapcsolatot a diákokkal vagy szüleikkel a hiányzások kapcsán.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Tips and Best Practices */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <CheckCircle className="h-5 w-5 text-green-600" />
-                Hasznos tippek a hatékony munkavégzéshez
+                Hasznos tippek a hatékony munkához
               </CardTitle>
               <CardDescription>
                 Praktikus tanácsok a rendszer optimális használatához
@@ -319,20 +374,38 @@ export default function ClassTeacherGuidePage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="p-4 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg">
-                <h4 className="font-medium text-green-800 dark:text-green-200 mb-2">📅 Tippek és trükkök</h4>
+                <h4 className="font-medium text-green-800 dark:text-green-200 mb-2">📅 Napi rutinok</h4>
                 <ul className="text-sm text-green-700 dark:text-green-300 space-y-1">
-                  <li>• Használja a tömeghes kijelölés funkciót, hogy a hasonló kérelmeket gyorsan el tudja fogadni</li>
-                  <li>• A hiányzások jelenleg Iskolaérdekű távollétnek minősülnek, automatikusan generálás jellegéből adódóan ezek hitelesek. Önnek van lehetősége ezeket elutasítani, azonban ezt kérem csak indokolt esetben tegye! Kérdések esetén keresse a média tagozatot vezető tanárt!</li>
+                  <li>• Reggel mindig ellenőrizd az irányítópultot az új feladatokért</li>
+                  <li>• Délután foglalkozz az igazolások feldolgozásával</li>
+                  <li>• Heti egyszer tekintsd át a hiányzási statisztikákat</li>
                 </ul>
               </div>
 
+              <div className="p-4 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg">
+                <h4 className="font-medium text-blue-800 dark:text-blue-200 mb-2">⚡ Gyors műveletek</h4>
+                <ul className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
+                  <li>• Használd a tömeges jóváhagyás funkciót hasonló kérelmeknél</li>
+                  <li>• Állíts be automatikus értesítéseket fontos eseményekről</li>
+                  <li>• Használd a szűrőket a releváns igazolások gyors megtalálásához</li>
+                </ul>
+              </div>
+
+              <div className="p-4 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg">
+                <h4 className="font-medium text-amber-800 dark:text-amber-200 mb-2">⚠️ Fontos tudnivalók</h4>
+                <ul className="text-sm text-amber-700 dark:text-amber-300 space-y-1">
+                  <li>• Mindig indokold meg az elutasításokat</li>
+                  <li>• Ellenőrizd a csatolt dokumentumokat hitelességére</li>
+                  <li>• Problémás esetekben vedd fel a kapcsolatot a rendszergazdával</li>
+                </ul>
+              </div>
             </CardContent>
           </Card>
 
           {/* Quick Actions */}
           <Card>
             <CardHeader>
-              <CardTitle>Hasznos linkek</CardTitle>
+              <CardTitle>Hasznos Linkek</CardTitle>
               <CardDescription>Gyakran használt funkciók gyors elérése</CardDescription>
             </CardHeader>
             <CardContent>
