@@ -5,9 +5,7 @@ import { SiteHeader } from "@/components/site-header"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import                  <p className="text-sm text-muted-foreground">
-                    Kattints a &quot;Forgatás létrehozása&quot; gombra. A forgatás létrejön és megjelenik a forgatások listájában.
-                  </p>Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { useUserRole } from "@/contexts/user-role-context"
 import { 
