@@ -3,21 +3,26 @@
 import React, { createContext, useContext, useEffect, useReducer, useCallback } from 'react'
 
 export type ThemeColor = 'red' | 'amber' | 'yellow' | 'cyan' | 'green' | 'indigo' | 'purple' | 'pink' | 'blue' | 'slate'
+export type ThemeMode = 'light' | 'dark' | 'system'
 
 interface ThemeState {
   themeColor: ThemeColor
+  themeMode: ThemeMode
   isDark: boolean
   isInitialized: boolean
 }
 
 type ThemeAction =
   | { type: 'SET_THEME_COLOR'; color: ThemeColor }
+  | { type: 'SET_THEME_MODE'; mode: ThemeMode }
   | { type: 'SET_DARK_MODE'; isDark: boolean }
-  | { type: 'INITIALIZE'; themeColor: ThemeColor; isDark: boolean }
+  | { type: 'INITIALIZE'; themeColor: ThemeColor; themeMode: ThemeMode; isDark: boolean }
 
 interface ThemeContextType {
   themeColor: ThemeColor
+  themeMode: ThemeMode
   setThemeColor: (color: ThemeColor) => void
+  setThemeMode: (mode: ThemeMode) => void
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
@@ -38,11 +43,14 @@ function themeReducer(state: ThemeState, action: ThemeAction): ThemeState {
   switch (action.type) {
     case 'SET_THEME_COLOR':
       return { ...state, themeColor: action.color }
+    case 'SET_THEME_MODE':
+      return { ...state, themeMode: action.mode }
     case 'SET_DARK_MODE':
       return { ...state, isDark: action.isDark }
     case 'INITIALIZE':
       return { 
         themeColor: action.themeColor, 
+        themeMode: action.themeMode,
         isDark: action.isDark, 
         isInitialized: true 
       }
@@ -54,12 +62,32 @@ function themeReducer(state: ThemeState, action: ThemeAction): ThemeState {
 export function ThemeProvider({ children }: ThemeProviderProps) {
   const [state, dispatch] = useReducer(themeReducer, {
     themeColor: 'blue',
+    themeMode: 'system',
     isDark: false,
     isInitialized: false
   })
 
   const setThemeColor = useCallback((color: ThemeColor) => {
     dispatch({ type: 'SET_THEME_COLOR', color })
+  }, [])
+
+  const setThemeMode = useCallback((mode: ThemeMode) => {
+    dispatch({ type: 'SET_THEME_MODE', mode })
+    
+    // Apply the theme mode immediately
+    if (mode === 'light') {
+      document.documentElement.classList.remove('dark')
+    } else if (mode === 'dark') {
+      document.documentElement.classList.add('dark')
+    } else {
+      // System mode - check system preference
+      const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+      if (systemDark) {
+        document.documentElement.classList.add('dark')
+      } else {
+        document.documentElement.classList.remove('dark')
+      }
+    }
   }, [])
 
   // Initialize theme from localStorage
@@ -70,18 +98,25 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
         ? savedTheme 
         : 'blue'
 
+      const savedMode = localStorage.getItem('theme-mode') as ThemeMode
+      const validMode = savedMode && ['light', 'dark', 'system'].includes(savedMode)
+        ? savedMode
+        : 'system'
+
       const isDarkMode = document.documentElement.classList.contains('dark')
       
       dispatch({ 
         type: 'INITIALIZE', 
-        themeColor: validTheme, 
+        themeColor: validTheme,
+        themeMode: validMode, 
         isDark: isDarkMode 
       })
     } catch (error) {
       console.warn('Failed to load theme from localStorage:', error)
       dispatch({ 
         type: 'INITIALIZE', 
-        themeColor: 'blue', 
+        themeColor: 'blue',
+        themeMode: 'system', 
         isDark: false 
       })
     }
@@ -93,12 +128,13 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
 
     try {
       localStorage.setItem('theme-color', state.themeColor)
+      localStorage.setItem('theme-mode', state.themeMode)
     } catch (error) {
       console.warn('Failed to save theme to localStorage:', error)
     }
     
     applyThemeVariables(state.themeColor, state.isDark)
-  }, [state.themeColor, state.isDark, state.isInitialized])
+  }, [state.themeColor, state.themeMode, state.isDark, state.isInitialized])
 
   // Watch for dark mode changes with debouncing
   useEffect(() => {
@@ -131,10 +167,35 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     }
   }, [state.isDark, state.isInitialized])
 
+  // Watch for system theme preference changes
+  useEffect(() => {
+    if (!state.isInitialized || state.themeMode !== 'system') return
+
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+    
+    const handleChange = (e: MediaQueryListEvent) => {
+      if (state.themeMode === 'system') {
+        if (e.matches) {
+          document.documentElement.classList.add('dark')
+        } else {
+          document.documentElement.classList.remove('dark')
+        }
+      }
+    }
+
+    mediaQuery.addEventListener('change', handleChange)
+    
+    return () => {
+      mediaQuery.removeEventListener('change', handleChange)
+    }
+  }, [state.themeMode, state.isInitialized])
+
   return (
     <ThemeContext.Provider value={{ 
-      themeColor: state.themeColor, 
-      setThemeColor 
+      themeColor: state.themeColor,
+      themeMode: state.themeMode,
+      setThemeColor,
+      setThemeMode 
     }}>
       {children}
     </ThemeContext.Provider>
