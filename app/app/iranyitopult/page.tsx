@@ -937,7 +937,6 @@ export default function Page() {
       case 'student':
         return (
           <div className="grid gap-6">
-            <FirstStepsWidget />
             <div className="col-span-full">
               <UpcomingShootingsWidget />
             </div>
