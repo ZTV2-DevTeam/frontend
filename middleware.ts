@@ -14,6 +14,9 @@ export function middleware(request: NextRequest) {
     })
   }
 
+  // Check if token is actually valid (not just present)
+  const hasValidToken = token && token.trim() !== '' && token !== 'null' && token !== 'undefined'
+
   // Protected routes - require authentication
   const protectedPaths = ['/app']
   const isProtectedPath = protectedPaths.some(path => 
@@ -29,14 +32,14 @@ export function middleware(request: NextRequest) {
   const authOnlyPublicPaths = ['/login']
   const isAuthOnlyPublicPath = authOnlyPublicPaths.includes(request.nextUrl.pathname)
 
-  // If trying to access protected route without token
-  if (isProtectedPath && (!token || token.trim() === '' || token === 'null')) {
+  // If trying to access protected route without valid token
+  if (isProtectedPath && !hasValidToken) {
     console.log('🚫 Redirecting to login - no valid token for protected route')
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
   // If logged in and trying to access auth-only public pages (like login)
-  if (token && token.trim() !== '' && token !== 'null' && isAuthOnlyPublicPath) {
+  if (hasValidToken && isAuthOnlyPublicPath) {
     console.log('✅ Redirecting authenticated user away from login')
     return NextResponse.redirect(new URL('/app/iranyitopult', request.url))
   }

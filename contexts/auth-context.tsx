@@ -70,16 +70,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           } catch (profileError) {
             console.error('Failed to get user profile:', profileError)
             
-            // If profile fetch fails with auth error, clear token
+            // If profile fetch fails with any auth-related error, clear token immediately
             if (profileError instanceof Error && (
               profileError.message.includes('401') ||
               profileError.message.includes('Unauthorized') ||
               profileError.message.includes('munkamenet lejárt') ||
-              profileError.message.includes('Profile fetch timeout')
+              profileError.message.includes('Profile fetch timeout') ||
+              profileError.message.includes('Hitelesítési hiba') ||
+              profileError.message.includes('Authentication') ||
+              profileError.message.includes('Invalid token') ||
+              profileError.message.includes('Token expired')
             )) {
               console.log('🔑 Clearing token due to profile fetch error:', profileError.message)
               apiClient.setToken(null)
               setUser(null)
+              
+              // Force redirect to login if we're in the app
+              if (typeof window !== 'undefined' && window.location.pathname.startsWith('/app')) {
+                console.log('🔄 Token expired in app area - redirecting to login')
+                window.location.href = '/login'
+              }
             } else {
               // For other errors (network, server), don't clear token immediately
               // Let the user retry or handle it gracefully
@@ -149,7 +159,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       console.error('Logout error:', error)
     } finally {
+      // Ensure user state is cleared and token is fully removed
       setUser(null)
+      apiClient.setToken(null)
+      
+      // Force redirect to login to ensure clean state
+      if (typeof window !== 'undefined') {
+        window.location.href = '/login'
+      }
     }
   }
 
@@ -169,6 +186,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error('Token refresh failed:', error)
       setUser(null)
       apiClient.setToken(null)
+      
+      // Force redirect to login if refresh fails and we're in app area
+      if (typeof window !== 'undefined' && window.location.pathname.startsWith('/app')) {
+        console.log('🔄 Token refresh failed in app area - redirecting to login')
+        window.location.href = '/login'
+      }
+      
       throw error
     }
   }

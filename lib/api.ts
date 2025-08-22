@@ -729,9 +729,19 @@ class ApiClient {
         // Also set as httpOnly cookie for middleware - encode properly
         document.cookie = `jwt_token=${encodeURIComponent(cleanToken)}; path=/; max-age=${7 * 24 * 60 * 60}; secure; samesite=strict`
       } else {
+        // Clear all possible token storage locations
         localStorage.removeItem('jwt_token')
-        // Remove cookie
+        // Remove cookie with all possible variations
         document.cookie = 'jwt_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;'
+        document.cookie = 'jwt_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT; secure; samesite=strict'
+        document.cookie = 'jwt_token=; path=/; domain=' + window.location.hostname + '; expires=Thu, 01 Jan 1970 00:00:01 GMT;'
+        
+        // Also clear sessionStorage just in case
+        try {
+          sessionStorage.removeItem('jwt_token')
+        } catch (e) {
+          console.warn('Could not clear sessionStorage:', e)
+        }
       }
     }
   }
@@ -865,25 +875,29 @@ class ApiClient {
             // For public endpoints, don't clear token and use specific error message
             throw new Error(errorData.message || 'Hitelesítési hiba történt.')
           } else {
-            // For protected endpoints, be more careful about clearing tokens
-            // Only clear token if it's explicitly an authentication error
-            if (errorData.message && (
-              errorData.message.includes('Invalid token') ||
-              errorData.message.includes('Token expired') ||
-              errorData.message.includes('Authentication failed') ||
-              errorData.message.includes('Hitelesítés sikertelen')
-            )) {
-              console.log('🔑 Clearing token due to explicit auth error:', errorData.message)
-              this.setToken(null)
-              throw new Error('A munkamenet lejárt. Kérjük, jelentkezzen be újra.')
-            } else {
-              // For other 401 errors, don't clear token - could be temporary issue
-              console.warn('⚠️ 401 error but preserving token (might be temporary):', {
-                endpoint,
-                error: errorData.message
-              })
-              throw new Error(errorData.message || 'Hitelesítési hiba történt. Próbálja újra.')
+            // For protected endpoints, always clear expired tokens
+            // Be more aggressive about token clearing on 401 errors in production
+            // This fixes the redirect loop issue where expired tokens weren't being cleared properly
+            console.log('🔑 401 error on protected endpoint - clearing token:', {
+              endpoint,
+              error: errorData.message,
+              environment: typeof window !== 'undefined' ? window.location.hostname : 'unknown'
+            })
+            
+            // Always clear token on 401 for protected endpoints to prevent redirect loops
+            // When a token truly expires, we need to ensure it's completely removed from all storage
+            this.setToken(null)
+            
+            // Force reload to clear any cached state and redirect properly
+            // This prevents the middleware redirect loop between /login and /app/iranyitopult
+            if (typeof window !== 'undefined') {
+              // Small delay to ensure token clearing is completed
+              setTimeout(() => {
+                window.location.href = '/login'
+              }, 100)
             }
+            
+            throw new Error('A munkamenet lejárt. Kérjük, jelentkezzen be újra.')
           }
         } else if (response.status === 403) {
           throw new Error('Nincs jogosultsága ehhez a művelethez.')
@@ -980,9 +994,11 @@ class ApiClient {
   }
 
   private shouldNotRetry(error: Error): boolean {
-    // Don't retry on authentication errors
+    // Don't retry on authentication errors - token is likely expired
     if (error.message.includes('401') || error.message.includes('Unauthorized') || 
-        error.message.includes('munkamenet lejárt')) {
+        error.message.includes('munkamenet lejárt') || error.message.includes('Hitelesítési hiba') ||
+        error.message.includes('Authentication') || error.message.includes('Invalid token') ||
+        error.message.includes('Token expired')) {
       return true
     }
 
