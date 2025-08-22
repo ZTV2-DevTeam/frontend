@@ -276,26 +276,29 @@ export function PermissionsProvider({ children }: { children: React.ReactNode })
     const { permissions: perms, role_info, display_properties } = permissions
     const roles: AvailableRole[] = []
 
-    // Check if user is a system admin or teacher admin (médiatanár) or general admin
+    // Check if user is a system admin or teacher admin (médiatanár) or developer admin or general admin
     const isSystemAdmin = perms?.is_system_admin || role_info?.primary_role === 'system_admin' || role_info?.admin_type === 'system_admin'
     const isTeacherAdmin = perms?.is_teacher_admin || role_info?.admin_type === 'teacher'
+    const isDeveloperAdmin = perms?.is_developer_admin || role_info?.admin_type === 'dev' || role_info?.admin_type === 'developer' || role_info?.primary_role === 'developer_admin'
     const isGeneralAdmin = perms?.is_admin
     
     console.log('🔍 Role Analysis:', {
       isSystemAdmin,
       isTeacherAdmin,
+      isDeveloperAdmin,
       isGeneralAdmin,
       primary_role: role_info?.primary_role,
       admin_type: role_info?.admin_type,
       is_system_admin: perms?.is_system_admin,
       is_teacher_admin: perms?.is_teacher_admin,
+      is_developer_admin: perms?.is_developer_admin,
       is_admin: perms?.is_admin,
       is_osztaly_fonok: perms?.is_osztaly_fonok,
       special_role: role_info?.special_role
     })
     
-    // Admin role: Rendszeradmin OR Tanár-admin (Médiatanár) OR általános admin szerepkör
-    if (isSystemAdmin || isTeacherAdmin || isGeneralAdmin) {
+    // Admin role: Rendszeradmin OR Tanár-admin (Médiatanár) OR Developer admin OR általános admin szerepkör
+    if (isSystemAdmin || isTeacherAdmin || isDeveloperAdmin || isGeneralAdmin) {
       roles.push('admin')
     }
     
@@ -344,6 +347,7 @@ export function PermissionsProvider({ children }: { children: React.ReactNode })
     // Multiple roles available - prioritize based on hierarchy and role types
     const isSystemAdmin = perms?.is_system_admin || role_info?.primary_role === 'system_admin' || role_info?.admin_type === 'system_admin'
     const isTeacherAdmin = perms?.is_teacher_admin || role_info?.admin_type === 'teacher' || perms?.is_admin
+    const isDeveloperAdmin = perms?.is_developer_admin || role_info?.admin_type === 'dev' || role_info?.admin_type === 'developer' || role_info?.primary_role === 'developer_admin'
     const isGeneralAdmin = perms?.is_admin
     const isClassTeacher = perms?.is_osztaly_fonok || role_info?.special_role === 'class_teacher'
     
@@ -352,32 +356,37 @@ export function PermissionsProvider({ children }: { children: React.ReactNode })
       return 'admin'
     }
     
-    // Priority 2: Médiatanár (teacher admin) gets admin role
+    // Priority 2: Developer Admin gets admin role  
+    if (availableRoles.includes('admin') && isDeveloperAdmin) {
+      return 'admin'
+    }
+    
+    // Priority 3: Médiatanár (teacher admin) gets admin role
     if (availableRoles.includes('admin') && isTeacherAdmin) {
       return 'admin'
     }
     
-    // Priority 3: General admin gets admin role
+    // Priority 4: General admin gets admin role
     if (availableRoles.includes('admin') && isGeneralAdmin) {
       return 'admin'
     }
     
-    // Priority 4: Pure osztályfőnök (class teacher without admin rights) gets class-teacher role  
-    if (availableRoles.includes('class-teacher') && isClassTeacher && !isTeacherAdmin && !isSystemAdmin && !isGeneralAdmin) {
+    // Priority 5: Pure osztályfőnök (class teacher without admin rights) gets class-teacher role  
+    if (availableRoles.includes('class-teacher') && isClassTeacher && !isTeacherAdmin && !isSystemAdmin && !isDeveloperAdmin && !isGeneralAdmin) {
       return 'class-teacher'
     }
     
-    // Priority 4: If user has both admin and class-teacher roles (médiatanár + osztályfőnök), default to admin
+    // Priority 6: If user has both admin and class-teacher roles (médiatanár + osztályfőnök), default to admin
     if (availableRoles.includes('admin')) {
       return 'admin'
     }
     
-    // Priority 5: Fallback to class-teacher if available
+    // Priority 7: Fallback to class-teacher if available
     if (availableRoles.includes('class-teacher')) {
       return 'class-teacher'
     }
     
-    // Priority 6: Fallback to student
+    // Priority 8: Fallback to student
     if (availableRoles.includes('student')) {
       return 'student'
     }

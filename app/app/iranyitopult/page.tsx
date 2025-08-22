@@ -15,6 +15,7 @@ import { useUserRole } from "@/contexts/user-role-context"
 import { useAuth } from "@/contexts/auth-context"
 import { useApiQuery } from "@/lib/api-helpers"
 import { apiClient } from "@/lib/api"
+import type { UserRole } from "@/contexts/user-role-context"
 import { 
   Users, 
   Clock, 
@@ -42,7 +43,8 @@ import {
   GraduationCap,
   User,
   Loader2,
-  Settings
+  Settings,
+  Eye
 } from "lucide-react"
 
 // Function to get dynamic welcome message based on time of day and season
@@ -99,6 +101,20 @@ function getDynamicWelcomeMessage(firstName: string = 'Felhasználó'): string {
   } catch (error) {
     console.error('Error generating welcome message:', error)
     return `Üdvözlünk, ${firstName}!`
+  }
+}
+
+// Function to get role display name in Hungarian
+function getRoleDisplayName(role: UserRole | null): string {
+  switch (role) {
+    case 'admin':
+      return 'adminisztrátor'
+    case 'class-teacher':
+      return 'osztályfőnök'
+    case 'student':
+      return 'diák'
+    default:
+      return 'ismeretlen'
   }
 }
 
@@ -889,9 +905,17 @@ function FirstStepsWidget() {
 }
 
 export default function Page() {
-  const { currentRole } = useUserRole()
+  const { currentRole, isPreviewMode, actualUserRole } = useUserRole()
   const { user } = useAuth()
   const [welcomeMessage, setWelcomeMessage] = useState('')
+
+  // Debug logging
+  console.log('🎭 Dashboard state:', {
+    currentRole,
+    actualUserRole,
+    isPreviewMode,
+    calculation: `${actualUserRole} !== null && ${actualUserRole} !== ${currentRole} && ${actualUserRole} === 'admin'`
+  })
 
   // Update welcome message on component mount and every minute
   useEffect(() => {
@@ -1011,6 +1035,31 @@ export default function Page() {
       <SidebarInset>
         <SiteHeader />
         <div className="flex-1 space-y-4 p-4 md:p-6">
+          {/* Preview Mode Banner */}
+          {isPreviewMode && (
+            <Card className="border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950/30">
+              <CardContent className="pt-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-blue-500 rounded-lg">
+                    <Eye className="h-4 w-4 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-blue-900 dark:text-blue-100">
+                      Előnézeti mód
+                    </h3>
+                    <p className="text-sm text-blue-700 dark:text-blue-200">
+                      Ön {getRoleDisplayName(actualUserRole)} jogosultsággal rendelkezik, de jelenleg a(z) {getRoleDisplayName(currentRole)} nézetet tekinti meg előnézetként. 
+                      Az itt látható adatok valós információk, de csak megtekintés céljából szolgálnak.
+                    </p>
+                  </div>
+                  <Badge variant="secondary" className="bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900 dark:text-blue-200 dark:border-blue-700">
+                    Előnézet
+                  </Badge>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Header Section */}
           <Card>
             <CardContent className="">

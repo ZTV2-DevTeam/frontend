@@ -10,12 +10,16 @@ export interface Team {
   logo: React.ElementType
   plan: string
   role: UserRole
+  isPreview?: boolean
 }
 
 interface UserRoleContextType {
   currentRole: UserRole
   setRole: (role: UserRole) => void
   teams: Team[]
+  isPreviewMode: boolean
+  actualUserRole: UserRole | null
+  initializeUserRole: (userRole: UserRole) => void
 }
 
 const UserRoleContext = createContext<UserRoleContextType | undefined>(undefined)
@@ -30,6 +34,7 @@ export function useUserRole() {
 
 export function UserRoleProvider({ children }: { children: React.ReactNode }) {
   const [currentRole, setCurrentRole] = useState<UserRole>('student')
+  const [actualUserRole, setActualUserRole] = useState<UserRole | null>(null)
   const router = useRouter()
 
   const teams: Team[] = [
@@ -53,6 +58,21 @@ export function UserRoleProvider({ children }: { children: React.ReactNode }) {
     },
   ]
 
+  const isPreviewMode = actualUserRole !== null && 
+                        actualUserRole !== currentRole && 
+                        actualUserRole === 'admin' // Only admins can have preview mode
+
+  // Function to set the actual user role based on permissions
+  const initializeUserRole = (userRole: UserRole) => {
+    if (actualUserRole === null) {
+      console.log(`🎭 Setting actual user role to: ${userRole}`)
+      setActualUserRole(userRole)
+      setCurrentRole(userRole)
+    } else {
+      console.log(`🎭 Actual user role already set to: ${actualUserRole}, skipping initialization`)
+    }
+  }
+
   const setRole = (role: UserRole) => {
     // Prevent unnecessary navigation if role hasn't actually changed
     if (role === currentRole) {
@@ -61,6 +81,13 @@ export function UserRoleProvider({ children }: { children: React.ReactNode }) {
     }
     
     console.log(`🎭 Role changed: ${currentRole} -> ${role}`)
+    
+    // If this is the first role switch and we haven't set actualUserRole yet
+    // (this shouldn't normally happen as it should be set via initializeUserRole)
+    if (actualUserRole === null) {
+      setActualUserRole(currentRole)
+    }
+    
     setCurrentRole(role)
     
     // Don't auto-navigate on role change - let the user choose where to go
@@ -69,7 +96,14 @@ export function UserRoleProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <UserRoleContext.Provider value={{ currentRole, setRole, teams }}>
+    <UserRoleContext.Provider value={{ 
+      currentRole, 
+      setRole, 
+      teams, 
+      isPreviewMode, 
+      actualUserRole,
+      initializeUserRole
+    }}>
       {children}
     </UserRoleContext.Provider>
   )

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Clapperboard } from "lucide-react"
+import { useUserRole } from "@/contexts/user-role-context"
 
 // Map of routes to page names based on the sidebar data
 const routeToPageName: Record<string, string> = {
@@ -28,7 +29,22 @@ function getCurrentPageName(pathname: string): string {
 
 export function SiteHeader() {
   const pathname = usePathname()
+  const { isPreviewMode, currentRole, actualUserRole } = useUserRole()
   const currentPageName = getCurrentPageName(pathname)
+
+  // Function to get role display name in Hungarian
+  const getRoleDisplayName = (role: string | null): string => {
+    switch (role) {
+      case 'admin':
+        return 'adminisztrátor'
+      case 'class-teacher':
+        return 'osztályfőnök'
+      case 'student':
+        return 'diák'
+      default:
+        return 'ismeretlen'
+    }
+  }
 
   return (
       <header className="flex h-16 md:h-14 shrink-0 items-center gap-2 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 transition-[width,height] ease-linear">
@@ -48,6 +64,14 @@ export function SiteHeader() {
               <span className="px-1.5 py-0.5 text-[10px] font-semibold bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200 rounded border border-orange-200 dark:border-orange-700">
                 BETA
               </span>
+              {isPreviewMode && (
+                <span 
+                  className="px-1.5 py-0.5 text-[10px] font-semibold bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded border border-blue-200 dark:border-blue-700"
+                  title={`Előnézeti mód: ${getRoleDisplayName(actualUserRole)} nézi meg a(z) ${getRoleDisplayName(currentRole)} nézetet`}
+                >
+                  ELŐNÉZET
+                </span>
+              )}
             </div>
           </div>
         </div>
