@@ -144,23 +144,13 @@ export function LoginForm({
                 <Button type="submit" className="w-full" disabled={isLoading} tabIndex={3}>
                   {isLoading ? 'Bejelentkezés...' : 'Bejelentkezés'}
                 </Button>
-                
-                <div className="text-center">
-                  <Link
-                    href="/first-password"
-                    className="text-sm text-muted-foreground underline-offset-4 hover:underline"
-                    tabIndex={5}
-                  >
-                    Első bejelentkezés? Jelszó beállítási link kérése
-                  </Link>
-                </div>
               </div>
             </div>
           </form>
         </CardContent>
       </Card>
       <div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
-        A folytatásra kattintva elfogadod a <a href="/terms-of-service">Felhasználási feltételeket</a> és az <a href="/privacy-policy">Adatvédelmi szabályzatot</a>.
+        A folytatásra kattintva elfogadod a <a href="/terms-of-service">Felhasználási feltételeket</a> és az <a href="/privacy-policy">Adatvédelmi szabályzatot</a>. A weboldal nem-követő sütiket használ, melyek elengedhetetlenek a weboldal működéséhez.
       </div>
     </div>
   )
