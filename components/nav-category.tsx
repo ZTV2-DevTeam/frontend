@@ -87,6 +87,7 @@ export function NavCategory({
                 asChild={!item.external}
                 isActive={isActive}
                 onClick={item.external ? (e) => handleItemClick(item, e) : undefined}
+                className="transition-colors"
               >
                 {item.external ? (
                   <div className="flex items-center gap-2">
@@ -105,7 +106,7 @@ export function NavCategory({
                   <DropdownMenuTrigger asChild>
                     <SidebarMenuAction
                       showOnHover
-                      className="data-[state=open]:bg-accent rounded-sm"
+                      className="data-[state=open]:bg-accent rounded-sm transition-colors"
                     >
                       <IconDots />
                       <span className="sr-only">More</span>
@@ -116,7 +117,10 @@ export function NavCategory({
                     side={isMobile ? "bottom" : "right"}
                     align={isMobile ? "end" : "start"}
                   >
-                    <DropdownMenuItem onClick={() => handleDatabaseEdit(item.name)}>
+                    <DropdownMenuItem 
+                      onClick={() => handleDatabaseEdit(item.name)}
+                      className="transition-colors"
+                    >
                       <IconDatabase />
                       <span>Szerkesztés Adatbázisban</span>
                     </DropdownMenuItem>

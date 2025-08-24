@@ -63,16 +63,20 @@ const getIconComponent = (iconName: string) => {
 import { NavCategory } from "@/components/nav-category"
 import { NavMain } from "@/components/nav-main"
 import { NavSecondary } from "@/components/nav-secondary"
-import { NavUser } from "@/components/nav-user"
 import { TeamSwitcher } from "@/components/team-switcher"
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import { useUserRole, type UserRole } from "@/contexts/user-role-context"
 import { usePermissions } from "@/contexts/permissions-context"
+import { useAuth } from "@/contexts/auth-context"
+import { useRouter } from "next/navigation"
 import { 
   DATABASE_MODELS, 
   getDatabaseAdminUrl, 
@@ -80,6 +84,7 @@ import {
   type DatabaseAdminMenuItem 
 } from "@/lib/database-models"
 import { BACKEND_CONFIG } from "@/lib/config"
+import { LogOut } from "lucide-react"
 
 // Backend URL configuration
 const BACKEND_URL = BACKEND_CONFIG.BASE_URL
@@ -308,6 +313,18 @@ const data = {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { currentRole } = useUserRole()
   const { permissions, canAccessPage, hasPermission } = usePermissions()
+  const { logout } = useAuth()
+  const router = useRouter()
+  
+  // Logout handler
+  const handleLogout = async () => {
+    try {
+      await logout()
+      router.push('/login')
+    } catch (error) {
+      console.error('Logout failed:', error)
+    }
+  }
   
   // Filter navigation items based on permissions
   const getFilteredNavMain = () => {
@@ -343,7 +360,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </div>
         </SidebarContent>
         <SidebarFooter>
-          <NavUser />
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                onClick={handleLogout}
+                className="hover:bg-destructive/10 hover:text-destructive transition-colors"
+              >
+                <LogOut className="size-4" />
+                <span>Kijelentkezés</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
         </SidebarFooter>
       </Sidebar>
     )
@@ -374,7 +401,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavSecondary items={filteredNavSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser />
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              onClick={handleLogout}
+              className="hover:bg-destructive/10 hover:text-destructive transition-colors"
+            >
+              <LogOut className="size-4" />
+              <span>Kijelentkezés</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
   )

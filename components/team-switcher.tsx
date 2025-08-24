@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/sidebar"
 import { useUserRole, type UserRole } from "@/contexts/user-role-context"
 import { usePermissions } from "@/contexts/permissions-context"
+import { useAuth } from "@/contexts/auth-context"
 
 interface Team {
   name: string
@@ -37,6 +38,10 @@ export function TeamSwitcher({
   const { isMobile } = useSidebar()
   const { currentRole, setRole, isPreviewMode, actualUserRole } = useUserRole()
   const { permissions, getAvailableRoles, isLoading } = usePermissions()
+  const { user } = useAuth()
+  
+  // Get user display name
+  const userDisplayName = user ? `${user.first_name} ${user.last_name}`.trim() || user.username : 'Felhasználó'
   
   // Filter teams based on user permissions and admin preview logic
   const availableRoles = getAvailableRoles()
@@ -127,7 +132,7 @@ export function TeamSwitcher({
             </div>
             <div className="grid flex-1 text-left text-sm leading-tight">
               <div className="flex items-center gap-2">
-                <span className="truncate font-medium">{activeTeam.name}</span>
+                <span className="truncate font-medium">{userDisplayName}</span>
                 {activeTeam.isPreview && (
                   <span className="px-1 py-0.5 text-[9px] font-semibold bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded border border-blue-200 dark:border-blue-700">
                     ELŐNÉZET
@@ -138,7 +143,7 @@ export function TeamSwitcher({
                 </span>
               </div>
               <span className="truncate text-xs">
-                {activeTeam.isPreview ? `${activeTeam.plan} (Előnézet)` : activeTeam.plan}
+                {activeTeam.isPreview ? `${activeTeam.name} (Előnézet)` : activeTeam.name}
               </span>
             </div>
           </SidebarMenuButton>
@@ -165,7 +170,7 @@ export function TeamSwitcher({
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <div className="flex items-center gap-2">
-                  <span className="truncate font-medium">{activeTeam.name}</span>
+                  <span className="truncate font-medium">{userDisplayName}</span>
                   {activeTeam.isPreview && (
                     <span className="px-1 py-0.5 text-[9px] font-semibold bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded border border-blue-200 dark:border-blue-700">
                       ELŐNÉZET
@@ -176,7 +181,7 @@ export function TeamSwitcher({
                   </span>
                 </div>
                 <span className="truncate text-xs">
-                  {activeTeam.isPreview ? `${activeTeam.plan} (Előnézet)` : activeTeam.plan}
+                  {activeTeam.isPreview ? `${activeTeam.name} (Előnézet)` : activeTeam.name}
                 </span>
               </div>
               <ChevronsUpDown className="ml-auto" />
@@ -195,7 +200,7 @@ export function TeamSwitcher({
               <DropdownMenuItem
                 key={team.name}
                 onClick={() => handleTeamChange(team)}
-                className="gap-2 p-2"
+                className="gap-2 p-2 transition-colors"
               >
                 <div className="flex size-6 items-center justify-center rounded-md border">
                   <team.logo className="size-3.5 shrink-0" />

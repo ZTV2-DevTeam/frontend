@@ -37,6 +37,7 @@ export function NavSecondary({
                 <SidebarMenuButton 
                   asChild
                   isActive={isActive}
+                  className="transition-colors"
                 >
                   <Link href={item.url}>
                     <item.icon />
