@@ -61,6 +61,7 @@ export function NavCategory({
       'Beosztások DB': DATABASE_MODELS.BEOSZTAS,
       'Felhasználók DB': DATABASE_MODELS.AUTH_USER,
       'Felszerelések DB': DATABASE_MODELS.EQUIPMENT,
+      'Távollét': DATABASE_MODELS.TAVOLLET,
     }
     
     const modelPath = modelMap[itemName] || DATABASE_MODELS.CONFIG
