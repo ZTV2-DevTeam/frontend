@@ -867,29 +867,48 @@ class ApiClient {
             '/api/config/status'
           ]
           
+          // Endpoints that should not trigger automatic logout on 401
+          // These are protected endpoints but 401 errors should be handled gracefully
+          const gracefulAuthErrorEndpoints = [
+            '/api/students/reporters',
+            '/api/production/filming-sessions/kacsa-available',
+            '/api/students',
+            '/api/production/',
+            '/api/communications/',
+            '/api/announcements'
+          ]
+          
           const isPublicEndpoint = publicEndpoints.some(publicPath => 
             endpoint.startsWith(publicPath)
+          )
+          
+          const isGracefulAuthErrorEndpoint = gracefulAuthErrorEndpoints.some(gracefulPath => 
+            endpoint.startsWith(gracefulPath)
           )
           
           if (isPublicEndpoint) {
             // For public endpoints, don't clear token and use specific error message
             throw new Error(errorData.message || 'Hitelesítési hiba történt.')
+          } else if (isGracefulAuthErrorEndpoint) {
+            // For these endpoints, don't automatically log out user
+            // Let the component handle the error appropriately
+            console.warn('🔓 401 error on graceful endpoint - not logging out user:', {
+              endpoint,
+              error: errorData.message
+            })
+            throw new Error(errorData.message || 'Hitelesítési hiba - a művelet nem sikerült.')
           } else {
-            // For protected endpoints, always clear expired tokens
-            // Be more aggressive about token clearing on 401 errors in production
-            // This fixes the redirect loop issue where expired tokens weren't being cleared properly
-            console.log('🔑 401 error on protected endpoint - clearing token:', {
+            // For other protected endpoints, clear expired tokens and redirect
+            console.log('🔑 401 error on critical endpoint - clearing token:', {
               endpoint,
               error: errorData.message,
               environment: typeof window !== 'undefined' ? window.location.hostname : 'unknown'
             })
             
-            // Always clear token on 401 for protected endpoints to prevent redirect loops
-            // When a token truly expires, we need to ensure it's completely removed from all storage
+            // Clear token and redirect for critical endpoints
             this.setToken(null)
             
             // Force reload to clear any cached state and redirect properly
-            // This prevents the middleware redirect loop between /login and /app/iranyitopult
             if (typeof window !== 'undefined') {
               // Small delay to ensure token clearing is completed
               setTimeout(() => {
