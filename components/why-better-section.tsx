@@ -132,21 +132,6 @@ export function WhyBetterSection() {
             ))}
           </div>
         </div>
-
-        {/* Summary Banner */}
-        <div className="max-w-4xl mx-auto mt-16">
-          <Card className="bg-primary/5 border-primary/20">
-            <CardHeader className="text-center">
-              <CardTitle className="text-xl font-bold mb-2">
-                🚀 Eredmény: Egyszerűen Működik, Biztonságban Vagy
-              </CardTitle>
-              <CardDescription className="text-base">
-                Az új FTV rendszer úgy lett tervezve, hogy ritkán okozzon problémát, gyorsan betöltsön,
-                és közben az adataid is biztonságban legyenek - anélkül, hogy bármivel is foglalkoznod kellene.
-              </CardDescription>
-            </CardHeader>
-          </Card>
-        </div>
       </div>
     </section>
   )

@@ -16,25 +16,28 @@ const developers: Developer[] = [
     name: "Balla Botond",
     class: "10.F",
     role: "Vezetőfejlesztő",
-    title: "Architect",
+    title: "Architect, UI/UX Design, API Integráció, Backend logika és Adatbázisbiztonság",
     github: "PstasDev"
   },
   {
     name: "Kovács Ádám Lőrinc",
     class: "9.F",
-    role: "Fejlesztő (Backend)",
+    role: "Fejlesztő",
+    title: "Backend logika és Adatbázismodellek",
     github: "lorenth-kovacs"
   },
   {
     name: "Péterfi Dénes",
     class: "9.F",
-    role: "Fejlesztő (Frontend)",
+    role: "Fejlesztő",
+    title: "Frontend Implementáció",
     github: "Denesz009"
   },
   {
     name: "Tóth László Barnabás",
     class: "NYF",
-    role: "UI/UX Design",
+    role: "Fejlesztő",
+    title: "UI/UX Design (logók, ikonok, felületek, színpaletták)",
     github: "BuilderSnail"
   }
 ]

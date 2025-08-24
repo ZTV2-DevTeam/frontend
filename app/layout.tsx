@@ -12,6 +12,7 @@ import { RoleSynchronizer } from "@/components/role-synchronizer";
 import { EnhancedErrorBoundary } from "@/components/enhanced-error-boundary";
 import { ConnectionStatus } from "@/components/connection-status";
 import { Analytics } from "@vercel/analytics/next"
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -75,6 +76,8 @@ export default function RootLayout({
             </ColorThemeProvider>
           </ThemeProvider>
         </EnhancedErrorBoundary>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
