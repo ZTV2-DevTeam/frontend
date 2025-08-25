@@ -221,14 +221,6 @@ export function getProfilePictureUrls(
   
   return [
     {
-      url: getDiceBearUrl(email, size, 'shapes', themeColor),
-      source: ProfilePictureSources.DICEBEAR_SHAPES
-    },
-    {
-      url: getDiceBearInitialsUrl(email, size, themeColor),
-      source: ProfilePictureSources.DICEBEAR_INITIALS
-    },
-    {
       url: getUIAvatarsUrl(displayName, size, themeColor),
       source: ProfilePictureSources.UI_AVATARS
     }
