@@ -56,7 +56,19 @@ const rawChangelogData: ChangelogEntry[] = [
     ]
   ),
   createChangelogEntry(
-    'v1.0.0-beta.4',
+    'v1.0.0.-beta.4',
+    '2025. augusztus 24.',
+    '2025-08-24T12:00:00Z',
+    [
+      createChange(
+        'feature',
+        'Átigazolás modell létrehozása',
+        'Létrehoztuk az Átigazolás modellt, mely automatikusan rögzíti a stábok közti mozgásokat a visszakereshetőség érdekében.'
+      ),
+    ]
+  ),
+  createChangelogEntry(
+    'v1.0.0-beta.3',
     '2025. augusztus 22.',
     '2025-08-22T13:51:42Z',
     [
@@ -80,18 +92,6 @@ const rawChangelogData: ChangelogEntry[] = [
         'Első lépések widget eltávolítása',
         'Az első lépések widget eltávolítása a tanuló nézetből a tisztább felhasználói élmény érdekében.'
       )
-    ]
-  ),
-  createChangelogEntry(
-    'v1.0.0.-beta.3',
-    '2025. augusztus 24.',
-    '2025-08-24T12:00:00Z',
-    [
-      createChange(
-        'feature',
-        'Átigazolás modell létrehozása',
-        'Létrehoztuk az Átigazolás modellt, mely automatikusan rögzíti a stábok közti mozgásokat a visszakereshetőség érdekében.'
-      ),
     ]
   ),
   createChangelogEntry(
