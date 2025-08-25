@@ -53,6 +53,12 @@ export function SiteFooter() {
               <Code className="w-3 h-3" />
               <span>Fejlesztői bejárat</span>
             </Link>
+            <Link
+              href="https://vercel.com/pstasdevs-projects/ftv-frontend/deployments"
+              className="flex items-center gap-1 text-xs underline transition-colors text-muted-foreground/50 hover:text-primary"
+            >
+              <span>Élesítés ellenőrzése gyorsgomb</span>
+            </Link>
           </div>
         </div>
       </div>

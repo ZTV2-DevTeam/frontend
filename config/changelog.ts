@@ -39,6 +39,11 @@ const rawChangelogData: ChangelogEntry[] = [
         'Távollétkezelő reszponzivitásának növelése',
         'Apróbb módosításokat hajtottunk végre a Távollétkezelő felület reszponzivitásával kapcsolatban, így mostantól annak kellemsebb mobilon a használata.'
       ),
+      createChange(
+        'feature',
+        'Élesítés ellenőrzése gyorsgomb hozzáadása a lábléchez',
+        'Hozzáadtunk egy Élesítés ellenőrzése gyorsgombot a lábléchez, amely lehetővé teszi a fejlesztők és az üzemeltetők számára a gyors hozzáférést az élesítési folyamatokhoz.'
+      ),
     ]
   ),
   createChangelogEntry(
