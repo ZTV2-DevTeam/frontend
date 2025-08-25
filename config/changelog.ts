@@ -28,7 +28,12 @@ const rawChangelogData: ChangelogEntry[] = [
         'improvement',
         'Vezetéknév és keresztnév mezők felcserélése Admin felületen',
         'Felcseréltük a felhasználói modell adminisztrációs nézetében a vezetéknév és keresztnév mezőket.'
-      )
+      ),
+      createChange(
+        'bugfix',
+        'ThemeContext hiba javítása a changelog oldalon',
+        'Javítottunk egy furcsa hibát, mely a Témakezelő teljes meghibásodását okozta, ha a felhasználók közvetlenül megnyitották a Változások oldalt.'
+      ),
     ]
   ),
   createChangelogEntry(
@@ -177,8 +182,8 @@ const rawChangelogData: ChangelogEntry[] = [
     [
       createChange(
         'feature',
-        'Változtatások oldal hozzáadása',
-        'Új változtatások oldal a változások nyomon követésére a változtatások dátumával és típusával.'
+        'Változások oldal hozzáadása',
+        'Új változások oldal a változások nyomon követésére a változások dátumával és típusával.'
       ),
       createChange(
         'bugfix',
