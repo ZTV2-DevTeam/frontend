@@ -12,7 +12,7 @@ export default function VacationPage() {
       <AppSidebar variant="inset" />
       <SidebarInset>
         <SiteHeader />
-        <div className="flex flex-1 flex-col gap-1 sm:gap-4 p-1 sm:p-4">
+        <div className="flex flex-1 flex-col gap-4 p-4 md:p-6">
           <AbsenceManagement />
         </div>
       </SidebarInset>

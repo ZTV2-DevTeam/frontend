@@ -17,16 +17,19 @@ function StudentAbsencesPageReal() {
         {/* Header */}
         <div className="space-y-2">
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
-              Automatikus Igazoláskezelés
-            </h1>
+            <div className="p-2 bg-primary rounded-lg">
+              <FileText className="h-5 w-5 text-primary-foreground" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-black dark:text-white">Automatikus Igazoláskezelés</h1>
+              <p className="text-muted-foreground">
+                A hiányzásaid automatikusan kezelve vannak a forgatási információid alapján
+              </p>
+            </div>
             <Badge variant="outline" className="bg-blue-500/10 text-blue-400 border-blue-500/30">
               {user?.first_name} {user?.last_name}
             </Badge>
           </div>
-          <p className="text-sm text-muted-foreground">
-            A hiányzásaid automatikusan kezelve vannak a forgatási információid alapján
-          </p>
         </div>
 
         {/* Main Information Card */}

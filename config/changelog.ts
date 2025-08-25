@@ -69,6 +69,11 @@ const rawChangelogData: ChangelogEntry[] = [
         'Rendszer felkészítése profilképek kezelésére',
         'Felkészítettük a rendszert profilképek fogadására, implementáltunk egy egyedi, semleges profilképkezelő rendszert helykitöltő gyanánt.',
       ),
+      createChange(
+        'improvement',
+        'Dizájn egységesítése',
+        'Egységesítettük a menük dizájnjának főbb elemeit',
+      ),
     ]
   ),
   createChangelogEntry(

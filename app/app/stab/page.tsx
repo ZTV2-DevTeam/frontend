@@ -667,18 +667,21 @@ export default function StabPage() {
             <div className="flex-1 space-y-6 p-6">{/* Fixed content */}
               {/* Header */}
               <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                <div className="space-y-1">
-                  <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-                    Stáb Kezelése
-                  </h1>
-                  <p className="text-muted-foreground">
-                    Diákok és oktatók nyilvántartása • {filteredUsers.length} felhasználó
-                    {normalizedUsers.length !== filteredUsers.length && (
-                      <span className="text-sm text-blue-600 ml-2">
-                        ({normalizedUsers.length} összesen, {normalizedUsers.length - filteredUsers.length} szűrve)
-                      </span>
-                    )}
-                  </p>
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-primary rounded-lg">
+                    <Users className="h-5 w-5 text-primary-foreground" />
+                  </div>
+                  <div>
+                    <h1 className="text-2xl font-bold text-black dark:text-white">Stáb Kezelése</h1>
+                    <p className="text-muted-foreground">
+                      Diákok és oktatók nyilvántartása • {filteredUsers.length} felhasználó
+                      {normalizedUsers.length !== filteredUsers.length && (
+                        <span className="text-sm text-blue-600 ml-2">
+                          ({normalizedUsers.length} összesen, {normalizedUsers.length - filteredUsers.length} szűrve)
+                        </span>
+                      )}
+                    </p>
+                  </div>
                 </div>
                 
                 <div className="flex items-center gap-3">

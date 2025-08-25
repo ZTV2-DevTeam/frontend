@@ -506,14 +506,17 @@ export default function FilmingSessionsPage() {
         <div className="space-y-6 animate-in fade-in-50 duration-500">
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="space-y-1">
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
-                Forgatások
-              </h1>
-              <p className="text-sm text-muted-foreground">
-                {filteredSessions.length} forgatás • KaCsa: {kacsaSessions.length} • Egyéb: {normalSessions.length} •
-                Események: {eventSessions.length}
-              </p>
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-primary rounded-lg">
+                <Camera className="h-5 w-5 text-primary-foreground" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-black dark:text-white">Forgatások</h1>
+                <p className="text-muted-foreground">
+                  {filteredSessions.length} forgatás • KaCsa: {kacsaSessions.length} • Egyéb: {normalSessions.length} •
+                  Események: {eventSessions.length}
+                </p>
+              </div>
             </div>
 
             <div className="flex items-center gap-2">

@@ -137,7 +137,7 @@ function ActiveUsersWidget() {
                 <Users className="h-5 w-5 text-white" />
               </div>
               <div>
-                <CardTitle className="text-lg">Legutóbbi Felhasználók</CardTitle>
+                <CardTitle className="text-lg">Legutóbbi Aktivitás</CardTitle>
                 <CardDescription>Utolsó bejelentkezések betöltése...</CardDescription>
               </div>
             </div>
@@ -291,7 +291,7 @@ function ActiveUsersWidget() {
               <Users className="h-4 w-4 text-white" />
             </div>
             <div>
-              <CardTitle id="recent-users-title" className="text-base">Legutóbbi bejelentkezések</CardTitle>
+              <CardTitle id="recent-users-title" className="text-base">Legutóbbi Aktivitás</CardTitle>
               <CardDescription className="text-xs">Utolsó {mostRecentUsers.length} felhasználó</CardDescription>
             </div>
           </div>
@@ -1073,7 +1073,7 @@ export default function Page() {
                     <roleInfo.icon className="h-5 w-5 text-primary-foreground" />
                   </div>
                   <div>
-                    <h1 className="text-xl font-semibold">
+                    <h1 className="text-xl font-semibold text-black dark:text-white">
                       {welcomeMessage || `Üdvözlünk, ${user?.first_name || 'Felhasználó'}!`}
                     </h1>
                     <p className="text-muted-foreground text-sm">

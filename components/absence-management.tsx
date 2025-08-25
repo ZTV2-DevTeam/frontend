@@ -31,7 +31,8 @@ import {
   Eye, 
   Edit, 
   Trash2, 
-  AlertTriangle
+  AlertTriangle,
+  TreePalm
 } from 'lucide-react'
 import { format, parseISO, isValid } from 'date-fns'
 import { hu } from 'date-fns/locale'
@@ -569,17 +570,22 @@ export function AbsenceManagement() {
   }
 
   return (
-    <div className="space-y-3 sm:space-y-6 px-1 sm:px-0">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-bold">Távollét kezelés</h1>
-          <p className="text-sm text-muted-foreground">
-            {isAdmin 
-              ? 'Diákok távolléteinek kezelése és jóváhagyása'
-              : 'Távolléteid kezelése és benyújtása'
-            }
-          </p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-primary rounded-lg">
+            <TreePalm className="h-5 w-5 text-primary-foreground" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-black dark:text-white">Távollét</h1>
+            <p className="text-sm text-muted-foreground">
+              {isAdmin 
+                ? 'Diákok távolléteinek kezelése és jóváhagyása'
+                : 'Távolléteid kezelése és benyújtása'
+              }
+            </p>
+          </div>
         </div>
         
         <Button 

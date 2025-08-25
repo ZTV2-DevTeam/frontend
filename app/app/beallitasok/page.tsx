@@ -49,12 +49,12 @@ export default function SettingsPage() {
           {/* Page Header */}
           <div className="mb-12">
             <div className="flex items-start gap-4 mb-6">
-              <div className="p-3 bg-gradient-to-br from-primary to-primary/80 rounded-xl shadow-sm">
-                <Settings className="h-6 w-6 text-primary-foreground" />
+              <div className="p-2 bg-primary rounded-lg">
+                <Settings className="h-5 w-5 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold tracking-tight">Beállítások</h1>
-                <p className="text-lg text-muted-foreground mt-2">
+                <h1 className="text-2xl font-bold text-black dark:text-white">Beállítások</h1>
+                <p className="text-muted-foreground mt-2">
                   Személyre szabd az alkalmazást és kezeld a fiókod
                 </p>
               </div>

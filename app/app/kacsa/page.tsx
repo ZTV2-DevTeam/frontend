@@ -234,7 +234,7 @@ export default function KacsaPage() {
                 <Bird className="h-5 w-5 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold">KaCsa - Kamasz Csatorna</h1>
+                <h1 className="text-2xl font-bold text-black dark:text-white">KaCsa - Kamasz Csatorna</h1>
                 <p className="text-muted-foreground">
                   Iskolai műsorkészítés és tartalomkezelés
                 </p>
