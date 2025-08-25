@@ -71,7 +71,8 @@ const formatDate = (dateString: string) => {
   return date.toLocaleDateString('hu-HU', {
     year: 'numeric',
     month: 'long',
-    day: 'numeric'
+    day: 'numeric',
+    timeZone: 'UTC'
   })
 }
 
