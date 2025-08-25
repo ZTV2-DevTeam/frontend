@@ -239,6 +239,9 @@ export default function HelpPage() {
 
   const roleContent = getCurrentRoleContent()
 
+  const elkeszultBadge = <Badge className="ml-2 text-xs px-2 py-1 bg-green-500 text-green-50 dark:bg-green-900 dark:text-green-300">
+    Elkészült
+  </Badge>
   return (
     <SidebarProvider>
       <AppSidebar variant="inset" />
@@ -740,7 +743,7 @@ export default function HelpPage() {
                       </p>
                       <ul className="text-sm space-y-1 pl-4">
                         <li>• <strong>Beosztáskezelő felület</strong> - Egy adott forgatást kiválasztva a szaktanárok láthatják a beosztás tervezetében szereplő diákok előre bejelentett távollétét, valamint az ütközéseket rádiós összejátszásokkal. A rendszer most is tudja ezeket kezelni, csupán nincs egy összesítő felület ahol ezek könnyedén áttekinthetőek</li>
-                        <li>• <strong>Közlemények kiírása</strong> - Közlemények létrehozása és kezelése az adminisztrátorok számára</li>
+                        <li>• <strong>Közlemények kiírása</strong> - Közlemények létrehozása és kezelése az adminisztrátorok számára {elkeszultBadge} </li>
                         <li>• <strong>Partnerkezelő felület</strong> - Minden partner áttekintése és kezelése</li>
                         <li>• <strong>Eszközkezelő felület</strong> - Minden eszköz áttekintése és kezelése</li>
                         <li>• <strong>Felhasználókezelő felület</strong> - Minden felhasználó áttekintése és kezelése (szerepkörök, stábok, rádiós stábok)</li>
@@ -784,6 +787,8 @@ export default function HelpPage() {
                       </h4>
                       <p className="text-sm text-muted-foreground">
                         A Google Fiók alapú authentikáció lehetővé teszi a felhasználók számára, hogy a Google fiókjukkal jelentkezzenek be a rendszerbe. Ez egyszerűsíti a bejelentkezési folyamatot, és növeli a biztonságot. E funkció bevezetésével megszűnnek a fiókokhoz tartozó jelszavak és az intézményi fiókokkal lehet majd belépni. Ez lehetővé teszi jelszavak helyett, Azonosítókulcsok használatát is.
+                        <br />
+                        Frissítés: Az applikációt bejegyeztük a Google-nél, jelenleg a hitelesítésre várunk
                       </p>
                     </div>
 
@@ -831,9 +836,7 @@ export default function HelpPage() {
                       <h4 className="font-medium mb-2 flex items-center gap-2">
                       <FileText className="w-4 h-4" />
                       Stáb adatainak exportálása
-                      <Badge  className="ml-2 text-xs px-2 py-1 bg-green-500 text-green-50 dark:bg-green-900 dark:text-green-300">
-                        Elkészült
-                      </Badge>
+                      {elkeszultBadge}
                       </h4>
                       <p className="text-sm text-muted-foreground">
                       Teljes stáb adatainak exportálása nyomtatható (PDF) formátumban
@@ -852,13 +855,6 @@ export default function HelpPage() {
                           <strong>Gyorsabb felület</strong><br />
                           <span className="text-muted-foreground">
                             Felhasználói felület betöltési idejének csökkentése, a biztonsági protokollok megtartásával
-                          </span>
-                        </li>
-                        <li>
-                          <strong>Adatforgalom Optimalizálása</strong><br />
-                          <span className="text-muted-foreground">
-                            Internetes kommunikáció optimalizálása, a közlekedő adatmennyiség csökkentése érdekében - 
-                            jelenleg a főoldaltól, a belépés és forgatási adatok lekérdezése 10-20 MB adatmennyiséget igényel.
                           </span>
                         </li>
                         <li>
