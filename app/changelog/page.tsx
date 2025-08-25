@@ -50,11 +50,11 @@ const getChangeTypeColor = (type: ChangelogType) => {
 const getChangeTypeLabel = (type: ChangelogType) => {
   switch (type) {
     case 'feature':
-      return 'Új funkció'
+      return 'Újdonság'
     case 'improvement':
-      return 'Javítás'
+      return 'Fejlesztés'
     case 'bugfix':
-      return 'Hibák javítása'
+      return 'Hibajavítás'
     case 'security':
       return 'Biztonság'
     case 'breaking':
