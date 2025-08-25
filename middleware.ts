@@ -4,6 +4,17 @@ import type { NextRequest } from 'next/server'
 export function middleware(request: NextRequest) {
   const token = request.cookies.get('jwt_token')?.value
 
+  // Handle admin redirects
+  if (request.nextUrl.pathname === '/admin') {
+    const isDevelopment = process.env.NODE_ENV === 'development'
+    const adminUrl = isDevelopment 
+      ? 'http://localhost:8000/admin/' 
+      : 'https://ftvapi.szlg.info/admin/'
+    
+    console.log(`🔧 Redirecting ${request.nextUrl.pathname} to admin interface: ${adminUrl}`)
+    return NextResponse.redirect(adminUrl)
+  }
+
   // Debug token in development
   if (process.env.NODE_ENV === 'development') {
     console.log('🔐 Middleware token check:', {
@@ -24,7 +35,7 @@ export function middleware(request: NextRequest) {
   )
 
   // Public routes - accessible to everyone
-  const publicPaths = ['/', '/login', '/privacy-policy', '/terms-of-service', '/elfelejtett_jelszo']
+  const publicPaths = ['/', '/login', '/privacy-policy', '/terms-of-service', '/elfelejtett_jelszo', '/admin', '/root']
   const isPublicPath = publicPaths.includes(request.nextUrl.pathname) || 
                       request.nextUrl.pathname.startsWith('/elfelejtett_jelszo/')
 

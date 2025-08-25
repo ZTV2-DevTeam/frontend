@@ -74,6 +74,11 @@ const rawChangelogData: ChangelogEntry[] = [
         'Dizájn egységesítése',
         'Egységesítettük a menük dizájnjának főbb elemeit',
       ),
+      createChange(
+        'improvement',
+        '/admin átirányítás',
+        'A /admin útvonal mostantól automatikusan átirányít a megfelelő adminisztrációs felületre.',
+      ),
     ]
   ),
   createChangelogEntry(
