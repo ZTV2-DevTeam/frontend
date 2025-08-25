@@ -19,6 +19,11 @@ const rawChangelogData: ChangelogEntry[] = [
         'Egérmutató beállítások javítása',
         'Javítottuk a felhasználói felület egérmutató beállításait, hogy azok jobban alkalmazkodjanak a különböző interakciókhoz.'
       ),
+      createChange(
+        'feature',
+        'Új dizájn a Távollétkezelőben',
+        'Teljesen újragondoltuk a Távollétkezelő dizájnját.'
+      ),
     ]
   ),
   createChangelogEntry(

@@ -2,8 +2,9 @@
 
 import React from 'react'
 import { TavolletSchema } from '@/lib/api'
-import { Card, CardContent } from '@/components/ui/card'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { Progress } from '@/components/ui/progress'
 import { 
   CalendarDays, 
   Clock, 
@@ -11,8 +12,12 @@ import {
   XCircle, 
   AlertTriangle,
   Users,
-  Calendar
+  Calendar,
+  TrendingUp,
+  BarChart3,
+  Activity
 } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 interface AbsenceStatsProps {
   absences: TavolletSchema[]
@@ -31,154 +36,133 @@ export function AbsenceStats({ absences, isAdmin }: AbsenceStatsProps) {
     uniqueStudents: isAdmin ? new Set(absences.map(a => a.user.id)).size : 1,
   }
 
-  // Mobile compact stats - only show the most important ones
-  const mobileStats = [
-    { label: 'Összes', value: stats.total, color: 'text-blue-600', bg: 'bg-blue-50' },
-    { label: 'Függőben', value: stats.pending, color: 'text-yellow-600', bg: 'bg-yellow-50' },
-    { label: 'Jóváhagyva', value: stats.approved, color: 'text-green-600', bg: 'bg-green-50' },
-    { label: 'Elutasítva', value: stats.denied, color: 'text-red-600', bg: 'bg-red-50' },
-  ]
-
-  // Desktop detailed stats
-  const desktopStats = [
-    {
-      title: 'Összes távollét',
-      value: stats.total,
-      icon: CalendarDays,
-      color: 'text-blue-500',
-      bgColor: 'bg-blue-50',
-      borderColor: 'border-blue-200'
-    },
-    {
-      title: 'Függőben',
-      value: stats.pending,
-      icon: AlertTriangle,
-      color: 'text-yellow-500',
-      bgColor: 'bg-yellow-50',
-      borderColor: 'border-yellow-200'
-    },
-    {
-      title: 'Jóváhagyva',
-      value: stats.approved,
-      icon: CheckCircle,
-      color: 'text-green-500',
-      bgColor: 'bg-green-50',
-      borderColor: 'border-green-200'
-    },
-    {
-      title: 'Elutasítva',
-      value: stats.denied,
-      icon: XCircle,
-      color: 'text-red-500',
-      bgColor: 'bg-red-50',
-      borderColor: 'border-red-200'
-    },
-    {
-      title: 'Folyamatban',
-      value: stats.ongoing,
-      icon: Clock,
-      color: 'text-orange-500',
-      bgColor: 'bg-orange-50',
-      borderColor: 'border-orange-200'
-    },
-  ]
-
-  // Add admin-specific stats
-  if (isAdmin) {
-    desktopStats.push({
-      title: 'Érintett diákok',
-      value: stats.uniqueStudents,
-      icon: Users,
-      color: 'text-purple-500',
-      bgColor: 'bg-purple-50',
-      borderColor: 'border-purple-200'
-    })
-  } else {
-    desktopStats.push({
-      title: 'Jövőbeli',
-      value: stats.upcoming,
-      icon: Calendar,
-      color: 'text-indigo-500',
-      bgColor: 'bg-indigo-50',
-      borderColor: 'border-indigo-200'
-    })
-  }
+  // Calculate approval rate for admin view
+  const approvalRate = stats.total > 0 ? Math.round((stats.approved / stats.total) * 100) : 0
+  const pendingRate = stats.total > 0 ? Math.round((stats.pending / stats.total) * 100) : 0
 
   return (
-    <>
-      {/* Mobile Compact Stats */}
-      <div className="block sm:hidden">
-        <Card className="overflow-hidden shadow-sm">
-          <CardContent className="p-3">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-medium text-muted-foreground">Távollét áttekintés</h3>
-              <Badge variant="outline" className="text-xs">
-                {stats.totalDays} nap
-              </Badge>
+    <div className="space-y-4">
+      {/* Main Shared Progress Bar - Shows Status Distribution */}
+      <Card className="overflow-hidden shadow-sm border-0">
+        <CardContent className="p-3">
+          <div className="flex items-center justify-between gap-3 mb-3">
+            <div>
+              <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Távollét státusz</h3>
+              <p className="text-xs text-slate-600 dark:text-slate-400">
+                {stats.total} kérelem • {stats.totalDays} nap
+              </p>
             </div>
-            <div className="grid grid-cols-4 gap-2">
-              {mobileStats.map((stat, index) => (
-                <div key={index} className="text-center">
-                  <div className={`inline-flex items-center justify-center w-8 h-8 rounded-full ${stat.bg} mb-1`}>
-                    <span className={`text-sm font-bold ${stat.color}`}>
-                      {stat.value}
-                    </span>
-                  </div>
-                  <div className="text-xs text-muted-foreground leading-tight">
-                    {stat.label}
-                  </div>
-                </div>
-              ))}
-            </div>
-            {isAdmin && stats.uniqueStudents > 0 && (
-              <div className="flex items-center justify-center gap-1 mt-3 pt-3 border-t">
-                <Users className="h-3 w-3 text-muted-foreground" />
-                <span className="text-xs text-muted-foreground">
-                  {stats.uniqueStudents} diák érintett
-                </span>
+          </div>
+          
+          {stats.total > 0 ? (
+            <div className="space-y-2">
+              {/* Shared Progress Bar */}
+              <div className="relative h-4 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+                {/* Approved Section */}
+                <div 
+                  className="absolute left-0 top-0 h-full bg-gradient-to-r from-emerald-500 to-green-400 transition-all duration-500"
+                  style={{ width: `${approvalRate}%` }}
+                />
+                {/* Pending Section */}
+                <div 
+                  className="absolute top-0 h-full bg-gradient-to-r from-amber-500 to-yellow-400 transition-all duration-500"
+                  style={{ 
+                    left: `${approvalRate}%`, 
+                    width: `${pendingRate}%` 
+                  }}
+                />
+                {/* Denied Section */}
+                <div 
+                  className="absolute top-0 h-full bg-gradient-to-r from-red-500 to-rose-400 transition-all duration-500"
+                  style={{ 
+                    left: `${approvalRate + pendingRate}%`, 
+                    width: `${100 - approvalRate - pendingRate}%` 
+                  }}
+                />
               </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
 
-      {/* Desktop Detailed Stats */}
-      <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
-        {desktopStats.map((stat, index) => {
-          const Icon = stat.icon
-          return (
-            <Card key={index} className={`overflow-hidden border-l-4 ${stat.borderColor} hover:shadow-md transition-shadow`}>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className={`p-2.5 rounded-full ${stat.bgColor}`}>
-                    <Icon className={`h-5 w-5 ${stat.color}`} />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm text-muted-foreground">{stat.title}</p>
-                    <p className="text-2xl font-bold">{stat.value}</p>
-                  </div>
+              {/* Ultra Compact Legend */}
+              <div className="flex items-center justify-center gap-4 text-xs">
+                <div className="flex items-center gap-1">
+                  <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+                  <span className="text-emerald-700 dark:text-emerald-400">
+                    Elfogadva {stats.approved} ({approvalRate}%)
+                  </span>
                 </div>
-              </CardContent>
-            </Card>
-          )
-        })}
-        
-        {/* Total Days Summary Card */}
-        <Card className="overflow-hidden border-l-4 border-gray-200 hover:shadow-md transition-shadow">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-full bg-gray-50">
-                <CalendarDays className="h-5 w-5 text-gray-500" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm text-muted-foreground">Összes hiányzó nap</p>
-                <p className="text-2xl font-bold">{stats.totalDays}</p>
+                
+                <div className="flex items-center gap-1">
+                  <div className="w-2 h-2 rounded-full bg-amber-500"></div>
+                  <span className="text-amber-700 dark:text-amber-400">
+                    Függőben {stats.pending} ({pendingRate}%)
+                  </span>
+                </div>
+                
+                <div className="flex items-center gap-1">
+                  <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                  <span className="text-red-700 dark:text-red-400">
+                    Elutasítva {stats.denied} ({100 - approvalRate - pendingRate}%)
+                  </span>
+                </div>
               </div>
             </div>
-          </CardContent>
-        </Card>
+          ) : (
+            <div className="text-center py-3 text-slate-500 dark:text-slate-400">
+              <Activity className="h-6 w-6 mx-auto mb-1 opacity-50" />
+              <p className="text-xs">Még nincsenek távollét kérelmek</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Compact Secondary Stats - Only show relevant ones */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {/* Ongoing Absences */}
+        {stats.ongoing > 0 && (
+          <div className="flex items-center gap-2 p-3 bg-orange-50 dark:bg-orange-900/10 rounded-lg border border-orange-200 dark:border-orange-800">
+            <Clock className="h-4 w-4 text-orange-600 flex-shrink-0" />
+            <div>
+              <div className="text-sm font-bold text-slate-900 dark:text-slate-100">{stats.ongoing}</div>
+              <div className="text-xs text-orange-600">Folyamatban</div>
+            </div>
+          </div>
+        )}
+
+        {/* Upcoming Absences (for students) */}
+        {!isAdmin && stats.upcoming > 0 && (
+          <div className="flex items-center gap-2 p-3 bg-indigo-50 dark:bg-indigo-900/10 rounded-lg border border-indigo-200 dark:border-indigo-800">
+            <Calendar className="h-4 w-4 text-indigo-600 flex-shrink-0" />
+            <div>
+              <div className="text-sm font-bold text-slate-900 dark:text-slate-100">{stats.upcoming}</div>
+              <div className="text-xs text-indigo-600">Jövőbeli</div>
+            </div>
+          </div>
+        )}
+
+        {/* Unique Students (for admins) */}
+        {isAdmin && (
+          <div className="flex items-center gap-2 p-3 bg-purple-50 dark:bg-purple-900/10 rounded-lg border border-purple-200 dark:border-purple-800">
+            <Users className="h-4 w-4 text-purple-600 flex-shrink-0" />
+            <div>
+              <div className="text-sm font-bold text-slate-900 dark:text-slate-100">{stats.uniqueStudents}</div>
+              <div className="text-xs text-purple-600">Diák</div>
+            </div>
+          </div>
+        )}
+
+        {/* Average Days */}
+        {stats.total > 0 && (
+          <div className="flex items-center gap-2 p-3 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+            <BarChart3 className="h-4 w-4 text-slate-600 flex-shrink-0" />
+            <div>
+              <div className="text-sm font-bold text-slate-900 dark:text-slate-100">
+                {(stats.totalDays / stats.total).toFixed(1)}
+              </div>
+              <div className="text-xs text-slate-600">Átlag nap</div>
+            </div>
+          </div>
+        )}
       </div>
-    </>
+    </div>
   )
 }
 
