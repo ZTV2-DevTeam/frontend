@@ -44,6 +44,11 @@ const rawChangelogData: ChangelogEntry[] = [
         'Élesítés ellenőrzése gyorsgomb hozzáadása a lábléchez',
         'Hozzáadtunk egy Élesítés ellenőrzése gyorsgombot a lábléchez, amely lehetővé teszi a fejlesztők és az üzemeltetők számára a gyors hozzáférést az élesítési folyamatokhoz.'
       ),
+      createChange(
+        'feature',
+        'Üzenőfal kezelés a felhasználói felületen',
+        'Mostantól lehet az üzenőfal közleményeit a felhasználói felületen kezelni.',
+      ),
     ]
   ),
   createChangelogEntry(

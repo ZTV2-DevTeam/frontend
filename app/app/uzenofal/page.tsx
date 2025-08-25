@@ -1,7 +1,8 @@
-'use client';
+"use client"
 
 import React, { useState } from 'react';
 import { useAuth } from "@/contexts/auth-context";
+import { useUserRole } from "@/contexts/user-role-context";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
@@ -28,18 +29,30 @@ import rehypeRaw from 'rehype-raw';
 import { useApiQuery } from "@/lib/api-helpers";
 import { AnnouncementSchema, AnnouncementDetailSchema } from "@/lib/types";
 import { apiClient } from "@/lib/api";
+import { AnnouncementDialog } from "@/components/announcement-dialog";
+import { AnnouncementActions } from "@/components/announcement-actions";
 
 export default function MessageBoardPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [categoryFilter, setCategoryFilter] = useState<string>('all')
   const [selectedPost, setSelectedPost] = useState<number | null>(null)
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, user } = useAuth()
+  const { currentRole } = useUserRole()
+  
+  // Check if user is admin (can create/edit/delete announcements)
+  const isAdmin = currentRole === 'admin'
   
   // Fetch data from API - only when authenticated
   const { data: announcements = [], loading, error } = useApiQuery(
     () => isAuthenticated ? apiClient.getAnnouncements() : Promise.resolve([]),
     [isAuthenticated]
   )
+
+  // Refresh function for after create/edit/delete
+  const refreshAnnouncements = () => {
+    // Force a re-render by updating a dependency
+    window.location.reload()
+  }
 
   if (loading) {
     return (
@@ -123,11 +136,20 @@ export default function MessageBoardPage() {
     }
   }
 
+  // Helper function to check if user can edit/delete an announcement
+  const canUserModifyAnnouncement = (announcement: AnnouncementSchema) => {
+    if (!isAdmin) return false
+    
+    // Admin can edit/delete all announcements
+    // In the future, we might add logic to allow authors to edit their own
+    return true
+  }
+
   const getCategoryBadge = (announcement: AnnouncementSchema) => {
     if (announcement.is_targeted) {
-      return <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">Célzott</Badge>
+      return <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 dark:border-blue-700 dark:bg-blue-950 dark:text-blue-50">Célzott</Badge>
     } else {
-      return <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Nyilvános</Badge>
+      return <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 dark:border-green-700 dark:bg-green-950 dark:text-green-50">Közérdekű</Badge>
     }
   }
 
@@ -147,10 +169,17 @@ export default function MessageBoardPage() {
                 Közlemények és bejelentések • {sortedAnnouncements.length} üzenet
               </p>
             </div>
-            {/* <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              Új közlemény
-            </Button> */}
+            {isAdmin && (
+              <AnnouncementDialog 
+                onSuccess={refreshAnnouncements}
+                trigger={
+                  <Button>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Új közlemény
+                  </Button>
+                }
+              />
+            )}
           </div>
 
           {/* Filters */}
@@ -215,12 +244,15 @@ export default function MessageBoardPage() {
                       </div>
                       <div className="flex items-center space-x-2">
                         {getCategoryBadge(announcement)}
-                        <Button variant="ghost" size="sm">
-                          <MessageCircle className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm">
-                          <Share2 className="h-4 w-4" />
-                        </Button>
+                        {isAdmin && (
+                          <AnnouncementActions
+                            announcement={announcement}
+                            onSuccess={refreshAnnouncements}
+                            userCanEdit={canUserModifyAnnouncement(announcement)}
+                            userCanDelete={canUserModifyAnnouncement(announcement)}
+                            userCanView={true}
+                          />
+                        )}
                       </div>
                     </div>
                   </CardHeader>
