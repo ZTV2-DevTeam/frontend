@@ -33,7 +33,12 @@ const rawChangelogData: ChangelogEntry[] = [
         'removed',
         'Bejelentkezési instrukciók eltávolítása az útmutatókból',
         'Eltávolítottuk a bejelentkezési instrukciókat az útmutatókból, mivel az útmutatók, kizárólag a sikeres bejelentkezés után érhetők el, így ez az információ feleslegessé vált.'
-      )
+      ),
+      createChange(
+        'improvement',
+        'Távollétkezelő reszponzivitásának növelése',
+        'Apróbb módosításokat hajtottunk végre a Távollétkezelő felület reszponzivitásával kapcsolatban, így mostantól annak kellemsebb mobilon a használata.'
+      ),
     ]
   ),
   createChangelogEntry(

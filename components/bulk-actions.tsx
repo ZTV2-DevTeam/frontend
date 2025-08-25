@@ -87,34 +87,36 @@ export function BulkActions({
 
   return (
     <Card className="border-orange-200 bg-orange-50">
-      <CardContent className="p-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
+      <CardContent className="p-3 sm:p-4">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
             <button
               onClick={handleSelectAll}
               className="flex items-center gap-2 text-sm font-medium"
             >
               {allSelected ? (
-                <CheckSquare className="h-4 w-4" />
+                <CheckSquare className="h-4 w-4 flex-shrink-0" />
               ) : someSelected ? (
-                <Square className="h-4 w-4 border-2" />
+                <Square className="h-4 w-4 border-2 flex-shrink-0" />
               ) : (
-                <Square className="h-4 w-4" />
+                <Square className="h-4 w-4 flex-shrink-0" />
               )}
-              {selectedIds.length} távollét kiválasztva
+              <span className="whitespace-nowrap">{selectedIds.length} távollét kiválasztva</span>
             </button>
             
-            <Badge variant="secondary">
-              {pendingAbsences.length} függőben
-            </Badge>
-            {processedAbsences.length > 0 && (
-              <Badge variant="outline">
-                {processedAbsences.length} feldolgozott
+            <div className="flex gap-2">
+              <Badge variant="secondary">
+                {pendingAbsences.length} függőben
               </Badge>
-            )}
+              {processedAbsences.length > 0 && (
+                <Badge variant="outline">
+                  {processedAbsences.length} feldolgozott
+                </Badge>
+              )}
+            </div>
           </div>
           
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             {pendingAbsences.length > 0 && (
               <>
                 <ConfirmDialog
@@ -125,10 +127,11 @@ export function BulkActions({
                       size="sm"
                       variant="outline"
                       disabled={loading || bulkLoading === 'approve'}
-                      className="text-green-600 border-green-200 hover:bg-green-50"
+                      className="text-green-600 border-green-200 hover:bg-green-50 text-xs sm:text-sm"
                     >
-                      <Check className="h-4 w-4 mr-1" />
-                      Jóváhagyás ({pendingAbsences.length})
+                      <Check className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                      <span className="hidden sm:inline">Jóváhagyás ({pendingAbsences.length})</span>
+                      <span className="sm:hidden">✓ ({pendingAbsences.length})</span>
                     </Button>
                   }
                   onConfirm={() => handleBulkAction('approve', pendingAbsences.map(a => a.id))}
@@ -144,10 +147,11 @@ export function BulkActions({
                       size="sm"
                       variant="outline"
                       disabled={loading || bulkLoading === 'deny'}
-                      className="text-red-600 border-red-200 hover:bg-red-50"
+                      className="text-red-600 border-red-200 hover:bg-red-50 text-xs sm:text-sm"
                     >
-                      <X className="h-4 w-4 mr-1" />
-                      Elutasítás ({pendingAbsences.length})
+                      <X className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                      <span className="hidden sm:inline">Elutasítás ({pendingAbsences.length})</span>
+                      <span className="sm:hidden">✗ ({pendingAbsences.length})</span>
                     </Button>
                   }
                   onConfirm={() => handleBulkAction('deny', pendingAbsences.map(a => a.id))}
@@ -167,10 +171,11 @@ export function BulkActions({
                     size="sm"
                     variant="outline"
                     disabled={loading || bulkLoading === 'reset'}
-                    className="text-orange-600 border-orange-200 hover:bg-orange-50"
+                    className="text-orange-600 border-orange-200 hover:bg-orange-50 text-xs sm:text-sm"
                   >
-                    <AlertTriangle className="h-4 w-4 mr-1" />
-                    Visszaállítás ({processedAbsences.length})
+                    <AlertTriangle className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                    <span className="hidden sm:inline">Visszaállítás ({processedAbsences.length})</span>
+                    <span className="sm:hidden">⚠ ({processedAbsences.length})</span>
                   </Button>
                 }
                 onConfirm={() => handleBulkAction('reset', processedAbsences.map(a => a.id))}
@@ -187,10 +192,11 @@ export function BulkActions({
                   size="sm"
                   variant="outline"
                   disabled={loading || bulkLoading === 'delete'}
-                  className="text-red-600 border-red-200 hover:bg-red-50"
+                  className="text-red-600 border-red-200 hover:bg-red-50 text-xs sm:text-sm"
                 >
-                  <Trash2 className="h-4 w-4 mr-1" />
-                  Törlés ({selectedIds.length})
+                  <Trash2 className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                  <span className="hidden sm:inline">Törlés ({selectedIds.length})</span>
+                  <span className="sm:hidden">🗑 ({selectedIds.length})</span>
                 </Button>
               }
               onConfirm={() => handleBulkAction('delete', selectedIds)}
@@ -203,6 +209,7 @@ export function BulkActions({
               size="sm"
               variant="ghost"
               onClick={() => onSelectionChange([])}
+              className="text-xs sm:text-sm"
             >
               Mégsem
             </Button>

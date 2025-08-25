@@ -6,6 +6,7 @@ import { usePermissions } from '@/contexts/permissions-context'
 import { apiClient, TavolletSchema, TavolletCreateSchema, TavolletUpdateSchema } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
@@ -368,30 +369,48 @@ export function AbsenceManagement() {
           cell: ({ getValue }) => {
             const user = getValue()
             return (
-              <div className="font-medium">
-                {user.full_name || `${user.first_name} ${user.last_name}`}
+              <div className="font-medium min-w-0">
+                <div className="truncate">
+                  {user.full_name || `${user.first_name} ${user.last_name}`}
+                </div>
               </div>
             )
           },
+          size: 150,
         }),
       ] : []),
       
       columnHelper.accessor('start_date', {
         header: 'Kezdő dátum',
-        cell: ({ getValue }) => formatDateForDisplay(getValue()),
+        cell: ({ getValue }) => (
+          <div className="whitespace-nowrap text-sm">
+            {formatDateForDisplay(getValue())}
+          </div>
+        ),
+        size: 120,
       }),
       
       columnHelper.accessor('end_date', {
         header: 'Záró dátum',
-        cell: ({ getValue }) => formatDateForDisplay(getValue()),
+        cell: ({ getValue }) => (
+          <div className="whitespace-nowrap text-sm hidden sm:table-cell">
+            {formatDateForDisplay(getValue())}
+          </div>
+        ),
+        size: 120,
       }),
       
       columnHelper.accessor('duration_days', {
         header: 'Időtartam',
         cell: ({ getValue }) => {
           const days = getValue()
-          return `${days} nap`
+          return (
+            <div className="whitespace-nowrap text-sm">
+              {days} nap
+            </div>
+          )
         },
+        size: 80,
       }),
       
       columnHelper.accessor('reason', {
@@ -399,11 +418,12 @@ export function AbsenceManagement() {
         cell: ({ getValue }) => {
           const reason = getValue()
           return (
-            <div className="max-w-xs truncate" title={reason || 'Nincs indoklás'}>
+            <div className="max-w-[150px] sm:max-w-xs truncate text-sm" title={reason || 'Nincs indoklás'}>
               {reason || 'Nincs indoklás'}
             </div>
           )
         },
+        size: 200,
       }),
       
       columnHelper.accessor('status', {
@@ -412,6 +432,7 @@ export function AbsenceManagement() {
           const { status, denied, approved } = row.original
           return <StatusBadge status={status} denied={denied} approved={approved} />
         },
+        size: 120,
       }),
       
       columnHelper.display({
@@ -423,7 +444,7 @@ export function AbsenceManagement() {
           const canDelete = isAdmin || (!absence.denied && absence.user.id === user?.user_id)
           
           return (
-            <div className="flex items-center gap-1">
+            <div className="flex items-center justify-end gap-1 min-w-[120px]">
               <Button
                 variant="ghost"
                 size="sm"
@@ -431,8 +452,10 @@ export function AbsenceManagement() {
                   setSelectedAbsence(absence)
                   setShowViewDialog(true)
                 }}
+                className="h-8 w-8 p-0"
+                title="Megtekintés"
               >
-                <Eye className="h-4 w-4" />
+                <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
               </Button>
               
               {canEdit && (
@@ -448,8 +471,10 @@ export function AbsenceManagement() {
                     })
                     setShowEditDialog(true)
                   }}
+                  className="h-8 w-8 p-0"
+                  title="Szerkesztés"
                 >
-                  <Edit className="h-4 w-4" />
+                  <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
                 </Button>
               )}
               
@@ -458,8 +483,8 @@ export function AbsenceManagement() {
                   title="Távollét törlése"
                   description="Biztosan törli ezt a távollétet? Ez a művelet nem vonható vissza."
                   trigger={
-                    <Button variant="ghost" size="sm">
-                      <Trash2 className="h-4 w-4" />
+                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0" title="Törlés">
+                      <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
                     </Button>
                   }
                   onConfirm={() => handleDelete(absence)}
@@ -477,20 +502,20 @@ export function AbsenceManagement() {
                         variant="ghost"
                         size="sm"
                         onClick={() => handleApprove(absence)}
-                        className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                        className="h-8 w-8 p-0 text-green-600 hover:text-green-700 hover:bg-green-50"
                         title="Jóváhagyás"
                       >
-                        <Check className="h-4 w-4" />
+                        <Check className="h-3 w-3 sm:h-4 sm:w-4" />
                       </Button>
                       
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => handleDeny(absence)}
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
                         title="Elutasítás"
                       >
-                        <X className="h-4 w-4" />
+                        <X className="h-3 w-3 sm:h-4 sm:w-4" />
                       </Button>
                     </>
                   )}
@@ -500,10 +525,10 @@ export function AbsenceManagement() {
                       variant="ghost"
                       size="sm"
                       onClick={() => handleReset(absence)}
-                      className="text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+                      className="h-8 w-8 p-0 text-orange-600 hover:text-orange-700 hover:bg-orange-50"
                       title="Státusz visszaállítása függőben állapotra"
                     >
-                      <AlertTriangle className="h-4 w-4" />
+                      <AlertTriangle className="h-3 w-3 sm:h-4 sm:w-4" />
                     </Button>
                   )}
                 </div>
@@ -511,6 +536,7 @@ export function AbsenceManagement() {
             </div>
           )
         },
+        size: 140,
       }),
     ]
     
@@ -543,12 +569,12 @@ export function AbsenceManagement() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3 sm:space-y-6 px-1 sm:px-0">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Távollét kezelés</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-xl sm:text-2xl font-bold">Távollét kezelés</h1>
+          <p className="text-sm text-muted-foreground">
             {isAdmin 
               ? 'Diákok távolléteinek kezelése és jóváhagyása'
               : 'Távolléteid kezelése és benyújtása'
@@ -556,9 +582,13 @@ export function AbsenceManagement() {
           </p>
         </div>
         
-        <Button onClick={() => setShowCreateDialog(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Új távollét
+        <Button 
+          onClick={() => setShowCreateDialog(true)}
+          className="whitespace-nowrap"
+        >
+          <Plus className="h-4 w-4 sm:mr-2" />
+          <span className="hidden sm:inline">Új távollét</span>
+          <span className="sm:hidden">Új</span>
         </Button>
       </div>
 
@@ -594,16 +624,99 @@ export function AbsenceManagement() {
       {/* Data Table */}
       <Card>
         <CardContent className="p-0">
-          <DataTable
-            table={table}
-            columns={columns}
-            data={filteredAbsences}
-            loading={loading}
-            onRefresh={fetchAbsences}
-            searchPlaceholder="Keresés távollétekben..."
-            showActions={false} // We handle actions in the table
-            showSearch={false} // We have our own search in filters
-          />
+          {/* Mobile Card View (hidden on larger screens) */}
+          <div className="block sm:hidden">
+            {loading ? (
+              <div className="space-y-2 p-3">
+                {Array.from({ length: 3 }).map((_, index) => (
+                  <div key={index} className="h-16 animate-pulse rounded bg-muted" />
+                ))}
+              </div>
+            ) : filteredAbsences.length > 0 ? (
+              <div className="space-y-2 p-3">
+                {filteredAbsences.map((absence) => (
+                  <div key={absence.id} className="border border-border rounded-lg p-3 bg-card">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        {isAdmin && (
+                          <div className="text-sm font-medium mb-1 truncate">
+                            {absence.user.full_name || `${absence.user.first_name} ${absence.user.last_name}`}
+                          </div>
+                        )}
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-xs text-muted-foreground">
+                            {formatDateForDisplay(absence.start_date)}
+                          </span>
+                          <span className="text-xs text-muted-foreground">→</span>
+                          <span className="text-xs text-muted-foreground">
+                            {formatDateForDisplay(absence.end_date)}
+                          </span>
+                          <Badge variant="outline" className="text-xs px-1 py-0">
+                            {absence.duration_days}d
+                          </Badge>
+                        </div>
+                        {absence.reason && (
+                          <div className="text-xs text-muted-foreground truncate mb-1" title={absence.reason}>
+                            {absence.reason}
+                          </div>
+                        )}
+                        <StatusBadge status={absence.status} denied={absence.denied} approved={absence.approved} />
+                      </div>
+                      <div className="flex items-center gap-1 flex-shrink-0">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedAbsence(absence)
+                            setShowViewDialog(true)
+                          }}
+                          className="h-7 w-7 p-0"
+                        >
+                          <Eye className="h-3 w-3" />
+                        </Button>
+                        {(isAdmin || (!absence.denied && absence.user.id === user?.user_id)) && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setSelectedAbsence(absence)
+                              setEditForm({
+                                start_date: absence.start_date,
+                                end_date: absence.end_date,
+                                reason: absence.reason || '',
+                              })
+                              setShowEditDialog(true)
+                            }}
+                            className="h-7 w-7 p-0"
+                          >
+                            <Edit className="h-3 w-3" />
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-6 text-muted-foreground text-sm">
+                Nincsenek távollét adatok
+              </div>
+            )}
+          </div>
+
+          {/* Desktop Table View (hidden on mobile) */}
+          <div className="hidden sm:block overflow-x-auto">
+            <DataTable
+              table={table}
+              columns={columns}
+              data={filteredAbsences}
+              loading={loading}
+              onRefresh={fetchAbsences}
+              searchPlaceholder="Keresés távollétekben..."
+              showActions={false} // We handle actions in the table
+              showSearch={false} // We have our own search in filters
+            />
+          </div>
         </CardContent>
       </Card>
 
