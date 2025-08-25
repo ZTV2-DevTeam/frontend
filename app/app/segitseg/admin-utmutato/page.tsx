@@ -289,7 +289,7 @@ export default function AdminGuidePage() {
                 </p>
                 <div className="flex items-center gap-2">
                   <Button variant="outline" size="sm" asChild className="border-blue-300 text-blue-700 hover:bg-blue-100">
-                    <a href="/app/database-admin" target="_blank">
+                    <a href="/app/database-admin" target="_blank" className="cursor-pointer">
                       <ExternalLink className="h-3 w-3 mr-1" />
                       Django Admin megnyitása
                     </a>
@@ -591,25 +591,25 @@ export default function AdminGuidePage() {
             <CardContent>
               <div className="grid gap-3 md:grid-cols-4">
                 <Button variant="outline" className="justify-start" asChild>
-                  <Link href="/app/iranyitopult">
+                  <Link href="/app/iranyitopult" className="cursor-pointer">
                     <Home className="h-4 w-4 mr-2" />
                     Irányítópult
                   </Link>
                 </Button>
                 <Button variant="outline" className="justify-start" asChild>
-                  <Link href="/app/database-admin">
+                  <Link href="/app/database-admin" className="cursor-pointer">
                     <Database className="h-4 w-4 mr-2" />
                     Django Admin
                   </Link>
                 </Button>
                 <Button variant="outline" className="justify-start" asChild>
-                  <Link href="/app/forgatasok">
+                  <Link href="/app/forgatasok" className="cursor-pointer">
                     <Video className="h-4 w-4 mr-2" />
                     Forgatások
                   </Link>
                 </Button>
                 <Button variant="outline" className="justify-start" asChild>
-                  <Link href="/app/stab">
+                  <Link href="/app/stab" className="cursor-pointer">
                     <Users className="h-4 w-4 mr-2" />
                     Stáb
                   </Link>

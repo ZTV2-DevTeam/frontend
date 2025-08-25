@@ -17,7 +17,7 @@ function FirstLoginContent() {
             <p className="text-sm text-muted-foreground mb-4">
               Az első bejelentkezési link nem tartalmaz érvényes tokent.
             </p>
-            <a href="/first-password" className="text-primary underline">
+            <a href="/first-password" className="text-primary underline cursor-pointer">
               Új link kérése
             </a>
           </div>

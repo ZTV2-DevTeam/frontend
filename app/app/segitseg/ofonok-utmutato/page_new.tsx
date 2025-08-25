@@ -411,19 +411,19 @@ export default function ClassTeacherGuidePage() {
             <CardContent>
               <div className="grid gap-3 md:grid-cols-3">
                 <Button variant="outline" className="justify-start" asChild>
-                  <a href="/app/iranyitopult">
+                  <a href="/app/iranyitopult" className="cursor-pointer">
                     <Home className="h-4 w-4 mr-2" />
                     Irányítópult
                   </a>
                 </Button>
                 <Button variant="outline" className="justify-start" asChild>
-                  <a href="/app/igazolasok">
+                  <a href="/app/igazolasok" className="cursor-pointer">
                     <TicketCheck className="h-4 w-4 mr-2" />
                     Igazolások
                   </a>
                 </Button>
                 <Button variant="outline" className="justify-start" asChild>
-                  <a href="/app/segitseg">
+                  <a href="/app/segitseg" className="cursor-pointer">
                     <FileText className="h-4 w-4 mr-2" />
                     Általános Súgó
                   </a>

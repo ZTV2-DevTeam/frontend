@@ -523,25 +523,25 @@ export default function AdminGuidePage() {
             <CardContent>
               <div className="grid gap-3 md:grid-cols-4">
                 <Button variant="outline" className="justify-start" asChild>
-                  <a href="/app/iranyitopult">
+                  <a href="/app/iranyitopult" className="cursor-pointer">
                     <Home className="h-4 w-4 mr-2" />
                     Irányítópult
                   </a>
                 </Button>
                 <Button variant="outline" className="justify-start" asChild>
-                  <a href="/app/database-admin">
+                  <a href="/app/database-admin" className="cursor-pointer">
                     <Database className="h-4 w-4 mr-2" />
                     Django Admin
                   </a>
                 </Button>
                 <Button variant="outline" className="justify-start" asChild>
-                  <Link href="/app/forgatasok">
+                  <Link href="/app/forgatasok" className="cursor-pointer">
                     <Video className="h-4 w-4 mr-2" />
                     Forgatások
                   </Link>
                 </Button>
                 <Button variant="outline" className="justify-start" asChild>
-                  <a href="/app/stab">
+                  <a href="/app/stab" className="cursor-pointer">
                     <Users className="h-4 w-4 mr-2" />
                     Stáb
                   </a>

@@ -109,7 +109,7 @@ export function ConditionalButton() {
   }
 
   return (
-    <button onClick={() => console.log('Managing users...')}>
+    <button onClick={() => console.log('Managing users...')} className="cursor-pointer">
       Manage Users
     </button>
   )
@@ -140,7 +140,7 @@ export function CustomNavigation() {
         }
 
         return (
-          <a key={item.href} href={item.href}>
+          <a key={item.href} href={item.href} className="cursor-pointer">
             {item.label}
           </a>
         )

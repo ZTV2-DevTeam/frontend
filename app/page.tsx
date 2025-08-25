@@ -38,7 +38,7 @@ export default function LandingPage() {
   return (
     <div className="flex flex-col transition-colors duration-500 min-h-dvh bg-background text-foreground">
       <header className="container flex items-center justify-between px-4 py-4 mx-auto sm:px-6 lg:px-8 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <Link href="/" className="flex items-center gap-3 text-2xl font-bold hover:opacity-80 transition-opacity">
+        <Link href="/" className="flex items-center gap-3 text-2xl font-bold hover:opacity-80 transition-opacity cursor-pointer">
           <Clapperboard className="w-8 h-8 text-primary" />
           <div className="flex flex-col">
             <div className="flex items-center gap-2">
@@ -52,22 +52,22 @@ export default function LandingPage() {
         </Link>
         <div className="flex items-center gap-4">
           <nav className="hidden md:flex items-center gap-6 text-sm">
-            <a href="#features" className="text-muted-foreground hover:text-foreground transition-colors">
+            <a href="#features" className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
               Funkciók
             </a>
-            <a href="#why-better" className="text-muted-foreground hover:text-foreground transition-colors">
+            <a href="#why-better" className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
               Előnyök
             </a>
-            <a href="#about" className="text-muted-foreground hover:text-foreground transition-colors">
+            <a href="#about" className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
               Rólunk
             </a>
-            <Link href="/changelog" className="text-muted-foreground hover:text-foreground transition-colors">
+            <Link href="/changelog" className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
               Változások
             </Link>
           </nav>
           <Link
             href="/login"
-            className="px-4 py-2 text-sm font-medium transition-colors bg-primary text-primary-foreground rounded-md hover:bg-primary/90 flex items-center gap-2"
+            className="px-4 py-2 text-sm font-medium transition-colors bg-primary text-primary-foreground rounded-md hover:bg-primary/90 flex items-center gap-2 cursor-pointer"
           >
             Bejelentkezés
           </Link>
@@ -104,14 +104,14 @@ export default function LandingPage() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
             <Link 
               href="/login"
-              className="w-full sm:w-auto px-8 py-4 text-lg font-medium transition-all bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 hover:scale-105 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl"
+              className="w-full sm:w-auto px-8 py-4 text-lg font-medium transition-all bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 hover:scale-105 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl cursor-pointer"
             >
               Kezdés
               <Clapperboard className="w-5 h-5" />
             </Link>
             <a 
               href="#features"
-              className="w-full sm:w-auto px-8 py-4 text-lg font-medium transition-all border-2 border-border rounded-xl hover:bg-accent hover:text-accent-foreground hover:scale-105"
+              className="w-full sm:w-auto px-8 py-4 text-lg font-medium transition-all border-2 border-border rounded-xl hover:bg-accent hover:text-accent-foreground hover:scale-105 cursor-pointer"
             >
               Tudj meg többet
             </a>

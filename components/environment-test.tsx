@@ -127,19 +127,19 @@ export default function EnvironmentTest() {
           <div className="flex gap-4">
             <Link 
               href="/app/iranyitopult" 
-              className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90"
+              className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90 cursor-pointer"
             >
               Test Dashboard APIs
             </Link>
             <Link 
               href="/app/felszereles" 
-              className="px-4 py-2 bg-secondary text-secondary-foreground rounded hover:bg-secondary/90"
+              className="px-4 py-2 bg-secondary text-secondary-foreground rounded hover:bg-secondary/90 cursor-pointer"
             >
               Test Equipment APIs
             </Link>
             <Link 
               href="/app/forgatasok" 
-              className="px-4 py-2 bg-accent text-accent-foreground rounded hover:bg-accent/90"
+              className="px-4 py-2 bg-accent text-accent-foreground rounded hover:bg-accent/90 cursor-pointer"
             >
               Test Forgatasok APIs
             </Link>

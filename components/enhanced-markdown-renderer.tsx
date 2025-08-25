@@ -167,7 +167,7 @@ export function EnhancedMarkdownRenderer({
           a: ({ children, href, ...props }) => (
             <a 
               href={href}
-              className="text-primary hover:text-primary/80 underline underline-offset-2" 
+              className="text-primary hover:text-primary/80 underline underline-offset-2 cursor-pointer" 
               target={href?.startsWith('http') ? '_blank' : undefined}
               rel={href?.startsWith('http') ? 'noopener noreferrer' : undefined}
               {...props}

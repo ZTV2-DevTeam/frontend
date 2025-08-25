@@ -12,7 +12,7 @@ export function SiteFooter() {
           <div className="flex flex-col items-center sm:items-start">
             <p className="text-xs">
               Kapcsolat:{" "}
-              <a href={`mailto:${CONTACT_CONFIG.PRIMARY_EMAIL}`} className="underline transition-colors hover:text-primary">
+              <a href={`mailto:${CONTACT_CONFIG.PRIMARY_EMAIL}`} className="underline transition-colors hover:text-primary cursor-pointer">
                 {CONTACT_CONFIG.PRIMARY_EMAIL}
               </a>
             </p>

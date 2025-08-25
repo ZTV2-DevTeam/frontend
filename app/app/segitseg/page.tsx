@@ -452,7 +452,7 @@ export default function HelpPage() {
                           asChild={currentRole === 'admin'}
                         >
                           {currentRole === 'admin' ? (
-                            <a href="/app/segitseg/admin-utmutato">
+                            <a href="/app/segitseg/admin-utmutato" className="cursor-pointer">
                               <Shield className="w-4 h-4 mr-2" />
                               Útmutató megnyitása
                             </a>
@@ -503,7 +503,7 @@ export default function HelpPage() {
                           asChild={currentRole === 'class-teacher' || currentRole === 'admin'}
                         >
                           {currentRole === 'class-teacher' || currentRole === 'admin' ? (
-                            <a href="/app/segitseg/ofonok-utmutato">
+                            <a href="/app/segitseg/ofonok-utmutato" className="cursor-pointer">
                               <GraduationCap className="w-4 h-4 mr-2" />
                               Útmutató megnyitása
                             </a>
@@ -554,7 +554,7 @@ export default function HelpPage() {
                           asChild={currentRole === 'student' || currentRole === 'admin'}
                         >
                           {currentRole === 'student' || currentRole === 'admin' ? (
-                            <a href="/app/segitseg/diak-utmutato">
+                            <a href="/app/segitseg/diak-utmutato" className="cursor-pointer">
                               <User className="w-4 h-4 mr-2" />
                               Útmutató megnyitása
                             </a>

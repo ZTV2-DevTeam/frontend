@@ -55,7 +55,7 @@ export function SiteHeader() {
             className="mx-1 h-6 data-[orientation=vertical]:h-6"
           />
           <div className="flex items-center gap-3 min-h-[2.5rem] md:min-h-[2rem]">
-            <a href="/iranyitopult" className="flex items-center gap-2 group">
+            <a href="/iranyitopult" className="flex items-center gap-2 group cursor-pointer">
               <Clapperboard className="h-6 w-6 md:h-5 md:w-5 text-primary flex-shrink-0 group-hover:scale-110 transition-transform" />
               <span className="sr-only">Iranyitopult</span>
             </a>

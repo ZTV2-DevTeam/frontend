@@ -7,7 +7,7 @@ export default function TermsOfServicePage() {
   return (
     <div className="flex flex-col transition-colors duration-500 min-h-dvh bg-background text-foreground">
       <header className="container flex items-center justify-between px-4 py-6 mx-auto sm:px-6 lg:px-8">
-        <Link href="/" className="flex items-center gap-3 text-2xl font-bold">
+        <Link href="/" className="flex items-center gap-3 text-2xl font-bold cursor-pointer">
           <Clapperboard className="w-8 h-8 text-primary" />
           <span>FTV</span>
         </Link>

@@ -12,7 +12,12 @@ const rawChangelogData: ChangelogEntry[] = [
       createChange(
         'bugfix',
         'Memória túlterhelési hiba javítása',
-        'TÖbb felhasználó importálása, különösen a jelszavak titkosítása rendkívül sok memóriát emésztett fel, ezt optimalizáltuk.'
+        'Több felhasználó importálása, különösen a jelszavak titkosítása rendkívül sok memóriát emésztett fel, ezt optimalizáltuk.'
+      ),
+      createChange(
+        'improvement',
+        'Egérmutató beállítások javítása',
+        'Javítottuk a felhasználói felület egérmutató beállításait, hogy azok jobban alkalmazkodjanak a különböző interakciókhoz.'
       ),
     ]
   ),

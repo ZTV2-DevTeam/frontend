@@ -329,25 +329,25 @@ export default function StudentGuidePage() {
             <CardContent>
               <div className="grid gap-3 md:grid-cols-4">
                 <Button variant="outline" className="justify-start" asChild>
-                  <Link href="/app/forgatasok">
+                  <Link href="/app/forgatasok" className="cursor-pointer">
                     <Video className="h-4 w-4 mr-2" />
                     Forgatások
                   </Link>
                 </Button>
                 <Button variant="outline" className="justify-start" asChild>
-                  <a href="/app/tavollet">
+                  <a href="/app/tavollet" className="cursor-pointer">
                     <TreePalm className="h-4 w-4 mr-2" />
                     Távollét
                   </a>
                 </Button>
                 <Button variant="outline" className="justify-start" asChild>
-                  <a href="/app/igazolasok">
+                  <a href="/app/igazolasok" className="cursor-pointer">
                     <TicketCheck className="h-4 w-4 mr-2" />
                     Igazolások
                   </a>
                 </Button>
                 <Button variant="outline" className="justify-start" asChild>
-                  <a href="/app/segitseg">
+                  <a href="/app/segitseg" className="cursor-pointer">
                     <FileText className="h-4 w-4 mr-2" />
                     Általános Súgó
                   </a>

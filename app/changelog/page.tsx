@@ -111,7 +111,7 @@ export default function ChangelogPage() {
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground">
       <header className="container flex items-center justify-between px-4 py-4 mx-auto sm:px-6 lg:px-8 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <Link href="/" className="flex items-center gap-3 text-2xl font-bold hover:opacity-80 transition-opacity">
+        <Link href="/" className="flex items-center gap-3 text-2xl font-bold hover:opacity-80 transition-opacity cursor-pointer">
           <Clapperboard className="w-8 h-8 text-primary" />
           <div className="flex flex-col">
             <div className="flex items-center gap-2">

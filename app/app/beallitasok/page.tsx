@@ -326,7 +326,7 @@ export default function SettingsPage() {
                         </div>
                       </div>
                       <Button variant="outline" size="sm" asChild className="h-10 px-4">
-                        <a href="/app/database-admin" target="_blank" className="flex items-center gap-2">
+                        <a href="/app/database-admin" target="_blank" className="flex items-center gap-2 cursor-pointer">
                           <Globe className="h-4 w-4" />
                           Megnyitás
                         </a>
