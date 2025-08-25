@@ -22,7 +22,7 @@ import { ForgatásErrorHandler, CriticalForgatásError, ForgatásApiWarning } fr
 import { AuthTokenDebug } from "@/components/auth-token-debug"
 import { apiClient } from "@/lib/api"
 import type { ForgatCreateSchema, PartnerSchema, ContactPersonSchema, ReporterSchema, KacsaAvailableSchema } from "@/lib/api"
-import { DatePicker, TimePicker } from "@/components/ui/date-time-components"
+import { SystemDatePicker, SystemTimePicker } from "@/components/ui/date-time-components"
 import {
   getCurrentSchoolYear,
   getSchoolYearFromDate,
@@ -566,7 +566,7 @@ export default function NewShooting() {
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="date">Dátum *</Label>
-                  <DatePicker
+                  <SystemDatePicker
                     date={formData.date}
                     onSelect={handleDateChange}
                     placeholder="Válassz dátumot"
@@ -577,18 +577,18 @@ export default function NewShooting() {
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="startTime">Kezdés ideje *</Label>
-                    <TimePicker
+                    <SystemTimePicker
                       time={formData.startTime}
-                      onTimeChange={(time) => handleTimeChange("startTime", time)}
+                      onTimeChange={(time: string) => handleTimeChange("startTime", time)}
                       placeholder="Kezdés ideje"
                     />
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="endTime">Befejezés ideje *</Label>
-                    <TimePicker
+                    <SystemTimePicker
                       time={formData.endTime}
-                      onTimeChange={(time) => handleTimeChange("endTime", time)}
+                      onTimeChange={(time: string) => handleTimeChange("endTime", time)}
                       placeholder="Befejezés ideje"
                     />
                   </div>

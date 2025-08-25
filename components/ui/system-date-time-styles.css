@@ -1,0 +1,144 @@
+/* Cross-platform date and time input enhancements */
+
+/* Base styling for better cross-platform consistency */
+input[type="date"],
+input[type="time"], 
+input[type="datetime-local"] {
+  /* Ensure consistent sizing */
+  min-height: 2.5rem;
+  
+  /* Enhanced focus states */
+  transition: all 0.2s ease-in-out;
+}
+
+input[type="date"]:focus,
+input[type="time"]:focus,
+input[type="datetime-local"]:focus {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+/* Platform-specific enhancements */
+
+/* iOS/Safari specific */
+@supports (-webkit-touch-callout: none) {
+  input[type="date"],
+  input[type="time"],
+  input[type="datetime-local"] {
+    /* Better touch targets on iOS */
+    min-height: 44px;
+    
+    /* Preserve native styling */
+    -webkit-appearance: textfield;
+    appearance: textfield;
+    
+    /* Better text rendering */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  /* Style the native picker indicator */
+  input[type="date"]::-webkit-calendar-picker-indicator,
+  input[type="time"]::-webkit-calendar-picker-indicator,
+  input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 0.8;
+    transition: opacity 0.2s ease;
+  }
+  
+  input[type="date"]::-webkit-calendar-picker-indicator:hover,
+  input[type="time"]::-webkit-calendar-picker-indicator:hover,
+  input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+  }
+  
+  /* Hide clear button on iOS */
+  input[type="date"]::-webkit-clear-button,
+  input[type="time"]::-webkit-clear-button,
+  input[type="datetime-local"]::-webkit-clear-button {
+    display: none;
+  }
+  
+  /* Style inner spin button */
+  input[type="date"]::-webkit-inner-spin-button,
+  input[type="time"]::-webkit-inner-spin-button,
+  input[type="datetime-local"]::-webkit-inner-spin-button {
+    height: auto;
+  }
+}
+
+/* Android Chrome specific */
+@media screen and (-webkit-min-device-pixel-ratio: 0) and (min-resolution: 0.001dpcm) {
+  input[type="date"],
+  input[type="time"],
+  input[type="datetime-local"] {
+    /* Prevent zoom on Android */
+    font-size: 16px;
+    
+    /* Better spacing */
+    padding: 0.5rem 0.75rem;
+  }
+}
+
+/* Windows Edge/Chrome specific */
+@supports (-ms-ime-align: auto) {
+  input[type="date"],
+  input[type="time"],
+  input[type="datetime-local"] {
+    /* Better Windows integration */
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+}
+
+/* Firefox specific (limited native support) */
+@-moz-document url-prefix() {
+  input[type="date"],
+  input[type="time"],
+  input[type="datetime-local"] {
+    /* Fallback styling for Firefox */
+    position: relative;
+  }
+}
+
+/* Dark mode enhancements */
+@media (prefers-color-scheme: dark) {
+  input[type="date"],
+  input[type="time"],
+  input[type="datetime-local"] {
+    color-scheme: dark;
+  }
+  
+  /* iOS dark mode calendar picker */
+  @supports (-webkit-touch-callout: none) {
+    input[type="date"]::-webkit-calendar-picker-indicator,
+    input[type="time"]::-webkit-calendar-picker-indicator,
+    input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+      filter: invert(1);
+    }
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  input[type="date"],
+  input[type="time"],
+  input[type="datetime-local"] {
+    border: 2px solid;
+  }
+  
+  input[type="date"]:focus,
+  input[type="time"]:focus,
+  input[type="datetime-local"]:focus {
+    outline: 3px solid;
+    outline-offset: 2px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  input[type="date"],
+  input[type="time"],
+  input[type="datetime-local"] {
+    transition: none;
+  }
+}

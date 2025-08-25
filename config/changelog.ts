@@ -44,6 +44,11 @@ const rawChangelogData: ChangelogEntry[] = [
         'Kijelölés témaszínnel',
         'A kijelölés mostantól a témához illeszkedő színekkel jelenik meg.'
       ),
+      createChange(
+        'feature',
+        'Operációs rendszerek integrációja',
+        'Mostantól az operációs rendszerek ismert és természetesen kezelhető, beépített dátum és időválasztó mezőit használjuk, így az ismerős és kényelmesebb lesz. Gecko alapú böngészők, mint a Firefox és a Zen nem támogatottak.'
+      ),
     ]
   ),
   createChangelogEntry(

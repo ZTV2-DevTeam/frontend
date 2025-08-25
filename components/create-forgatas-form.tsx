@@ -21,6 +21,7 @@ import { usePermissions } from "@/contexts/permissions-context"
 import { useApiQuery, useApiMutation } from "@/lib/api-helpers"
 import { ApiErrorBoundary } from "@/components/api-error-boundary"
 import { apiClient } from "@/lib/api"
+import { use24HourFormat } from "@/lib/24hour-format-enforcer"
 import type { ForgatCreateSchema, PartnerSchema, ContactPersonSchema, ForgatoTipusSchema } from "@/lib/api"
 
 export function CreateForgatásForm() {
@@ -45,6 +46,9 @@ export function CreateForgatásForm() {
   const { currentRole } = useUserRole()
   const { user } = useAuth()
   const { hasPermission, permissions } = usePermissions()
+
+  // Enforce 24-hour format on all time inputs
+  use24HourFormat()
 
   // API queries
   const { data: partners, loading: partnersLoading, error: partnersError } = useApiQuery(
@@ -273,7 +277,15 @@ export function CreateForgatásForm() {
                 value={formData.time_from}
                 onChange={(e) => updateFormData('time_from', e.target.value)}
                 required
-                className="mt-1"
+                className="mt-1 [&::-webkit-datetime-edit-ampm-field]:hidden [&::-webkit-datetime-edit-ampm-field]:!w-0 [&::-webkit-datetime-edit-ampm-field]:!opacity-0"
+                step="900"
+                lang="en-GB"
+                data-format="24"
+                data-hour-format="24"
+                style={{ 
+                  WebkitAppearance: 'none',
+                  MozAppearance: 'textfield'
+                } as React.CSSProperties}
               />
             </div>
 
@@ -285,7 +297,15 @@ export function CreateForgatásForm() {
                 value={formData.time_to}
                 onChange={(e) => updateFormData('time_to', e.target.value)}
                 required
-                className="mt-1"
+                className="mt-1 [&::-webkit-datetime-edit-ampm-field]:hidden [&::-webkit-datetime-edit-ampm-field]:!w-0 [&::-webkit-datetime-edit-ampm-field]:!opacity-0"
+                step="900"
+                lang="en-GB"
+                data-format="24"
+                data-hour-format="24"
+                style={{ 
+                  WebkitAppearance: 'none',
+                  MozAppearance: 'textfield'
+                } as React.CSSProperties}
               />
             </div>
           </div>

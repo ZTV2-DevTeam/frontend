@@ -1,0 +1,183 @@
+/* Enhanced native date and time input styling for cross-platform consistency */
+
+/* Common styling for all date/time inputs */
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"] {
+  /* Reset appearance for consistent styling across browsers */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  
+  /* Base styling */
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid hsl(var(--border));
+  border-radius: calc(var(--radius) - 2px);
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  
+  /* Focus styling */
+  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+input[type="date"]:focus,
+input[type="time"]:focus,
+input[type="datetime-local"]:focus {
+  outline: none;
+  border-color: hsl(var(--ring));
+  box-shadow: 0 0 0 2px hsl(var(--ring) / 0.2);
+}
+
+/* Disabled state */
+input[type="date"]:disabled,
+input[type="time"]:disabled,
+input[type="datetime-local"]:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 24-hour format enforcement for time inputs */
+input[type="time"],
+input[type="datetime-local"] {
+  /* Force 24-hour format display across browsers */
+  -webkit-locale: "en-GB"; /* Forces 24-hour format in WebKit browsers */
+  
+  /* Additional Chromium/Blink engine specific rules */
+  --webkit-datetime-edit-hour-field-width: 2ch;
+  --webkit-datetime-edit-minute-field-width: 2ch;
+}
+
+/* Force 24-hour format in Chromium browsers (includes Zen Browser) */
+input[type="time"]::-webkit-datetime-edit-hour-field,
+input[type="datetime-local"]::-webkit-datetime-edit-hour-field {
+  /* Ensure hour field uses 24-hour format */
+  text-align: center;
+}
+
+/* Hide AM/PM indicators in all browsers with maximum specificity */
+input[type="time"]::-webkit-datetime-edit-ampm-field,
+input[type="datetime-local"]::-webkit-datetime-edit-ampm-field,
+input[type="time"][data-format="24"]::-webkit-datetime-edit-ampm-field,
+input[type="datetime-local"][data-format="24"]::-webkit-datetime-edit-ampm-field {
+  display: none !important;
+  width: 0 !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  position: absolute !important;
+  left: -9999px !important;
+  overflow: hidden !important;
+  max-width: 0 !important;
+  max-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  color: transparent !important;
+  font-size: 0 !important;
+  line-height: 0 !important;
+}
+
+/* Specific targeting for Zen browser and Chromium derivatives */
+input[type="time"]::-webkit-datetime-edit-fields-wrapper:has(::-webkit-datetime-edit-ampm-field),
+input[type="datetime-local"]::-webkit-datetime-edit-fields-wrapper:has(::-webkit-datetime-edit-ampm-field) {
+  /* Force container to not show AM/PM */
+  -webkit-locale: "en-GB" !important;
+}
+
+/* Additional browser-specific 24-hour format enforcement */
+input[type="time"][data-format="24"],
+input[type="datetime-local"][data-format="24"] {
+  /* Force locale for all compatible browsers */
+  -webkit-locale: "en-GB" !important;
+  -moz-locale: "en-GB";
+}
+
+/* Platform-specific enhancements */
+
+/* iOS/Safari specific */
+@supports (-webkit-touch-callout: none) {
+  input[type="time"] {
+    /* Ensure 24-hour format on iOS */
+    -webkit-locale: "en-GB";
+  }
+  
+  input[type="date"],
+  input[type="time"],
+  input[type="datetime-local"] {
+    /* Improve touch targets on iOS */
+    min-height: 44px;
+  }
+}
+
+/* Android/Chrome specific */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  input[type="date"],
+  input[type="time"],
+  input[type="datetime-local"] {
+    /* Ensure consistent appearance on Android */
+    font-family: inherit;
+  }
+}
+
+/* Windows specific styling */
+@media screen and (-ms-high-contrast: active) {
+  input[type="date"],
+  input[type="time"],
+  input[type="datetime-local"] {
+    border: 2px solid;
+  }
+}
+
+/* macOS specific styling */
+@supports (font: -apple-system-body) {
+  input[type="date"],
+  input[type="time"],
+  input[type="datetime-local"] {
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  input[type="date"],
+  input[type="time"],
+  input[type="datetime-local"] {
+    color-scheme: dark;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  input[type="date"],
+  input[type="time"],
+  input[type="datetime-local"] {
+    border-width: 2px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  input[type="date"],
+  input[type="time"],
+  input[type="datetime-local"] {
+    transition: none;
+  }
+}
+
+/* Additional class-based enforcement for JavaScript manipulation */
+.force-24hour::-webkit-datetime-edit-ampm-field {
+  display: none !important;
+  width: 0 !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  position: absolute !important;
+  left: -9999px !important;
+  pointer-events: none !important;
+}
+
+.force-24hour {
+  -webkit-locale: "en-GB" !important;
+}

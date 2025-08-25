@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "../components/ui/native-input-styles.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -198,3 +199,6 @@
     }
   }
 }
+
+/* Import cross-platform date/time picker styles */
+@import "../components/ui/system-date-time-styles.css";

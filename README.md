@@ -279,32 +279,38 @@ The build system automatically:
 - **[API Documentation](./lib/api.ts)**: Complete API client documentation
 - **[Type Definitions](./lib/types.ts)**: TypeScript type reference
 - **[Configuration Reference](./lib/config.ts)**: Configuration system documentation
-- **[Date/Time Picker Guide](./docs/DATE_TIME_PICKER_GUIDE.md)**: Standardized date and time components
+- **[Date/Time Picker Guide](./docs/date-time-pickers.md)**: Cross-platform date and time components
+- **[Migration Guide](./docs/MIGRATION_GUIDE.md)**: How to migrate to system-native pickers
 
 ### UI Components
 
-#### Standardized Date/Time Pickers (NEW)
-The application now uses standardized date and time picker components with 24-hour format:
+#### Cross-Platform Date/Time Pickers (RECOMMENDED)
+The application provides both system-native and custom date/time picker components. For best user experience, use the system-native components:
 
 ```tsx
-import { DatePicker, TimePicker, DateTimePicker } from "@/components/ui/date-time-components"
+import { SystemDatePicker, SystemTimePicker, SystemDateTimePicker } from "@/components/ui/date-time-components"
 
-// Date selection with calendar popup
-<DatePicker date={date} onSelect={setDate} placeholder="Válassz dátumot" />
+// System-native date picker (recommended)
+<SystemDatePicker date={date} onSelect={setDate} placeholder="Válassz dátumot" />
 
-// Time selection (24-hour format)
-<TimePicker time={time} onTimeChange={setTime} placeholder="Válassz időt" />
+// System-native time picker with 24-hour format
+<SystemTimePicker time={time} onTimeChange={setTime} placeholder="Válassz időt" />
 
 // Combined date and time picker
-<DateTimePicker date={dateTime} onSelect={setDateTime} showTime={true} />
+<SystemDateTimePicker date={dateTime} onSelect={setDateTime} placeholder="Válassz dátumot és időt" />
 ```
 
-**Features:**
-- 24-hour time format (HH:mm) - no AM/PM
-- Hungarian localization (yyyy. MM. dd.)
-- Built-in "Ma" (Today) and "Most" (Now) buttons
-- Keyboard accessibility
-- Form validation support
+**For legacy/custom styling needs only:**
+```tsx
+import { DatePicker, TimePicker, DateTimePicker } from "@/components/ui/date-time-components"
+```
+
+**Key Benefits of System Components:**
+- **Native User Experience**: Uses platform-specific date/time pickers
+- **Accessibility**: Full keyboard and screen reader support
+- **24-Hour Format**: Consistent time display across all platforms
+- **Touch Optimized**: Mobile-friendly native controls on iOS/Android
+- **No JavaScript Dependencies**: Faster loading and better performance
 
 See [Date/Time Picker Guide](./docs/DATE_TIME_PICKER_GUIDE.md) for complete documentation and migration instructions.
 
