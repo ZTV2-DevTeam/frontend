@@ -1,10 +1,13 @@
 'use client'
 
 import Link from "next/link"
-import { ArrowLeft, Calendar, Clapperboard, Plus, Bug, Zap, Shield, AlertTriangle, Minus } from "lucide-react"
+import { ArrowLeft, Calendar, Clapperboard, Plus, Bug, Zap, Shield, AlertTriangle, Minus, Share2, Check } from "lucide-react"
 import { changelogData } from "@/config/changelog"
 import { ChangelogType } from "@/types/changelog"
 import { SiteFooter } from "@/components/site-footer"
+import { useState, useEffect } from "react"
+import { Button } from "@/components/ui/button"
+import { toast } from "sonner"
 
 const getChangeTypeIcon = (type: ChangelogType) => {
   switch (type) {
@@ -73,6 +76,38 @@ const formatDate = (dateString: string) => {
 }
 
 export default function ChangelogPage() {
+  const [copiedId, setCopiedId] = useState<string | null>(null)
+
+  // Handle URL hash scrolling on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.location.hash) {
+      const elementId = window.location.hash.slice(1)
+      const element = document.getElementById(elementId)
+      if (element) {
+        setTimeout(() => {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        }, 100)
+      }
+    }
+  }, [])
+
+  const handleShare = async (entryId: string) => {
+    const url = `${window.location.origin}${window.location.pathname}#${entryId}`
+    
+    try {
+      await navigator.clipboard.writeText(url)
+      setCopiedId(entryId)
+      toast.success("Link másolva a vágólapra!")
+      
+      // Reset the copied state after 2 seconds
+      setTimeout(() => {
+        setCopiedId(null)
+      }, 2000)
+    } catch (error) {
+      console.error('Failed to copy to clipboard:', error)
+      toast.error("Hiba történt a link másolása során")
+    }
+  }
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground">
       <header className="container flex items-center justify-between px-4 py-4 mx-auto sm:px-6 lg:px-8 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -110,7 +145,7 @@ export default function ChangelogPage() {
 
           <div className="space-y-8">
             {changelogData.map((entry, index) => (
-              <div key={entry.id} className="relative">
+              <div key={entry.id} id={entry.id} className="relative scroll-mt-24">
                 {/* Timeline line */}
                 {index < changelogData.length - 1 && (
                   <div className="absolute left-6 top-16 w-0.5 h-full bg-border -ml-px" />
@@ -129,9 +164,30 @@ export default function ChangelogPage() {
                     <div className="bg-card border border-border rounded-lg p-6 shadow-sm">
                       <div className="flex items-center justify-between mb-4">
                         <h2 className="text-2xl font-semibold">{entry.title}</h2>
-                        <span className="text-sm text-muted-foreground">
-                          {formatDate(entry.date)}
-                        </span>
+                        <div className="flex items-center gap-3">
+                          <span className="text-sm text-muted-foreground">
+                            {formatDate(entry.date)}
+                          </span>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleShare(entry.id)}
+                            className="flex items-center gap-2 h-8 px-3"
+                            title="Bejegyzés megosztása"
+                          >
+                            {copiedId === entry.id ? (
+                              <>
+                                <Check className="w-3 h-3" />
+                                <span className="text-xs">Másolva</span>
+                              </>
+                            ) : (
+                              <>
+                                <Share2 className="w-3 h-3" />
+                                <span className="text-xs">Megosztás</span>
+                              </>
+                            )}
+                          </Button>
+                        </div>
                       </div>
 
                       <div className="space-y-4">

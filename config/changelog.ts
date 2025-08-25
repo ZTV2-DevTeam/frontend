@@ -59,6 +59,11 @@ const rawChangelogData: ChangelogEntry[] = [
         'Furcsa hiba javítása az üzenőfalon',
         'Javítottunk egy rendkívül furcsa hibát amely az Új Közlemény gomb véletlenszerű helyeken történő felbukkanását okozta.',
       ),
+      createChange(
+        'feature',
+        'Changelog - Megosztás',
+        'Mostantól lehetőség van a változások megosztására, a megosztási link másolásával. Ezen link közvetlenül az adott változásra mutat.',
+      ),
     ]
   ),
   createChangelogEntry(

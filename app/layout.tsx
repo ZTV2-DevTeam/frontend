@@ -13,6 +13,7 @@ import { EnhancedErrorBoundary } from "@/components/enhanced-error-boundary";
 import { ConnectionStatus } from "@/components/connection-status";
 import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
+import { Toaster } from "@/components/ui/sonner"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -76,6 +77,7 @@ export default function RootLayout({
             </ColorThemeProvider>
           </ThemeProvider>
         </EnhancedErrorBoundary>
+        <Toaster />
         <Analytics />
         <SpeedInsights />
       </body>
