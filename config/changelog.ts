@@ -1,9 +1,10 @@
 import { ChangelogEntry } from '@/types/changelog';
 import { createChangelogEntry, createChange, sortChangelogEntries } from '@/lib/changelog-utils';
+import { m } from 'motion/react';
 
 const rawChangelogData: ChangelogEntry[] = [
   createChangelogEntry(
-    'v1.0.0-beta.4',
+    'v1.0.0-beta.5',
     '2025. augusztus 25.',
     '2025-08-25T01:48:56Z',
     [
@@ -46,11 +47,16 @@ const rawChangelogData: ChangelogEntry[] = [
         'feature',
         'Speed Insights integráció',
         'Vercel Speed Insights hozzáadása a teljesítmény monitorozásához és fejlesztői szerepkörök frissítése.'
-      )
+      ),
+      createChange(
+        'improvement',
+        'Bejelentkezések megfelelő regisztrálása',
+        'A bejelentkezéseket a rendszer eddig csak az Adminisztárciós felületre történő belépéskor regisztrálta. Mostantól a felhasználói felületre történő belépéskor is naplózva lesznek. (Kizárólag a legutolsó bejelentkezés)',
+      ),
     ]
   ),
   createChangelogEntry(
-    'v1.0.0-beta.3',
+    'v1.0.0-beta.4',
     '2025. augusztus 22.',
     '2025-08-22T13:51:42Z',
     [
@@ -118,6 +124,11 @@ const rawChangelogData: ChangelogEntry[] = [
         'Hitelesítési ellenőrzés optimalizálása',
         'Az engedélyezési ellenőrzés mostantól az adatok betöltése után történik a tanuló hiányzások oldalon.'
       ),
+      createChange(
+        'feature',
+        'Jelszavak importálásának lehetősége',
+        'Mostantól az adminisztátorok a Felhasználói rekordok importálásánál a jelszó mezőt is kitölthetik. Ez eddig biztonsági okokból nem volt jelen a rendszerben, illetve mert egy FirstLogin rendszer is üzemelt. Ez ki lett kapcsolva.'
+      )
     ]
   ),
   createChangelogEntry(
