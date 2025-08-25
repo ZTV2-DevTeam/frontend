@@ -79,72 +79,20 @@ export function UserAvatar({
     setCurrentSource(null)
 
     // Hardcoded workaround for specific username
-    if (username === 'balla.botond.23f') {
+    // Extract username from email if username prop is not provided
+    const extractedUsername = username || email.split('@')[0]
+    
+    if (extractedUsername === 'balla.botond.23f') {
+      // Directly set the hardcoded GitHub profile picture for this specific user
       const hardcodedUrl = 'https://github.com/PstasDev.png'
-      
-      // Test if the hardcoded image loads
-      const img = new Image()
-      img.crossOrigin = 'anonymous'
-      
-      img.onload = () => {
-        if (!cancelled) {
-          setCurrentImageUrl(hardcodedUrl)
-          setCurrentSource('github' as ProfilePictureSource)
-          setImageStatus('loaded')
-        }
-      }
-
-      img.onerror = () => {
-        if (!cancelled) {
-          // If hardcoded image fails, fall back to normal logic
-          tryLoadImage()
-        }
-      }
-
-      img.src = hardcodedUrl
+      setCurrentImageUrl(hardcodedUrl)
+      setCurrentSource('github' as ProfilePictureSource)
+      setImageStatus('loaded')
       return
     }
 
-    // Try to load images in order of preference
-    const tryLoadImage = async (urlIndex: number = 0) => {
-      if (cancelled || urlIndex >= pictureUrls.length) {
-        if (!cancelled) {
-          setImageStatus('error')
-        }
-        return
-      }
-
-      const { url, source } = pictureUrls[urlIndex]
-      
-      try {
-        // Create a new image to test if it loads
-        const img = new Image()
-        img.crossOrigin = 'anonymous'
-        
-        img.onload = () => {
-          if (!cancelled) {
-            setCurrentImageUrl(url)
-            setCurrentSource(source)
-            setImageStatus('loaded')
-          }
-        }
-
-        img.onerror = () => {
-          if (!cancelled) {
-            // Try next image source
-            tryLoadImage(urlIndex + 1)
-          }
-        }
-
-        img.src = url
-      } catch (error) {
-        if (!cancelled) {
-          tryLoadImage(urlIndex + 1)
-        }
-      }
-    }
-
-    tryLoadImage()
+    // For all other users, skip URL-based avatars and go directly to fallback initials
+    setImageStatus('error')
 
     return () => {
       cancelled = true
