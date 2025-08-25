@@ -5,6 +5,18 @@ import { create } from 'domain';
 
 const rawChangelogData: ChangelogEntry[] = [
   createChangelogEntry(
+    'v1.0.0-beta.7',
+    '2025. augusztus 25.',
+    '2025-08-25T13:00:00Z',
+    [
+      createChange(
+        'bugfix',
+        'Memória túlterhelési hiba javítása',
+        'TÖbb felhasználó importálása, különösen a jelszavak titkosítása rendkívül sok memóriát emésztett fel, ezt optimalizáltuk.'
+      ),
+    ]
+  ),
+  createChangelogEntry(
     'v1.0.0-beta.6',
     '2025. augusztus 25.',
     '2025-08-25T10:30:00Z',
