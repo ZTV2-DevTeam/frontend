@@ -96,7 +96,7 @@ const rawChangelogData: ChangelogEntry[] = [
   ),
   createChangelogEntry(
     'v1.0.0-beta.2',
-    '2025. augusztus 20.',
+    'HelloZTV - Beta élesítés',
     '2025-08-20T02:02:01Z',
     [
       createChange(
