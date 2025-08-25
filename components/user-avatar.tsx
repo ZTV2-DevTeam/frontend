@@ -78,6 +78,33 @@ export function UserAvatar({
     setCurrentImageUrl(null)
     setCurrentSource(null)
 
+    // Hardcoded workaround for specific username
+    if (username === 'balla.botond.23f') {
+      const hardcodedUrl = 'https://github.com/PstasDev.png'
+      
+      // Test if the hardcoded image loads
+      const img = new Image()
+      img.crossOrigin = 'anonymous'
+      
+      img.onload = () => {
+        if (!cancelled) {
+          setCurrentImageUrl(hardcodedUrl)
+          setCurrentSource('github' as ProfilePictureSource)
+          setImageStatus('loaded')
+        }
+      }
+
+      img.onerror = () => {
+        if (!cancelled) {
+          // If hardcoded image fails, fall back to normal logic
+          tryLoadImage()
+        }
+      }
+
+      img.src = hardcodedUrl
+      return
+    }
+
     // Try to load images in order of preference
     const tryLoadImage = async (urlIndex: number = 0) => {
       if (cancelled || urlIndex >= pictureUrls.length) {
