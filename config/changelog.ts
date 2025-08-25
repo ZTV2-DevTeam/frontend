@@ -5,6 +5,23 @@ import { create } from 'domain';
 
 const rawChangelogData: ChangelogEntry[] = [
   createChangelogEntry(
+    'v1.0.0-beta.8',
+    '2025. augusztus 25.',
+    '2025-08-25T22:45:00Z',
+    [
+      createChange(
+        'removed',
+        'Első Lépések Widget eltávolítva',
+        'Az első lépések widget eltávolításra került a felhasználói felületről, az útmutató mostantól csak a Segítség menüpontban érhető el.'
+      ),
+      createChange(
+        'bugfix',
+        'Profil rekord importálás javítása',
+        'Javítottuk a profil rekord importálásának folyamatát, hogy az zökkenőmentesebbé váljon.'
+      )
+    ]
+  ),
+  createChangelogEntry(
     'v1.0.0-beta.7',
     '2025. augusztus 25.',
     '2025-08-25T13:00:00Z',
