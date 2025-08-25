@@ -374,7 +374,9 @@ export function CreateForgatásForm() {
               <datalist id="contacts-list">
                 {contactPersons?.map((person: ContactPersonSchema) => (
                   <option key={person.id} value={person.name}>
-                    {person.email && `${person.name} (${person.email})`}
+                    {person.name}
+                    {person.context && ` - ${person.context}`}
+                    {person.email && ` (${person.email})`}
                   </option>
                 ))}
               </datalist>

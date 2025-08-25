@@ -369,7 +369,9 @@ export default function NewShooting() {
   const contactOptions = contactPersons && !contactPersonsError ? contactPersons.map((contact: ContactPersonSchema) => ({
     value: contact.id.toString(),
     label: contact.name,
-    description: `${contact.email || 'Email nincs megadva'} • ${contact.phone || 'Telefon nincs megadva'}`,
+    description: contact.context 
+      ? `${contact.context}\n${contact.email || 'Email nincs megadva'} • ${contact.phone || 'Telefon nincs megadva'}`
+      : `${contact.email || 'Email nincs megadva'} • ${contact.phone || 'Telefon nincs megadva'}`,
   })) : []
 
   // KaCsa sessions - only show if API data is available

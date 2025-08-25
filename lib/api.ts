@@ -323,12 +323,14 @@ export interface ContactPersonSchema {
   name: string
   email?: string
   phone?: string
+  context?: string
 }
 
 export interface ContactPersonCreateSchema {
   name: string
   email?: string
   phone?: string
+  context?: string
 }
 
 export interface ForgatSchema {
@@ -610,6 +612,7 @@ export interface ContactPersonSchema {
   email?: string
   phone?: string
   organization?: string
+  context?: string
 }
 
 export interface ForgatoTipusSchema {

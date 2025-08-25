@@ -4,6 +4,28 @@ import { m } from 'motion/react';
 
 const rawChangelogData: ChangelogEntry[] = [
   createChangelogEntry(
+    'v1.0.0-beta.6',
+    '2025. augusztus 25.',
+    '2025-08-25T10:30:00Z',
+    [
+      createChange(
+        'feature',
+        'Kapcsolattartó kontextus mező hozzáadása',
+        'Új kontextus mező hozzáadása a kapcsolattartók számára az "Új forgatás" menüben. A kontextus most vertikálisan jelenik meg a név és a kapcsolattartási adatok között a jobb olvashatóság érdekében.'
+      ),
+      createChange(
+        'improvement',
+        'ContactPersonSchema frissítése',
+        'A ContactPersonSchema interfész frissítése a context opcionális mezővel a rugalmasabb adatkezelés érdekében.'
+      ),
+      createChange(
+        'improvement',
+        'Combobox megjelenítés javítása',
+        'A kapcsolattartók combobox-ában a kontextus információ most strukturáltabban jelenik meg, külön sorban a névtől és a kapcsolattartási adatoktól.'
+      )
+    ]
+  ),
+  createChangelogEntry(
     'v1.0.0-beta.5',
     '2025. augusztus 25.',
     '2025-08-25T01:48:56Z',
