@@ -5,18 +5,7 @@
  * from various services and providing fallback options.
  */
 
-/**
- * Simple hash function for generating consistent seeds
- */
-function simpleHash(str: string): string {
-  let hash = 0
-  for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i)
-    hash = ((hash << 5) - hash) + char
-    hash = hash & hash // Convert to 32bit integer
-  }
-  return Math.abs(hash).toString(16).padStart(8, '0')
-}
+
 
 /**
  * Theme color to hex mapping for avatar services
@@ -119,8 +108,7 @@ export function getDiceBearUrl(email: string, size: number = 128, style: string 
   const primaryColor = getThemeColorHex(themeColor)
   
   // Create a palette based on the primary color with complementary colors
-  const baseColors = [primaryColor]
-// Generate 3 random colors in the current color hue range for variety
+  // Generate 3 random colors in the current color hue range for variety
 const complementaryColors = Array.from({ length: 3 }, (_, i) => {
     // Convert hex to HSL, shift hue by 120° for complementary colors
     function hexToHsl(hex: string): { h: number; s: number; l: number } {
@@ -130,7 +118,8 @@ const complementaryColors = Array.from({ length: 3 }, (_, i) => {
             const g = parseInt(hex.slice(2, 4), 16) / 255;
             const b = parseInt(hex.slice(4, 6), 16) / 255;
             const max = Math.max(r, g, b), min = Math.min(r, g, b);
-            let h = 0, s = 0, l = (max + min) / 2;
+            let h = 0, s = 0;
+            const l = (max + min) / 2;
             if (max !== min) {
                 const d = max - min;
                 s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
@@ -225,7 +214,6 @@ export function getProfilePictureUrls(
   email: string, 
   firstName: string = '', 
   lastName: string = '', 
-  _username: string = '',
   size: number = 128,
   themeColor?: string
 ): Array<{ url: string; source: ProfilePictureSource }> {
