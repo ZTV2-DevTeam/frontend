@@ -20,9 +20,14 @@ const rawChangelogData: ChangelogEntry[] = [
         'Javítottuk a profil rekord importálásának folyamatát, hogy az zökkenőmentesebbé váljon.'
       ),
       createChange(
-        'bugfix',
+        'security',
         'Jelszó titkosítási hiba javítása',
         'Javítottuk a hibát, mely nem titkosította a jelszavakat az admin felületen történő manuális megadásnál.'
+      ),
+      createChange(
+        'improvement',
+        'Vezetéknév és keresztnév mezők felcserélése Admin felületen',
+        'Felcseréltük a felhasználói modell adminisztrációs nézetében a vezetéknév és keresztnév mezőket.'
       )
     ]
   ),
