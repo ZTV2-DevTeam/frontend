@@ -41,7 +41,7 @@ export function NavUser() {
     return null
   }
 
-  const userDisplayName = `${user.first_name} ${user.last_name}`.trim() || user.username
+  const userDisplayName = `${user.last_name} ${user.first_name}`.trim() || user.username
 
   return (
     <SidebarMenu>

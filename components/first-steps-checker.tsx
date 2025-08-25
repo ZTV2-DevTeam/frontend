@@ -66,7 +66,7 @@ export function FirstStepsChecker({ children }: { children: React.ReactNode }) {
               Rendszer beállítása szükséges
             </CardTitle>
             <CardDescription>
-              Üdvözöljük {user?.first_name} {user?.last_name}! A rendszer első használata előtt 
+              Üdvözöljük {user?.last_name} {user?.first_name}! A rendszer első használata előtt 
               be kell állítani az alapvető konfigurációt.
             </CardDescription>
           </CardHeader>

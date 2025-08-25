@@ -35,7 +35,7 @@ export default function FirstStepsPage() {
           <CardHeader>
             <CardTitle className="text-2xl flex items-center gap-2">
               <GraduationCap className="h-6 w-6" />
-              Üdvözöljük {user?.first_name} {user?.last_name}! (Rendszergazda)
+              Üdvözöljük {user?.last_name} {user?.first_name}! (Rendszergazda)
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">

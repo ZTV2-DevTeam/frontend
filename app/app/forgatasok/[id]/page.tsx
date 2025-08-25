@@ -135,7 +135,7 @@ export default function FilmingSessionDetail({ params }: PageProps) {
       
       return {
         id: relation.user.id,
-        name: relation.user.full_name || `${relation.user.first_name} ${relation.user.last_name}`,
+        name: relation.user.full_name || `${relation.user.last_name} ${relation.user.first_name}`,
         role: relation.szerepkor.name,
         class: userDetails?.osztaly_name || 'N/A',
         stab: userDetails?.stab_name || 'N/A',

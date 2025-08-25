@@ -82,7 +82,7 @@ export function DebugFilmingSessions() {
 
         <div className="text-sm text-gray-600">
           <p><strong>Auth Status:</strong> {isAuthenticated ? 'Authenticated' : 'Not Authenticated'}</p>
-          <p><strong>User:</strong> {user ? `${user.first_name} ${user.last_name} (${user.username})` : 'No user'}</p>
+          <p><strong>User:</strong> {user ? `${user.last_name} ${user.first_name} (${user.username})` : 'No user'}</p>
           <p><strong>Token:</strong> {apiClient.getToken() ? 'Present' : 'Missing'}</p>
         </div>
       </CardContent>

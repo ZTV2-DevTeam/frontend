@@ -133,7 +133,7 @@ export function AbsenceManagement() {
     if (filters.search) {
       const searchLower = filters.search.toLowerCase()
       filtered = filtered.filter(absence => {
-        const userName = `${absence.user.first_name} ${absence.user.last_name}`.toLowerCase()
+        const userName = `${absence.user.last_name} ${absence.user.first_name}`.toLowerCase()
         const reason = (absence.reason || '').toLowerCase()
         return userName.includes(searchLower) || reason.includes(searchLower)
       })
@@ -259,7 +259,7 @@ export function AbsenceManagement() {
   const handleApprove = async (absence: TavolletSchema) => {
     try {
       await apiClient.approveAbsence(absence.id)
-      toast.success(`${absence.user.full_name || `${absence.user.first_name} ${absence.user.last_name}`} távollétét jóváhagyva`)
+      toast.success(`${absence.user.full_name || `${absence.user.last_name} ${absence.user.first_name}`} távollétét jóváhagyva`)
       fetchAbsences()
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Hiba történt a jóváhagyáskor'
@@ -270,7 +270,7 @@ export function AbsenceManagement() {
   const handleDeny = async (absence: TavolletSchema) => {
     try {
       await apiClient.denyAbsence(absence.id)
-      toast.success(`${absence.user.full_name || `${absence.user.first_name} ${absence.user.last_name}`} távollétét elutasítva`)
+      toast.success(`${absence.user.full_name || `${absence.user.last_name} ${absence.user.first_name}`} távollétét elutasítva`)
       fetchAbsences()
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Hiba történt az elutasításkor'
@@ -281,7 +281,7 @@ export function AbsenceManagement() {
   const handleReset = async (absence: TavolletSchema) => {
     try {
       await apiClient.resetAbsenceStatus(absence.id)
-      toast.success(`${absence.user.full_name || `${absence.user.first_name} ${absence.user.last_name}`} távollétének státusza visszaállítva`)
+      toast.success(`${absence.user.full_name || `${absence.user.last_name} ${absence.user.first_name}`} távollétének státusza visszaállítva`)
       fetchAbsences()
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Hiba történt a státusz visszaállításakor'
@@ -383,8 +383,8 @@ export function AbsenceManagement() {
             const user = getValue()
             return (
               <div className="font-medium min-w-0">
-                <div className="truncate text-sm max-w-[120px]" title={user.full_name || `${user.first_name} ${user.last_name}`}>
-                  {user.full_name || `${user.first_name} ${user.last_name}`}
+                <div className="truncate text-sm max-w-[120px]" title={user.full_name || `${user.last_name} ${user.first_name}`}>
+                  {user.full_name || `${user.last_name} ${user.first_name}`}
                 </div>
               </div>
             )
@@ -761,7 +761,7 @@ export function AbsenceManagement() {
                       <div className="flex-1 min-w-0 space-y-2">
                         {isAdmin && (
                           <div className="text-sm font-semibold mb-2 truncate text-foreground">
-                            {absence.user.full_name || `${absence.user.first_name} ${absence.user.last_name}`}
+                            {absence.user.full_name || `${absence.user.last_name} ${absence.user.first_name}`}
                           </div>
                         )}
                         <div className="flex items-center gap-3 mb-2">
@@ -982,7 +982,7 @@ export function AbsenceManagement() {
               <div>
                 <Label>Diák</Label>
                 <div className="text-sm font-medium">
-                  {selectedAbsence.user.full_name || `${selectedAbsence.user.first_name} ${selectedAbsence.user.last_name}`}
+                  {selectedAbsence.user.full_name || `${selectedAbsence.user.last_name} ${selectedAbsence.user.first_name}`}
                 </div>
               </div>
             )}

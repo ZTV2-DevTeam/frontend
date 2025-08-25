@@ -122,7 +122,7 @@ const generatePDF = async (users: any[]) => {
 
       // Prepare table data - only name and phone number
       const tableData = classUsers.map(user => [
-        user.full_name || `${user.first_name} ${user.last_name}`.trim(),
+        user.full_name || `${user.last_name} ${user.first_name}`.trim(),
         user.telefonszam || ''
       ])
 
@@ -329,15 +329,15 @@ function UserCard({ user, onEdit, onDelete }: {
               <TooltipContent>
                 <p>
                   {isActive 
-                    ? `🟢 ${user.full_name || `${user.first_name} ${user.last_name}`.trim()} online most (utolsó aktivitás: ${user.last_login ? new Date(user.last_login).toLocaleTimeString('hu-HU') : 'ismeretlen'})`
-                    : `${user.full_name || `${user.first_name} ${user.last_name}`.trim()} offline${user.last_login ? ` (utolsó bejelentkezés: ${new Date(user.last_login).toLocaleDateString('hu-HU')})` : ''}`
+                    ? `🟢 ${user.full_name || `${user.last_name} ${user.first_name}`.trim()} online most (utolsó aktivitás: ${user.last_login ? new Date(user.last_login).toLocaleTimeString('hu-HU') : 'ismeretlen'})`
+                    : `${user.full_name || `${user.last_name} ${user.first_name}`.trim()} offline${user.last_login ? ` (utolsó bejelentkezés: ${new Date(user.last_login).toLocaleDateString('hu-HU')})` : ''}`
                   }
                 </p>
               </TooltipContent>
             </Tooltip>
             <div>
               <h3 className="font-semibold text-lg">
-                {user.full_name || `${user.first_name} ${user.last_name}`.trim()}
+                {user.full_name || `${user.last_name} ${user.first_name}`.trim()}
               </h3>
               <p className="text-sm text-muted-foreground">@{user.username}</p>
             </div>
@@ -520,7 +520,7 @@ export default function StabPage() {
   // Normalize users
   const normalizedUsers = usersArray.map((user: any) => ({
     ...user,
-    full_name: user.full_name || `${user.first_name} ${user.last_name}`.trim(),
+    full_name: user.full_name || `${user.last_name} ${user.first_name}`.trim(),
     osztaly_name: user.osztaly?.display_name || user.osztaly_name || null,
     stab_name: user.stab?.name || user.stab_name || null,
   }))

@@ -43,7 +43,7 @@ export function StudentAbsencesPage() {
             username: user?.username || 'student',
             first_name: user?.first_name || 'Demo',
             last_name: user?.last_name || 'Student',
-            full_name: `${user?.first_name || 'Demo'} ${user?.last_name || 'Student'}`
+            full_name: `${user?.last_name || 'Student'} ${user?.first_name || 'Demo'}`
           },
           forgatas: {
             id: 1,
@@ -74,7 +74,7 @@ export function StudentAbsencesPage() {
             username: user?.username || 'student',
             first_name: user?.first_name || 'Demo',
             last_name: user?.last_name || 'Student',
-            full_name: `${user?.first_name || 'Demo'} ${user?.last_name || 'Student'}`
+            full_name: `${user?.last_name || 'Student'} ${user?.first_name || 'Demo'}`
           },
           forgatas: {
             id: 2,
@@ -246,7 +246,7 @@ export function StudentAbsencesPage() {
             <div className="grid gap-2 md:grid-cols-2">
               <div>
                 <span className="text-sm text-muted-foreground">Név:</span>
-                <p className="font-medium">{user?.first_name} {user?.last_name}</p>
+                <p className="font-medium">{user?.last_name} {user?.first_name}</p>
               </div>
               <div>
                 <span className="text-sm text-muted-foreground">Felhasználónév:</span>

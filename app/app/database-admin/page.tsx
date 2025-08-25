@@ -280,7 +280,7 @@ export default function DatabaseAdminPage() {
                 <div>
                   <p className="text-sm font-medium">Felhasználó</p>
                   <p className="text-sm text-muted-foreground">
-                    {user?.first_name} {user?.last_name} ({user?.username})
+                    {user?.last_name} {user?.first_name} ({user?.username})
                   </p>
                 </div>
                 <div>

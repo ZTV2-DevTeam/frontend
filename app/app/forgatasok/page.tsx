@@ -199,7 +199,7 @@ export default function FilmingSessionsPage() {
         
         return {
           id: relation.user.id,
-          name: relation.user.full_name || `${relation.user.first_name} ${relation.user.last_name}`,
+          name: relation.user.full_name || `${relation.user.last_name} ${relation.user.first_name}`,
           role: relation.szerepkor.name,
           class: userDetails?.osztaly_name || extractedClass || 'Osztály nincs megadva',
           team: relation.user.username?.includes('a') ? 'A' : 

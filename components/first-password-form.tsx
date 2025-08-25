@@ -274,7 +274,7 @@ export function FirstPasswordForm({
                 <UserCheck className="h-5 w-5 text-blue-600 mt-0.5" />
                 <div>
                   <h3 className="text-sm font-medium text-blue-800 mb-1">
-                    Üdvözöljük, {userInfo?.first_name} {userInfo?.last_name}!
+                    Üdvözöljük, {userInfo?.last_name} {userInfo?.first_name}!
                   </h3>
                   <p className="text-xs text-blue-700">
                     Kérem, hozza létre az első jelszavát a FTV rendszerbe való biztonságos belépéshez.

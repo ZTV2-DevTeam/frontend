@@ -316,7 +316,7 @@ function ActiveUsersWidget() {
                     className="group flex items-center justify-between p-2 rounded-lg border border-border/30 hover:border-primary/30 hover:bg-accent/50 cursor-pointer transition-all duration-200"
                     role="button"
                     tabIndex={0}
-                    aria-label={`${user.full_name || `${user.first_name} ${user.last_name}`} - ${getUserRoleDisplay(user)} - ${formatLastLogin(user.last_login)}`}
+                    aria-label={`${user.full_name || `${user.last_name} ${user.first_name}`} - ${getUserRoleDisplay(user)} - ${formatLastLogin(user.last_login)}`}
                   >
                     <div className="flex items-center gap-2">
                       <div className="relative">
@@ -339,7 +339,7 @@ function ActiveUsersWidget() {
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-1 mb-0.5">
                           <span className="font-medium text-xs truncate">
-                            {user.full_name || `${user.first_name || 'Ismeretlen'} ${user.last_name || 'Felhasználó'}`}
+                            {user.full_name || `${user.last_name || 'Felhasználó'} ${user.first_name || 'Ismeretlen'}`}
                           </span>
                           {isActive && (
                             <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />

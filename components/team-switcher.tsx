@@ -41,7 +41,7 @@ export function TeamSwitcher({
   const { user } = useAuth()
   
   // Get user display name
-  const userDisplayName = user ? `${user.first_name} ${user.last_name}`.trim() || user.username : 'Felhasználó'
+  const userDisplayName = user ? `${user.last_name} ${user.first_name}`.trim() || user.username : 'Felhasználó'
   
   // Filter teams based on user permissions and admin preview logic
   const availableRoles = getAvailableRoles()

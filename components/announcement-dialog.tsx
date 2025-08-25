@@ -71,7 +71,7 @@ export function AnnouncementDialog({
     username: user.username,
     first_name: user.first_name,
     last_name: user.last_name,
-    full_name: `${user.first_name} ${user.last_name}`.trim()
+    full_name: `${user.last_name} ${user.first_name}`.trim()
   })
 
   // Initialize form when editing
@@ -111,7 +111,7 @@ export function AnnouncementDialog({
 
   // Filter users based on search and class selection
   const filteredUsers = (users || []).filter(user => {
-    const fullName = `${user.first_name} ${user.last_name}`.trim()
+    const fullName = `${user.last_name} ${user.first_name}`.trim()
     const matchesSearch = searchTerm === '' || 
       fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.username.toLowerCase().includes(searchTerm.toLowerCase())
@@ -423,7 +423,7 @@ export function AnnouncementDialog({
                                 </AvatarFallback>
                               </Avatar>
                               <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium truncate">{`${user.first_name} ${user.last_name}`.trim()}</p>
+                                <p className="text-sm font-medium truncate">{`${user.last_name} ${user.first_name}`.trim()}</p>
                                 <p className="text-xs text-muted-foreground">
                                   {user.username} • {user.osztaly_name || 'Nincs osztály'}
                                 </p>

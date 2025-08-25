@@ -296,7 +296,7 @@ export function FirstStepsWizard({ onComplete }: FirstStepsWizardProps) {
       
       toast({
         title: 'Sikeres létrehozás',
-        description: `${teacher.first_name} ${teacher.last_name} sikeresen létrehozva.`
+        description: `${teacher.last_name} ${teacher.first_name} sikeresen létrehozva.`
       })
     } catch (error) {
       toast({
@@ -911,7 +911,7 @@ export function FirstStepsWizard({ onComplete }: FirstStepsWizardProps) {
                       ) : (
                         teachers.map((teacher, i) => (
                           <div key={i} className="flex items-center justify-between">
-                            <span>{teacher.first_name} {teacher.last_name}</span>
+                            <span>{teacher.last_name} {teacher.first_name}</span>
                             <div className="flex items-center gap-1">
                               {teacher.created && <Badge variant="outline" className="text-xs">Létrehozva</Badge>}
                               {teacher.registration_link && <Badge variant="outline" className="text-xs text-green-600">Link</Badge>}
@@ -959,7 +959,7 @@ export function FirstStepsWizard({ onComplete }: FirstStepsWizardProps) {
                       <div className="flex items-center justify-between">
                         <div>
                           <span className="font-medium">
-                            {teacher.first_name} {teacher.last_name}
+                            {teacher.last_name} {teacher.first_name}
                           </span>
                           <span className="text-sm text-muted-foreground ml-2">
                             ({teacher.role === 'media_teacher' ? 'Médiatanár' : 'Osztályfőnök'})

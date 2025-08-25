@@ -323,10 +323,10 @@ export const apiHelpers = {
 // Utility functions for API data formatting
 export const formatters = {
   /**
-   * Format user full name
+   * Format user full name (Hungarian convention: last_name first_name)
    */
   formatUserName: (user: { first_name: string; last_name: string }) => {
-    return `${user.first_name} ${user.last_name}`.trim()
+    return `${user.last_name} ${user.first_name}`.trim()
   },
 
   /**
