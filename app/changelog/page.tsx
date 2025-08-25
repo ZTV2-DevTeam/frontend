@@ -8,6 +8,7 @@ import { SiteFooter } from "@/components/site-footer"
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
+import { useTheme } from "@/contexts/theme-context"
 
 const getChangeTypeIcon = (type: ChangelogType) => {
   switch (type) {
@@ -78,6 +79,9 @@ const formatDate = (dateString: string) => {
 
 export default function ChangelogPage() {
   const [copiedId, setCopiedId] = useState<string | null>(null)
+  
+  // Initialize theme context to ensure proper hydration
+  const { themeColor, themeMode } = useTheme()
 
   // Handle URL hash scrolling on mount
   useEffect(() => {
