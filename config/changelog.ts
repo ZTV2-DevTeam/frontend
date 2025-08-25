@@ -79,6 +79,11 @@ const rawChangelogData: ChangelogEntry[] = [
         '/admin átirányítás',
         'A /admin útvonal mostantól automatikusan átirányít a megfelelő adminisztrációs felületre.',
       ),
+      createChange(
+        'bugfix',
+        'Admin felület: Szövegek javítása',
+        'Az admin felületen a Profil modelre történő hivatkozások hibásak voltak.',
+      ),
     ]
   ),
   createChangelogEntry(
