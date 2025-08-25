@@ -320,7 +320,7 @@ export function AnnouncementDialog({
                   defaultChecked
                 />
                 <Globe className="h-4 w-4" />
-                <span>Nyilvános (minden felhasználó)</span>
+                <span>Közérdekű (minden felhasználó)</span>
               </label>
               
               {/* <label className="flex items-center space-x-2 cursor-pointer">
