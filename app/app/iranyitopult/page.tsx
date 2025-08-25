@@ -1073,7 +1073,7 @@ export default function Page() {
             <QuickActionsWidget />
             
             {/* First Steps Widget */}
-            <FirstStepsWidget />
+            {/* <FirstStepsWidget /> */}
             
             {/* Main widgets grid - Adding System Overview */}
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -1107,7 +1107,7 @@ export default function Page() {
         return (
           <div className="grid gap-6 md:grid-cols-2">
             <div className="col-span-1 md:col-span-2">
-              <FirstStepsWidget />
+              {/* <FirstStepsWidget /> */}
             </div>
             <div className="col-span-1">
               <IgazolasStatsWidget />
