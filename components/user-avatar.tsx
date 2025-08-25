@@ -70,7 +70,7 @@ export function UserAvatar({
   const initials = getUserInitials(firstName, lastName)
 
   // Get profile picture URLs in order of preference with theme color
-  const pictureUrls = getProfilePictureUrls(email, firstName, lastName, username, actualSize, themeColor)
+  const pictureUrls = getProfilePictureUrls(email, firstName, lastName, actualSize, themeColor)
 
   useEffect(() => {
     let cancelled = false
