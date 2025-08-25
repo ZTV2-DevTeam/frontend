@@ -11,6 +11,7 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { useUserRole } from "@/contexts/user-role-context"
 import { useAuth } from "@/contexts/auth-context"
 import { useApiQuery } from "@/lib/api-helpers"
@@ -44,7 +45,11 @@ import {
   User,
   Loader2,
   Settings,
-  Eye
+  Eye,
+  Info,
+  Server,
+  KeyRound,
+  HelpCircle
 } from "lucide-react"
 import { UserAvatar } from "@/components/user-avatar"
 
@@ -527,6 +532,126 @@ function QuickActionsWidget() {
   )
 }
 
+function SystemOverviewWidget() {
+  // System configuration variables
+  const systemConfig = [
+    {
+      label: "Bejelentkezési tokenek lejárata",
+      value: "1 óra",
+      status: "secure",
+      icon: KeyRound,
+      tooltipInfo: "Minél kisebb ez az érték, annál biztonságosabb a rendszer, de a felhasználóknak gyakrabban kell újra bejelentkezniük. Nagyobb érték esetén kevesebb bejelentkezés szükséges, de csökken a biztonság."
+    },
+    {
+      label: "Adatbázis kapcsolat állapota",
+      value: "Aktív",
+      status: "online",
+      icon: Server,
+      tooltipInfo: "Az adatbázis kapcsolat jelenlegi állapota. Zöld = Aktív, Piros = Kapcsolódási hiba."
+    },
+    // {
+    //   label: "Backend verzió",
+    //   value: "v2.1.3",
+    //   status: "info",
+    //   icon: Settings,
+    //   tooltipInfo: "A jelenleg futó backend API verzió száma."
+    // },
+    // {
+    //   label: "Aktív sessions",
+    //   value: "23",
+    //   status: "info", 
+    //   icon: Activity,
+    //   tooltipInfo: "Jelenleg bejelentkezett felhasználói munkamenetek száma."
+    // }
+  ]
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'secure':
+        return 'text-green-600 dark:text-green-400'
+      case 'online':
+        return 'text-green-600 dark:text-green-400'
+      case 'warning':
+        return 'text-yellow-600 dark:text-yellow-400'
+      case 'error':
+        return 'text-red-600 dark:text-red-400'
+      default:
+        return 'text-blue-600 dark:text-blue-400'
+    }
+  }
+
+  const getStatusBadgeColor = (status: string) => {
+    switch (status) {
+      case 'secure':
+        return 'bg-green-100 text-green-800 border-green-200 dark:bg-green-950 dark:text-green-200 dark:border-green-800'
+      case 'online':
+        return 'bg-green-100 text-green-800 border-green-200 dark:bg-green-950 dark:text-green-200 dark:border-green-800'
+      case 'warning':
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-950 dark:text-yellow-200 dark:border-yellow-800'
+      case 'error':
+        return 'bg-red-100 text-red-800 border-red-200 dark:bg-red-950 dark:text-red-200 dark:border-red-800'
+      default:
+        return 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-950 dark:text-blue-200 dark:border-blue-800'
+    }
+  }
+
+  return (
+    <TooltipProvider>
+      <Card>
+        <CardHeader className="pb-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg">
+                <Server className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <CardTitle className="text-lg">Rendszer áttekintés</CardTitle>
+                <CardDescription>Fix változók és rendszer állapot</CardDescription>
+              </div>
+            </div>
+            <Badge variant="outline" className="text-xs bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/30 dark:text-purple-300 dark:border-purple-800">
+              <Info className="w-3 h-3 mr-1" />
+              Adminisztrátori
+            </Badge>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {systemConfig.map((config, index) => (
+            <div key={index} className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent transition-colors">
+              <div className="flex items-center gap-3">
+                <config.icon className={`h-5 w-5 ${getStatusColor(config.status)}`} />
+                <div className="flex items-center gap-2">
+                  <span className="font-medium text-sm">{config.label}</span>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help hover:text-primary transition-colors" />
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="max-w-xs">
+                      <p className="text-sm">{config.tooltipInfo}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" className={`text-xs ${getStatusBadgeColor(config.status)}`}>
+                  {config.value}
+                </Badge>
+              </div>
+            </div>
+          ))}
+          
+          <div className="pt-3 border-t border-border/30">
+            <div className="flex items-center justify-between text-sm text-muted-foreground">
+              <span>Utolsó frissítés:</span>
+              <span>{new Date().toLocaleTimeString('hu-HU')}</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </TooltipProvider>
+  )
+}
+
 // Student Widget Components
 function UpcomingShootingsWidget() {
   const { user, isAuthenticated } = useAuth()
@@ -950,13 +1075,20 @@ export default function Page() {
             {/* First Steps Widget */}
             <FirstStepsWidget />
             
-            {/* Main widgets grid - Prioritizing pending shootings */}
+            {/* Main widgets grid - Adding System Overview */}
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               <div className="col-span-1 lg:col-span-2">
                 <PendingForgatásokWidget />
               </div>
               <div className="col-span-1">
                 <ActiveUsersWidget />
+              </div>
+            </div>
+            
+            {/* System Overview Widget */}
+            <div className="grid gap-6 md:grid-cols-2">
+              <div className="col-span-1">
+                <SystemOverviewWidget />
               </div>
             </div>
           </>
