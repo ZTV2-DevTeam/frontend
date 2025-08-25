@@ -67,10 +67,10 @@ export function UserAvatar({
   const customSizeStyle = customSize ? { width: customSize, height: customSize } : {}
 
   // Get user initials for fallback
-  const initials = getUserInitials(firstName, lastName)
+  const initials = getUserInitials(lastName, firstName)
 
   // Get profile picture URLs in order of preference with theme color
-  const pictureUrls = getProfilePictureUrls(email, firstName, lastName, actualSize, themeColor)
+  const pictureUrls = getProfilePictureUrls(email, lastName, firstName, actualSize, themeColor)
 
   useEffect(() => {
     let cancelled = false
