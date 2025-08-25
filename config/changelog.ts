@@ -49,6 +49,11 @@ const rawChangelogData: ChangelogEntry[] = [
         'Operációs rendszerek integrációja',
         'Mostantól az operációs rendszerek ismert és természetesen kezelhető, beépített dátum és időválasztó mezőit használjuk, így az ismerős és kényelmesebb lesz. Gecko alapú böngészők, mint a Firefox és a Zen nem támogatottak.'
       ),
+      createChange(
+        'improvement',
+        'Vezeték- és keresztnevek helyes megjelenítése',
+        'A vezetéknév és keresztnév mostantól megfelelő sorrendben jelenik meg a teljes felhasználói felületen.'
+      ),
     ]
   ),
   createChangelogEntry(
