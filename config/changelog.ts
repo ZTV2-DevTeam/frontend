@@ -1,6 +1,7 @@
 import { ChangelogEntry } from '@/types/changelog';
 import { createChangelogEntry, createChange, sortChangelogEntries } from '@/lib/changelog-utils';
 import { m } from 'motion/react';
+import { create } from 'domain';
 
 const rawChangelogData: ChangelogEntry[] = [
   createChangelogEntry(
@@ -22,6 +23,11 @@ const rawChangelogData: ChangelogEntry[] = [
         'improvement',
         'Combobox megjelenítés javítása',
         'A kapcsolattartók combobox-ában a kontextus információ most strukturáltabban jelenik meg, külön sorban a névtől és a kapcsolattartási adatoktól.'
+      ),
+      createChange(
+        'improvement',
+        'ComboBox keresés-kiválasztás fejlesztése',
+        'A ComboBoxokban mostantól lehet a billentyűzet nyilaival navigálni a lehetőségek között, valamint a legrelevánsabb találatot az Enter billentyű megnyomásával lehet kiválasztani. Az Esc billentyű bezárja a legördülő menüt.'
       )
     ]
   ),
