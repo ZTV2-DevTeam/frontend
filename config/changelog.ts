@@ -24,6 +24,11 @@ const rawChangelogData: ChangelogEntry[] = [
         'Új dizájn a Távollétkezelőben',
         'Teljesen újragondoltuk a Távollétkezelő dizájnját.'
       ),
+      createChange(
+        'feature',
+        'Rendszer áttekintés',
+        'Hozzáadtuk a Rendszer áttekintés widgetet az admin irányítópulthoz, ahol megtekinthetik a legfontosabb fix és dinamikus változókat az adminisztrátorok'
+      ),
     ]
   ),
   createChangelogEntry(
