@@ -43,7 +43,7 @@ function oklchToHex(oklchString: string): string {
   const match = oklchString.match(/oklch\(([\d.]+)\s+([\d.]+)\s+([\d.]+)\)/);
   if (!match) return '3B82F6'; // Default blue fallback
   
-  const [, l, c, h] = match.map(Number);
+  const [, , , h] = match.map(Number);
   
   // Simplified conversion - map common theme colors to their hex equivalents
   // This is a basic approximation for the most common theme colors
@@ -225,7 +225,7 @@ export function getProfilePictureUrls(
   email: string, 
   firstName: string = '', 
   lastName: string = '', 
-  username: string = '',
+  _username: string = '',
   size: number = 128,
   themeColor?: string
 ): Array<{ url: string; source: ProfilePictureSource }> {
