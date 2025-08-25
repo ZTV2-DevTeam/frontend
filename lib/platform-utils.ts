@@ -94,7 +94,7 @@ export function getDateFormatPreferences(): {
   const platform = getPlatformInfo()
   
   // Base format is Hungarian (24-hour)
-  let formats = {
+  const formats = {
     dateFormat: 'yyyy-MM-dd',
     timeFormat: 'HH:mm',
     dateTimeFormat: 'yyyy-MM-dd HH:mm',
@@ -128,10 +128,10 @@ export function shouldUseNativeInput(forceNative?: boolean): boolean {
 /**
  * Get appropriate input attributes for cross-platform compatibility
  */
-export function getInputAttributes(type: 'date' | 'time' | 'datetime-local') {
+export function getInputAttributes(type: 'date' | 'time' | 'datetime-local'): Record<string, unknown> {
   const platform = getPlatformInfo()
   
-  const attributes: Record<string, any> = {
+  const attributes: Record<string, unknown> = {
     type,
     // Ensure 24-hour format on all platforms
     ...(type === 'time' || type === 'datetime-local' ? { 

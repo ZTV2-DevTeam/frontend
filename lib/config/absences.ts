@@ -104,22 +104,29 @@ export async function getSchoolAbsences(params?: {
   const rawData = await apiClient.getSchoolAbsences(params)
   
   // Ensure proper type conversion - IDs should be numbers
-  return rawData.map((item: any): Absence => ({
-    ...item,
-    id: Number(item.id),
-    diak: {
-      ...item.diak,
-      id: Number(item.diak.id)
-    },
-    forgatas: {
-      ...item.forgatas,
-      id: Number(item.forgatas.id)
-    },
-    osztaly: item.osztaly ? {
-      ...item.osztaly,
-      id: Number(item.osztaly.id)
-    } : undefined
-  }))
+  return rawData.map((item: unknown): Absence => {
+    const typedItem = item as Record<string, unknown> & {
+      diak?: Record<string, unknown>
+      forgatas?: Record<string, unknown>
+      osztaly?: Record<string, unknown>
+    }
+    return {
+      ...typedItem,
+      id: Number(typedItem.id),
+      diak: {
+        ...typedItem.diak,
+        id: Number(typedItem.diak?.id)
+      },
+      forgatas: {
+        ...typedItem.forgatas,
+        id: Number(typedItem.forgatas?.id)
+      },
+      osztaly: typedItem.osztaly ? {
+        ...typedItem.osztaly,
+        id: Number(typedItem.osztaly.id)
+      } : undefined
+    } as Absence
+  })
 }
 
 /**

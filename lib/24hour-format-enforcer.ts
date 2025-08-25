@@ -31,7 +31,7 @@ export function enforce24HourFormat() {
     const hideAmPm = () => {
       try {
         // Try to access shadow DOM if available
-        const shadowRoot = input.shadowRoot || (input as any).attachedShadow
+        const shadowRoot = input.shadowRoot || (input as HTMLInputElement & { attachedShadow?: ShadowRoot }).attachedShadow
         if (shadowRoot) {
           const ampmField = shadowRoot.querySelector('[part*="ampm"], [class*="ampm"], [data*="ampm"]')
           if (ampmField) {
@@ -47,7 +47,7 @@ export function enforce24HourFormat() {
         if (computedStyle.getPropertyValue('-webkit-appearance') !== 'none') {
           input.style.webkitAppearance = 'none'
         }
-      } catch (e) {
+      } catch {
         // Silently handle any access errors
       }
     }
@@ -79,7 +79,10 @@ export function enforce24HourFormat() {
     })
 
     // Store cleanup function
-    ;(input as any)._cleanup24Hour = () => {
+    interface ExtendedHTMLInputElement extends HTMLInputElement {
+      _cleanup24Hour?: () => void
+    }
+    ;(input as ExtendedHTMLInputElement)._cleanup24Hour = () => {
       observer.disconnect()
       clearInterval(intervalId)
     }
@@ -115,8 +118,12 @@ export function enforce24HourFormat() {
   return () => {
     domObserver.disconnect()
     timeInputs.forEach((input) => {
-      if ((input as any)._cleanup24Hour) {
-        (input as any)._cleanup24Hour()
+      interface ExtendedHTMLInputElement extends HTMLInputElement {
+        _cleanup24Hour?: () => void
+      }
+      const extendedInput = input as ExtendedHTMLInputElement
+      if (extendedInput._cleanup24Hour) {
+        extendedInput._cleanup24Hour()
       }
     })
   }
@@ -126,9 +133,9 @@ export function enforce24HourFormat() {
  * React hook to enforce 24-hour format on mount
  */
 export function use24HourFormat() {
-  if (typeof window === 'undefined') return
-
   useEffect(() => {
+    if (typeof window === 'undefined') return
+    
     const cleanup = enforce24HourFormat()
     return cleanup
   }, [])
