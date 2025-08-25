@@ -9,9 +9,9 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { UserAvatar } from '@/components/user-avatar';
 import { 
   Search, 
   Pin, 
@@ -227,11 +227,15 @@ export default function MessageBoardPage() {
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-3">
-                        <Avatar className="h-8 w-8">
-                          <AvatarFallback className="bg-primary/10">
-                            {announcement.author?.first_name?.[0]}{announcement.author?.last_name?.[0]}
-                          </AvatarFallback>
-                        </Avatar>
+                        <UserAvatar
+                          email={announcement.author?.username || ''}
+                          firstName={announcement.author?.first_name || ''}
+                          lastName={announcement.author?.last_name || ''}
+                          username={announcement.author?.username || ''}
+                          size="md"
+                          className="h-8 w-8"
+                          fallbackClassName="bg-primary/10"
+                        />
                         <div>
                           <CardTitle className="text-lg">{announcement.title}</CardTitle>
                           <CardDescription className="flex items-center gap-2">

@@ -232,114 +232,116 @@ export function DataTable<TData>({
       </div>
 
       {/* Table */}
-      <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
-        <Table>
-          <TableHeader className="bg-muted/30">
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="border-b hover:bg-transparent">
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id} className="font-semibold text-foreground h-14 px-6 py-4">
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(header.column.columnDef.header, header.getContext())
-                    }
-                  </TableHead>
-                ))}
-                {showActions && <TableHead className="text-right font-semibold text-foreground h-14 px-6 py-4">Műveletek</TableHead>}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {loading ? (
-              Array.from({ length: 5 }).map((_, index) => (
-                <TableRow key={`loading-${index}`} className="hover:bg-transparent">
-                  {columns.map((_, colIndex) => (
-                    <TableCell key={`loading-cell-${colIndex}`} className="h-20 px-6 py-4">
-                      <div className="h-4 animate-pulse rounded-md bg-muted" />
-                    </TableCell>
+      <div className="w-full overflow-hidden rounded-xl border bg-card shadow-sm">
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader className="bg-muted/30">
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id} className="border-b hover:bg-transparent">
+                  {headerGroup.headers.map((header) => (
+                    <TableHead key={header.id} className="font-semibold text-foreground h-14 px-4 py-4 whitespace-nowrap">
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(header.column.columnDef.header, header.getContext())
+                      }
+                    </TableHead>
                   ))}
-                  {showActions && (
-                    <TableCell className="h-20 px-6 py-4">
-                      <div className="h-4 w-8 animate-pulse rounded-md bg-muted ml-auto" />
-                    </TableCell>
-                  )}
+                  {showActions && <TableHead className="text-right font-semibold text-foreground h-14 px-4 py-4 whitespace-nowrap">Műveletek</TableHead>}
                 </TableRow>
-              ))
-            ) : table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                  className="hover:bg-muted/40 transition-colors border-b last:border-b-0 h-16"
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="px-6 py-4 align-middle">
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
-                  ))}
-                  {showActions && (
-                    <TableCell className="text-right px-6 py-4 align-middle">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm" className="h-9 w-9 p-0">
-                            <MoreHorizontal className="h-4 w-4" />
-                            <span className="sr-only">Műveletek megnyitása</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          {onView && (
-                            <DropdownMenuItem onClick={() => handleRowAction('view', row.original)}>
-                              <Eye className="h-4 w-4 mr-2" />
-                              Megtekintés
-                            </DropdownMenuItem>
-                          )}
-                          {onEdit && (
-                            <DropdownMenuItem onClick={() => handleRowAction('edit', row.original)}>
-                              <Edit className="h-4 w-4 mr-2" />
-                              Szerkesztés
-                            </DropdownMenuItem>
-                          )}
-                          <DropdownMenuItem onClick={() => handleRowAction('copy', row.original)}>
-                            <Copy className="h-4 w-4 mr-2" />
-                            Másolás
-                          </DropdownMenuItem>
-                          {onDelete && (
-                            <>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem 
-                                onClick={() => handleRowAction('delete', row.original)}
-                                className="text-destructive focus:text-destructive"
-                              >
-                                <Trash2 className="h-4 w-4 mr-2" />
-                                Törlés
+              ))}
+            </TableHeader>
+            <TableBody>
+              {loading ? (
+                Array.from({ length: 5 }).map((_, index) => (
+                  <TableRow key={`loading-${index}`} className="hover:bg-transparent">
+                    {columns.map((_, colIndex) => (
+                      <TableCell key={`loading-cell-${colIndex}`} className="h-16 px-4 py-4">
+                        <div className="h-4 animate-pulse rounded-md bg-muted" />
+                      </TableCell>
+                    ))}
+                    {showActions && (
+                      <TableCell className="h-16 px-4 py-4">
+                        <div className="h-4 w-8 animate-pulse rounded-md bg-muted ml-auto" />
+                      </TableCell>
+                    )}
+                  </TableRow>
+                ))
+              ) : table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && "selected"}
+                    className="hover:bg-muted/40 transition-colors border-b last:border-b-0 h-16"
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id} className="px-4 py-4 align-middle">
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </TableCell>
+                    ))}
+                    {showActions && (
+                      <TableCell className="text-right px-4 py-4 align-middle">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm" className="h-9 w-9 p-0">
+                              <MoreHorizontal className="h-4 w-4" />
+                              <span className="sr-only">Műveletek megnyitása</span>
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            {onView && (
+                              <DropdownMenuItem onClick={() => handleRowAction('view', row.original)}>
+                                <Eye className="h-4 w-4 mr-2" />
+                                Megtekintés
                               </DropdownMenuItem>
-                            </>
-                          )}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  )}
+                            )}
+                            {onEdit && (
+                              <DropdownMenuItem onClick={() => handleRowAction('edit', row.original)}>
+                                <Edit className="h-4 w-4 mr-2" />
+                                Szerkesztés
+                              </DropdownMenuItem>
+                            )}
+                            <DropdownMenuItem onClick={() => handleRowAction('copy', row.original)}>
+                              <Copy className="h-4 w-4 mr-2" />
+                              Másolás
+                            </DropdownMenuItem>
+                            {onDelete && (
+                              <>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem 
+                                  onClick={() => handleRowAction('delete', row.original)}
+                                  className="text-destructive focus:text-destructive"
+                                >
+                                  <Trash2 className="h-4 w-4 mr-2" />
+                                  Törlés
+                                </DropdownMenuItem>
+                              </>
+                            )}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    )}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow className="hover:bg-transparent">
+                  <TableCell colSpan={columns.length + (showActions ? 1 : 0)} className="h-32 px-4 py-8">
+                    <div className="flex flex-col items-center justify-center text-center space-y-4">
+                      <div className="rounded-full bg-muted p-4">
+                        <Search className="h-8 w-8 text-muted-foreground" />
+                      </div>
+                      <div>
+                        <p className="text-lg font-semibold">Nincs adat</p>
+                        <p className="text-sm text-muted-foreground">
+                          Nincsenek megjeleníthető elemek.
+                        </p>
+                      </div>
+                    </div>
+                  </TableCell>
                 </TableRow>
-              ))
-            ) : (
-              <TableRow className="hover:bg-transparent">
-                <TableCell colSpan={columns.length + (showActions ? 1 : 0)} className="h-32 px-6 py-8">
-                  <div className="flex flex-col items-center justify-center text-center space-y-4">
-                    <div className="rounded-full bg-muted p-4">
-                      <Search className="h-8 w-8 text-muted-foreground" />
-                    </div>
-                    <div>
-                      <p className="text-lg font-semibold">Nincs adat</p>
-                      <p className="text-sm text-muted-foreground">
-                        Nincsenek megjeleníthető elemek.
-                      </p>
-                    </div>
-                  </div>
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+              )}
+            </TableBody>
+          </Table>
+        </div>
       </div>
 
       {/* Pagination */}

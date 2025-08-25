@@ -84,6 +84,11 @@ const rawChangelogData: ChangelogEntry[] = [
         'Admin felület: Szövegek javítása',
         'Az admin felületen a Profil modelre történő hivatkozások hibásak voltak.',
       ),
+      createChange(
+        'improvement',
+        'Távollétkezelő dizájnjának apróbb módosításai',
+        'Apróbb módosításokat hajtottunk végre a Távollétkezelő dizájnján, hogy az felhasználóbarátabb legyen számítógépes felületen is.',
+      ),
     ]
   ),
   createChangelogEntry(

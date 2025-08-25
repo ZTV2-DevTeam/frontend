@@ -14,8 +14,15 @@ import { DatePicker } from '@/components/ui/date-time-components'
 import { FormDialog, ConfirmDialog } from '@/components/ui/form-dialog'
 import { DataTable } from '@/components/ui/enhanced-data-table'
 import { AbsenceStats, StatusBadge } from '@/components/absence-stats'
-import { AbsenceFiltersComponent, type AbsenceFilters } from '@/components/absence-filters'
+import { type AbsenceFilters } from '@/components/absence-filters'
 import { BulkActions, SelectionCheckbox } from '@/components/bulk-actions'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { 
   createColumnHelper, 
   getCoreRowModel, 
@@ -32,7 +39,10 @@ import {
   Edit, 
   Trash2, 
   AlertTriangle,
-  TreePalm
+  TreePalm,
+  Search,
+  RefreshCw,
+  Filter
 } from 'lucide-react'
 import { format, parseISO, isValid } from 'date-fns'
 import { hu } from 'date-fns/locale'
@@ -53,7 +63,7 @@ export function AbsenceManagement() {
   // Filter states
   const [filters, setFilters] = useState<AbsenceFilters>({
     search: '',
-    status: '',
+    status: 'all',
     dateFrom: '',
     dateTo: '',
   })
@@ -71,6 +81,9 @@ export function AbsenceManagement() {
   
   // Selection state for bulk actions (admin only)
   const [selectedIds, setSelectedIds] = useState<number[]>([])
+  
+  // UI states
+  const [showFilters, setShowFilters] = useState(false)
   
   const currentRole = getCurrentRole()
   const isAdmin = hasPermission('is_admin') || currentRole === 'admin'
@@ -128,7 +141,7 @@ export function AbsenceManagement() {
     }
 
     // Status filter
-    if (filters.status) {
+    if (filters.status && filters.status !== 'all') {
       if (filters.status === 'denied') {
         filtered = filtered.filter(a => a.denied)
       } else if (filters.status === 'approved') {
@@ -155,7 +168,7 @@ export function AbsenceManagement() {
   const resetFilters = () => {
     setFilters({
       search: '',
-      status: '',
+      status: 'all',
       dateFrom: '',
       dateTo: '',
     })
@@ -371,13 +384,13 @@ export function AbsenceManagement() {
             const user = getValue()
             return (
               <div className="font-medium min-w-0">
-                <div className="truncate text-sm">
+                <div className="truncate text-sm max-w-[120px]" title={user.full_name || `${user.first_name} ${user.last_name}`}>
                   {user.full_name || `${user.first_name} ${user.last_name}`}
                 </div>
               </div>
             )
           },
-          size: 180,
+          size: 140,
         }),
       ] : []),
       
@@ -388,17 +401,17 @@ export function AbsenceManagement() {
             {formatDateForDisplay(getValue())}
           </div>
         ),
-        size: 140,
+        size: 110,
       }),
       
       columnHelper.accessor('end_date', {
         header: 'Záró dátum',
         cell: ({ getValue }) => (
-          <div className="whitespace-nowrap text-sm font-medium hidden sm:table-cell">
+          <div className="whitespace-nowrap text-sm font-medium">
             {formatDateForDisplay(getValue())}
           </div>
         ),
-        size: 140,
+        size: 110,
       }),
       
       columnHelper.accessor('duration_days', {
@@ -407,13 +420,13 @@ export function AbsenceManagement() {
           const days = getValue()
           return (
             <div className="whitespace-nowrap text-sm">
-              <Badge variant="outline" className="font-medium">
+              <Badge variant="outline" className="font-medium text-xs">
                 {days} nap
               </Badge>
             </div>
           )
         },
-        size: 100,
+        size: 90,
       }),
       
       columnHelper.accessor('reason', {
@@ -421,9 +434,9 @@ export function AbsenceManagement() {
         cell: ({ getValue }) => {
           const reason = getValue()
           return (
-            <div className="max-w-[200px] sm:max-w-xs">
+            <div className="max-w-[150px]">
               {reason ? (
-                <div className="text-sm truncate bg-muted/50 px-3 py-2 rounded-md" title={reason}>
+                <div className="text-sm truncate bg-muted/50 px-2 py-1 rounded-md" title={reason}>
                   {reason}
                 </div>
               ) : (
@@ -432,7 +445,7 @@ export function AbsenceManagement() {
             </div>
           )
         },
-        size: 250,
+        size: 180,
       }),
       
       columnHelper.accessor('status', {
@@ -445,7 +458,7 @@ export function AbsenceManagement() {
             </div>
           )
         },
-        size: 120,
+        size: 100,
       }),
       
       columnHelper.display({
@@ -457,7 +470,7 @@ export function AbsenceManagement() {
           const canDelete = isAdmin || (!absence.denied && absence.user.id === user?.user_id)
           
           return (
-            <div className="flex items-center justify-end gap-1 min-w-[160px]">
+            <div className="flex items-center justify-end gap-1 min-w-[140px]">
               <Button
                 variant="ghost"
                 size="sm"
@@ -465,10 +478,10 @@ export function AbsenceManagement() {
                   setSelectedAbsence(absence)
                   setShowViewDialog(true)
                 }}
-                className="h-9 w-9 p-0 hover:bg-blue-50 hover:text-blue-600"
+                className="h-8 w-8 p-0 hover:bg-blue-50 hover:text-blue-600"
                 title="Megtekintés"
               >
-                <Eye className="h-4 w-4" />
+                <Eye className="h-3.5 w-3.5" />
               </Button>
               
               {canEdit && (
@@ -484,10 +497,10 @@ export function AbsenceManagement() {
                     })
                     setShowEditDialog(true)
                   }}
-                  className="h-9 w-9 p-0 hover:bg-orange-50 hover:text-orange-600"
+                  className="h-8 w-8 p-0 hover:bg-orange-50 hover:text-orange-600"
                   title="Szerkesztés"
                 >
-                  <Edit className="h-4 w-4" />
+                  <Edit className="h-3.5 w-3.5" />
                 </Button>
               )}
               
@@ -496,8 +509,8 @@ export function AbsenceManagement() {
                   title="Távollét törlése"
                   description="Biztosan törli ezt a távollétet? Ez a művelet nem vonható vissza."
                   trigger={
-                    <Button variant="ghost" size="sm" className="h-9 w-9 p-0 hover:bg-red-50 hover:text-red-600" title="Törlés">
-                      <Trash2 className="h-4 w-4" />
+                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0 hover:bg-red-50 hover:text-red-600" title="Törlés">
+                      <Trash2 className="h-3.5 w-3.5" />
                     </Button>
                   }
                   onConfirm={() => handleDelete(absence)}
@@ -508,27 +521,27 @@ export function AbsenceManagement() {
               )}
               
               {isAdmin && (
-                <div className="flex items-center gap-1 ml-2 pl-2 border-l border-border">
+                <div className="flex items-center gap-1 ml-1 pl-1 border-l border-border">
                   {!absence.approved && !absence.denied && (
                     <>
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => handleApprove(absence)}
-                        className="h-9 w-9 p-0 text-green-600 hover:text-green-700 hover:bg-green-50"
+                        className="h-8 w-8 p-0 text-green-600 hover:text-green-700 hover:bg-green-50"
                         title="Jóváhagyás"
                       >
-                        <Check className="h-4 w-4" />
+                        <Check className="h-3.5 w-3.5" />
                       </Button>
                       
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => handleDeny(absence)}
-                        className="h-9 w-9 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                        className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
                         title="Elutasítás"
                       >
-                        <X className="h-4 w-4" />
+                        <X className="h-3.5 w-3.5" />
                       </Button>
                     </>
                   )}
@@ -538,10 +551,10 @@ export function AbsenceManagement() {
                       variant="ghost"
                       size="sm"
                       onClick={() => handleReset(absence)}
-                      className="h-9 w-9 p-0 text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+                      className="h-8 w-8 p-0 text-orange-600 hover:text-orange-700 hover:bg-orange-50"
                       title="Státusz visszaállítása függőben állapotra"
                     >
-                      <AlertTriangle className="h-4 w-4" />
+                      <AlertTriangle className="h-3.5 w-3.5" />
                     </Button>
                   )}
                 </div>
@@ -549,7 +562,7 @@ export function AbsenceManagement() {
             </div>
           )
         },
-        size: 200,
+        size: 160,
       }),
     ]
     
@@ -614,18 +627,6 @@ export function AbsenceManagement() {
       {/* Stats Cards */}
       <AbsenceStats absences={filteredAbsences} isAdmin={isAdmin} />
 
-      {/* Filters */}
-      <AbsenceFiltersComponent
-        filters={filters}
-        onFiltersChange={setFilters}
-        onReset={resetFilters}
-        onRefresh={fetchAbsences}
-        isAdmin={isAdmin}
-        loading={loading}
-        totalCount={absences.length}
-        filteredCount={filteredAbsences.length}
-      />
-
       {/* Bulk Actions (Admin only) */}
       {isAdmin && selectedIds.length > 0 && (
         <BulkActions
@@ -643,6 +644,108 @@ export function AbsenceManagement() {
       {/* Data Table */}
       <Card className="shadow-sm border-0 bg-card">
         <CardContent className="p-0">
+          {/* Table Header with Search and Actions */}
+          <div className="p-4 border-b bg-muted/30">
+            <div className="flex flex-col gap-4">
+              {/* Top Row: Search, Actions */}
+              <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+                {/* Search */}
+                <div className="relative flex-1 max-w-sm">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder={isAdmin ? "Keresés név, indoklás alapján..." : "Keresés indoklás alapján..."}
+                    value={filters.search}
+                    onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+                    className="pl-10 h-10 shadow-sm"
+                  />
+                </div>
+                
+                <div className="flex items-center gap-2">
+                  {/* Results Count */}
+                  {filteredAbsences.length !== absences.length && (
+                    <Badge variant="secondary" className="text-sm px-3 py-1 font-medium">
+                      {filteredAbsences.length} / {absences.length}
+                    </Badge>
+                  )}
+                  
+                  {/* Filter Toggle */}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowFilters(!showFilters)}
+                    className="h-10 px-3 shadow-sm"
+                  >
+                    <Filter className="h-4 w-4" />
+                    <span className="hidden sm:inline ml-2">Szűrők</span>
+                  </Button>
+                  
+                  {/* Clear Filters */}
+                  {(filters.search || (filters.status && filters.status !== 'all') || filters.dateFrom || filters.dateTo) && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={resetFilters}
+                      className="h-10 px-3 shadow-sm text-red-600 border-red-200 hover:bg-red-50"
+                    >
+                      <X className="h-4 w-4" />
+                      <span className="hidden sm:inline ml-2">Törlés</span>
+                    </Button>
+                  )}
+                  
+                  {/* Refresh */}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={fetchAbsences}
+                    disabled={loading}
+                    className="h-10 px-3 shadow-sm"
+                  >
+                    <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                    <span className="hidden sm:inline ml-2">Frissítés</span>
+                  </Button>
+                </div>
+              </div>
+              
+              {/* Filters Row (Collapsible) */}
+              {showFilters && (
+                <div className="flex flex-col sm:flex-row gap-3 pt-3 border-t">
+                  {/* Status Filter */}
+                  <Select 
+                    value={filters.status} 
+                    onValueChange={(value: string) => setFilters({ ...filters, status: value })}
+                  >
+                    <SelectTrigger className="w-full sm:w-[180px] h-10 shadow-sm">
+                      <SelectValue placeholder="Státusz szűrő" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Minden státusz</SelectItem>
+                      <SelectItem value="pending">Függőben</SelectItem>
+                      <SelectItem value="approved">Jóváhagyva</SelectItem>
+                      <SelectItem value="denied">Elutasítva</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  
+                  {/* Date Range Filters */}
+                  <div className="flex gap-2 flex-1">
+                    <Input
+                      type="date"
+                      value={filters.dateFrom}
+                      onChange={(e) => setFilters({ ...filters, dateFrom: e.target.value })}
+                      className="flex-1 h-10 shadow-sm"
+                      placeholder="Kezdő dátum"
+                    />
+                    <Input
+                      type="date"
+                      value={filters.dateTo}
+                      onChange={(e) => setFilters({ ...filters, dateTo: e.target.value })}
+                      className="flex-1 h-10 shadow-sm"
+                      placeholder="Záró dátum"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
           {/* Mobile Card View (hidden on larger screens) */}
           <div className="block sm:hidden">
             {loading ? (
@@ -738,10 +841,10 @@ export function AbsenceManagement() {
               columns={columns}
               data={filteredAbsences}
               loading={loading}
-              onRefresh={fetchAbsences}
               searchPlaceholder="Keresés távollétekben..."
               showActions={false} // We handle actions in the table
-              showSearch={false} // We have our own search in filters
+              showSearch={false} // We have our own search in the header
+              showFilters={false} // We have our own filters in the header
             />
           </div>
         </CardContent>
