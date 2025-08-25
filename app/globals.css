@@ -116,6 +116,18 @@
   * {
     @apply border-border outline-ring/50;
   }
+  
+  /* Text selection styling with softer primary colors using opacity */
+  ::selection {
+    background-color: color-mix(in srgb, var(--primary) 40%, transparent);
+    color: var(--foreground);
+  }
+  
+  ::-moz-selection {
+    background-color: color-mix(in srgb, var(--primary) 40%, transparent);
+    color: var(--foreground);
+  }
+  
   body {
     background: var(--sidebar);
     color: var(--sidebar-foreground);

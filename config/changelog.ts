@@ -39,6 +39,11 @@ const rawChangelogData: ChangelogEntry[] = [
         'Húsvéti tojás',
         'Elrejtettünk az oldalon egy Easter-egget. Jó keresgélést!'
       ),
+      createChange(
+        'improvement',
+        'Kijelölés témaszínnel',
+        'A kijelölés mostantól a témához illeszkedő színekkel jelenik meg.'
+      ),
     ]
   ),
   createChangelogEntry(
