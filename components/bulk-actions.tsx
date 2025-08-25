@@ -86,30 +86,30 @@ export function BulkActions({
   if (selectedIds.length === 0) return null
 
   return (
-    <Card className="border-orange-200 bg-orange-50">
-      <CardContent className="p-3 sm:p-4">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+    <Card className="border-orange-200 bg-gradient-to-r from-orange-50 to-amber-50 shadow-sm">
+      <CardContent className="p-4 sm:p-6">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
             <button
               onClick={handleSelectAll}
-              className="flex items-center gap-2 text-sm font-medium"
+              className="flex items-center gap-3 text-sm font-semibold text-orange-800 hover:text-orange-900 transition-colors"
             >
               {allSelected ? (
-                <CheckSquare className="h-4 w-4 flex-shrink-0" />
+                <CheckSquare className="h-5 w-5 flex-shrink-0 text-orange-600" />
               ) : someSelected ? (
-                <Square className="h-4 w-4 border-2 flex-shrink-0" />
+                <Square className="h-5 w-5 border-2 border-orange-600 flex-shrink-0" />
               ) : (
-                <Square className="h-4 w-4 flex-shrink-0" />
+                <Square className="h-5 w-5 flex-shrink-0" />
               )}
               <span className="whitespace-nowrap">{selectedIds.length} távollét kiválasztva</span>
             </button>
             
-            <div className="flex gap-2">
-              <Badge variant="secondary">
+            <div className="flex gap-3">
+              <Badge variant="secondary" className="bg-orange-100 text-orange-800 px-3 py-1">
                 {pendingAbsences.length} függőben
               </Badge>
               {processedAbsences.length > 0 && (
-                <Badge variant="outline">
+                <Badge variant="outline" className="border-orange-300 text-orange-700 px-3 py-1">
                   {processedAbsences.length} feldolgozott
                 </Badge>
               )}
@@ -127,9 +127,9 @@ export function BulkActions({
                       size="sm"
                       variant="outline"
                       disabled={loading || bulkLoading === 'approve'}
-                      className="text-green-600 border-green-200 hover:bg-green-50 text-xs sm:text-sm"
+                      className="text-green-700 border-green-300 hover:bg-green-50 bg-green-50/50 shadow-sm px-4 py-2"
                     >
-                      <Check className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                      <Check className="h-4 w-4 mr-2" />
                       <span className="hidden sm:inline">Jóváhagyás ({pendingAbsences.length})</span>
                       <span className="sm:hidden">✓ ({pendingAbsences.length})</span>
                     </Button>
@@ -147,9 +147,9 @@ export function BulkActions({
                       size="sm"
                       variant="outline"
                       disabled={loading || bulkLoading === 'deny'}
-                      className="text-red-600 border-red-200 hover:bg-red-50 text-xs sm:text-sm"
+                      className="text-red-700 border-red-300 hover:bg-red-50 bg-red-50/50 shadow-sm px-4 py-2"
                     >
-                      <X className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                      <X className="h-4 w-4 mr-2" />
                       <span className="hidden sm:inline">Elutasítás ({pendingAbsences.length})</span>
                       <span className="sm:hidden">✗ ({pendingAbsences.length})</span>
                     </Button>
@@ -171,9 +171,9 @@ export function BulkActions({
                     size="sm"
                     variant="outline"
                     disabled={loading || bulkLoading === 'reset'}
-                    className="text-orange-600 border-orange-200 hover:bg-orange-50 text-xs sm:text-sm"
+                    className="text-orange-700 border-orange-300 hover:bg-orange-100 bg-orange-50/50 shadow-sm px-4 py-2"
                   >
-                    <AlertTriangle className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                    <AlertTriangle className="h-4 w-4 mr-2" />
                     <span className="hidden sm:inline">Visszaállítás ({processedAbsences.length})</span>
                     <span className="sm:hidden">⚠ ({processedAbsences.length})</span>
                   </Button>
@@ -192,9 +192,9 @@ export function BulkActions({
                   size="sm"
                   variant="outline"
                   disabled={loading || bulkLoading === 'delete'}
-                  className="text-red-600 border-red-200 hover:bg-red-50 text-xs sm:text-sm"
+                  className="text-red-700 border-red-300 hover:bg-red-50 bg-red-50/50 shadow-sm px-4 py-2"
                 >
-                  <Trash2 className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                  <Trash2 className="h-4 w-4 mr-2" />
                   <span className="hidden sm:inline">Törlés ({selectedIds.length})</span>
                   <span className="sm:hidden">🗑 ({selectedIds.length})</span>
                 </Button>
@@ -209,7 +209,7 @@ export function BulkActions({
               size="sm"
               variant="ghost"
               onClick={() => onSelectionChange([])}
-              className="text-xs sm:text-sm"
+              className="text-orange-700 hover:text-orange-800 hover:bg-orange-100 px-4 py-2"
             >
               Mégsem
             </Button>

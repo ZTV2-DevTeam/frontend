@@ -63,16 +63,16 @@ export function AbsenceFiltersComponent({
   const isFiltered = filters.search || filters.status || filters.dateFrom || filters.dateTo
 
   return (
-    <Card>
-      <CardHeader className="pb-2 sm:pb-3">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3">
-          <CardTitle className="text-base sm:text-lg">
+    <Card className="shadow-sm border-0">
+      <CardHeader className="pb-3 sm:pb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+          <CardTitle className="text-lg sm:text-xl font-semibold">
             <span className="hidden sm:inline">Szűrés és keresés</span>
             <span className="sm:hidden">Szűrők</span>
           </CardTitle>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             {filteredCount !== totalCount && (
-              <Badge variant="secondary" className="text-xs">
+              <Badge variant="secondary" className="text-sm px-3 py-1 font-medium">
                 {filteredCount} / {totalCount}
               </Badge>
             )}
@@ -81,9 +81,9 @@ export function AbsenceFiltersComponent({
               size="sm"
               onClick={onRefresh}
               disabled={loading}
-              className="flex-shrink-0 h-8"
+              className="flex-shrink-0 h-9 shadow-sm"
             >
-              <RefreshCw className={`h-3 w-3 sm:h-4 sm:w-4 ${loading ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
               <span className="hidden sm:inline ml-2">Frissítés</span>
             </Button>
             {onExport && isAdmin && (
@@ -91,9 +91,9 @@ export function AbsenceFiltersComponent({
                 variant="outline"
                 size="sm"
                 onClick={onExport}
-                className="flex-shrink-0 h-8"
+                className="flex-shrink-0 h-9 shadow-sm"
               >
-                <Download className="h-3 w-3 sm:h-4 sm:w-4" />
+                <Download className="h-4 w-4" />
                 <span className="hidden sm:inline ml-2">Export</span>
               </Button>
             )}
@@ -101,27 +101,27 @@ export function AbsenceFiltersComponent({
         </div>
       </CardHeader>
       
-      <CardContent className="space-y-3 sm:space-y-4">
+      <CardContent className="space-y-4 sm:space-y-6">
         {/* Basic Search */}
-        <div className="flex flex-col sm:flex-row gap-2">
+        <div className="flex flex-col sm:flex-row gap-3">
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder={isAdmin ? "Keresés név, indoklás alapján..." : "Keresés indoklás alapján..."}
               value={filters.search}
               onChange={(e) => handleFilterChange('search', e.target.value)}
-              className="pl-10 h-9"
+              className="pl-10 h-10 shadow-sm"
             />
           </div>
           
-          <div className="flex gap-2">
+          <div className="flex gap-3">
             <Button
               variant="outline"
               onClick={() => setShowAdvanced(!showAdvanced)}
-              className="flex items-center gap-2 whitespace-nowrap h-9"
+              className="flex items-center gap-2 whitespace-nowrap h-10 px-4 shadow-sm"
             >
               <Filter className="h-4 w-4" />
-              <span className="hidden sm:inline">{showAdvanced ? 'Kevesebb' : 'Több szűrő'}</span>
+              <span className="hidden sm:inline">{showAdvanced ? 'Kevesebb szűrő' : 'Több szűrő'}</span>
               <span className="sm:hidden">{showAdvanced ? 'Kevesebb' : 'Szűrő'}</span>
             </Button>
             
@@ -129,10 +129,11 @@ export function AbsenceFiltersComponent({
               <Button
                 variant="outline"
                 onClick={onReset}
-                className="flex items-center gap-2 whitespace-nowrap h-9"
+                className="flex items-center gap-2 whitespace-nowrap h-10 px-4 shadow-sm text-red-600 border-red-200 hover:bg-red-50"
               >
                 <X className="h-4 w-4" />
-                <span className="hidden sm:inline">Törlés</span>
+                <span className="hidden sm:inline">Szűrők törlése</span>
+                <span className="sm:hidden">Törlés</span>
               </Button>
             )}
           </div>
@@ -140,14 +141,14 @@ export function AbsenceFiltersComponent({
 
         {/* Advanced Filters */}
         {showAdvanced && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-3 border-t">
-            <div>
-              <Label className="text-sm font-medium">Státusz</Label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-4 border-t">
+            <div className="space-y-2">
+              <Label className="text-sm font-semibold">Státusz</Label>
               <Select 
                 value={filters.status} 
                 onValueChange={(value) => handleFilterChange('status', value)}
               >
-                <SelectTrigger className="w-full h-9">
+                <SelectTrigger className="w-full h-10 shadow-sm">
                   <SelectValue placeholder="Minden státusz" />
                 </SelectTrigger>
                 <SelectContent>
@@ -162,23 +163,23 @@ export function AbsenceFiltersComponent({
               </Select>
             </div>
             
-            <div>
-              <Label className="text-sm font-medium">Kezdő dátum (tól)</Label>
+            <div className="space-y-2">
+              <Label className="text-sm font-semibold">Kezdő dátum (tól)</Label>
               <Input
                 type="date"
                 value={filters.dateFrom}
                 onChange={(e) => handleFilterChange('dateFrom', e.target.value)}
-                className="w-full h-9"
+                className="w-full h-10 shadow-sm"
               />
             </div>
             
-            <div className="sm:col-span-2 lg:col-span-1">
-              <Label className="text-sm font-medium">Záró dátum (ig)</Label>
+            <div className="sm:col-span-2 lg:col-span-1 space-y-2">
+              <Label className="text-sm font-semibold">Záró dátum (ig)</Label>
               <Input
                 type="date"
                 value={filters.dateTo}
                 onChange={(e) => handleFilterChange('dateTo', e.target.value)}
-                className="w-full h-9"
+                className="w-full h-10 shadow-sm"
               />
             </div>
           </div>
@@ -186,44 +187,44 @@ export function AbsenceFiltersComponent({
 
         {/* Active Filters Display */}
         {isFiltered && (
-          <div className="flex flex-wrap gap-2 pt-2 border-t">
-            <span className="text-sm text-muted-foreground flex-shrink-0">Aktív szűrők:</span>
+          <div className="flex flex-wrap items-center gap-2 pt-3 border-t">
+            <span className="text-sm font-medium text-muted-foreground flex-shrink-0">Aktív szűrők:</span>
             
             {filters.search && (
-              <Badge variant="secondary" className="flex items-center gap-1 max-w-xs">
+              <Badge variant="secondary" className="flex items-center gap-2 max-w-xs px-3 py-1">
                 <span className="truncate">Keresés: "{filters.search}"</span>
                 <X 
-                  className="h-3 w-3 cursor-pointer flex-shrink-0" 
+                  className="h-3 w-3 cursor-pointer flex-shrink-0 hover:text-destructive" 
                   onClick={() => handleFilterChange('search', '')}
                 />
               </Badge>
             )}
             
             {filters.status && (
-              <Badge variant="secondary" className="flex items-center gap-1">
+              <Badge variant="secondary" className="flex items-center gap-2 px-3 py-1">
                 <span className="whitespace-nowrap">Státusz: {getStatusLabel(filters.status)}</span>
                 <X 
-                  className="h-3 w-3 cursor-pointer flex-shrink-0" 
+                  className="h-3 w-3 cursor-pointer flex-shrink-0 hover:text-destructive" 
                   onClick={() => handleFilterChange('status', '')}
                 />
               </Badge>
             )}
             
             {filters.dateFrom && (
-              <Badge variant="secondary" className="flex items-center gap-1">
+              <Badge variant="secondary" className="flex items-center gap-2 px-3 py-1">
                 <span className="whitespace-nowrap">Tól: {format(new Date(filters.dateFrom), 'yyyy.MM.dd')}</span>
                 <X 
-                  className="h-3 w-3 cursor-pointer flex-shrink-0" 
+                  className="h-3 w-3 cursor-pointer flex-shrink-0 hover:text-destructive" 
                   onClick={() => handleFilterChange('dateFrom', '')}
                 />
               </Badge>
             )}
             
             {filters.dateTo && (
-              <Badge variant="secondary" className="flex items-center gap-1">
+              <Badge variant="secondary" className="flex items-center gap-2 px-3 py-1">
                 <span className="whitespace-nowrap">Ig: {format(new Date(filters.dateTo), 'yyyy.MM.dd')}</span>
                 <X 
-                  className="h-3 w-3 cursor-pointer flex-shrink-0" 
+                  className="h-3 w-3 cursor-pointer flex-shrink-0 hover:text-destructive" 
                   onClick={() => handleFilterChange('dateTo', '')}
                 />
               </Badge>

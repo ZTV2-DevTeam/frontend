@@ -371,34 +371,34 @@ export function AbsenceManagement() {
             const user = getValue()
             return (
               <div className="font-medium min-w-0">
-                <div className="truncate">
+                <div className="truncate text-sm">
                   {user.full_name || `${user.first_name} ${user.last_name}`}
                 </div>
               </div>
             )
           },
-          size: 150,
+          size: 180,
         }),
       ] : []),
       
       columnHelper.accessor('start_date', {
         header: 'Kezdő dátum',
         cell: ({ getValue }) => (
-          <div className="whitespace-nowrap text-sm">
+          <div className="whitespace-nowrap text-sm font-medium">
             {formatDateForDisplay(getValue())}
           </div>
         ),
-        size: 120,
+        size: 140,
       }),
       
       columnHelper.accessor('end_date', {
         header: 'Záró dátum',
         cell: ({ getValue }) => (
-          <div className="whitespace-nowrap text-sm hidden sm:table-cell">
+          <div className="whitespace-nowrap text-sm font-medium hidden sm:table-cell">
             {formatDateForDisplay(getValue())}
           </div>
         ),
-        size: 120,
+        size: 140,
       }),
       
       columnHelper.accessor('duration_days', {
@@ -407,11 +407,13 @@ export function AbsenceManagement() {
           const days = getValue()
           return (
             <div className="whitespace-nowrap text-sm">
-              {days} nap
+              <Badge variant="outline" className="font-medium">
+                {days} nap
+              </Badge>
             </div>
           )
         },
-        size: 80,
+        size: 100,
       }),
       
       columnHelper.accessor('reason', {
@@ -419,19 +421,29 @@ export function AbsenceManagement() {
         cell: ({ getValue }) => {
           const reason = getValue()
           return (
-            <div className="max-w-[150px] sm:max-w-xs truncate text-sm" title={reason || 'Nincs indoklás'}>
-              {reason || 'Nincs indoklás'}
+            <div className="max-w-[200px] sm:max-w-xs">
+              {reason ? (
+                <div className="text-sm truncate bg-muted/50 px-3 py-2 rounded-md" title={reason}>
+                  {reason}
+                </div>
+              ) : (
+                <span className="text-xs text-muted-foreground italic">Nincs indoklás</span>
+              )}
             </div>
           )
         },
-        size: 200,
+        size: 250,
       }),
       
       columnHelper.accessor('status', {
         header: 'Státusz',
         cell: ({ row }) => {
           const { status, denied, approved } = row.original
-          return <StatusBadge status={status} denied={denied} approved={approved} />
+          return (
+            <div>
+              <StatusBadge status={status} denied={denied} approved={approved} />
+            </div>
+          )
         },
         size: 120,
       }),
@@ -445,7 +457,7 @@ export function AbsenceManagement() {
           const canDelete = isAdmin || (!absence.denied && absence.user.id === user?.user_id)
           
           return (
-            <div className="flex items-center justify-end gap-1 min-w-[120px]">
+            <div className="flex items-center justify-end gap-1 min-w-[160px]">
               <Button
                 variant="ghost"
                 size="sm"
@@ -453,10 +465,10 @@ export function AbsenceManagement() {
                   setSelectedAbsence(absence)
                   setShowViewDialog(true)
                 }}
-                className="h-8 w-8 p-0"
+                className="h-9 w-9 p-0 hover:bg-blue-50 hover:text-blue-600"
                 title="Megtekintés"
               >
-                <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
+                <Eye className="h-4 w-4" />
               </Button>
               
               {canEdit && (
@@ -472,10 +484,10 @@ export function AbsenceManagement() {
                     })
                     setShowEditDialog(true)
                   }}
-                  className="h-8 w-8 p-0"
+                  className="h-9 w-9 p-0 hover:bg-orange-50 hover:text-orange-600"
                   title="Szerkesztés"
                 >
-                  <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
+                  <Edit className="h-4 w-4" />
                 </Button>
               )}
               
@@ -484,8 +496,8 @@ export function AbsenceManagement() {
                   title="Távollét törlése"
                   description="Biztosan törli ezt a távollétet? Ez a művelet nem vonható vissza."
                   trigger={
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0" title="Törlés">
-                      <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
+                    <Button variant="ghost" size="sm" className="h-9 w-9 p-0 hover:bg-red-50 hover:text-red-600" title="Törlés">
+                      <Trash2 className="h-4 w-4" />
                     </Button>
                   }
                   onConfirm={() => handleDelete(absence)}
@@ -496,27 +508,27 @@ export function AbsenceManagement() {
               )}
               
               {isAdmin && (
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1 ml-2 pl-2 border-l border-border">
                   {!absence.approved && !absence.denied && (
                     <>
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => handleApprove(absence)}
-                        className="h-8 w-8 p-0 text-green-600 hover:text-green-700 hover:bg-green-50"
+                        className="h-9 w-9 p-0 text-green-600 hover:text-green-700 hover:bg-green-50"
                         title="Jóváhagyás"
                       >
-                        <Check className="h-3 w-3 sm:h-4 sm:w-4" />
+                        <Check className="h-4 w-4" />
                       </Button>
                       
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => handleDeny(absence)}
-                        className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                        className="h-9 w-9 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
                         title="Elutasítás"
                       >
-                        <X className="h-3 w-3 sm:h-4 sm:w-4" />
+                        <X className="h-4 w-4" />
                       </Button>
                     </>
                   )}
@@ -526,10 +538,10 @@ export function AbsenceManagement() {
                       variant="ghost"
                       size="sm"
                       onClick={() => handleReset(absence)}
-                      className="h-8 w-8 p-0 text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+                      className="h-9 w-9 p-0 text-orange-600 hover:text-orange-700 hover:bg-orange-50"
                       title="Státusz visszaállítása függőben állapotra"
                     >
-                      <AlertTriangle className="h-3 w-3 sm:h-4 sm:w-4" />
+                      <AlertTriangle className="h-4 w-4" />
                     </Button>
                   )}
                 </div>
@@ -537,7 +549,7 @@ export function AbsenceManagement() {
             </div>
           )
         },
-        size: 140,
+        size: 200,
       }),
     ]
     
@@ -570,16 +582,16 @@ export function AbsenceManagement() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-primary rounded-lg">
-            <TreePalm className="h-5 w-5 text-primary-foreground" />
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+        <div className="flex items-center gap-4">
+          <div className="p-3 bg-primary rounded-xl shadow-sm">
+            <TreePalm className="h-6 w-6 text-primary-foreground" />
           </div>
-          <div>
-            <h1 className="text-2xl font-bold text-black dark:text-white">Távollét</h1>
-            <p className="text-sm text-muted-foreground">
+          <div className="space-y-1">
+            <h1 className="text-3xl font-bold text-black dark:text-white tracking-tight">Távollét</h1>
+            <p className="text-base text-muted-foreground">
               {isAdmin 
                 ? 'Diákok távolléteinek kezelése és jóváhagyása'
                 : 'Távolléteid kezelése és benyújtása'
@@ -590,7 +602,8 @@ export function AbsenceManagement() {
         
         <Button 
           onClick={() => setShowCreateDialog(true)}
-          className="whitespace-nowrap"
+          className="whitespace-nowrap shadow-sm"
+          size="lg"
         >
           <Plus className="h-4 w-4 sm:mr-2" />
           <span className="hidden sm:inline">Új távollét</span>
@@ -614,7 +627,7 @@ export function AbsenceManagement() {
       />
 
       {/* Bulk Actions (Admin only) */}
-      {isAdmin && (
+      {isAdmin && selectedIds.length > 0 && (
         <BulkActions
           absences={filteredAbsences}
           selectedIds={selectedIds}
@@ -628,47 +641,47 @@ export function AbsenceManagement() {
       )}
 
       {/* Data Table */}
-      <Card>
+      <Card className="shadow-sm border-0 bg-card">
         <CardContent className="p-0">
           {/* Mobile Card View (hidden on larger screens) */}
           <div className="block sm:hidden">
             {loading ? (
-              <div className="space-y-2 p-3">
+              <div className="space-y-3 p-4">
                 {Array.from({ length: 3 }).map((_, index) => (
-                  <div key={index} className="h-16 animate-pulse rounded bg-muted" />
+                  <div key={index} className="h-20 animate-pulse rounded-lg bg-muted" />
                 ))}
               </div>
             ) : filteredAbsences.length > 0 ? (
-              <div className="space-y-2 p-3">
+              <div className="space-y-3 p-4">
                 {filteredAbsences.map((absence) => (
-                  <div key={absence.id} className="border border-border rounded-lg p-3 bg-card">
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex-1 min-w-0">
+                  <div key={absence.id} className="border border-border rounded-xl p-4 bg-card shadow-sm hover:shadow-md transition-shadow">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex-1 min-w-0 space-y-2">
                         {isAdmin && (
-                          <div className="text-sm font-medium mb-1 truncate">
+                          <div className="text-sm font-semibold mb-2 truncate text-foreground">
                             {absence.user.full_name || `${absence.user.first_name} ${absence.user.last_name}`}
                           </div>
                         )}
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-xs text-muted-foreground">
+                        <div className="flex items-center gap-3 mb-2">
+                          <span className="text-xs text-muted-foreground font-medium">
                             {formatDateForDisplay(absence.start_date)}
                           </span>
                           <span className="text-xs text-muted-foreground">→</span>
-                          <span className="text-xs text-muted-foreground">
+                          <span className="text-xs text-muted-foreground font-medium">
                             {formatDateForDisplay(absence.end_date)}
                           </span>
-                          <Badge variant="outline" className="text-xs px-1 py-0">
+                          <Badge variant="outline" className="text-xs px-2 py-1 font-medium">
                             {absence.duration_days}d
                           </Badge>
                         </div>
                         {absence.reason && (
-                          <div className="text-xs text-muted-foreground truncate mb-1" title={absence.reason}>
+                          <div className="text-xs text-muted-foreground truncate mb-2 bg-muted/50 p-2 rounded-md" title={absence.reason}>
                             {absence.reason}
                           </div>
                         )}
                         <StatusBadge status={absence.status} denied={absence.denied} approved={absence.approved} />
                       </div>
-                      <div className="flex items-center gap-1 flex-shrink-0">
+                      <div className="flex items-center gap-2 flex-shrink-0">
                         <Button
                           variant="ghost"
                           size="sm"
@@ -676,9 +689,9 @@ export function AbsenceManagement() {
                             setSelectedAbsence(absence)
                             setShowViewDialog(true)
                           }}
-                          className="h-7 w-7 p-0"
+                          className="h-8 w-8 p-0 hover:bg-blue-50 hover:text-blue-600"
                         >
-                          <Eye className="h-3 w-3" />
+                          <Eye className="h-4 w-4" />
                         </Button>
                         {(isAdmin || (!absence.denied && absence.user.id === user?.user_id)) && (
                           <Button
@@ -693,9 +706,9 @@ export function AbsenceManagement() {
                               })
                               setShowEditDialog(true)
                             }}
-                            className="h-7 w-7 p-0"
+                            className="h-8 w-8 p-0 hover:bg-orange-50 hover:text-orange-600"
                           >
-                            <Edit className="h-3 w-3" />
+                            <Edit className="h-4 w-4" />
                           </Button>
                         )}
                       </div>
@@ -704,14 +717,22 @@ export function AbsenceManagement() {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-6 text-muted-foreground text-sm">
-                Nincsenek távollét adatok
+              <div className="text-center py-12 text-muted-foreground">
+                <div className="space-y-3">
+                  <div className="mx-auto w-16 h-16 bg-muted rounded-full flex items-center justify-center">
+                    <TreePalm className="h-8 w-8" />
+                  </div>
+                  <div>
+                    <p className="text-lg font-medium">Nincsenek távollét adatok</p>
+                    <p className="text-sm">Még nem adott fel távollétet</p>
+                  </div>
+                </div>
               </div>
             )}
           </div>
 
           {/* Desktop Table View (hidden on mobile) */}
-          <div className="hidden sm:block overflow-x-auto">
+          <div className="hidden sm:block">
             <DataTable
               table={table}
               columns={columns}

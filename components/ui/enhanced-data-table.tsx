@@ -142,7 +142,7 @@ export function DataTable<TData>({
   }
 
   return (
-    <div className={cn("space-y-6", className)}>
+    <div className={cn("space-y-6 px-2", className)}>
       {/* Header */}
       {(title || description) && (
         <div className="space-y-2">
@@ -152,7 +152,7 @@ export function DataTable<TData>({
       )}
 
       {/* Toolbar */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between px-2">
         <div className="flex flex-1 items-center space-x-2">
           {/* Search */}
           {showSearch && (
@@ -232,35 +232,35 @@ export function DataTable<TData>({
       </div>
 
       {/* Table */}
-      <div className="rounded-lg border bg-card">
+      <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-muted/30">
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
+              <TableRow key={headerGroup.id} className="border-b hover:bg-transparent">
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id} className="font-semibold">
+                  <TableHead key={header.id} className="font-semibold text-foreground h-14 px-6 py-4">
                     {header.isPlaceholder
                       ? null
                       : flexRender(header.column.columnDef.header, header.getContext())
                     }
                   </TableHead>
                 ))}
-                {showActions && <TableHead className="text-right">Műveletek</TableHead>}
+                {showActions && <TableHead className="text-right font-semibold text-foreground h-14 px-6 py-4">Műveletek</TableHead>}
               </TableRow>
             ))}
           </TableHeader>
           <TableBody>
             {loading ? (
               Array.from({ length: 5 }).map((_, index) => (
-                <TableRow key={`loading-${index}`}>
+                <TableRow key={`loading-${index}`} className="hover:bg-transparent">
                   {columns.map((_, colIndex) => (
-                    <TableCell key={`loading-cell-${colIndex}`}>
-                      <div className="h-4 animate-pulse rounded bg-muted" />
+                    <TableCell key={`loading-cell-${colIndex}`} className="h-20 px-6 py-4">
+                      <div className="h-4 animate-pulse rounded-md bg-muted" />
                     </TableCell>
                   ))}
                   {showActions && (
-                    <TableCell>
-                      <div className="h-4 w-8 animate-pulse rounded bg-muted ml-auto" />
+                    <TableCell className="h-20 px-6 py-4">
+                      <div className="h-4 w-8 animate-pulse rounded-md bg-muted ml-auto" />
                     </TableCell>
                   )}
                 </TableRow>
@@ -270,18 +270,18 @@ export function DataTable<TData>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  className="hover:bg-muted/50 transition-colors"
+                  className="hover:bg-muted/40 transition-colors border-b last:border-b-0 h-16"
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id} className="px-6 py-4 align-middle">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
                   {showActions && (
-                    <TableCell className="text-right">
+                    <TableCell className="text-right px-6 py-4 align-middle">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                          <Button variant="ghost" size="sm" className="h-9 w-9 p-0">
                             <MoreHorizontal className="h-4 w-4" />
                             <span className="sr-only">Műveletek megnyitása</span>
                           </Button>
@@ -322,11 +322,11 @@ export function DataTable<TData>({
                 </TableRow>
               ))
             ) : (
-              <TableRow>
-                <TableCell colSpan={columns.length + (showActions ? 1 : 0)} className="h-24">
-                  <div className="flex flex-col items-center justify-center text-center space-y-3">
-                    <div className="rounded-full bg-muted p-3">
-                      <Search className="h-6 w-6 text-muted-foreground" />
+              <TableRow className="hover:bg-transparent">
+                <TableCell colSpan={columns.length + (showActions ? 1 : 0)} className="h-32 px-6 py-8">
+                  <div className="flex flex-col items-center justify-center text-center space-y-4">
+                    <div className="rounded-full bg-muted p-4">
+                      <Search className="h-8 w-8 text-muted-foreground" />
                     </div>
                     <div>
                       <p className="text-lg font-semibold">Nincs adat</p>
