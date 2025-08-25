@@ -61,6 +61,9 @@ export default function LandingPage() {
             <a href="#about" className="text-muted-foreground hover:text-foreground transition-colors">
               Rólunk
             </a>
+            <Link href="/changelog" className="text-muted-foreground hover:text-foreground transition-colors">
+              Változások
+            </Link>
           </nav>
           <Link
             href="/login"

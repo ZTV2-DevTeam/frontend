@@ -20,6 +20,12 @@ export function SiteFooter() {
           </div>
           <div className="flex flex-col items-center gap-2 sm:items-end">
             <Link
+              href="/changelog"
+              className="text-xs underline transition-colors text-muted-foreground hover:text-primary"
+            >
+              Változások
+            </Link>
+            <Link
               href="/privacy-policy"
               className="text-xs underline transition-colors text-muted-foreground hover:text-primary"
             >
