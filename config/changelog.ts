@@ -18,6 +18,11 @@ const rawChangelogData: ChangelogEntry[] = [
         'bugfix',
         'Profil rekord importálás javítása',
         'Javítottuk a profil rekord importálásának folyamatát, hogy az zökkenőmentesebbé váljon.'
+      ),
+      createChange(
+        'bugfix',
+        'Jelszó titkosítási hiba javítása',
+        'Javítottuk a hibát, mely nem titkosította a jelszavakat az admin felületen történő manuális megadásnál.'
       )
     ]
   ),
