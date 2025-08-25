@@ -86,50 +86,6 @@ export default function StudentGuidePage() {
             </Badge>
           </div>
 
-          {/* Login Process */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <LogIn className="h-5 w-5 text-blue-600" />
-                Bejelentkezés
-              </CardTitle>
-              <CardDescription>
-                Hogyan jelentkezz be a rendszerbe
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-3">
-                <div className="p-4 border rounded-lg">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-bold">1</div>
-                    <h4 className="font-medium">Nyisd meg a weboldalt</h4>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    Menj a rendszer címére, amelyet az osztályfőnököd adott meg.
-                  </p>
-                </div>
-                <div className="p-4 border rounded-lg">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-bold">2</div>
-                    <h4 className="font-medium">Add meg az adataidat</h4>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    Írd be a felhasználóneved (általában vezetékneved.keresztneved.kezdesÉveXX+F) és a jelszavad.
-                  </p>
-                </div>
-                <div className="p-4 border rounded-lg">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-bold">3</div>
-                    <h4 className="font-medium">Jelentkezz be</h4>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    Kattints a &quot;Bejelentkezés&quot; gombra. Ha első alkalommal jelentkezel be, állíts be egy új jelszót.
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
           {/* Navigation Guide */}
           <Card>
             <CardHeader>

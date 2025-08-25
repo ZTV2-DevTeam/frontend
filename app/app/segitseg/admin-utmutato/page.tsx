@@ -94,50 +94,6 @@ export default function AdminGuidePage() {
             </Badge>
           </div>
 
-          {/* Login Process */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <LogIn className="h-5 w-5 text-blue-600" />
-                Rendszerbe való bejelentkezés
-              </CardTitle>
-              <CardDescription>
-                A rendszergazdai fiókkal való bejelentkezés folyamata
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-3">
-                <div className="p-4 border rounded-lg">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-bold">1</div>
-                    <h4 className="font-medium">Adminisztrációs felület elérése</h4>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    Használja az adminisztrációs URL címet, amely kizárólag rendszergazdák számára biztosít hozzáférést.
-                  </p>
-                </div>
-                <div className="p-4 border rounded-lg">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-bold">2</div>
-                    <h4 className="font-medium">Hitelesítési adatok megadása</h4>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    Adja meg az adminisztrátori felhasználónevet és jelszót. Ezek a hitelesítési adatok kizárólag a főrendszergazdától szerezhetőek be.
-                  </p>
-                </div>
-                <div className="p-4 border rounded-lg">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-bold">3</div>
-                    <h4 className="font-medium">Adminisztrátori hozzáférés</h4>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    Rendszergazdai jogosultságokkal teljes hozzáférést biztosít minden rendszerfunkcióhoz. A hozzáférést felelősségteljesen kezelje.
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
           {/* Main Application Navigation */}
           <Card>
             <CardHeader>

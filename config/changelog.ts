@@ -28,6 +28,11 @@ const rawChangelogData: ChangelogEntry[] = [
         'improvement',
         'ComboBox keresés-kiválasztás fejlesztése',
         'A ComboBoxokban mostantól lehet a billentyűzet nyilaival navigálni a lehetőségek között, valamint a legrelevánsabb találatot az Enter billentyű megnyomásával lehet kiválasztani. Az Esc billentyű bezárja a legördülő menüt.'
+      ),
+      createChange(
+        'removed',
+        'Bejelentkezési instrukciók eltávolítása az útmutatókból',
+        'Eltávolítottuk a bejelentkezési instrukciókat az útmutatókból, mivel az útmutatók, kizárólag a sikeres bejelentkezés után érhetők el, így ez az információ feleslegessé vált.'
       )
     ]
   ),
