@@ -34,6 +34,11 @@ const rawChangelogData: ChangelogEntry[] = [
         'Stáb oldal - aktivitás indikátorok',
         'A stáb oldalon található aktivitás indikátorok mostantól valósan tükrözik a felhasználók aktivitását.'
       ),
+      createChange(
+        'feature',
+        'Húsvéti tojás',
+        'Elrejtettünk az oldalon egy Easter-egget. Jó keresgélést!'
+      ),
     ]
   ),
   createChangelogEntry(
