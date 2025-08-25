@@ -29,6 +29,11 @@ const rawChangelogData: ChangelogEntry[] = [
         'Rendszer áttekintés',
         'Hozzáadtuk a Rendszer áttekintés widgetet az admin irányítópulthoz, ahol megtekinthetik a legfontosabb fix és dinamikus változókat az adminisztrátorok'
       ),
+      createChange(
+        'bugfix',
+        'Stáb oldal - aktivitás indikátorok',
+        'A stáb oldalon található aktivitás indikátorok mostantól valósan tükrözik a felhasználók aktivitását.'
+      ),
     ]
   ),
   createChangelogEntry(

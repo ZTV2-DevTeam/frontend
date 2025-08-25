@@ -268,8 +268,8 @@ function UserCard({ user, onEdit, onDelete }: {
   const getRoleInfo = (user: any) => {
     // Check admin_type first
     if (user.admin_type === 'system_admin') return { name: 'Rendszergazda', icon: '👑', color: 'bg-red-100 text-red-800' };
-    if (user.admin_type === 'developer') return { name: 'Fejlesztő', icon: '�', color: 'bg-gray-100 text-gray-800' };
-    if (user.admin_type === 'teacher') return { name: 'Tanár', icon: '�‍🏫', color: 'bg-green-100 text-green-800' };
+    if (user.admin_type === 'developer') return { name: 'Fejlesztő', icon: '💻', color: 'bg-gray-100 text-gray-800' };
+    if (user.admin_type === 'teacher') return { name: 'Tanár', icon: '👨‍🏫', color: 'bg-green-100 text-green-800' };
     
     // Check special_role
     if (user.special_role === 'production_leader') return { name: 'Gyártásvezető', icon: '🎬', color: 'bg-orange-100 text-orange-800' };
@@ -284,27 +284,57 @@ function UserCard({ user, onEdit, onDelete }: {
     return { name: 'Diák', icon: '🎓', color: 'bg-blue-100 text-blue-800' };
   }
 
+  // Check if user is currently active (similar to dashboard logic)
+  // This checks actual session activity, not just account status
+  const isCurrentlyActive = (user: any) => {
+    if (!user.last_login) return false
+    
+    const now = new Date()
+    const lastLogin = new Date(user.last_login)
+    const diffMs = now.getTime() - lastLogin.getTime()
+    const diffMinutes = diffMs / (1000 * 60)
+    
+    // Consider active if logged in within last 5 minutes
+    // This ensures the green dot only shows for truly active sessions
+    return diffMinutes <= 5
+  }
+
   const roleInfo = getRoleInfo(user)
+  const isActive = isCurrentlyActive(user)
   
   return (
     <Card className="hover:shadow-lg transition-all duration-300 group">
       <CardContent className="p-6">
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center space-x-4">
-            <div className="relative">
-              <UserAvatar
-                email={user.email}
-                firstName={user.first_name}
-                lastName={user.last_name}
-                username={user.username}
-                size="lg"
-                className="border-2 border-primary/20"
-                fallbackClassName="bg-gradient-to-br from-primary/20 to-primary/10 text-lg font-semibold"
-              />
-              {user.is_active !== false && (
-                <div className="absolute -bottom-1 -right-1 h-4 w-4 bg-green-500 rounded-full border-2 border-background" />
-              )}
-            </div>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="relative">
+                  <UserAvatar
+                    email={user.email}
+                    firstName={user.first_name}
+                    lastName={user.last_name}
+                    username={user.username}
+                    size="lg"
+                    className="border-2 border-primary/20"
+                    fallbackClassName="bg-gradient-to-br from-primary/20 to-primary/10 text-lg font-semibold"
+                  />
+                  {isActive && (
+                    <div className="absolute -bottom-1 -right-1 h-4 w-4 bg-green-500 rounded-full border-2 border-background animate-pulse">
+                      <div className="w-1 h-1 bg-white rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+                    </div>
+                  )}
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>
+                  {isActive 
+                    ? `🟢 ${user.full_name || `${user.first_name} ${user.last_name}`.trim()} online most (utolsó aktivitás: ${user.last_login ? new Date(user.last_login).toLocaleTimeString('hu-HU') : 'ismeretlen'})`
+                    : `${user.full_name || `${user.first_name} ${user.last_name}`.trim()} offline${user.last_login ? ` (utolsó bejelentkezés: ${new Date(user.last_login).toLocaleDateString('hu-HU')})` : ''}`
+                  }
+                </p>
+              </TooltipContent>
+            </Tooltip>
             <div>
               <h3 className="font-semibold text-lg">
                 {user.full_name || `${user.first_name} ${user.last_name}`.trim()}
@@ -345,9 +375,15 @@ function UserCard({ user, onEdit, onDelete }: {
             <Badge className={roleInfo.color}>
               {roleInfo.icon} {roleInfo.name}
             </Badge>
-            <Badge variant={user.is_active !== false ? "default" : "secondary"}>
-              {user.is_active !== false ? "✅ Aktív" : "❌ Inaktív"}
-            </Badge>
+            {isActive ? (
+              <Badge variant="default" className="bg-green-600 hover:bg-green-700">
+                🟢 Online most
+              </Badge>
+            ) : (
+              <Badge variant={user.is_active !== false ? "outline" : "secondary"}>
+                {user.is_active !== false ? "📱 Elérhető" : "❌ Inaktív fiók"}
+              </Badge>
+            )}
           </div>
 
           <div className="space-y-2 text-sm">
