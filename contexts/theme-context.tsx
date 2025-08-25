@@ -75,50 +75,62 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     dispatch({ type: 'SET_THEME_MODE', mode })
     
     // Apply the theme mode immediately
-    if (mode === 'light') {
-      document.documentElement.classList.remove('dark')
-    } else if (mode === 'dark') {
-      document.documentElement.classList.add('dark')
-    } else {
-      // System mode - check system preference
-      const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-      if (systemDark) {
+    if (typeof window !== 'undefined') {
+      if (mode === 'light') {
+        document.documentElement.classList.remove('dark')
+      } else if (mode === 'dark') {
         document.documentElement.classList.add('dark')
       } else {
-        document.documentElement.classList.remove('dark')
+        // System mode - check system preference
+        const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (systemDark) {
+          document.documentElement.classList.add('dark')
+        } else {
+          document.documentElement.classList.remove('dark')
+        }
       }
     }
   }, [])
 
   // Initialize theme from localStorage
   useEffect(() => {
-    try {
-      const savedTheme = localStorage.getItem('theme-color') as ThemeColor
-      const validTheme = savedTheme && ['red', 'amber', 'yellow', 'cyan', 'green', 'indigo', 'purple', 'pink', 'blue', 'slate'].includes(savedTheme) 
-        ? savedTheme 
-        : 'blue'
+    // Add a small delay to ensure DOM is ready
+    const initializeTheme = () => {
+      try {
+        const savedTheme = localStorage.getItem('theme-color') as ThemeColor
+        const validTheme = savedTheme && ['red', 'amber', 'yellow', 'cyan', 'green', 'indigo', 'purple', 'pink', 'blue', 'slate'].includes(savedTheme) 
+          ? savedTheme 
+          : 'blue'
 
-      const savedMode = localStorage.getItem('theme-mode') as ThemeMode
-      const validMode = savedMode && ['light', 'dark', 'system'].includes(savedMode)
-        ? savedMode
-        : 'system'
+        const savedMode = localStorage.getItem('theme-mode') as ThemeMode
+        const validMode = savedMode && ['light', 'dark', 'system'].includes(savedMode)
+          ? savedMode
+          : 'system'
 
-      const isDarkMode = document.documentElement.classList.contains('dark')
-      
-      dispatch({ 
-        type: 'INITIALIZE', 
-        themeColor: validTheme,
-        themeMode: validMode, 
-        isDark: isDarkMode 
-      })
-    } catch (error) {
-      console.warn('Failed to load theme from localStorage:', error)
-      dispatch({ 
-        type: 'INITIALIZE', 
-        themeColor: 'blue',
-        themeMode: 'system', 
-        isDark: false 
-      })
+        const isDarkMode = document.documentElement.classList.contains('dark')
+        
+        dispatch({ 
+          type: 'INITIALIZE', 
+          themeColor: validTheme,
+          themeMode: validMode, 
+          isDark: isDarkMode 
+        })
+      } catch (error) {
+        console.warn('Failed to load theme from localStorage:', error)
+        dispatch({ 
+          type: 'INITIALIZE', 
+          themeColor: 'blue',
+          themeMode: 'system', 
+          isDark: false 
+        })
+      }
+    }
+
+    // Initialize immediately if document is ready, otherwise wait for next tick
+    if (document.readyState === 'complete') {
+      initializeTheme()
+    } else {
+      setTimeout(initializeTheme, 0)
     }
   }, [])
 
