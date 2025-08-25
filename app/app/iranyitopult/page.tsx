@@ -46,6 +46,7 @@ import {
   Settings,
   Eye
 } from "lucide-react"
+import { UserAvatar } from "@/components/user-avatar"
 
 // Function to get dynamic welcome message based on time of day and season
 function getDynamicWelcomeMessage(firstName: string = 'Felhasználó'): string {
@@ -314,12 +315,15 @@ function ActiveUsersWidget() {
                   >
                     <div className="flex items-center gap-2">
                       <div className="relative">
-                        <div 
-                          className="w-8 h-8 bg-gradient-to-br from-primary/20 to-primary/10 rounded-full flex items-center justify-center text-xs font-semibold border border-background group-hover:border-primary/20 transition-colors"
-                          title={`${user.full_name || `${user.first_name || 'Ismeretlen'} ${user.last_name || 'Felhasználó'}`}`}
-                        >
-                          {(user.first_name?.charAt(0) || user.full_name?.charAt(0) || '?').toUpperCase()}
-                        </div>
+                        <UserAvatar
+                          email={user.email}
+                          firstName={user.first_name}
+                          lastName={user.last_name}
+                          username={user.username}
+                          size="md"
+                          className="border border-background group-hover:border-primary/20 transition-colors"
+                          fallbackClassName="bg-gradient-to-br from-primary/20 to-primary/10 text-xs font-semibold"
+                        />
                         <div className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border border-background ${activity.bgColor} flex items-center justify-center`}>
                           {isActive && (
                             <div className="w-1 h-1 bg-white rounded-full animate-pulse" />

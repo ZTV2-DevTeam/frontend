@@ -64,6 +64,11 @@ const rawChangelogData: ChangelogEntry[] = [
         'Changelog - Megosztás',
         'Mostantól lehetőség van a változások megosztására, a megosztási link másolásával. Ezen link közvetlenül az adott változásra mutat.',
       ),
+      createChange(
+        'feature',
+        'Rendszer felkészítése profilképek kezelésére',
+        'Felkészítettük a rendszert profilképek fogadására, implementáltunk egy egyedi, semleges profilképkezelő rendszert helykitöltő gyanánt.',
+      ),
     ]
   ),
   createChangelogEntry(

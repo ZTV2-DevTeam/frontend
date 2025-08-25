@@ -6,10 +6,6 @@ import {
 } from "@tabler/icons-react"
 
 import {
-  Avatar,
-  AvatarFallback,
-} from "@/components/ui/avatar"
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -23,6 +19,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
+import { UserAvatar } from "@/components/user-avatar"
 import { useAuth } from "@/contexts/auth-context"
 import { useRouter } from "next/navigation"
 
@@ -45,12 +42,6 @@ export function NavUser() {
   }
 
   const userDisplayName = `${user.first_name} ${user.last_name}`.trim() || user.username
-  const initials = userDisplayName
-    .split(' ')
-    .map(name => name[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2)
 
   return (
     <SidebarMenu>
@@ -61,9 +52,15 @@ export function NavUser() {
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
-              <Avatar className="h-8 w-8 rounded-lg grayscale">
-                <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
-              </Avatar>
+              <UserAvatar
+                email={user.email}
+                firstName={user.first_name}
+                lastName={user.last_name}
+                username={user.username}
+                size="md"
+                className="rounded-lg"
+                grayscale={true}
+              />
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{userDisplayName}</span>
                 <span className="text-muted-foreground truncate text-xs">
@@ -81,9 +78,14 @@ export function NavUser() {
           >
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
-                </Avatar>
+                <UserAvatar
+                  email={user.email}
+                  firstName={user.first_name}
+                  lastName={user.last_name}
+                  username={user.username}
+                  size="md"
+                  className="rounded-lg"
+                />
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">{userDisplayName}</span>
                   <span className="text-muted-foreground truncate text-xs">

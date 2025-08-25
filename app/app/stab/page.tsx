@@ -60,6 +60,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { UserAvatar } from "@/components/user-avatar"
 
 // Dynamic import for PDF functionality (client-side only)
 const generatePDF = async (users: any[]) => {
@@ -291,9 +292,15 @@ function UserCard({ user, onEdit, onDelete }: {
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center space-x-4">
             <div className="relative">
-              <div className="h-12 w-12 bg-gradient-to-br from-primary/20 to-primary/10 rounded-full flex items-center justify-center text-lg font-semibold border-2 border-primary/20">
-                {user.first_name?.charAt(0) || ''}{user.last_name?.charAt(0) || ''}
-              </div>
+              <UserAvatar
+                email={user.email}
+                firstName={user.first_name}
+                lastName={user.last_name}
+                username={user.username}
+                size="lg"
+                className="border-2 border-primary/20"
+                fallbackClassName="bg-gradient-to-br from-primary/20 to-primary/10 text-lg font-semibold"
+              />
               {user.is_active !== false && (
                 <div className="absolute -bottom-1 -right-1 h-4 w-4 bg-green-500 rounded-full border-2 border-background" />
               )}

@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { UserAvatar } from "@/components/user-avatar"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
@@ -37,12 +37,6 @@ export default function SettingsPage() {
   if (!user) return null
 
   const userDisplayName = `${user.first_name} ${user.last_name}`.trim() || user.username
-  const initials = userDisplayName
-    .split(' ')
-    .map(name => name[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2)
 
   const isAdmin = currentRole === 'admin'
 
@@ -98,11 +92,15 @@ export default function SettingsPage() {
               {/* Profile Tab */}
               <TabsContent value="profile" className="space-y-6">
                 <div className="flex items-start gap-6 p-6 bg-gradient-to-r from-muted/30 to-muted/10 rounded-xl border border-border/50">
-                  <Avatar className="h-20 w-20 rounded-xl shadow-sm">
-                    <AvatarFallback className="rounded-xl text-xl font-semibold bg-gradient-to-br from-primary to-primary/80 text-primary-foreground">
-                      {initials}
-                    </AvatarFallback>
-                  </Avatar>
+                  <UserAvatar
+                    email={user.email}
+                    firstName={user.first_name}
+                    lastName={user.last_name}
+                    username={user.username}
+                    size="xl"
+                    className="rounded-xl shadow-sm"
+                    fallbackClassName="rounded-xl text-xl font-semibold bg-gradient-to-br from-primary to-primary/80 text-primary-foreground"
+                  />
                   <div className="flex-1 space-y-2">
                     <h2 className="text-2xl font-bold">{userDisplayName}</h2>
                     <div className="flex flex-wrap items-center gap-2">
