@@ -91,12 +91,12 @@ export function AnnouncementActions({
         </DropdownMenuTrigger>
         
         <DropdownMenuContent align="end" className="w-48">
-          {userCanView && (
+          {/* {userCanView && (
             <DropdownMenuItem className="cursor-pointer">
               <Eye className="h-4 w-4 mr-2" />
               Részletek megtekintése
             </DropdownMenuItem>
-          )}
+          )} */}
           
           {userCanEdit && (
             <DropdownMenuItem 

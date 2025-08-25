@@ -23,9 +23,7 @@ import {
   Plus,
   Megaphone
 } from 'lucide-react';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import rehypeRaw from 'rehype-raw';
+import { EnhancedMarkdownRenderer } from '@/components/enhanced-markdown-renderer';
 import { useApiQuery } from "@/lib/api-helpers";
 import { AnnouncementSchema, AnnouncementDetailSchema } from "@/lib/types";
 import { apiClient } from "@/lib/api";
@@ -257,22 +255,13 @@ export default function MessageBoardPage() {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="prose prose-sm max-w-none text-sm">
-                      <ReactMarkdown
-                        remarkPlugins={[remarkGfm]}
-                        rehypePlugins={[rehypeRaw]}
-                      >
-                        {announcement.body.length > 300 
-                          ? announcement.body.substring(0, 300) + '...'
-                          : announcement.body
-                        }
-                      </ReactMarkdown>
-                    </div>
-                    {announcement.body.length > 300 && (
-                      <Button variant="link" className="p-0 h-auto text-sm mt-2">
-                        Több megjelenítése
-                      </Button>
-                    )}
+                    <EnhancedMarkdownRenderer
+                      className="text-sm"
+                      maxLength={300}
+                      showMoreButton={true}
+                    >
+                      {announcement.body}
+                    </EnhancedMarkdownRenderer>
                   </CardContent>
                 </Card>
               ))

@@ -13,10 +13,13 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { Plus, Save, X, Users, Globe, Search, Loader2, AlertCircle } from 'lucide-react'
+import { Plus, Save, X, Users, Globe, Search, Loader2, AlertCircle, Eye, Edit } from 'lucide-react'
 import { apiClient } from '@/lib/api'
 import { useApiQuery } from '@/lib/api-helpers'
 import { AnnouncementCreateSchema, AnnouncementUpdateSchema, AnnouncementDetailSchema, UserBasicSchema, UserProfileSchema, OsztalySchema } from '@/lib/types'
+import { EnhancedMarkdownRenderer } from '@/components/enhanced-markdown-renderer'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { MarkdownHelpDialog } from '@/components/markdown-help-dialog'
 
 interface AnnouncementDialogProps {
   trigger?: React.ReactNode
@@ -210,16 +213,9 @@ export function AnnouncementDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      {trigger ? (
+      {trigger && (
         <DialogTrigger asChild>
           {trigger}
-        </DialogTrigger>
-      ) : (
-        <DialogTrigger asChild>
-          <Button>
-            <Plus className="h-4 w-4 mr-2" />
-            Új közlemény
-          </Button>
         </DialogTrigger>
       )}
       
@@ -262,18 +258,49 @@ export function AnnouncementDialog({
 
             <div>
               <Label htmlFor="body">Tartalom *</Label>
-              <Textarea
-                id="body"
-                value={body}
-                onChange={(e) => setBody(e.target.value)}
-                placeholder="Közlemény teljes szövege..."
-                rows={6}
-                disabled={loading || success}
-                required
-              />
-              <p className="text-sm text-muted-foreground mt-1">
-                Markdown formázás támogatott (pl. **félkövér**, *dőlt*)
-              </p>
+              <Tabs defaultValue="edit" className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="edit" className="flex items-center gap-2">
+                    <Edit className="h-4 w-4" />
+                    Szerkesztés
+                  </TabsTrigger>
+                  <TabsTrigger value="preview" className="flex items-center gap-2">
+                    <Eye className="h-4 w-4" />
+                    Előnézet
+                  </TabsTrigger>
+                </TabsList>
+                <TabsContent value="edit" className="mt-2">
+                  <Textarea
+                    id="body"
+                    value={body}
+                    onChange={(e) => setBody(e.target.value)}
+                    placeholder="Közlemény teljes szövege..."
+                    rows={6}
+                    disabled={loading || success}
+                    required
+                  />
+                  <p className="text-sm text-muted-foreground mt-1 flex items-center justify-between">
+                    <span>
+                      Markdown formázás támogatott: **félkövér**, *dőlt*, `kód`, ~~áthúzott~~, 
+                      [linkek](url), táblázatok, felsorolások, kódrészletek, matematikai kifejezések és emoji :smile:
+                    </span>
+                    <MarkdownHelpDialog />
+                  </p>
+                </TabsContent>
+                <TabsContent value="preview" className="mt-2">
+                  <div className="min-h-[152px] border rounded-md p-3 bg-muted/50">
+                    {body.trim() ? (
+                      <EnhancedMarkdownRenderer className="text-sm">
+                        {body}
+                      </EnhancedMarkdownRenderer>
+                    ) : (
+                      <p className="text-muted-foreground text-sm italic">
+                        Írj valamit a tartalom mezőbe az előnézet megtekintéséhez...
+                      </p>
+                    )}
+                  </div>
+                </TabsContent>
+              </Tabs>
             </div>
           </div>
 

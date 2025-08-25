@@ -49,6 +49,16 @@ const rawChangelogData: ChangelogEntry[] = [
         'Üzenőfal kezelés a felhasználói felületen',
         'Mostantól lehet az üzenőfal közleményeit a felhasználói felületen kezelni.',
       ),
+      createChange(
+        'feature',
+        'Fejlett Markdown Támogatás az Üzenőfalon',
+        'Az üzenőfal mostantól támogatja a fejlett Markdown funkciókat, beleértve a táblázatokat, kódrészleteket, matematikai kifejezéseket és emoji-kat is.',
+      ),      
+      createChange(
+        'bugfix',
+        'Furcsa hiba javítása az üzenőfalon',
+        'Javítottunk egy rendkívül furcsa hibát amely az Új Közlemény gomb véletlenszerű helyeken történő felbukkanását okozta.',
+      ),
     ]
   ),
   createChangelogEntry(
