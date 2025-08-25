@@ -102,9 +102,13 @@ export function Combobox({
                     <span className="flex-1 text-left">{option.label}</span>
                   </div>
                   {option.description && (
-                    <span className="text-xs text-muted-foreground ml-6 text-left">
-                      {option.description}
-                    </span>
+                    <div className="text-xs text-muted-foreground ml-6 text-left">
+                      {option.description.split(' | ').map((part, index) => (
+                        <div key={index} className={index === 0 ? "font-medium" : ""}>
+                          {part}
+                        </div>
+                      ))}
+                    </div>
                   )}
                 </button>
               ))

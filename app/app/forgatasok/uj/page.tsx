@@ -370,7 +370,7 @@ export default function NewShooting() {
     value: contact.id.toString(),
     label: contact.name,
     description: contact.context 
-      ? `${contact.context}\n${contact.email || 'Email nincs megadva'} • ${contact.phone || 'Telefon nincs megadva'}`
+      ? `${contact.context} | ${contact.email || 'Email nincs megadva'} • ${contact.phone || 'Telefon nincs megadva'}`
       : `${contact.email || 'Email nincs megadva'} • ${contact.phone || 'Telefon nincs megadva'}`,
   })) : []
 
