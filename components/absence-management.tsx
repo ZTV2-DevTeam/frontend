@@ -384,13 +384,13 @@ export function AbsenceManagement() {
             const user = getValue()
             return (
               <div className="font-medium min-w-0">
-                <div className="truncate text-sm max-w-[120px]" title={user.full_name || `${user.last_name} ${user.first_name}`}>
+                <div className="truncate text-sm max-w-[100px]" title={user.full_name || `${user.last_name} ${user.first_name}`}>
                   {user.full_name || `${user.last_name} ${user.first_name}`}
                 </div>
               </div>
             )
           },
-          size: 140,
+          size: 120,
         }),
       ] : []),
       
@@ -442,9 +442,9 @@ export function AbsenceManagement() {
         cell: ({ getValue }) => {
           const reason = getValue()
           return (
-            <div className="max-w-[150px]">
+            <div className="max-w-[120px]">
               {reason ? (
-                <div className="text-sm truncate bg-muted/50 px-2 py-1 rounded-md" title={reason}>
+                <div className="text-xs truncate bg-muted/50 px-2 py-1 rounded-md" title={reason}>
                   {reason}
                 </div>
               ) : (
@@ -453,7 +453,7 @@ export function AbsenceManagement() {
             </div>
           )
         },
-        size: 180,
+        size: 140,
       }),
       
       columnHelper.accessor('status', {
@@ -570,7 +570,7 @@ export function AbsenceManagement() {
             </div>
           )
         },
-        size: 160,
+        size: 140,
       }),
     ]
     
@@ -773,24 +773,24 @@ export function AbsenceManagement() {
                             {absence.user.full_name || `${absence.user.last_name} ${absence.user.first_name}`}
                           </div>
                         )}
-                        <div className="flex flex-col gap-2 mb-2">
-                          <div className="flex items-center justify-between text-xs">
-                            <span className="text-muted-foreground font-medium">Kezdés:</span>
-                            <span className="font-semibold">
+                        <div className="grid grid-cols-2 gap-2 mb-2 text-xs">
+                          <div>
+                            <span className="text-muted-foreground">Kezdés:</span>
+                            <div className="font-semibold break-words">
                               {formatDateTimeForDisplay(absence.start_date)}
-                            </span>
+                            </div>
                           </div>
-                          <div className="flex items-center justify-between text-xs">
-                            <span className="text-muted-foreground font-medium">Befejezés:</span>
-                            <span className="font-semibold">
+                          <div>
+                            <span className="text-muted-foreground">Befejezés:</span>
+                            <div className="font-semibold break-words">
                               {formatDateTimeForDisplay(absence.end_date)}
-                            </span>
+                            </div>
                           </div>
-                          <div className="flex items-center justify-between">
-                            <Badge variant="outline" className="text-xs px-2 py-1 font-medium">
-                              {absence.duration_days} nap
-                            </Badge>
-                          </div>
+                        </div>
+                        <div className="flex items-center justify-start mb-2">
+                          <Badge variant="outline" className="text-xs px-2 py-1 font-medium">
+                            {absence.duration_days} nap
+                          </Badge>
                         </div>
                         {absence.reason && (
                           <div className="text-xs text-muted-foreground truncate mb-2 bg-muted/50 p-2 rounded-md" title={absence.reason}>
@@ -852,16 +852,18 @@ export function AbsenceManagement() {
           {/* Desktop Table View (hidden on mobile) */}
           <div className="hidden sm:block">
             <div className="overflow-x-auto">
-              <DataTable
-                table={table}
-                columns={columns}
-                data={filteredAbsences}
-                loading={loading}
-                searchPlaceholder="Keresés távollétekben..."
-                showActions={false} // We handle actions in the table
-                showSearch={false} // We have our own search in the header
-                showFilters={false} // We have our own filters in the header
-              />
+              <div className="min-w-[800px]">
+                <DataTable
+                  table={table}
+                  columns={columns}
+                  data={filteredAbsences}
+                  loading={loading}
+                  searchPlaceholder="Keresés távollétekben..."
+                  showActions={false} // We handle actions in the table
+                  showSearch={false} // We have our own search in the header
+                  showFilters={false} // We have our own filters in the header
+                />
+              </div>
             </div>
           </div>
         </CardContent>
