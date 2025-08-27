@@ -63,9 +63,28 @@ export function TeamSwitcher({
     permissions?.role_info?.special_role === 'class_teacher'
   )
 
+  // Check if user is a class teacher (ofő) but not an admin
+  const isPureClassTeacher = (permissions?.permissions?.is_osztaly_fonok || 
+                             permissions?.role_info?.special_role === 'class_teacher') && 
+                             !isAnyAdmin
+
   let allowedTeams = teams.filter(team => {
-    if (!isAnyAdmin) {
-      // Non-admins only see their available roles
+    if (!isAnyAdmin && !isPureClassTeacher) {
+      // Regular students only see their available roles
+      return availableRoles.includes(team.role)
+    }
+    
+    // Class teachers (ofő) can see their own role and preview student role, but NOT admin
+    if (isPureClassTeacher) {
+      if (team.role === 'admin') {
+        return false // Class teachers cannot access admin role
+      }
+      if (team.role === 'class-teacher') {
+        return true // Their own role
+      }
+      if (team.role === 'student') {
+        return true // Can preview student role
+      }
       return availableRoles.includes(team.role)
     }
     
@@ -89,13 +108,13 @@ export function TeamSwitcher({
     return availableRoles.includes(team.role)
   })
 
-  // Mark preview status for admin users
+  // Mark preview status for admin users and class teachers
   allowedTeams = allowedTeams.map(team => ({
     ...team,
-    isPreview: isAnyAdmin && team.role !== 'admin' && (
+    isPreview: (isAnyAdmin && team.role !== 'admin' && (
       team.role === 'student' || 
       (team.role === 'class-teacher' && !isAdminAndClassTeacher)
-    )
+    )) || (isPureClassTeacher && team.role === 'student') // Class teachers can preview student role
   }))
   
   const activeTeam = allowedTeams.find(team => team.role === currentRole) || allowedTeams[0]

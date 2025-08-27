@@ -29,6 +29,11 @@ const rawChangelogData: ChangelogEntry[] = [
         'Dizájn apróbb módosításai a Távollétkezelőben',
         'Apróbb módosításokat hajtottunk végre a Távollétkezelő dizájnján, hogy az felhasználóbarátabb legyen.'
       ),
+      createChange(
+        'feature',
+        'Diák előnézet osztályfőnökök számára',
+        'Mostantól az osztályfőnökök számára is elérhető a Diák szerepkör előnézete.'
+      ),
     ]
   ),
   createChangelogEntry(

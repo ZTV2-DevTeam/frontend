@@ -10,6 +10,7 @@ import { TeacherAbsencesPage } from "@/components/teacher-absences-page"
 
 function StudentAbsencesPageReal() {
   const { user } = useAuth()
+  const { isPreviewMode, actualUserRole } = useUserRole()
 
   return (
     <StandardizedLayout>
@@ -27,7 +28,9 @@ function StudentAbsencesPageReal() {
               </p>
             </div>
             <Badge variant="outline" className="bg-blue-500/10 text-blue-400 border-blue-500/30">
-              {user?.first_name} {user?.last_name}
+              {isPreviewMode && actualUserRole === 'class-teacher' 
+                ? 'Ofő Előnézet - Diák nézet' 
+                : `${user?.first_name} ${user?.last_name}`}
             </Badge>
           </div>
         </div>

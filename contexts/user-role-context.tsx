@@ -60,7 +60,7 @@ export function UserRoleProvider({ children }: { children: React.ReactNode }) {
 
   const isPreviewMode = actualUserRole !== null && 
                         actualUserRole !== currentRole && 
-                        actualUserRole === 'admin' // Only admins can have preview mode
+                        (actualUserRole === 'admin' || actualUserRole === 'class-teacher') // Admins and class-teachers can have preview mode
 
   // Function to set the actual user role based on permissions
   const initializeUserRole = (userRole: UserRole) => {

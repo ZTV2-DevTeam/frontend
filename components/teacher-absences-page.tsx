@@ -200,6 +200,7 @@ export function TeacherAbsencesPage() {
   // 1. Admin in preview mode as class-teacher without actual permissions
   // 2. Admin accessing directly without permissions
   // 3. Any user viewing class-teacher view without actual class-teacher permissions
+  // 4. Class-teacher in preview mode as student should NOT use mock data (they should see real student view)
   const shouldUseMockData = (currentRole === 'class-teacher' && !canAccessAbsenceData) ||
                            (isPreviewMode && actualUserRole === 'admin' && !canAccessAbsenceData)
 
@@ -257,6 +258,7 @@ export function TeacherAbsencesPage() {
       console.error('❌ Error loading absences:', err)
       
       // If user doesn't have permissions (especially admin in preview mode), fall back to mock data
+      // Note: class-teachers previewing as students should get real student data, not mock data
       if (!canAccessAbsenceData || (isPreviewMode && actualUserRole === 'admin')) {
         console.log('🎭 Permission fallback: API error for user without permissions, using mock data instead')
         setAllAbsences(MOCK_ABSENCES)
@@ -454,14 +456,20 @@ export function TeacherAbsencesPage() {
               Osztály Igazolások
             </h1>
             <Badge variant="outline" className="bg-blue-500/10 text-blue-400 border-blue-500/30">
-              {shouldUseMockData || isPreviewWithMockData ? 'Admin Előnézet' : 'Osztályfőnök'}
+              {shouldUseMockData || isPreviewWithMockData 
+                ? 'Admin Előnézet' 
+                : isPreviewMode && actualUserRole === 'class-teacher' 
+                  ? 'Ofő Előnézet'
+                  : 'Osztályfőnök'}
             </Badge>
           </div>
           <div className="flex items-center justify-between">
             <p className="text-sm text-muted-foreground">
               {shouldUseMockData || isPreviewWithMockData 
                 ? 'Demo adatok megjelenítése - Adminisztrátor előnézet'
-                : 'Diákok forgatás alapú hiányzásainak kezelése'
+                : isPreviewMode && actualUserRole === 'class-teacher'
+                  ? 'Előnézet módban - Osztályfőnök perspektívából'
+                  : 'Diákok forgatás alapú hiányzásainak kezelése'
               }
             </p>
             <Button onClick={loadAbsences} variant="outline" size="sm">
