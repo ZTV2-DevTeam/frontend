@@ -773,17 +773,24 @@ export function AbsenceManagement() {
                             {absence.user.full_name || `${absence.user.last_name} ${absence.user.first_name}`}
                           </div>
                         )}
-                        <div className="flex items-center gap-3 mb-2">
-                          <span className="text-xs text-muted-foreground font-medium">
-                            {formatDateTimeForDisplay(absence.start_date)}
-                          </span>
-                          <span className="text-xs text-muted-foreground">→</span>
-                          <span className="text-xs text-muted-foreground font-medium">
-                            {formatDateTimeForDisplay(absence.end_date)}
-                          </span>
-                          <Badge variant="outline" className="text-xs px-2 py-1 font-medium">
-                            {absence.duration_days}d
-                          </Badge>
+                        <div className="flex flex-col gap-2 mb-2">
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-muted-foreground font-medium">Kezdés:</span>
+                            <span className="font-semibold">
+                              {formatDateTimeForDisplay(absence.start_date)}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-muted-foreground font-medium">Befejezés:</span>
+                            <span className="font-semibold">
+                              {formatDateTimeForDisplay(absence.end_date)}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <Badge variant="outline" className="text-xs px-2 py-1 font-medium">
+                              {absence.duration_days} nap
+                            </Badge>
+                          </div>
                         </div>
                         {absence.reason && (
                           <div className="text-xs text-muted-foreground truncate mb-2 bg-muted/50 p-2 rounded-md" title={absence.reason}>
