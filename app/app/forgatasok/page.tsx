@@ -17,6 +17,7 @@ import { format } from "date-fns"
 import { hu } from "date-fns/locale"
 import { useUserRole } from "@/contexts/user-role-context"
 import { usePermissions } from "@/contexts/permissions-context"
+import { StabBadge } from "@/components/stab-badge"
 
 // Date helper for better formatting
 const formatSessionDate = (dateStr: string) => {
@@ -177,11 +178,12 @@ export default function FilmingSessionsPage() {
 
   const getSessionCrewData = (sessionId: number) => {
     const assignment = getSessionAssignment(sessionId)
-    if (!assignment) return { count: 0, roles: [], crewMembers: [] }
+    if (!assignment) return { count: 0, roles: [], crewMembers: [], assignmentStab: null }
     
     return {
       count: assignment.student_count,
       roles: assignment.roles_summary,
+      assignmentStab: assignment.stab,
       crewMembers: assignment.szerepkor_relaciok.map(relation => {
         // Find detailed user information
         const userDetails = userDetailsList?.find((user: any) => user?.id === relation.user.id)
@@ -309,6 +311,12 @@ export default function FilmingSessionsPage() {
                   <Users className="h-3 w-3 flex-shrink-0" />
                   <span>{crewData.count} fő stáb</span>
                 </div>
+                {/* Assignment Stab Information */}
+                {crewData.assignmentStab && (
+                  <div className="flex items-center gap-2 text-xs">
+                    <StabBadge stab={crewData.assignmentStab} size="sm" showMemberCount />
+                  </div>
+                )}
               </div>
 
               {/* Real Crew Preview - Compact */}
@@ -408,7 +416,7 @@ export default function FilmingSessionsPage() {
                     )}
                   </div>
 
-                  <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                  <div className="flex items-center gap-4 text-xs text-muted-foreground flex-wrap">
                     <span className="flex items-center gap-1">
                       <MapPin className="h-3 w-3" />
                       <span className="truncate max-w-[120px]">{session.location?.name || 'Hely nincs megadva'}</span>
@@ -421,6 +429,12 @@ export default function FilmingSessionsPage() {
                       <Users className="h-3 w-3" />
                       <span>{crewData.count} fő stáb</span>
                     </span>
+                    {/* Assignment Stab Information */}
+                    {crewData.assignmentStab && (
+                      <span className="flex items-center gap-1">
+                        <StabBadge stab={crewData.assignmentStab} size="sm" />
+                      </span>
+                    )}
                   </div>
                 </div>
 

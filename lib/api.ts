@@ -452,6 +452,7 @@ export interface BeosztasSchema {
   szerepkor_relaciok: SzerepkorRelacioSchema[]
   kesz: boolean
   author?: UserBasicSchema
+  stab?: StabSchema | null
   created_at: string
   student_count: number
   roles_summary: { role: string, count: number }[]
@@ -489,6 +490,7 @@ export interface BeosztasCreateSchema {
   kesz?: boolean
   tanev_id?: number
   szerepkor_relacio_ids?: number[]
+  stab_id?: number
 }
 
 // === LEGACY BEOSZTAS TYPES ===
@@ -1777,14 +1779,14 @@ class ApiClient {
     return this.request<BeosztasDetailSchema>(`/api/assignments/filming-assignments/${assignmentId}`)
   }
 
-  async createFilmingAssignment(data: { forgatas_id: number, student_role_pairs: { user_id: number, szerepkor_id: number }[] }): Promise<BeosztasDetailSchema> {
+  async createFilmingAssignment(data: { forgatas_id: number, student_role_pairs: { user_id: number, szerepkor_id: number }[], stab_id?: number }): Promise<BeosztasDetailSchema> {
     return this.request<BeosztasDetailSchema>('/api/assignments/filming-assignments', {
       method: 'POST',
       body: JSON.stringify(data),
     })
   }
 
-  async updateFilmingAssignment(assignmentId: number, data: { student_role_pairs?: { user_id: number, szerepkor_id: number }[], kesz?: boolean }): Promise<BeosztasDetailSchema> {
+  async updateFilmingAssignment(assignmentId: number, data: { student_role_pairs?: { user_id: number, szerepkor_id: number }[], kesz?: boolean, stab_id?: number }): Promise<BeosztasDetailSchema> {
     return this.request<BeosztasDetailSchema>(`/api/assignments/filming-assignments/${assignmentId}`, {
       method: 'PUT',
       body: JSON.stringify(data),

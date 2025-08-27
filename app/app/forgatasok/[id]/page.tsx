@@ -9,6 +9,7 @@ import { useAuth } from "@/contexts/auth-context"
 import type { ForgatSchema, BeosztasDetailSchema, EquipmentSchema, BeosztasSchema } from "@/lib/types"
 import { ApiErrorBoundary } from "@/components/api-error-boundary"
 import { ApiErrorFallback } from "@/components/api-error-fallback"
+import { StabBadge, UserStabBadge } from "@/components/stab-badge"
 import {
   SidebarInset,
   SidebarProvider,
@@ -337,6 +338,12 @@ export default function FilmingSessionDetail({ params }: PageProps) {
                               {assignment.kesz ? "Végleges" : "Tervezet"}
                             </Badge>
                           </div>
+                          {/* Assignment Stab Information */}
+                          {assignment.stab && (
+                            <div className="mt-2 flex items-center gap-2">
+                              <StabBadge stab={assignment.stab} showMemberCount />
+                            </div>
+                          )}
                           {assignment.roles_summary && assignment.roles_summary.length > 0 && (
                             <div className="mt-2 flex flex-wrap gap-1">
                               {assignment.roles_summary.map((role: any, index: number) => (
@@ -541,16 +548,7 @@ export default function FilmingSessionDetail({ params }: PageProps) {
                                 <div className="font-medium text-sm flex items-center gap-2">
                                   {member.name}
                                   {member.stab && (
-                                    <Badge
-                                      variant="outline"
-                                      className={`text-xs px-1 py-0 ${
-                                        member.stab === "A stáb"
-                                          ? "bg-blue-500/10 text-blue-400 border-blue-500/30"
-                                          : "bg-green-500/10 text-green-400 border-green-500/30"
-                                      }`}
-                                    >
-                                      {member.stab}
-                                    </Badge>
+                                    <UserStabBadge stabName={member.stab} size="sm" />
                                   )}
                                 </div>
                                 <div className="text-xs text-muted-foreground">
@@ -634,15 +632,7 @@ export default function FilmingSessionDetail({ params }: PageProps) {
                         <Badge variant="secondary">{selectedCrewMember.role}</Badge>
                         <Badge variant="outline">{selectedCrewMember.class}</Badge>
                         {selectedCrewMember.stab && (
-                          <Badge
-                            className={
-                              selectedCrewMember.stab === "A stáb"
-                                ? "bg-blue-500/20 text-blue-400 border-blue-500/30"
-                                : "bg-green-500/20 text-green-400 border-green-500/30"
-                            }
-                          >
-                            {selectedCrewMember.stab}
-                          </Badge>
+                          <UserStabBadge stabName={selectedCrewMember.stab} />
                         )}
                       </div>
                     </div>

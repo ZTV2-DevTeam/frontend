@@ -507,6 +507,7 @@ export interface BeosztasSchema {
   szerepkor_relaciok: SzerepkorRelacioSchema[]
   kesz: boolean
   author?: UserBasicSchema
+  stab?: StabSchema | null
   created_at: string
   student_count: number
   roles_summary: { role: string, count: number }[]
@@ -526,11 +527,13 @@ export interface BeosztasDetailSchema extends BeosztasSchema {
 export interface BeosztasCreateSchema {
   forgatas_id: number
   student_role_pairs: { user_id: number, szerepkor_id: number }[]
+  stab_id?: number
 }
 
 export interface BeosztasUpdateSchema {
   student_role_pairs?: { user_id: number, szerepkor_id: number }[]
   kesz?: boolean
+  stab_id?: number
 }
 
 export interface AbsenceFromAssignmentSchema {

@@ -34,6 +34,11 @@ const rawChangelogData: ChangelogEntry[] = [
         'Diák előnézet osztályfőnökök számára',
         'Mostantól az osztályfőnökök számára is elérhető a Diák szerepkör előnézete.'
       ),
+      createChange(
+        'feature',
+        'Új mező a Beosztás modellben: Stáb',
+        'Mostantól hozzá lehet stábot rendelni a Beosztás modellhez.'
+      ),
     ]
   ),
   createChangelogEntry(
