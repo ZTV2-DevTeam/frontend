@@ -21,6 +21,8 @@ import {
 } from "lucide-react"
 import { useState, useEffect } from "react"
 import { useAuth } from "@/contexts/auth-context"
+import { usePermissions } from "@/contexts/permissions-context"
+import { useUserRole } from "@/contexts/user-role-context"
 import {
   getSchoolAbsences,
   updateSchoolAbsence,
@@ -52,12 +54,136 @@ type ExtendedAbsence = Absence & {
   timeTo: string
 }
 
+// Mock data for admin preview mode when user is not a class teacher
+const MOCK_ABSENCES: ExtendedAbsence[] = [
+  {
+    id: 1,
+    diak: {
+      id: 1,
+      username: 'kovacs.anna',
+      first_name: 'Anna',
+      last_name: 'Kovács',
+      full_name: 'Kovács Anna'
+    },
+    forgatas: {
+      id: 1,
+      name: 'Szalagavató Dokumentumfilm',
+      date: '2024-03-15',
+      time_from: '09:00',
+      time_to: '15:00',
+      type: 'rendes'
+    },
+    date: '2024-03-15',
+    time_from: '09:00',
+    time_to: '15:00',
+    excused: false,
+    unexcused: false,
+    status: 'nincs_dontes',
+    affected_classes: [2, 3, 4, 5, 6],
+    osztaly: {
+      id: 1,
+      name: '10.F',
+      szekcio: 'Média',
+      start_year: 2021
+    },
+    studentName: 'Kovács Anna',
+    studentId: '1',
+    studentClass: '10.F',
+    shootingTitle: 'Szalagavató Dokumentumfilm',
+    shootingId: '1',
+    affectedClasses: [2, 3, 4, 5, 6],
+    timeFrom: '09:00',
+    timeTo: '15:00'
+  },
+  {
+    id: 2,
+    diak: {
+      id: 2,
+      username: 'nagy.peter',
+      first_name: 'Péter',
+      last_name: 'Nagy',
+      full_name: 'Nagy Péter'
+    },
+    forgatas: {
+      id: 1,
+      name: 'Szalagavató Dokumentumfilm',
+      date: '2024-03-15',
+      time_from: '09:00',
+      time_to: '15:00',
+      type: 'rendes'
+    },
+    date: '2024-03-15',
+    time_from: '09:00',
+    time_to: '15:00',
+    excused: true,
+    unexcused: false,
+    status: 'igazolt',
+    affected_classes: [2, 3, 4, 5, 6],
+    osztaly: {
+      id: 1,
+      name: '10.F',
+      szekcio: 'Média',
+      start_year: 2021
+    },
+    studentName: 'Nagy Péter',
+    studentId: '2',
+    studentClass: '10.F',
+    shootingTitle: 'Szalagavató Dokumentumfilm',
+    shootingId: '1',
+    affectedClasses: [2, 3, 4, 5, 6],
+    timeFrom: '09:00',
+    timeTo: '15:00'
+  },
+  {
+    id: 3,
+    diak: {
+      id: 3,
+      username: 'horvath.kata',
+      first_name: 'Kata',
+      last_name: 'Horváth',
+      full_name: 'Horváth Kata'
+    },
+    forgatas: {
+      id: 2,
+      name: 'Hírműsor - Március',
+      date: '2024-03-20',
+      time_from: '10:30',
+      time_to: '12:00',
+      type: 'rendkívüli'
+    },
+    date: '2024-03-20',
+    time_from: '10:30',
+    time_to: '12:00',
+    excused: false,
+    unexcused: true,
+    status: 'igazolatlan',
+    affected_classes: [3, 4],
+    osztaly: {
+      id: 2,
+      name: '10.F',
+      szekcio: 'Média',
+      start_year: 2022
+    },
+    studentName: 'Horváth Kata',
+    studentId: '3',
+    studentClass: '10.F',
+    shootingTitle: 'Hírműsor - Március',
+    shootingId: '2',
+    affectedClasses: [3, 4],
+    timeFrom: '10:30',
+    timeTo: '12:00'
+  }
+]
+
 export function TeacherAbsencesPage() {
   const { user } = useAuth()
+  const { permissions, hasPermission } = usePermissions()
+  const { isPreviewMode, actualUserRole, currentRole } = useUserRole()
   const [allAbsences, setAllAbsences] = useState<ExtendedAbsence[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [updating, setUpdating] = useState<Set<number>>(new Set())
+  const [isPreviewWithMockData, setIsPreviewWithMockData] = useState(false)
   
   // Filter states
   const [searchTerm, setSearchTerm] = useState("")
@@ -65,12 +191,50 @@ export function TeacherAbsencesPage() {
   const [selectedStudent, setSelectedStudent] = useState<string>("all")
   const [groupBy, setGroupBy] = useState<"shooting" | "student">("shooting")
 
-  // Load absences from API
+  // Check if user can access real absence data
+  const canAccessAbsenceData = hasPermission('is_osztaly_fonok') || 
+                               permissions?.permissions?.is_osztaly_fonok ||
+                               permissions?.display_properties?.show_class_management
+
+  // Check if we should use mock data - this covers multiple scenarios:
+  // 1. Admin in preview mode as class-teacher without actual permissions
+  // 2. Admin accessing directly without permissions
+  // 3. Any user viewing class-teacher view without actual class-teacher permissions
+  const shouldUseMockData = (currentRole === 'class-teacher' && !canAccessAbsenceData) ||
+                           (isPreviewMode && actualUserRole === 'admin' && !canAccessAbsenceData)
+
+  // Debug logging
+  useEffect(() => {
+    console.log('🔍 TeacherAbsencesPage Debug:', {
+      currentRole,
+      isPreviewMode,
+      actualUserRole,
+      canAccessAbsenceData,
+      shouldUseMockData,
+      hasPermissionOsztalyFonok: hasPermission('is_osztaly_fonok'),
+      permissionsOsztalyFonok: permissions?.permissions?.is_osztaly_fonok,
+      showClassManagement: permissions?.display_properties?.show_class_management,
+      permissions: permissions
+    })
+  }, [currentRole, isPreviewMode, actualUserRole, canAccessAbsenceData, shouldUseMockData, permissions, hasPermission])
+
+  // Load absences from API or use mock data
   const loadAbsences = async () => {
     try {
       setLoading(true)
       setError(null)
       
+      // Use mock data immediately if user doesn't have class teacher permissions
+      if (shouldUseMockData) {
+        console.log('🎭 User viewing class-teacher interface without permissions: Using mock absence data immediately')
+        setAllAbsences(MOCK_ABSENCES)
+        setIsPreviewWithMockData(true)
+        setLoading(false)
+        return
+      }
+
+      // Try to fetch real data
+      console.log('📡 Attempting to fetch real absence data...')
       const rawAbsences = await getSchoolAbsences()
       
       // Transform to extended format for UI
@@ -87,9 +251,20 @@ export function TeacherAbsencesPage() {
       }))
       
       setAllAbsences(transformedAbsences)
+      setIsPreviewWithMockData(false)
+      console.log('✅ Successfully loaded real absence data')
     } catch (err) {
-      console.error('Error loading absences:', err)
-      setError(err instanceof Error ? err.message : 'Hiba történt a hiányzások betöltése során')
+      console.error('❌ Error loading absences:', err)
+      
+      // If user doesn't have permissions (especially admin in preview mode), fall back to mock data
+      if (!canAccessAbsenceData || (isPreviewMode && actualUserRole === 'admin')) {
+        console.log('🎭 Permission fallback: API error for user without permissions, using mock data instead')
+        setAllAbsences(MOCK_ABSENCES)
+        setIsPreviewWithMockData(true)
+        setError(null) // Clear the error since we're showing mock data
+      } else {
+        setError(err instanceof Error ? err.message : 'Hiba történt a hiányzások betöltése során')
+      }
     } finally {
       setLoading(false)
     }
@@ -147,6 +322,17 @@ export function TeacherAbsencesPage() {
   const uniqueStudents = Array.from(new Set(allAbsences.map((a) => ({ id: a.studentId, name: a.studentName }))))
 
   const handleApprove = async (absenceId: number) => {
+    // If using mock data (admin in preview mode), just update the local state
+    if (shouldUseMockData || isPreviewWithMockData) {
+      console.log('🎭 Mock action: Approving absence', absenceId)
+      setAllAbsences(prev => prev.map(absence => 
+        absence.id === absenceId 
+          ? { ...absence, excused: true, unexcused: false, status: 'igazolt' as const }
+          : absence
+      ))
+      return
+    }
+
     try {
       setUpdating(prev => new Set(prev).add(absenceId))
       
@@ -175,6 +361,17 @@ export function TeacherAbsencesPage() {
   }
 
   const handleReject = async (absenceId: number) => {
+    // If using mock data (admin in preview mode), just update the local state
+    if (shouldUseMockData || isPreviewWithMockData) {
+      console.log('🎭 Mock action: Rejecting absence', absenceId)
+      setAllAbsences(prev => prev.map(absence => 
+        absence.id === absenceId 
+          ? { ...absence, excused: false, unexcused: true, status: 'igazolatlan' as const }
+          : absence
+      ))
+      return
+    }
+
     try {
       setUpdating(prev => new Set(prev).add(absenceId))
       
@@ -257,12 +454,15 @@ export function TeacherAbsencesPage() {
               Osztály Igazolások
             </h1>
             <Badge variant="outline" className="bg-blue-500/10 text-blue-400 border-blue-500/30">
-              Osztályfőnök
+              {shouldUseMockData || isPreviewWithMockData ? 'Admin Előnézet' : 'Osztályfőnök'}
             </Badge>
           </div>
           <div className="flex items-center justify-between">
             <p className="text-sm text-muted-foreground">
-              Diákok forgatás alapú hiányzásainak kezelése
+              {shouldUseMockData || isPreviewWithMockData 
+                ? 'Demo adatok megjelenítése - Adminisztrátor előnézet'
+                : 'Diákok forgatás alapú hiányzásainak kezelése'
+              }
             </p>
             <Button onClick={loadAbsences} variant="outline" size="sm">
               <RefreshCw className="h-4 w-4 mr-2" />
@@ -270,6 +470,24 @@ export function TeacherAbsencesPage() {
             </Button>
           </div>
         </div>
+
+        {/* Mock Data Banner */}
+        {(shouldUseMockData || isPreviewWithMockData) && (
+          <Card className="border-amber-500/30 bg-amber-500/5">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <AlertCircle className="h-5 w-5 text-amber-400 flex-shrink-0" />
+                <div>
+                  <h4 className="font-semibold text-amber-400 mb-1">Demo Adatok Megjelenítése</h4>
+                  <p className="text-amber-300 text-sm">
+                    Ez egy adminisztrátori előnézet. Mivel nem vagy osztályfőnök, demo adatok kerülnek megjelenítésre. 
+                    A valós igazoláskezelési funkcióhoz osztályfőnöki jogosultság szükséges.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Error Alert */}
         {error && (

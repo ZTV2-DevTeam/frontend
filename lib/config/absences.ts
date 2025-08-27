@@ -101,32 +101,39 @@ export async function getSchoolAbsences(params?: {
   end_date?: string
   status?: 'igazolt' | 'igazolatlan' | 'nincs_dontes'
 }): Promise<Absence[]> {
-  const rawData = await apiClient.getSchoolAbsences(params)
-  
-  // Ensure proper type conversion - IDs should be numbers
-  return rawData.map((item: unknown): Absence => {
-    const typedItem = item as Record<string, unknown> & {
-      diak?: Record<string, unknown>
-      forgatas?: Record<string, unknown>
-      osztaly?: Record<string, unknown>
-    }
-    return {
-      ...typedItem,
-      id: Number(typedItem.id),
-      diak: {
-        ...typedItem.diak,
-        id: Number(typedItem.diak?.id)
-      },
-      forgatas: {
-        ...typedItem.forgatas,
-        id: Number(typedItem.forgatas?.id)
-      },
-      osztaly: typedItem.osztaly ? {
-        ...typedItem.osztaly,
-        id: Number(typedItem.osztaly.id)
-      } : undefined
-    } as Absence
-  })
+  try {
+    const rawData = await apiClient.getSchoolAbsences(params)
+    
+    // Ensure proper type conversion - IDs should be numbers
+    return rawData.map((item: unknown): Absence => {
+      const typedItem = item as Record<string, unknown> & {
+        diak?: Record<string, unknown>
+        forgatas?: Record<string, unknown>
+        osztaly?: Record<string, unknown>
+      }
+      return {
+        ...typedItem,
+        id: Number(typedItem.id),
+        diak: {
+          ...typedItem.diak,
+          id: Number(typedItem.diak?.id)
+        },
+        forgatas: {
+          ...typedItem.forgatas,
+          id: Number(typedItem.forgatas?.id)
+        },
+        osztaly: typedItem.osztaly ? {
+          ...typedItem.osztaly,
+          id: Number(typedItem.osztaly.id)
+        } : undefined
+      } as Absence
+    })
+  } catch (error) {
+    console.error('Error fetching school absences:', error)
+    // Re-throw the error to be handled by the calling component
+    // The calling component will decide whether to show mock data or an error
+    throw error
+  }
 }
 
 /**

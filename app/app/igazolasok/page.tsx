@@ -200,7 +200,7 @@ function StudentAbsencesPageReal() {
 }
 
 export default function JustifyPage() {
-  const { currentRole } = useUserRole()
+  const { currentRole, isPreviewMode, actualUserRole } = useUserRole()
 
   // Render different components based on user role
   if (currentRole === 'class-teacher') {
@@ -208,7 +208,8 @@ export default function JustifyPage() {
   } else if (currentRole === 'student') {
     return <StudentAbsencesPageReal />
   } else {
-    // Admin role - default to teacher view for demo
+    // Admin role - show teacher view for demo
+    // The TeacherAbsencesPage will handle preview mode internally
     return <TeacherAbsencesPage />
   }
 }

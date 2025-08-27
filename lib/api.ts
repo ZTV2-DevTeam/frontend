@@ -878,7 +878,8 @@ class ApiClient {
             '/api/students',
             '/api/production/',
             '/api/communications/',
-            '/api/announcements'
+            '/api/announcements',
+            '/api/school-absences'  // Allow graceful handling for admin preview mode
           ]
           
           const isPublicEndpoint = publicEndpoints.some(publicPath => 
