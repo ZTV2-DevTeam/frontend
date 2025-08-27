@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { SystemDateTimePicker } from '@/components/ui/system-date-time-picker'
 import { FormDialog, ConfirmDialog } from '@/components/ui/form-dialog'
 import { DataTable } from '@/components/ui/enhanced-data-table'
 import { AbsenceStats, StatusBadge } from '@/components/absence-stats'
@@ -46,7 +47,7 @@ import {
 import { format, parseISO, isValid } from 'date-fns'
 import { hu } from 'date-fns/locale'
 import { toast } from 'sonner'
-import { validateDateRange, formatDateForDisplay, getTodayISOString } from '@/lib/absence-utils'
+import { validateDateRange, formatDateTimeForDisplay, formatDateTimeForDisplaySplit, getTodayDateTimeISOString, getEndOfDayISOString, formatDateTimeForApi, parseDateTimeFromInput } from '@/lib/absence-utils'
 
 const columnHelper = createColumnHelper<TavolletSchema>()
 
@@ -89,8 +90,8 @@ export function AbsenceManagement() {
   
   // Form data
   const [createForm, setCreateForm] = useState<TavolletCreateSchema>({
-    start_date: getTodayISOString(),
-    end_date: getTodayISOString(),
+    start_date: getTodayDateTimeISOString(),
+    end_date: getEndOfDayISOString(),
     reason: ''
   })
   
@@ -195,8 +196,8 @@ export function AbsenceManagement() {
       toast.success('Távollét sikeresen létrehozva')
       setShowCreateDialog(false)
       setCreateForm({ 
-        start_date: getTodayISOString(), 
-        end_date: getTodayISOString(), 
+        start_date: getTodayDateTimeISOString(), 
+        end_date: getEndOfDayISOString(), 
         reason: '' 
       })
       fetchAbsences()
@@ -394,23 +395,31 @@ export function AbsenceManagement() {
       ] : []),
       
       columnHelper.accessor('start_date', {
-        header: 'Kezdő dátum',
-        cell: ({ getValue }) => (
-          <div className="whitespace-nowrap text-sm font-medium">
-            {formatDateForDisplay(getValue())}
-          </div>
-        ),
-        size: 110,
+        header: 'Kezdő időpont',
+        cell: ({ getValue }) => {
+          const { date, time } = formatDateTimeForDisplaySplit(getValue())
+          return (
+            <div className="text-sm font-medium leading-tight">
+              <div className="text-xs text-muted-foreground">{date}</div>
+              <div className="font-semibold">{time}</div>
+            </div>
+          )
+        },
+        size: 100,
       }),
       
       columnHelper.accessor('end_date', {
-        header: 'Záró dátum',
-        cell: ({ getValue }) => (
-          <div className="whitespace-nowrap text-sm font-medium">
-            {formatDateForDisplay(getValue())}
-          </div>
-        ),
-        size: 110,
+        header: 'Záró időpont',
+        cell: ({ getValue }) => {
+          const { date, time } = formatDateTimeForDisplaySplit(getValue())
+          return (
+            <div className="text-sm font-medium leading-tight">
+              <div className="text-xs text-muted-foreground">{date}</div>
+              <div className="font-semibold">{time}</div>
+            </div>
+          )
+        },
+        size: 100,
       }),
       
       columnHelper.accessor('duration_days', {
@@ -727,18 +736,18 @@ export function AbsenceManagement() {
                   {/* Date Range Filters */}
                   <div className="flex gap-2 flex-1">
                     <Input
-                      type="date"
+                      type="datetime-local"
                       value={filters.dateFrom}
                       onChange={(e) => setFilters({ ...filters, dateFrom: e.target.value })}
                       className="flex-1 h-10 shadow-sm"
-                      placeholder="Kezdő dátum"
+                      placeholder="Kezdő időpont"
                     />
                     <Input
-                      type="date"
+                      type="datetime-local"
                       value={filters.dateTo}
                       onChange={(e) => setFilters({ ...filters, dateTo: e.target.value })}
                       className="flex-1 h-10 shadow-sm"
-                      placeholder="Záró dátum"
+                      placeholder="Záró időpont"
                     />
                   </div>
                 </div>
@@ -766,11 +775,11 @@ export function AbsenceManagement() {
                         )}
                         <div className="flex items-center gap-3 mb-2">
                           <span className="text-xs text-muted-foreground font-medium">
-                            {formatDateForDisplay(absence.start_date)}
+                            {formatDateTimeForDisplay(absence.start_date)}
                           </span>
                           <span className="text-xs text-muted-foreground">→</span>
                           <span className="text-xs text-muted-foreground font-medium">
-                            {formatDateForDisplay(absence.end_date)}
+                            {formatDateTimeForDisplay(absence.end_date)}
                           </span>
                           <Badge variant="outline" className="text-xs px-2 py-1 font-medium">
                             {absence.duration_days}d
@@ -835,16 +844,18 @@ export function AbsenceManagement() {
 
           {/* Desktop Table View (hidden on mobile) */}
           <div className="hidden sm:block">
-            <DataTable
-              table={table}
-              columns={columns}
-              data={filteredAbsences}
-              loading={loading}
-              searchPlaceholder="Keresés távollétekben..."
-              showActions={false} // We handle actions in the table
-              showSearch={false} // We have our own search in the header
-              showFilters={false} // We have our own filters in the header
-            />
+            <div className="overflow-x-auto">
+              <DataTable
+                table={table}
+                columns={columns}
+                data={filteredAbsences}
+                loading={loading}
+                searchPlaceholder="Keresés távollétekben..."
+                showActions={false} // We handle actions in the table
+                showSearch={false} // We have our own search in the header
+                showFilters={false} // We have our own filters in the header
+              />
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -860,8 +871,8 @@ export function AbsenceManagement() {
         onCancel={() => {
           setShowCreateDialog(false)
           setCreateForm({ 
-            start_date: getTodayISOString(), 
-            end_date: getTodayISOString(), 
+            start_date: getTodayDateTimeISOString(), 
+            end_date: getEndOfDayISOString(), 
             reason: '' 
           })
         }}
@@ -870,24 +881,36 @@ export function AbsenceManagement() {
       >
         <div className="space-y-4">
           <div>
-            <Label htmlFor="start_date">Kezdő dátum *</Label>
-            <Input
-              id="start_date"
-              type="date"
-              value={createForm.start_date}
-              onChange={(e) => setCreateForm({ ...createForm, start_date: e.target.value })}
-              required
+            <Label htmlFor="start_date">Kezdő időpont *</Label>
+            <SystemDateTimePicker
+              date={createForm.start_date ? new Date(createForm.start_date) : undefined}
+              onSelect={(date) => {
+                if (date) {
+                  setCreateForm({ ...createForm, start_date: formatDateTimeForApi(date) })
+                } else {
+                  setCreateForm({ ...createForm, start_date: '' })
+                }
+              }}
+              placeholder="Válassz kezdő időpontot"
+              timeStep={15}
+              className="mt-1"
             />
           </div>
           
           <div>
-            <Label htmlFor="end_date">Záró dátum *</Label>
-            <Input
-              id="end_date"
-              type="date"
-              value={createForm.end_date}
-              onChange={(e) => setCreateForm({ ...createForm, end_date: e.target.value })}
-              required
+            <Label htmlFor="end_date">Záró időpont *</Label>
+            <SystemDateTimePicker
+              date={createForm.end_date ? new Date(createForm.end_date) : undefined}
+              onSelect={(date) => {
+                if (date) {
+                  setCreateForm({ ...createForm, end_date: formatDateTimeForApi(date) })
+                } else {
+                  setCreateForm({ ...createForm, end_date: '' })
+                }
+              }}
+              placeholder="Válassz záró időpontot"
+              timeStep={15}
+              className="mt-1"
             />
           </div>
           
@@ -922,22 +945,36 @@ export function AbsenceManagement() {
       >
         <div className="space-y-4">
           <div>
-            <Label htmlFor="edit_start_date">Kezdő dátum</Label>
-            <Input
-              id="edit_start_date"
-              type="date"
-              value={editForm.start_date}
-              onChange={(e) => setEditForm({ ...editForm, start_date: e.target.value })}
+            <Label htmlFor="edit_start_date">Kezdő időpont</Label>
+            <SystemDateTimePicker
+              date={editForm.start_date ? new Date(editForm.start_date) : undefined}
+              onSelect={(date) => {
+                if (date) {
+                  setEditForm({ ...editForm, start_date: formatDateTimeForApi(date) })
+                } else {
+                  setEditForm({ ...editForm, start_date: '' })
+                }
+              }}
+              placeholder="Válassz kezdő időpontot"
+              timeStep={15}
+              className="mt-1"
             />
           </div>
           
           <div>
-            <Label htmlFor="edit_end_date">Záró dátum</Label>
-            <Input
-              id="edit_end_date"
-              type="date"
-              value={editForm.end_date}
-              onChange={(e) => setEditForm({ ...editForm, end_date: e.target.value })}
+            <Label htmlFor="edit_end_date">Záró időpont</Label>
+            <SystemDateTimePicker
+              date={editForm.end_date ? new Date(editForm.end_date) : undefined}
+              onSelect={(date) => {
+                if (date) {
+                  setEditForm({ ...editForm, end_date: formatDateTimeForApi(date) })
+                } else {
+                  setEditForm({ ...editForm, end_date: '' })
+                }
+              }}
+              placeholder="Válassz záró időpontot"
+              timeStep={15}
+              className="mt-1"
             />
           </div>
           
@@ -989,16 +1026,16 @@ export function AbsenceManagement() {
             
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label>Kezdő dátum</Label>
+                <Label>Kezdő időpont</Label>
                 <div className="text-sm">
-                  {formatDateForDisplay(selectedAbsence.start_date)}
+                  {formatDateTimeForDisplay(selectedAbsence.start_date)}
                 </div>
               </div>
               
               <div>
-                <Label>Záró dátum</Label>
+                <Label>Záró időpont</Label>
                 <div className="text-sm">
-                  {formatDateForDisplay(selectedAbsence.end_date)}
+                  {formatDateTimeForDisplay(selectedAbsence.end_date)}
                 </div>
               </div>
             </div>

@@ -5,6 +5,33 @@ import { create } from 'domain';
 
 const rawChangelogData: ChangelogEntry[] = [
   createChangelogEntry(
+    'v1.0.0-beta.9',
+    '2025. augusztus. 27.',
+    '2025-08-27T10:00:00Z',
+    [
+      createChange(
+        'bugfix',
+        'Admininsztrátori Osztályfőnök előnézet kritikus hibájának javítása',
+        'Javítottuk a hibát, mely az adminisztrátorok automatikus kijelentkezését okozta, amikor meg akarták tekinteni az igazolások menüt az osztályfőnöki szerepkör előnézetében.'
+      ),
+      createChange(
+        'improvement',
+        'Szerepkör váltás folyamatának fejlesztése',
+        'Mostantól szerepkörök váltásánál az oldal automatikusan átirányítja a felhasználókat az adott szerepkör irányítópultjára.'
+      ),
+      createChange(
+        'improvement',
+        'Új, időpont mezők a Távollétkezelésben',
+        'Mostantól új időpont mezők érhetők el a Távollétkezelésben, lehetővé téve a pontosabb időpontok megadását.'
+      ),
+      createChange(
+        'improvement',
+        'Dizájn apróbb módosításai a Távollétkezelőben',
+        'Apróbb módosításokat hajtottunk végre a Távollétkezelő dizájnján, hogy az felhasználóbarátabb legyen.'
+      ),
+    ]
+  ),
+  createChangelogEntry(
     'v1.0.0-beta.8',
     '2025. augusztus 25.',
     '2025-08-25T22:45:00Z',
