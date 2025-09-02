@@ -288,7 +288,7 @@ function ActiveUsersWidget() {
   }
 
   return (
-    <Card className="h-fit" role="region" aria-labelledby="recent-users-title">
+    <Card className="h-96 flex flex-col" role="region" aria-labelledby="recent-users-title">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -302,7 +302,7 @@ function ActiveUsersWidget() {
           </div>
         </div>
       </CardHeader>
-      <CardContent className="space-y-3">
+      <CardContent className="space-y-3 flex-1 overflow-y-auto">
         {mostRecentUsers.length > 0 ? (
           <>
             <div className="space-y-1">
@@ -407,19 +407,23 @@ function PendingForgatásokWidget() {
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="text-center py-12">
+        <div className="text-center py-8">
           <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-950/30 dark:to-purple-950/30 rounded-full flex items-center justify-center mx-auto mb-4">
             <Video className="h-10 w-10 text-blue-600 dark:text-blue-400" />
           </div>
           <h3 className="font-semibold text-lg mb-2">Hamarosan elérhető!</h3>
-          <p className="text-sm text-muted-foreground mb-4">
-            A függő forgatások kezelése hamarosan elérhető lesz. 
-            <br />
-            Dolgozunk rajta, hogy minél előbb rendelkezésére álljon ez a funkció.
+          <p className="text-sm text-muted-foreground mb-4 max-w-2xl mx-auto">
+            A függő forgatások gyors áttekintése hamarosan elérhető lesz.
           </p>
-          <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
-            <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-            <span>Fejlesztés folyamatban</span>
+          <div className="flex items-center justify-center gap-6 text-xs text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+              <span>Fejlesztés folyamatban</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              <span>Hamarosan kész</span>
+            </div>
           </div>
         </div>
       </CardContent>
@@ -427,105 +431,138 @@ function PendingForgatásokWidget() {
   )
 }
 
-function QuickActionsWidget() {
-  const router = useRouter()
+// Temporarily disabled Quick Actions widget
+// function QuickActionsWidget() {
+//   const router = useRouter()
   
-  const quickActions = [
-    { 
-      name: "Új forgatás", 
-      description: "Forgatás létrehozása",
-      icon: Plus, 
-      route: "/app/forgatasok",
-      color: "bg-blue-500"
-    },
-    { 
-      name: "Stáb", 
-      description: "Csapat kezelése",
-      icon: Users, 
-      route: "/app/stab",
-      color: "bg-green-500"
-    },
-    { 
-      name: "Közlemény", 
-      description: "Új üzenet küldése",
-      icon: Megaphone, 
-      route: "/app/uzenofal",
-      color: "bg-orange-500"
-    },
-    { 
-      name: "Naptár", 
-      description: "Események megtekintése",
-      icon: CalendarDays, 
-      route: "/app/naptar",
-      color: "bg-purple-500"
-    },
-  ]
+//   const quickActions = [
+//     { 
+//       name: "Új forgatás", 
+//       description: "Forgatás létrehozása",
+//       icon: Plus, 
+//       route: "/app/forgatasok",
+//       color: "bg-blue-500"
+//     },
+//     { 
+//       name: "Stáb", 
+//       description: "Csapat kezelése",
+//       icon: Users, 
+//       route: "/app/stab",
+//       color: "bg-green-500"
+//     },
+//     { 
+//       name: "Közlemény", 
+//       description: "Új üzenet küldése",
+//       icon: Megaphone, 
+//       route: "/app/uzenofal",
+//       color: "bg-orange-500"
+//     },
+//     { 
+//       name: "Naptár", 
+//       description: "Események megtekintése",
+//       icon: CalendarDays, 
+//       route: "/app/naptar",
+//       color: "bg-purple-500"
+//     },
+//   ]
 
-  const handleActionClick = (route: string, actionName: string) => {
-    try {
-      router.push(route)
-    } catch (error) {
-      console.error(`Failed to navigate to ${actionName}:`, error)
-      // Could add toast notification here
-    }
-  }
+//   const handleActionClick = (route: string, actionName: string) => {
+//     try {
+//       router.push(route)
+//     } catch (error) {
+//       console.error(`Failed to navigate to ${actionName}:`, error)
+//       // Could add toast notification here
+//     }
+//   }
 
+//   return (
+//     <Card className="border-2 border-dashed border-muted-foreground/20 bg-gradient-to-r from-background via-muted/30 to-background">
+//       <CardHeader className="pb-3">
+//         <div className="flex items-center justify-between">
+//           <div className="flex items-center gap-3">
+//             <div className="p-2 bg-primary rounded-lg">
+//               <Zap className="h-5 w-5 text-primary-foreground" />
+//             </div>
+//             <div>
+//               <CardTitle className="text-lg">Gyors műveletek</CardTitle>
+//               <CardDescription>Gyakran használt funkciók egyetlen kattintással</CardDescription>
+//             </div>
+//           </div>
+//           <Badge variant="secondary" className="text-xs">
+//             {quickActions.length} művelet
+//           </Badge>
+//         </div>
+//       </CardHeader>
+//       <CardContent>
+//         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+//           {quickActions.map((action) => (
+//             <div
+//               key={action.name}
+//               onClick={() => handleActionClick(action.route, action.name)}
+//               className="group relative overflow-hidden rounded-xl border border-border/50 bg-card hover:bg-accent hover:border-primary/20 cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
+//               role="button"
+//               tabIndex={0}
+//               aria-label={`${action.name} - ${action.description}`}
+//               onKeyDown={(e) => {
+//                 if (e.key === 'Enter' || e.key === ' ') {
+//                   e.preventDefault();
+//                   handleActionClick(action.route, action.name);
+//                 }
+//               }}
+//             >
+//               <div className="p-4">
+//                 <div className="flex flex-col items-center text-center space-y-3">
+//                   <div className={`p-3 rounded-full ${action.color} group-hover:scale-110 transition-transform duration-300`}>
+//                     <action.icon className="h-6 w-6 text-white" />
+//                   </div>
+//                   <div className="space-y-1">
+//                     <h3 className="font-semibold text-sm">{action.name}</h3>
+//                     <p className="text-xs text-muted-foreground leading-tight">{action.description}</p>
+//                   </div>
+//                 </div>
+                
+//                 {/* Decorative corner element */}
+//                 <div className="absolute top-2 right-2 opacity-20 group-hover:opacity-40 transition-opacity">
+//                   <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
+//                 </div>
+                
+//                 {/* Hover overlay */}
+//                 <div className="absolute inset-0 bg-gradient-to-t from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+//               </div>
+//             </div>
+//           ))}
+//         </div>
+//       </CardContent>
+//     </Card>
+//   )
+// }
+
+// Temporary replacement for Quick Actions
+function QuickActionsDisabledMessage() {
   return (
-    <Card className="border-2 border-dashed border-muted-foreground/20 bg-gradient-to-r from-background via-muted/30 to-background">
+    <Card className="h-96 flex flex-col border-dashed border-muted-foreground/30">
       <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-primary rounded-lg">
-              <Zap className="h-5 w-5 text-primary-foreground" />
-            </div>
-            <div>
-              <CardTitle className="text-lg">Gyors műveletek</CardTitle>
-              <CardDescription>Gyakran használt funkciók egyetlen kattintással</CardDescription>
-            </div>
+        <div className="flex items-center gap-2">
+          <div className="p-1.5 bg-muted rounded-lg">
+            <Zap className="h-4 w-4 text-muted-foreground" />
           </div>
-          <Badge variant="secondary" className="text-xs">
-            {quickActions.length} művelet
-          </Badge>
+          <div>
+            <CardTitle className="text-base">Gyors műveletek</CardTitle>
+            <CardDescription className="text-xs">Átmenetileg nem elérhető</CardDescription>
+          </div>
         </div>
       </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {quickActions.map((action) => (
-            <div
-              key={action.name}
-              onClick={() => handleActionClick(action.route, action.name)}
-              className="group relative overflow-hidden rounded-xl border border-border/50 bg-card hover:bg-accent hover:border-primary/20 cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
-              role="button"
-              tabIndex={0}
-              aria-label={`${action.name} - ${action.description}`}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  handleActionClick(action.route, action.name);
-                }
-              }}
-            >
-              <div className="p-4">
-                <div className="flex flex-col items-center text-center space-y-3">
-                  <div className={`p-3 rounded-full ${action.color} group-hover:scale-110 transition-transform duration-300`}>
-                    <action.icon className="h-6 w-6 text-white" />
-                  </div>
-                  <div className="space-y-1">
-                    <h3 className="font-semibold text-sm">{action.name}</h3>
-                    <p className="text-xs text-muted-foreground leading-tight">{action.description}</p>
-                  </div>
-                </div>
-                
-                {/* Decorative corner element */}
-                <div className="absolute top-2 right-2 opacity-20 group-hover:opacity-40 transition-opacity">
-                  <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
-                </div>
-                
-                {/* Hover overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              </div>
-            </div>
-          ))}
+      <CardContent className="pt-0 flex-1 flex items-center justify-center">
+        <div className="text-center py-6">
+          <div className="w-12 h-12 bg-muted/50 rounded-full flex items-center justify-center mx-auto mb-3">
+            <Settings className="h-6 w-6 text-muted-foreground" />
+          </div>
+          <p className="text-sm text-muted-foreground mb-2">
+            Funkció karbantartás alatt
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Hamarosan újra elérhető lesz
+          </p>
         </div>
       </CardContent>
     </Card>
@@ -597,7 +634,7 @@ function SystemOverviewWidget() {
 
   return (
     <TooltipProvider>
-      <Card>
+      <Card className="h-96 flex flex-col">
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -609,13 +646,9 @@ function SystemOverviewWidget() {
                 <CardDescription>Fix változók és rendszer állapot</CardDescription>
               </div>
             </div>
-            <Badge variant="outline" className="text-xs bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/30 dark:text-purple-300 dark:border-purple-800">
-              <Info className="w-3 h-3 mr-1" />
-              Adminisztrátori
-            </Badge>
           </div>
         </CardHeader>
-        <CardContent className="space-y-3">
+        <CardContent className="space-y-3 flex-1 overflow-y-auto">
           {systemConfig.map((config, index) => (
             <div key={index} className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent transition-colors">
               <div className="flex items-center gap-3">
@@ -1069,28 +1102,29 @@ export default function Page() {
       case 'admin':
         return (
           <>
-            {/* Quick Actions at the top */}
-            <QuickActionsWidget />
-            
-            {/* First Steps Widget */}
-            {/* <FirstStepsWidget /> */}
-            
-            {/* Main widgets grid - Adding System Overview */}
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              <div className="col-span-1 lg:col-span-2">
-                <PendingForgatásokWidget />
-              </div>
+            {/* Top row: Key operational widgets in 3-column layout */}
+            <div className="grid gap-4 md:gap-6 md:grid-cols-3">
               <div className="col-span-1">
                 <ActiveUsersWidget />
               </div>
-            </div>
-            
-            {/* System Overview Widget */}
-            <div className="grid gap-6 md:grid-cols-2">
               <div className="col-span-1">
                 <SystemOverviewWidget />
               </div>
+              <div className="col-span-1">
+                {/* Quick Actions temporarily disabled */}
+                <QuickActionsDisabledMessage />
+              </div>
             </div>
+            
+            {/* Main content: Pending shootings takes full width for better readability */}
+            <div className="grid gap-4 md:gap-6">
+              <div className="col-span-full">
+                <PendingForgatásokWidget />
+              </div>
+            </div>
+            
+            {/* First Steps Widget */}
+            {/* <FirstStepsWidget /> */}
           </>
         )
 

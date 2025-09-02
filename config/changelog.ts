@@ -29,6 +29,11 @@ const rawChangelogData: ChangelogEntry[] = [
         'Automatikus irányítópult átirányítás javítása',
         'Megoldottuk azt a hibát, amely minden oldalfrissítéskor automatikusan átirányította a felhasználót az irányítópultra, függetlenül attól, hogy melyik aloldalon volt.'
       ),
+      createChange(
+        'improvement',
+        'Átrendeztük a widgeteket az adminisztrátori irányítópulton',
+        'Mostantól a widgetek más elrendezésben jelennek meg az adminisztrátori irányítópulton.'
+      ),
     ]
   ),
   createChangelogEntry(
