@@ -5,8 +5,20 @@ import { create } from 'domain';
 
 const rawChangelogData: ChangelogEntry[] = [
   createChangelogEntry(
+    'v1.0.0-beta.10',
+    '2025. szeptember 02.',
+    '2025-09-02T10:00:00Z',
+    [
+      createChange(
+        'bugfix',
+        'Hibás felhasználói adatok megjelenítésének javítása',
+        'Javítottuk a hibát, mely minden tanulót egy évfolyammal feljebb helyezett a tanév kezdete után.'
+      ),
+    ]
+  ),
+  createChangelogEntry(
     'v1.0.0-beta.9',
-    '2025. augusztus. 27.',
+    '2025. augusztus 27.',
     '2025-08-27T10:00:00Z',
     [
       createChange(
