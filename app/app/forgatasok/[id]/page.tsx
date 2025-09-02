@@ -243,9 +243,6 @@ export default function FilmingSessionDetail({ params }: PageProps) {
                 </div>
                 <p className="text-muted-foreground">Forgatás részletes információi</p>
               </div>
-              <Badge className={getStatusColor("Aktív")}>
-                Aktív
-              </Badge>
             </div>
 
             <div className="grid gap-6 lg:grid-cols-3">

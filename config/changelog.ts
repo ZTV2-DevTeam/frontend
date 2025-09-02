@@ -19,6 +19,11 @@ const rawChangelogData: ChangelogEntry[] = [
         'Hiányzó profilképek megjelenítése a beosztások részleteinél',
         'Javítottunk egy hibát, mely nem jelenítette meg a profilképeket a beosztások részleteinél.'
       ),
+      createChange(
+        'improvement',
+        '"Aktív" kitűző eltávolítva a forgatásokkal kapcsolatosan',
+        'Eltávolítottuk az "Aktív" kitűzőt a forgatásokkal kapcsolatosan.'
+      ),
     ]
   ),
   createChangelogEntry(

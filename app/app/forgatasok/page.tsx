@@ -288,9 +288,6 @@ export default function FilmingSessionsPage() {
                     LIVE
                   </Badge>
                 )}
-                <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30 text-xs px-2 py-0">
-                  Aktív
-                </Badge>
               </div>
             </div>
 
@@ -480,7 +477,6 @@ export default function FilmingSessionsPage() {
 
               {/* Status & Action */}
               <div className="flex items-center gap-3 flex-shrink-0">
-                <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30 text-xs px-2 py-1">Aktív</Badge>
                 <Eye className="h-4 w-4 text-muted-foreground" />
               </div>
             </div>
