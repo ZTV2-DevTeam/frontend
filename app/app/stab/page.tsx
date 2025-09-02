@@ -347,7 +347,7 @@ function UserCard({ user, onEdit, onDelete }: {
   
   return (
     <>
-      <Card className="hover:shadow-md transition-all duration-200 group">
+      <Card className="hover:shadow-md transition-all duration-200 group cursor-pointer" onClick={() => onEdit?.(user)}>
         <CardContent className="p-4 py-3">
           {/* Header with Avatar, Name, and Menu */}
           <div className="flex items-center gap-4 mb-3">
@@ -378,7 +378,8 @@ function UserCard({ user, onEdit, onDelete }: {
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                  className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
+                  disabled
                 >
                   <MoreHorizontal className="h-4 w-4" />
                 </Button>
@@ -452,7 +453,7 @@ function UserCard({ user, onEdit, onDelete }: {
           </div>
 
           {/* Quick Actions */}
-          <div className="flex gap-2">
+          <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
             {user.telefonszam && (
               <Button 
                 variant="outline" 
@@ -481,100 +482,7 @@ function UserCard({ user, onEdit, onDelete }: {
         </CardContent>
       </Card>
 
-      {/* User Details Modal - Commented out */}
-      {/* 
-      <Dialog open={!!selectedUser} onOpenChange={() => setSelectedUser(null)}>
-        <DialogContent className="sm:max-w-md mx-4 w-[calc(100vw-2rem)] sm:w-full">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <User className="h-5 w-5" />
-              Kapcsolattartó Információk
-            </DialogTitle>
-            <DialogDescription>Diák elérhetőségei és részletei</DialogDescription>
-          </DialogHeader>
-          {selectedUser && (
-            <div className="space-y-4">
-              <div className="text-center space-y-2">
-                <UserAvatar
-                  email={selectedUser.email || ''}
-                  firstName={selectedUser.first_name || ''}
-                  lastName={selectedUser.last_name || ''}
-                  username={selectedUser.username || ''}
-                  customSize={64}
-                  className="border-2 border-primary/20 mx-auto"
-                  fallbackClassName="bg-gradient-to-br from-primary/20 to-primary/10 text-lg font-semibold"
-                />
-                <h3 className="text-lg font-semibold">
-                  {selectedUser.full_name || `${selectedUser.last_name} ${selectedUser.first_name}`.trim()}
-                </h3>
-                <div className="flex items-center justify-center gap-2 flex-wrap">
-                  <Badge className={getRoleInfo(selectedUser).color}>
-                    {getRoleInfo(selectedUser).icon} {getRoleInfo(selectedUser).name}
-                  </Badge>
-                  {(selectedUser.osztaly?.display_name || selectedUser.osztaly_name) && (
-                    <Badge variant="outline">{selectedUser.osztaly?.display_name || selectedUser.osztaly_name}</Badge>
-                  )}
-                  {(selectedUser.stab?.name || selectedUser.stab_name) && (
-                    <UserStabBadge stabName={selectedUser.stab?.name || selectedUser.stab_name} />
-                  )}
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                {selectedUser.telefonszam && (
-                  <div className="flex items-center gap-3 p-3 rounded-lg bg-background/50 border border-border/50">
-                    <Phone className="h-4 w-4 text-green-400" />
-                    <div>
-                      <div className="text-sm text-muted-foreground">Telefon</div>
-                      <div className="font-medium">{selectedUser.telefonszam}</div>
-                    </div>
-                  </div>
-                )}
-
-                {selectedUser.email && (
-                  <div className="flex items-center gap-3 p-3 rounded-lg bg-background/50 border border-border/50">
-                    <Mail className="h-4 w-4 text-blue-400" />
-                    <div>
-                      <div className="text-sm text-muted-foreground">Email</div>
-                      <div className="font-medium">{selectedUser.email}</div>
-                    </div>
-                  </div>
-                )}
-
-                {selectedUser.last_login && (
-                  <div className="flex items-center gap-3 p-3 rounded-lg bg-background/50 border border-border/50">
-                    <Clock className="h-4 w-4 text-purple-400" />
-                    <div>
-                      <div className="text-sm text-muted-foreground">Utolsó bejelentkezés</div>
-                      <div className="font-medium">{new Date(selectedUser.last_login).toLocaleString('hu-HU')}</div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <div className="flex gap-2 pt-4">
-                {selectedUser.telefonszam && (
-                  <Button className="flex-1" size="sm" asChild>
-                    <a href={`tel:${selectedUser.telefonszam}`}>
-                      <Phone className="h-4 w-4 mr-2" />
-                      Hívás
-                    </a>
-                  </Button>
-                )}
-                {selectedUser.email && (
-                  <Button variant="outline" className="flex-1 bg-transparent" size="sm" asChild>
-                    <a href={`mailto:${selectedUser.email}`}>
-                      <Mail className="h-4 w-4 mr-2" />
-                      Email
-                    </a>
-                  </Button>
-                )}
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
-      */}
+      {/* User Details Modal */}
     </>
   )
 }
@@ -589,6 +497,7 @@ export default function StabPage() {
   const [groupBy, setGroupBy] = useState<"class" | "role" | "none">("class") // Default to class grouping
   const [sortBy, setSortBy] = useState<string>("name")
   const [isOsztalyNelkulOpen, setIsOsztalyNelkulOpen] = useState<boolean>(false) // Collapsible state
+  const [selectedUser, setSelectedUser] = useState<any>(null) // Add state for modal
   
   // Fetch data from API
   const usersQuery = useApiQuery(
@@ -776,8 +685,8 @@ export default function StabPage() {
   }
 
   const handleEdit = (user: any) => {
-    // TODO: Implement edit functionality
-    console.log('Edit user:', user)
+    // Open modal to show user details
+    setSelectedUser(user)
   }
 
   const handleDelete = (user: any) => {
@@ -1385,6 +1294,99 @@ export default function StabPage() {
           </SidebarInset>
         </SidebarProvider>
       </TooltipProvider>
+
+      {/* User Details Modal */}
+      <Dialog open={!!selectedUser} onOpenChange={() => setSelectedUser(null)}>
+        <DialogContent className="max-w-sm mx-auto w-[95vw] sm:max-w-md sm:w-full">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <User className="h-5 w-5" />
+              Kapcsolattartó Információk
+            </DialogTitle>
+            <DialogDescription>Diák elérhetőségei és részletei</DialogDescription>
+          </DialogHeader>
+          {selectedUser && (
+            <div className="space-y-4">
+              <div className="text-center space-y-2">
+                <UserAvatar
+                  email={selectedUser.email || ''}
+                  firstName={selectedUser.first_name || ''}
+                  lastName={selectedUser.last_name || ''}
+                  username={selectedUser.username || ''}
+                  customSize={64}
+                  className="border-2 border-primary/20 mx-auto"
+                  fallbackClassName="bg-gradient-to-br from-primary/20 to-primary/10 text-lg font-semibold"
+                />
+                <h3 className="text-lg font-semibold">
+                  {selectedUser.full_name || `${selectedUser.last_name} ${selectedUser.first_name}`.trim()}
+                </h3>
+                <div className="flex items-center justify-center gap-2 flex-wrap">
+                  <Badge className={getRoleInfo(selectedUser).color}>
+                    {getRoleInfo(selectedUser).icon} {getRoleInfo(selectedUser).name}
+                  </Badge>
+                  {(selectedUser.osztaly?.display_name || selectedUser.osztaly_name) && (
+                    <Badge variant="outline">{selectedUser.osztaly?.display_name || selectedUser.osztaly_name}</Badge>
+                  )}
+                  {(selectedUser.stab?.name || selectedUser.stab_name) && (
+                    <UserStabBadge stabName={selectedUser.stab?.name || selectedUser.stab_name} />
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                {selectedUser.telefonszam && (
+                  <div className="flex items-center gap-3 p-3 rounded-lg bg-background/50 border border-border/50">
+                    <Phone className="h-4 w-4 text-green-400" />
+                    <div>
+                      <div className="text-sm text-muted-foreground">Telefon</div>
+                      <div className="font-medium">{selectedUser.telefonszam}</div>
+                    </div>
+                  </div>
+                )}
+
+                {selectedUser.email && (
+                  <div className="flex items-center gap-3 p-3 rounded-lg bg-background/50 border border-border/50">
+                    <Mail className="h-4 w-4 text-blue-400" />
+                    <div>
+                      <div className="text-sm text-muted-foreground">Email</div>
+                      <div className="font-medium">{selectedUser.email}</div>
+                    </div>
+                  </div>
+                )}
+
+                {selectedUser.last_login && (
+                  <div className="flex items-center gap-3 p-3 rounded-lg bg-background/50 border border-border/50">
+                    <Clock className="h-4 w-4 text-purple-400" />
+                    <div>
+                      <div className="text-sm text-muted-foreground">Utolsó bejelentkezés</div>
+                      <div className="font-medium">{new Date(selectedUser.last_login).toLocaleString('hu-HU')}</div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex gap-2 pt-4">
+                {selectedUser.telefonszam && (
+                  <Button className="flex-1" size="sm" asChild>
+                    <a href={`tel:${selectedUser.telefonszam}`}>
+                      <Phone className="h-4 w-4 mr-2" />
+                      Hívás
+                    </a>
+                  </Button>
+                )}
+                {selectedUser.email && (
+                  <Button variant="outline" className="flex-1 bg-transparent" size="sm" asChild>
+                    <a href={`mailto:${selectedUser.email}`}>
+                      <Mail className="h-4 w-4 mr-2" />
+                      Email
+                    </a>
+                  </Button>
+                )}
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </ProtectedRoute>
   )
 }
