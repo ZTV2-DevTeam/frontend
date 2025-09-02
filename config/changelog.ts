@@ -34,6 +34,16 @@ const rawChangelogData: ChangelogEntry[] = [
         'Átrendeztük a widgeteket az adminisztrátori irányítópulton',
         'Mostantól a widgetek más elrendezésben jelennek meg az adminisztrátori irányítópulton.'
       ),
+      createChange(
+        'feature',
+        'Újraterveztük a Stáb menüpontot',
+        'Mostantól a Stáb menüpont új dizájnnal és elrendezéssel rendelkezik.'
+      ),
+      createChange(
+        'bugfix',
+        'Időzónakezelés javítása - Távollét menü',
+        'Javítottuk a hibát, mely nem engedett új távollétet rögzíteni, mivel hiba volt az időzónakezelésben.'
+      ),
     ]
   ),
   createChangelogEntry(

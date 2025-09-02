@@ -22,12 +22,24 @@ export function StabBadge({ stab, size = 'md', showMemberCount = false, classNam
     lg: 'text-base px-3 py-1'
   }
 
+  // Determine color based on stab name with dark mode support
+  const isAStab = stab.name.toLowerCase().includes('a stáb') || stab.name.toLowerCase().includes('a-stáb')
+  const isBStab = stab.name.toLowerCase().includes('b stáb') || stab.name.toLowerCase().includes('b-stáb')
+  
+  let colorClasses = "bg-blue-500/10 border border-blue-500/30 text-blue-400 dark:bg-blue-400/10 dark:text-blue-300 dark:border-blue-400/30"
+  
+  if (isAStab) {
+    colorClasses = "bg-blue-500/10 border border-blue-500/30 text-blue-400 dark:bg-blue-400/10 dark:text-blue-300 dark:border-blue-400/30"
+  } else if (isBStab) {
+    colorClasses = "bg-green-500/10 border border-green-500/30 text-green-400 dark:bg-green-400/10 dark:text-green-300 dark:border-green-400/30"
+  }
+
   return (
-    <span className={`inline-flex items-center gap-1 rounded-full bg-blue-500/10 border border-blue-500/30 ${sizeClasses[size]} ${className}`}>
-      <span className="text-blue-400">🎬</span>
-      <span className="font-medium text-blue-400">{stab.name}</span>
+    <span className={`inline-flex items-center gap-1 rounded-full ${colorClasses} ${sizeClasses[size]} ${className}`}>
+      <span>🎬</span>
+      <span className="font-medium">{stab.name}</span>
       {showMemberCount && stab.member_count !== undefined && (
-        <span className="text-blue-300 text-xs">({stab.member_count} tag)</span>
+        <span className="text-xs opacity-75">({stab.member_count} tag)</span>
       )}
     </span>
   )
@@ -43,27 +55,27 @@ export function UserStabBadge({ stabName, size = 'md', className = '' }: UserSta
   if (!stabName) return null
 
   const sizeClasses = {
-    sm: 'text-xs px-1 py-0 h-3',
-    md: 'text-sm px-1 py-0 h-4',
-    lg: 'text-base px-2 py-1 h-5'
+    sm: 'text-xs px-2 py-0.5 h-5',
+    md: 'text-xs px-2.5 py-1 h-6',
+    lg: 'text-sm px-3 py-1 h-7'
   }
 
-  // Determine color based on stab name
+  // Determine color based on stab name with dark mode support
   const isAStab = stabName.toLowerCase().includes('a stáb') || stabName.toLowerCase().includes('a-stáb')
   const isBStab = stabName.toLowerCase().includes('b stáb') || stabName.toLowerCase().includes('b-stáb')
   
-  let colorClasses = "bg-slate-500/10 text-slate-400 border-slate-500/30"
+  let colorClasses = "bg-slate-500/10 text-slate-600 border-slate-500/30 dark:bg-slate-400/10 dark:text-slate-300 dark:border-slate-400/30"
   
   if (isAStab) {
-    colorClasses = "bg-blue-500/10 text-blue-400 border-blue-500/30"
+    colorClasses = "bg-blue-500/10 text-blue-600 border-blue-500/30 dark:bg-blue-400/10 dark:text-blue-300 dark:border-blue-400/30"
   } else if (isBStab) {
-    colorClasses = "bg-green-500/10 text-green-400 border-green-500/30"
+    colorClasses = "bg-green-500/10 text-green-600 border-green-500/30 dark:bg-green-400/10 dark:text-green-300 dark:border-green-400/30"
   }
 
   return (
     <Badge
       variant="outline"
-      className={`${sizeClasses[size]} ${colorClasses} ${className}`}
+      className={`font-medium ${sizeClasses[size]} ${colorClasses} ${className}`}
     >
       {stabName}
     </Badge>

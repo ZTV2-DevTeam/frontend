@@ -16,6 +16,7 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -47,7 +48,10 @@ import {
   Star,
   Activity,
   Loader2,
-  FileText
+  FileText,
+  User,
+  ChevronDown,
+  ChevronRight
 } from "lucide-react"
 import { useApiQuery } from "@/lib/api-helpers"
 import { UserDetailSchema, UserProfileSchema, OsztalySchema } from "@/lib/types"
@@ -61,6 +65,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { UserAvatar } from "@/components/user-avatar"
+import { UserStabBadge } from "@/components/stab-badge"
 
 // Dynamic import for PDF functionality (client-side only)
 const generatePDF = async (users: any[]) => {
@@ -266,22 +271,60 @@ function UserCard({ user, onEdit, onDelete }: {
   onDelete?: (user: any) => void 
 }) {
   const getRoleInfo = (user: any) => {
-    // Check admin_type first
-    if (user.admin_type === 'system_admin') return { name: 'Rendszergazda', icon: '👑', color: 'bg-red-100 text-red-800' };
-    if (user.admin_type === 'developer') return { name: 'Fejlesztő', icon: '💻', color: 'bg-gray-100 text-gray-800' };
-    if (user.admin_type === 'teacher') return { name: 'Tanár', icon: '👨‍🏫', color: 'bg-green-100 text-green-800' };
+    // Check admin_type first - with dark mode support
+    if (user.admin_type === 'system_admin') return { 
+      name: 'Rendszergazda', 
+      icon: '👑', 
+      color: 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400' 
+    };
+    if (user.admin_type === 'developer') return { 
+      name: 'Fejlesztő', 
+      icon: '💻', 
+      color: 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400' 
+    };
+    if (user.admin_type === 'teacher') return { 
+      name: 'Tanár', 
+      icon: '👨‍🏫', 
+      color: 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400' 
+    };
     
-    // Check special_role
-    if (user.special_role === 'production_leader') return { name: 'Gyártásvezető', icon: '🎬', color: 'bg-orange-100 text-orange-800' };
+    // Check for Osztályfőnök using multiple possible fields (same logic as permissions-context)
+    const isClassTeacher = user.is_osztaly_fonok || 
+                          user.special_role === 'class_teacher' || 
+                          user.can_manage_class_students ||
+                          user.permissions?.is_osztaly_fonok ||
+                          user.role_info?.special_role === 'class_teacher' ||
+                          (user.owned_osztaly_count && user.owned_osztaly_count > 0)
+    
+    if (isClassTeacher) return { 
+      name: 'Osztályfőnök', 
+      icon: '🏫', 
+      color: 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400' 
+    };
+    
+    // Check other special_roles
+    if (user.special_role === 'production_leader') return { 
+      name: 'Gyártásvezető', 
+      icon: '🎬', 
+      color: 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400' 
+    };
     
     // If admin_type is 'none' or not set, and no special role, it's a student
     if ((user.admin_type === 'none' || !user.admin_type) && 
         (user.special_role === 'none' || !user.special_role)) {
-      return { name: 'Diák', icon: '🎓', color: 'bg-blue-100 text-blue-800' };
+      return { 
+        name: 'Diák', 
+        icon: '🎓', 
+        color: 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400' 
+      };
     }
     
     // Default to student for safety
-    return { name: 'Diák', icon: '🎓', color: 'bg-blue-100 text-blue-800' };
+    return { 
+      name: 'Diák', 
+      icon: '🎓', 
+      color: 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400' 
+    };
   }
 
   // Check if user is currently active (similar to dashboard logic)
@@ -303,139 +346,236 @@ function UserCard({ user, onEdit, onDelete }: {
   const isActive = isCurrentlyActive(user)
   
   return (
-    <Card className="hover:shadow-lg transition-all duration-300 group">
-      <CardContent className="p-6">
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-center space-x-4">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div className="relative">
-                  <UserAvatar
-                    email={user.email}
-                    firstName={user.first_name}
-                    lastName={user.last_name}
-                    username={user.username}
-                    size="lg"
-                    className="border-2 border-primary/20"
-                    fallbackClassName="bg-gradient-to-br from-primary/20 to-primary/10 text-lg font-semibold"
-                  />
-                  {isActive && (
-                    <div className="absolute -bottom-1 -right-1 h-4 w-4 bg-green-500 rounded-full border-2 border-background animate-pulse">
-                      <div className="w-1 h-1 bg-white rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
-                    </div>
-                  )}
-                </div>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>
-                  {isActive 
-                    ? `🟢 ${user.full_name || `${user.last_name} ${user.first_name}`.trim()} online most (utolsó aktivitás: ${user.last_login ? new Date(user.last_login).toLocaleTimeString('hu-HU') : 'ismeretlen'})`
-                    : `${user.full_name || `${user.last_name} ${user.first_name}`.trim()} offline${user.last_login ? ` (utolsó bejelentkezés: ${new Date(user.last_login).toLocaleDateString('hu-HU')})` : ''}`
-                  }
-                </p>
-              </TooltipContent>
-            </Tooltip>
-            <div>
-              <h3 className="font-semibold text-lg">
-                {user.full_name || `${user.last_name} ${user.first_name}`.trim()}
-              </h3>
-              <p className="text-sm text-muted-foreground">@{user.username}</p>
-            </div>
-          </div>
-          
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => onEdit?.(user)}>
-                <Eye className="h-4 w-4 mr-2" />
-                Megtekintés
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onEdit?.(user)}>
-                <Edit className="h-4 w-4 mr-2" />
-                Szerkesztés
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem 
-                onClick={() => onDelete?.(user)}
-                className="text-destructive focus:text-destructive"
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                Törlés
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-
-        <div className="space-y-3">
-          <div className="flex items-center gap-2 flex-wrap">
-            <Badge className={roleInfo.color}>
-              {roleInfo.icon} {roleInfo.name}
-            </Badge>
-            {isActive ? (
-              <Badge variant="default" className="bg-green-600 hover:bg-green-700">
-                🟢 Online most
-              </Badge>
-            ) : (
-              <Badge variant={user.is_active !== false ? "outline" : "secondary"}>
-                {user.is_active !== false ? "📱 Elérhető" : "❌ Inaktív fiók"}
-              </Badge>
-            )}
-          </div>
-
-          <div className="space-y-2 text-sm">
-            <div className="flex items-center gap-2">
-              <Mail className="h-4 w-4 text-muted-foreground" />
-              <a 
-                href={`mailto:${user.email}`}
-                className="text-blue-600 hover:underline truncate"
-                title={user.email}
-              >
-                {user.email}
-              </a>
+    <>
+      <Card className="hover:shadow-md transition-all duration-200 group">
+        <CardContent className="p-4 py-3">
+          {/* Header with Avatar, Name, and Menu */}
+          <div className="flex items-center gap-4 mb-3">
+            <div className="relative shrink-0">
+              <UserAvatar
+                email={user.email}
+                firstName={user.first_name}
+                lastName={user.last_name}
+                username={user.username}
+                size="lg"
+                className={`border-2 ${isActive ? 'border-green-500' : 'border-border/50'} transition-colors duration-200`}
+                fallbackClassName="bg-gradient-to-br from-primary/20 to-primary/10 text-base font-semibold"
+              />
+              {isActive && (
+                <div className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 bg-green-500 rounded-full border-2 border-background" />
+              )}
             </div>
             
-            {user.telefonszam && (
-              <div className="flex items-center gap-2">
-                <Phone className="h-4 w-4 text-muted-foreground" />
-                <a 
-                  href={`tel:${user.telefonszam}`}
-                  className="text-blue-600 hover:underline"
+            <div className="flex-1 min-w-0">
+              <h3 className="font-semibold text-base leading-tight">
+                {user.full_name || `${user.last_name} ${user.first_name}`.trim()}
+              </h3>
+              <p className="text-sm text-muted-foreground truncate">@{user.username}</p>
+            </div>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
                 >
-                  {user.telefonszam}
-                </a>
-              </div>
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => onEdit?.(user)}>
+                  <Eye className="h-4 w-4 mr-2" />
+                  Megtekintés
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onEdit?.(user)}>
+                  <Edit className="h-4 w-4 mr-2" />
+                  Szerkesztés
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  onClick={() => onDelete?.(user)}
+                  className="text-destructive focus:text-destructive"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Törlés
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          {/* Badges */}
+          <div className="flex items-center gap-2 mb-3 flex-wrap">
+            <Badge className={`text-xs px-2.5 py-1 ${roleInfo.color}`}>
+              <span className="mr-1.5">{roleInfo.icon}</span>
+              {roleInfo.name}
+            </Badge>
+            
+            {(user.stab?.name || user.stab_name) && (
+              <UserStabBadge stabName={user.stab?.name || user.stab_name} size="md" />
             )}
 
+            {isActive && (
+              <Badge variant="default" className="text-xs px-2.5 py-1 bg-green-600 hover:bg-green-700">
+                🟢 Online
+              </Badge>
+            )}
+          </div>
+
+          {/* Info Grid - Desktop */}
+          <div className="hidden sm:grid grid-cols-1 gap-2 mb-3 text-sm">
             {(user.osztaly?.display_name || user.osztaly_name) && (
-              <div className="flex items-center gap-2">
-                <BookOpen className="h-4 w-4 text-muted-foreground" />
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <BookOpen className="h-4 w-4" />
                 <span>{user.osztaly?.display_name || user.osztaly_name}</span>
               </div>
             )}
-
-            {(user.stab?.name || user.stab_name) && (
-              <div className="flex items-center gap-2">
-                <Users className="h-4 w-4 text-muted-foreground" />
-                <span>{user.stab?.name || user.stab_name}</span>
+            
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Mail className="h-4 w-4" />
+              <span className="truncate">{user.email}</span>
+            </div>
+            
+            {user.telefonszam && (
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Phone className="h-4 w-4" />
+                <span>{user.telefonszam}</span>
               </div>
             )}
 
-            {user.last_login && (
-              <div className="flex items-center gap-2">
-                <Clock className="h-4 w-4 text-muted-foreground" />
-                <span className="text-xs">
-                  Utolsó bejelentkezés: {new Date(user.last_login).toLocaleDateString('hu-HU')}
-                </span>
-              </div>
-            )}
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Clock className="h-4 w-4" />
+              <span>
+                Utoljára aktív: {user.last_login ? new Date(user.last_login).toLocaleDateString('hu-HU') : 'soha'}
+              </span>
+            </div>
           </div>
-        </div>
-      </CardContent>
-    </Card>
+
+          {/* Quick Actions */}
+          <div className="flex gap-2">
+            {user.telefonszam && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="flex-1 h-8 text-xs" 
+                asChild
+              >
+                <a href={`tel:${user.telefonszam}`}>
+                  <Phone className="h-3.5 w-3.5 mr-1.5" />
+                  Hívás
+                </a>
+              </Button>
+            )}
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="flex-1 h-8 text-xs" 
+              asChild
+            >
+              <a href={`mailto:${user.email}`}>
+                <Mail className="h-3.5 w-3.5 mr-1.5" />
+                Email
+              </a>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* User Details Modal - Commented out */}
+      {/* 
+      <Dialog open={!!selectedUser} onOpenChange={() => setSelectedUser(null)}>
+        <DialogContent className="sm:max-w-md mx-4 w-[calc(100vw-2rem)] sm:w-full">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <User className="h-5 w-5" />
+              Kapcsolattartó Információk
+            </DialogTitle>
+            <DialogDescription>Diák elérhetőségei és részletei</DialogDescription>
+          </DialogHeader>
+          {selectedUser && (
+            <div className="space-y-4">
+              <div className="text-center space-y-2">
+                <UserAvatar
+                  email={selectedUser.email || ''}
+                  firstName={selectedUser.first_name || ''}
+                  lastName={selectedUser.last_name || ''}
+                  username={selectedUser.username || ''}
+                  customSize={64}
+                  className="border-2 border-primary/20 mx-auto"
+                  fallbackClassName="bg-gradient-to-br from-primary/20 to-primary/10 text-lg font-semibold"
+                />
+                <h3 className="text-lg font-semibold">
+                  {selectedUser.full_name || `${selectedUser.last_name} ${selectedUser.first_name}`.trim()}
+                </h3>
+                <div className="flex items-center justify-center gap-2 flex-wrap">
+                  <Badge className={getRoleInfo(selectedUser).color}>
+                    {getRoleInfo(selectedUser).icon} {getRoleInfo(selectedUser).name}
+                  </Badge>
+                  {(selectedUser.osztaly?.display_name || selectedUser.osztaly_name) && (
+                    <Badge variant="outline">{selectedUser.osztaly?.display_name || selectedUser.osztaly_name}</Badge>
+                  )}
+                  {(selectedUser.stab?.name || selectedUser.stab_name) && (
+                    <UserStabBadge stabName={selectedUser.stab?.name || selectedUser.stab_name} />
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                {selectedUser.telefonszam && (
+                  <div className="flex items-center gap-3 p-3 rounded-lg bg-background/50 border border-border/50">
+                    <Phone className="h-4 w-4 text-green-400" />
+                    <div>
+                      <div className="text-sm text-muted-foreground">Telefon</div>
+                      <div className="font-medium">{selectedUser.telefonszam}</div>
+                    </div>
+                  </div>
+                )}
+
+                {selectedUser.email && (
+                  <div className="flex items-center gap-3 p-3 rounded-lg bg-background/50 border border-border/50">
+                    <Mail className="h-4 w-4 text-blue-400" />
+                    <div>
+                      <div className="text-sm text-muted-foreground">Email</div>
+                      <div className="font-medium">{selectedUser.email}</div>
+                    </div>
+                  </div>
+                )}
+
+                {selectedUser.last_login && (
+                  <div className="flex items-center gap-3 p-3 rounded-lg bg-background/50 border border-border/50">
+                    <Clock className="h-4 w-4 text-purple-400" />
+                    <div>
+                      <div className="text-sm text-muted-foreground">Utolsó bejelentkezés</div>
+                      <div className="font-medium">{new Date(selectedUser.last_login).toLocaleString('hu-HU')}</div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex gap-2 pt-4">
+                {selectedUser.telefonszam && (
+                  <Button className="flex-1" size="sm" asChild>
+                    <a href={`tel:${selectedUser.telefonszam}`}>
+                      <Phone className="h-4 w-4 mr-2" />
+                      Hívás
+                    </a>
+                  </Button>
+                )}
+                {selectedUser.email && (
+                  <Button variant="outline" className="flex-1 bg-transparent" size="sm" asChild>
+                    <a href={`mailto:${selectedUser.email}`}>
+                      <Mail className="h-4 w-4 mr-2" />
+                      Email
+                    </a>
+                  </Button>
+                )}
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+      */}
+    </>
   )
 }
 
@@ -448,6 +588,7 @@ export default function StabPage() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [groupBy, setGroupBy] = useState<"class" | "role" | "none">("class") // Default to class grouping
   const [sortBy, setSortBy] = useState<string>("name")
+  const [isOsztalyNelkulOpen, setIsOsztalyNelkulOpen] = useState<boolean>(false) // Collapsible state
   
   // Fetch data from API
   const usersQuery = useApiQuery(
@@ -577,9 +718,36 @@ export default function StabPage() {
 
   // Sort classes with "Osztály nélkül" at the end
   const sortedClassNames = Object.keys(usersByClass).sort((a, b) => {
-    if (a === 'Osztály nélkül') return 1
-    if (b === 'Osztály nélkül') return -1
-    return a.localeCompare(b)
+    // Custom order: Osztály nélkül, NYF, 9F, 10F, 11F, 12F, 13F, etc.
+    if (a === 'Osztály nélkül' && b !== 'Osztály nélkül') return -1
+    if (b === 'Osztály nélkül' && a !== 'Osztály nélkül') return 1
+    if (a === 'Osztály nélkül' && b === 'Osztály nélkül') return 0
+    
+    // NYF comes after "Osztály nélkül" but before numbered classes
+    if (a === 'NYF' && b !== 'NYF' && b !== 'Osztály nélkül') return -1
+    if (b === 'NYF' && a !== 'NYF' && a !== 'Osztály nélkül') return 1
+    if (a === 'NYF' && b === 'NYF') return 0
+    
+    // Extract numbers from class names (e.g., "9F" -> 9, "10F" -> 10)
+    const extractNumber = (className: string) => {
+      const match = className.match(/^(\d+)/)
+      return match ? parseInt(match[1], 10) : Infinity
+    }
+    
+    const numA = extractNumber(a)
+    const numB = extractNumber(b)
+    
+    // If both have numbers, sort by number
+    if (numA !== Infinity && numB !== Infinity) {
+      return numA - numB
+    }
+    
+    // If one has a number and the other doesn't, number comes first
+    if (numA !== Infinity && numB === Infinity) return -1
+    if (numB !== Infinity && numA === Infinity) return 1
+    
+    // If neither has a number, sort alphabetically
+    return a.localeCompare(b, 'hu')
   })
 
   // Separate into categories for legacy views
@@ -624,7 +792,17 @@ export default function StabPage() {
     if (user.admin_type === 'developer') return { name: 'Fejlesztő', icon: '💻', color: 'bg-gray-100 text-gray-800' };
     if (user.admin_type === 'teacher') return { name: 'Tanár', icon: '👨‍🏫', color: 'bg-green-100 text-green-800' };
     
-    // Check special_role
+    // Check for Osztályfőnök using multiple possible fields (same logic as permissions-context)
+    const isClassTeacher = user.is_osztaly_fonok || 
+                          user.special_role === 'class_teacher' || 
+                          user.can_manage_class_students ||
+                          user.permissions?.is_osztaly_fonok ||
+                          user.role_info?.special_role === 'class_teacher' ||
+                          (user.owned_osztaly_count && user.owned_osztaly_count > 0)
+    
+    if (isClassTeacher) return { name: 'Osztályfőnök', icon: '🏫', color: 'bg-purple-100 text-purple-800' };
+    
+    // Check other special_roles
     if (user.special_role === 'production_leader') return { name: 'Gyártásvezető', icon: '🎬', color: 'bg-orange-100 text-orange-800' };
     
     // If admin_type is 'none' or not set, and no special role, it's a student
@@ -710,7 +888,7 @@ export default function StabPage() {
                   <div>
                     <h1 className="text-2xl font-bold text-black dark:text-white">Stáb Kezelése</h1>
                     <p className="text-muted-foreground">
-                      Diákok és oktatók nyilvántartása • {filteredUsers.length} felhasználó
+                      Diákok és tanárok nyilvántartása • {filteredUsers.length} felhasználó
                       {normalizedUsers.length !== filteredUsers.length && (
                         <span className="text-sm text-blue-600 ml-2">
                           ({normalizedUsers.length} összesen, {normalizedUsers.length - filteredUsers.length} szűrve)
@@ -833,43 +1011,254 @@ export default function StabPage() {
 
               {/* Main Content - Group by Class by Default */}
               {groupBy === 'class' && Object.keys(usersByClass).length > 0 && (
-                <div className="space-y-6">
+                <div className="space-y-8">
                   {sortedClassNames.map((className) => {
                     const classUsers = usersByClass[className]
                     if (!classUsers || classUsers.length === 0) return null
                     
+                    // Special handling for "Osztály nélkül"
+                    const isOsztalyNelkul = className === 'Osztály nélkül'
+                    
+                    // Variables for layout logic
+                    let hasStabSeparation = false
+                    let hasRoleSeparation = false
+                    let aStabUsers: any[] = []
+                    let bStabUsers: any[] = []
+                    let otherUsers: any[] = []
+                    let roleGroups: any[] = []
+                    
+                    if (isOsztalyNelkul) {
+                      // For "Osztály nélkül", separate by roles instead of stáb
+                      const adminUsers = classUsers.filter((user: any) => user.admin_type === 'system_admin')
+                      const developerUsers = classUsers.filter((user: any) => user.admin_type === 'developer')
+                      const teacherUsers = classUsers.filter((user: any) => user.admin_type === 'teacher')
+                      
+                      // Use comprehensive class teacher detection (same as permissions-context)
+                      const classTeacherUsers = classUsers.filter((user: any) => {
+                        return user.is_osztaly_fonok || 
+                               user.special_role === 'class_teacher' || 
+                               user.can_manage_class_students ||
+                               user.permissions?.is_osztaly_fonok ||
+                               user.role_info?.special_role === 'class_teacher' ||
+                               (user.owned_osztaly_count && user.owned_osztaly_count > 0)
+                      })
+                      
+                      const productionLeaderUsers = classUsers.filter((user: any) => user.special_role === 'production_leader')
+                      const otherRoleUsers = classUsers.filter((user: any) => {
+                        const isAdmin = user.admin_type === 'system_admin'
+                        const isDeveloper = user.admin_type === 'developer' 
+                        const isTeacher = user.admin_type === 'teacher'
+                        const isClassTeacher = user.is_osztaly_fonok || 
+                                             user.special_role === 'class_teacher' || 
+                                             user.can_manage_class_students ||
+                                             user.permissions?.is_osztaly_fonok ||
+                                             user.role_info?.special_role === 'class_teacher' ||
+                                             (user.owned_osztaly_count && user.owned_osztaly_count > 0)
+                        const isProductionLeader = user.special_role === 'production_leader'
+                        
+                        return !isAdmin && !isDeveloper && !isTeacher && !isClassTeacher && !isProductionLeader
+                      })
+                      
+                      roleGroups = [
+                        { users: adminUsers, name: 'Rendszergazdák', icon: '👑', color: 'bg-red-500/10 text-red-600 border-red-500/30 dark:bg-red-400/10 dark:text-red-300 dark:border-red-400/30' },
+                        { users: developerUsers, name: 'Fejlesztők', icon: '💻', color: 'bg-gray-500/10 text-gray-600 border-gray-500/30 dark:bg-gray-400/10 dark:text-gray-300 dark:border-gray-400/30' },
+                        { users: teacherUsers, name: 'Tanárok', icon: '👨‍🏫', color: 'bg-green-500/10 text-green-600 border-green-500/30 dark:bg-green-400/10 dark:text-green-300 dark:border-green-400/30' },
+                        { users: classTeacherUsers, name: 'Osztályfőnökök', icon: '🏫', color: 'bg-purple-500/10 text-purple-600 border-purple-500/30 dark:bg-purple-400/10 dark:text-purple-300 dark:border-purple-400/30' },
+                        { users: productionLeaderUsers, name: 'Gyártásvezetők', icon: '🎬', color: 'bg-orange-500/10 text-orange-600 border-orange-500/30 dark:bg-orange-400/10 dark:text-orange-300 dark:border-orange-400/30' },
+                        { users: otherRoleUsers, name: 'Egyéb', icon: '👤', color: 'bg-blue-500/10 text-blue-600 border-blue-500/30 dark:bg-blue-400/10 dark:text-blue-300 dark:border-blue-400/30' }
+                      ].filter(group => group.users.length > 0)
+                      
+                      hasRoleSeparation = roleGroups.length > 1
+                    } else {
+                      // For regular classes, separate users by A and B stáb
+                      aStabUsers = classUsers.filter((user: any) => {
+                        const stabName = user.stab?.name || user.stab_name || ''
+                        return stabName.toLowerCase().includes('a stáb') || stabName.toLowerCase().includes('a-stáb')
+                      })
+                      
+                      bStabUsers = classUsers.filter((user: any) => {
+                        const stabName = user.stab?.name || user.stab_name || ''
+                        return stabName.toLowerCase().includes('b stáb') || stabName.toLowerCase().includes('b-stáb')
+                      })
+                      
+                      otherUsers = classUsers.filter((user: any) => {
+                        const stabName = user.stab?.name || user.stab_name || ''
+                        return !stabName.toLowerCase().includes('stáb')
+                      })
+                      
+                      hasStabSeparation = (aStabUsers.length > 0 || bStabUsers.length > 0)
+                    }
+                    
                     return (
-                      <div key={className} className="space-y-4">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className="p-2 bg-primary/10 rounded-lg">
-                              <GraduationCap className="h-5 w-5 text-primary" />
+                      <div key={className} className="space-y-6">
+                        {/* Class Header */}
+                        {isOsztalyNelkul ? (
+                          // Collapsible header for "Osztály nélkül"
+                          <button
+                            onClick={() => setIsOsztalyNelkulOpen(!isOsztalyNelkulOpen)}
+                            className="w-full flex items-center justify-between p-4 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-900/20 transition-colors"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="p-2 rounded-lg bg-amber-100 dark:bg-amber-900/20">
+                                <Users className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                              </div>
+                              <div className="text-left">
+                                <h2 className="text-xl font-semibold">{className}</h2>
+                                <p className="text-muted-foreground text-sm">
+                                  Tanárok, fejlesztők és egyéb osztály nélküli felhasználók • {classUsers.length} személy
+                                </p>
+                              </div>
                             </div>
-                            <div>
-                              <h2 className="text-xl font-semibold">{className}</h2>
-                              <p className="text-muted-foreground text-sm">
-                                {classUsers.length} személy
-                                {classUsers.some(u => u.admin_type === 'student') && 
-                                 classUsers.some(u => u.admin_type !== 'student') && 
-                                 ` • ${classUsers.filter(u => u.admin_type === 'student').length} diák, ${classUsers.filter(u => u.admin_type !== 'student').length} oktató/admin`}
-                              </p>
+                            <div className="flex items-center gap-2">
+                              <Badge variant="outline" className="text-xs">
+                                {classUsers.length} fő
+                              </Badge>
+                              {isOsztalyNelkulOpen ? (
+                                <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                              ) : (
+                                <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                              )}
+                            </div>
+                          </button>
+                        ) : (
+                          // Regular header for other classes
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <div className="p-2 rounded-lg bg-primary/10">
+                                <GraduationCap className="h-5 w-5 text-primary" />
+                              </div>
+                              <div>
+                                <h2 className="text-xl font-semibold">{className}</h2>
+                                <p className="text-muted-foreground text-sm">
+                                  {classUsers.length} személy
+                                  {classUsers.some(u => u.admin_type === 'student') && 
+                                   classUsers.some(u => u.admin_type !== 'student') && 
+                                   ` • ${classUsers.filter(u => u.admin_type === 'student').length} diák, ${classUsers.filter(u => u.admin_type !== 'student').length} oktató/admin`}
+                                </p>
+                              </div>
+                            </div>
+                            <Badge variant="outline" className="text-xs">
+                              {classUsers.length} fő
+                            </Badge>
+                          </div>
+                        )}
+                        
+                        {/* Cards Layout */}
+                        {(!isOsztalyNelkul || isOsztalyNelkulOpen) && (
+                          <>
+                            {hasRoleSeparation ? (
+                              // Role-based columns for "Osztály nélkül"
+                              <div className="grid gap-6 lg:grid-cols-2">
+                                {roleGroups.map((roleGroup, index) => (
+                                  <div key={roleGroup.name} className="space-y-4">
+                                    <div className="flex items-center gap-2">
+                                      <div className="h-px bg-gray-200 dark:bg-gray-800 flex-1"></div>
+                                      <Badge className={roleGroup.color}>
+                                        <span className="mr-1.5">{roleGroup.icon}</span>
+                                        {roleGroup.name} ({roleGroup.users.length} fő)
+                                      </Badge>
+                                      <div className="h-px bg-gray-200 dark:bg-gray-800 flex-1"></div>
+                                    </div>
+                                    <div className="space-y-4">
+                                      {roleGroup.users.map((user: any) => (
+                                        <UserCard 
+                                          key={user.id} 
+                                          user={user} 
+                                          onEdit={handleEdit}
+                                          onDelete={handleDelete}
+                                        />
+                                      ))}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : hasStabSeparation ? (
+                              // Two-column layout for A and B stáb on desktop
+                              <div className="grid gap-6 lg:grid-cols-2">
+                                {/* A Stáb Column */}
+                                {aStabUsers.length > 0 && (
+                                  <div className="space-y-4">
+                                    <div className="flex items-center gap-2">
+                                      <div className="h-px bg-blue-200 dark:bg-blue-800 flex-1"></div>
+                                      <Badge className="bg-blue-500/10 text-blue-600 border-blue-500/30 dark:bg-blue-400/10 dark:text-blue-300 dark:border-blue-400/30">
+                                        A Stáb ({aStabUsers.length} fő)
+                                      </Badge>
+                                      <div className="h-px bg-blue-200 dark:bg-blue-800 flex-1"></div>
+                                    </div>
+                                    <div className="space-y-4">
+                                      {aStabUsers.map((user: any) => (
+                                        <UserCard 
+                                          key={user.id} 
+                                          user={user} 
+                                          onEdit={handleEdit}
+                                          onDelete={handleDelete}
+                                        />
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                                
+                                {/* B Stáb Column */}
+                                {bStabUsers.length > 0 && (
+                                  <div className="space-y-4">
+                                    <div className="flex items-center gap-2">
+                                      <div className="h-px bg-green-200 dark:bg-green-800 flex-1"></div>
+                                      <Badge className="bg-green-500/10 text-green-600 border-green-500/30 dark:bg-green-400/10 dark:text-green-300 dark:border-green-400/30">
+                                        B Stáb ({bStabUsers.length} fő)
+                                      </Badge>
+                                      <div className="h-px bg-green-200 dark:bg-green-800 flex-1"></div>
+                                    </div>
+                                    <div className="space-y-4">
+                                      {bStabUsers.map((user: any) => (
+                                        <UserCard 
+                                          key={user.id} 
+                                          user={user} 
+                                          onEdit={handleEdit}
+                                          onDelete={handleDelete}
+                                        />
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            ) : (
+                              // Regular grid layout for classes without stáb separation
+                              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                                {classUsers.map((user: any) => (
+                                  <UserCard 
+                                    key={user.id} 
+                                    user={user} 
+                                    onEdit={handleEdit}
+                                    onDelete={handleDelete}
+                                  />
+                                ))}
+                              </div>
+                            )}
+                          </>
+                        )}
+                        
+                        {/* Other users (non-stáb) if any */}
+                        {(!isOsztalyNelkul || isOsztalyNelkulOpen) && hasStabSeparation && otherUsers.length > 0 && (
+                          <div className="space-y-4">
+                            <div className="flex items-center gap-2">
+                              <div className="h-px bg-gray-200 dark:bg-gray-800 flex-1"></div>
+                              <Badge variant="outline" className="text-xs">
+                                Egyéb ({otherUsers.length} fő)
+                              </Badge>
+                              <div className="h-px bg-gray-200 dark:bg-gray-800 flex-1"></div>
+                            </div>
+                            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                              {otherUsers.map((user: any) => (
+                                <UserCard 
+                                  key={user.id} 
+                                  user={user} 
+                                  onEdit={handleEdit}
+                                  onDelete={handleDelete}
+                                />
+                              ))}
                             </div>
                           </div>
-                          <Badge variant="outline" className="text-xs">
-                            {classUsers.length} fő
-                          </Badge>
-                        </div>
-                        
-                        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                          {classUsers.map((user: any) => (
-                            <UserCard 
-                              key={user.id} 
-                              user={user} 
-                              onEdit={handleEdit}
-                              onDelete={handleDelete}
-                            />
-                          ))}
-                        </div>
+                        )}
                       </div>
                     )
                   })}
