@@ -10,6 +10,7 @@ import type { ForgatSchema, BeosztasDetailSchema, EquipmentSchema, BeosztasSchem
 import { ApiErrorBoundary } from "@/components/api-error-boundary"
 import { ApiErrorFallback } from "@/components/api-error-fallback"
 import { StabBadge, UserStabBadge } from "@/components/stab-badge"
+import { UserAvatar } from "@/components/user-avatar"
 import {
   SidebarInset,
   SidebarProvider,
@@ -74,6 +75,9 @@ interface CrewMember {
   phone?: string
   email?: string
   team?: string
+  firstName?: string
+  lastName?: string
+  username?: string
 }
 
 export default function FilmingSessionDetail({ params }: PageProps) {
@@ -142,7 +146,10 @@ export default function FilmingSessionDetail({ params }: PageProps) {
         stab: userDetails?.stab_name || 'N/A',
         phone: userDetails?.telefonszam || '',
         email: userDetails?.email || '',
-        team: relation.user.username?.includes('A') ? 'A' : 'B' // Basic team detection
+        team: relation.user.username?.includes('A') ? 'A' : 'B', // Basic team detection
+        firstName: relation.user.first_name || userDetails?.first_name || '',
+        lastName: relation.user.last_name || userDetails?.last_name || '',
+        username: relation.user.username || userDetails?.username || ''
       }
     })
   }, [assignment, userDetailsList])
@@ -405,14 +412,15 @@ export default function FilmingSessionDetail({ params }: PageProps) {
                     </CardHeader>
                     <CardContent>
                       <div className="flex items-center gap-4 p-3 rounded-lg bg-background/50 border border-border/50">
-                        <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                          <span className="text-white font-bold">
-                            {session.contact_person.name
-                              .split(" ")
-                              .map((n: string) => n[0])
-                              .join("")}
-                          </span>
-                        </div>
+                        <UserAvatar
+                          email={session.contact_person.email || ''}
+                          firstName={session.contact_person.name?.split(' ')[0] || ''}
+                          lastName={session.contact_person.name?.split(' ').slice(1).join(' ') || ''}
+                          username=""
+                          customSize={48}
+                          className="border border-border/50"
+                          fallbackClassName="bg-gradient-to-br from-primary/20 to-primary/10 text-base font-semibold"
+                        />
                         <div className="flex-1">
                           <div className="font-medium">{session.contact_person.name}</div>
                         </div>
@@ -536,14 +544,15 @@ export default function FilmingSessionDetail({ params }: PageProps) {
                             className="w-full p-3 rounded-lg bg-background/50 border border-border/50 hover:bg-accent/50 transition-colors text-left"
                           >
                             <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                                <span className="text-white font-bold text-sm">
-                                  {member.name
-                                    .split(" ")
-                                    .map((n: string) => n[0])
-                                    .join("")}
-                                </span>
-                              </div>
+                              <UserAvatar
+                                email={member.email || ''}
+                                firstName={member.firstName || ''}
+                                lastName={member.lastName || ''}
+                                username={member.username || ''}
+                                customSize={40}
+                                className="border border-border/50"
+                                fallbackClassName="bg-gradient-to-br from-primary/20 to-primary/10 text-sm font-semibold"
+                              />
                               <div className="flex-1 min-w-0">
                                 <div className="font-medium text-sm flex items-center gap-2">
                                   {member.name}
@@ -619,14 +628,15 @@ export default function FilmingSessionDetail({ params }: PageProps) {
                 {selectedCrewMember && (
                   <div className="space-y-4">
                     <div className="text-center space-y-2">
-                      <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto">
-                        <span className="text-white font-bold text-lg">
-                          {selectedCrewMember.name
-                            .split(" ")
-                            .map((n: string) => n[0])
-                            .join("")}
-                        </span>
-                      </div>
+                      <UserAvatar
+                        email={selectedCrewMember.email || ''}
+                        firstName={selectedCrewMember.firstName || ''}
+                        lastName={selectedCrewMember.lastName || ''}
+                        username={selectedCrewMember.username || ''}
+                        customSize={64}
+                        className="border-2 border-primary/20 mx-auto"
+                        fallbackClassName="bg-gradient-to-br from-primary/20 to-primary/10 text-lg font-semibold"
+                      />
                       <h3 className="text-lg font-semibold">{selectedCrewMember.name}</h3>
                       <div className="flex items-center justify-center gap-2">
                         <Badge variant="secondary">{selectedCrewMember.role}</Badge>
