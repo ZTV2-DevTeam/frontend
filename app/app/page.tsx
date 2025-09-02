@@ -7,7 +7,7 @@ export default function AppPage() {
   const router = useRouter()
 
   useEffect(() => {
-    // Redirect to dashboard when accessing /app/app
+    // Redirect to dashboard when accessing /app/app directly
     router.push("/app/iranyitopult")
   }, [router])
 

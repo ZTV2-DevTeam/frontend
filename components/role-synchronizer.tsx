@@ -36,7 +36,8 @@ export function RoleSynchronizer() {
           console.log(`🔄 Syncing role from '${currentRole}' to '${primaryRole}'`)
           
           syncInProgress.current = true
-          setRole(primaryRole)
+          // Don't redirect when synchronizing roles automatically
+          setRole(primaryRole, false)
           lastSyncedRole.current = primaryRole
           
           // Reset sync flag after a short delay to allow state updates

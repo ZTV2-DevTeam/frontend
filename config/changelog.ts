@@ -24,6 +24,11 @@ const rawChangelogData: ChangelogEntry[] = [
         '"Aktív" kitűző eltávolítva a forgatásokkal kapcsolatosan',
         'Eltávolítottuk az "Aktív" kitűzőt a forgatásokkal kapcsolatosan.'
       ),
+      createChange(
+        'bugfix',
+        'Automatikus irányítópult átirányítás javítása',
+        'Megoldottuk azt a hibát, amely minden oldalfrissítéskor automatikusan átirányította a felhasználót az irányítópultra, függetlenül attól, hogy melyik aloldalon volt.'
+      ),
     ]
   ),
   createChangelogEntry(

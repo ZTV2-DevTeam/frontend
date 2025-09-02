@@ -15,7 +15,7 @@ export interface Team {
 
 interface UserRoleContextType {
   currentRole: UserRole
-  setRole: (role: UserRole) => void
+  setRole: (role: UserRole, shouldRedirect?: boolean) => void
   teams: Team[]
   isPreviewMode: boolean
   actualUserRole: UserRole | null
@@ -73,7 +73,7 @@ export function UserRoleProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  const setRole = (role: UserRole) => {
+  const setRole = (role: UserRole, shouldRedirect: boolean = true) => {
     // Prevent unnecessary navigation if role hasn't actually changed
     if (role === currentRole) {
       console.log(`🔄 Role unchanged (${role}), skipping navigation`)
@@ -90,9 +90,13 @@ export function UserRoleProvider({ children }: { children: React.ReactNode }) {
     
     setCurrentRole(role)
     
-    // Always redirect to dashboard when role changes
-    console.log(`🏠 Redirecting to dashboard for role: ${role}`)
-    router.push('/app/iranyitopult')
+    // Only redirect to dashboard when role changes intentionally (not during initialization)
+    if (shouldRedirect) {
+      console.log(`🏠 Redirecting to dashboard for role: ${role}`)
+      router.push('/app/iranyitopult')
+    } else {
+      console.log(`🔄 Role set to ${role} without redirect (initialization)`)
+    }
   }
 
   return (
