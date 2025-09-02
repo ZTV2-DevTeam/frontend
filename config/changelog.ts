@@ -14,6 +14,11 @@ const rawChangelogData: ChangelogEntry[] = [
         'Hibás felhasználói adatok megjelenítésének javítása',
         'Javítottuk a hibát, mely minden tanulót egy évfolyammal feljebb helyezett a tanév kezdete után.'
       ),
+      createChange(
+        'bugfix',
+        '',
+        'Javítottunk egy hibát, mely nem jelenítette meg a profilképeket a beosztások részleteinél.'
+      ),
     ]
   ),
   createChangelogEntry(
