@@ -22,6 +22,7 @@ import { useApiQuery, useApiMutation } from "@/lib/api-helpers"
 import { ApiErrorBoundary } from "@/components/api-error-boundary"
 import { apiClient } from "@/lib/api"
 import { use24HourFormat } from "@/lib/24hour-format-enforcer"
+import { useConfetti } from "@/components/confetti"
 import type { ForgatCreateSchema, PartnerSchema, ContactPersonSchema, ForgatoTipusSchema } from "@/lib/api"
 
 export function CreateForgatásForm() {
@@ -46,6 +47,7 @@ export function CreateForgatásForm() {
   const { currentRole } = useUserRole()
   const { user } = useAuth()
   const { hasPermission, permissions } = usePermissions()
+  const { triggerSuccess } = useConfetti()
 
   // Enforce 24-hour format on all time inputs
   use24HourFormat()
@@ -149,7 +151,8 @@ export function CreateForgatásForm() {
 
       const result = await createForgatás.execute(submissionData)
       
-      // Success feedback
+      // Success feedback with confetti!
+      triggerSuccess()
       alert('Forgatás sikeresen létrehozva!')
       
       // Reset form

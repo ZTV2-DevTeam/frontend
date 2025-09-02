@@ -1,115 +1,190 @@
 "use client"
 
-import React, { useEffect, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { confetti } from '@tsparticles/confetti'
+import { useState, useCallback } from 'react'
 
-interface ConfettiPiece {
-  id: number
-  x: number
-  y: number
-  rotation: number
-  color: string
-  size: number
-  delay: number
+// Confetti configuration for new forgatas success
+const FORGATAS_SUCCESS_CONFIG = {
+  count: 200,
+  defaults: {
+    origin: { y: 0.7 },
+  }
 }
 
-interface ConfettiProps {
-  isActive: boolean
-  onComplete?: () => void
+function fireForgatasConfetti(particleRatio: number, opts: any) {
+  const { count, defaults } = FORGATAS_SUCCESS_CONFIG
+  confetti({
+    ...defaults,
+    ...opts,
+    particleCount: Math.floor(count * particleRatio),
+  })
 }
 
-const colors = [
-  '#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57',
-  '#ff9ff3', '#54a0ff', '#5f27cd', '#00d2d3', '#ff9f43',
-  '#ee5a24', '#0abde3', '#10ac84', '#f368e0', '#a55eea'
-]
-
-export function Confetti({ isActive, onComplete }: ConfettiProps) {
-  const [confettiPieces, setConfettiPieces] = useState<ConfettiPiece[]>([])
-
-  useEffect(() => {
-    if (isActive) {
-      // Generate confetti pieces
-      const pieces: ConfettiPiece[] = []
-      for (let i = 0; i < 500; i++) {
-        pieces.push({
-          id: i,
-          x: Math.random() * window.innerWidth,
-          y: -20,
-          rotation: Math.random() * 360,
-          color: colors[Math.floor(Math.random() * colors.length)],
-          size: Math.random() * 8 + 4,
-          delay: Math.random() * 3
-        })
-      }
-      setConfettiPieces(pieces)
-
-      // Auto-complete after animation duration
-      const timer = setTimeout(() => {
-        onComplete?.()
-      }, 10000)
-
-      return () => clearTimeout(timer)
-    }
-  }, [isActive, onComplete])
-
-  if (!isActive) return null
-
-  return (
-    <div className="fixed inset-0 pointer-events-none z-[9999] overflow-hidden">
-      <AnimatePresence>
-        {confettiPieces.map((piece) => (
-          <motion.div
-            key={piece.id}
-            className="absolute"
-            style={{
-              backgroundColor: piece.color,
-              width: piece.size,
-              height: piece.size,
-              borderRadius: Math.random() > 0.5 ? '50%' : '0%',
-            }}
-            initial={{
-              x: piece.x,
-              y: piece.y,
-              rotate: piece.rotation,
-              opacity: 1,
-            }}
-            animate={{
-              y: window.innerHeight + 100,
-              rotate: piece.rotation + 720,
-              opacity: 0,
-            }}
-            transition={{
-              duration: 3,
-              delay: piece.delay,
-              ease: "easeIn",
-            }}
-            exit={{ opacity: 0 }}
-          />
-        ))}
-      </AnimatePresence>
-    </div>
-  )
+// Valentine's day easter egg configuration
+const VALENTINE_CONFIG = {
+  spread: 360,
+  ticks: 100,
+  gravity: 0,
+  decay: 0.94,
+  startVelocity: 30,
+  shapes: ["heart"],
+  colors: ["FFC0CB", "FF69B4", "FF1493", "C71585"],
 }
 
-// Hook to manage confetti state
+export const confettiAnimations = {
+  // Success confetti when new forgatas is added
+  success: () => {
+    // Fire from both bottom corners toward center
+    fireForgatasConfetti(0.25, {
+      spread: 26,
+      startVelocity: 55,
+      origin: { x: 0.1, y: 0.8 }
+    })
+    
+    fireForgatasConfetti(0.25, {
+      spread: 26,
+      startVelocity: 55,
+      origin: { x: 0.9, y: 0.8 }
+    })
+
+    fireForgatasConfetti(0.2, {
+      spread: 60,
+      origin: { x: 0.1, y: 0.8 }
+    })
+    
+    fireForgatasConfetti(0.2, {
+      spread: 60,
+      origin: { x: 0.9, y: 0.8 }
+    })
+
+    fireForgatasConfetti(0.35, {
+      spread: 100,
+      decay: 0.91,
+      scalar: 0.8,
+      origin: { x: 0.1, y: 0.8 }
+    })
+    
+    fireForgatasConfetti(0.35, {
+      spread: 100,
+      decay: 0.91,
+      scalar: 0.8,
+      origin: { x: 0.9, y: 0.8 }
+    })
+
+    fireForgatasConfetti(0.1, {
+      spread: 120,
+      startVelocity: 25,
+      decay: 0.92,
+      scalar: 1.2,
+      origin: { x: 0.1, y: 0.8 }
+    })
+    
+    fireForgatasConfetti(0.1, {
+      spread: 120,
+      startVelocity: 25,
+      decay: 0.92,
+      scalar: 1.2,
+      origin: { x: 0.9, y: 0.8 }
+    })
+
+    fireForgatasConfetti(0.1, {
+      spread: 120,
+      startVelocity: 45,
+      origin: { x: 0.1, y: 0.8 }
+    })
+    
+    fireForgatasConfetti(0.1, {
+      spread: 120,
+      startVelocity: 45,
+      origin: { x: 0.9, y: 0.8 }
+    })
+  },
+
+  // Valentine's day easter egg
+  valentine: () => {
+    confetti({
+      ...VALENTINE_CONFIG,
+      particleCount: 50,
+      scalar: 2,
+    })
+
+    confetti({
+      ...VALENTINE_CONFIG,
+      particleCount: 25,
+      scalar: 3,
+    })
+
+    confetti({
+      ...VALENTINE_CONFIG,
+      particleCount: 10,
+      scalar: 4,
+    })
+  },
+
+  // Generic celebration
+  celebrate: () => {
+    confetti({
+      particleCount: 100,
+      spread: 70,
+      origin: { y: 0.6 }
+    })
+  }
+}
+
+// Hook to manage confetti animations
 export function useConfetti() {
   const [isActive, setIsActive] = useState(false)
 
-  const trigger = () => {
+  const triggerSuccess = useCallback(() => {
+    console.log('🎉 Triggering success confetti...')
     setIsActive(true)
-  }
+    
+    // Simple test first
+    confetti({
+      particleCount: 100,
+      spread: 70,
+      origin: { y: 0.6 }
+    })
+    
+    // Then the complex animation
+    confettiAnimations.success()
+    
+    // Reset state after animation
+    setTimeout(() => setIsActive(false), 3000)
+  }, [])
 
-  const stop = () => {
-    setIsActive(false)
-  }
+  const triggerValentine = useCallback(() => {
+    console.log('❤️ Triggering valentine confetti...')
+    setIsActive(true)
+    
+    // Simple test first
+    confetti({
+      particleCount: 50,
+      spread: 60,
+      origin: { y: 0.6 }
+    })
+    
+    // Then the valentine animation
+    confettiAnimations.valentine()
+    
+    // Reset state after animation
+    setTimeout(() => setIsActive(false), 3000)
+  }, [])
+
+  const triggerCelebrate = useCallback(() => {
+    console.log('🎊 Triggering celebrate confetti...')
+    setIsActive(true)
+    confettiAnimations.celebrate()
+    // Reset state after animation
+    setTimeout(() => setIsActive(false), 3000)
+  }, [])
 
   return {
     isActive,
-    trigger,
-    stop,
-    ConfettiComponent: ({ onComplete }: { onComplete?: () => void }) => (
-      <Confetti isActive={isActive} onComplete={onComplete || stop} />
-    ),
+    triggerSuccess,
+    triggerValentine,
+    triggerCelebrate,
+    // Legacy support
+    trigger: triggerCelebrate,
   }
 }

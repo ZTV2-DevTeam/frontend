@@ -36,6 +36,8 @@
     "@radix-ui/react-tooltip": "^1.2.7",
     "@tabler/icons-react": "^3.34.1",
     "@tanstack/react-table": "^8.21.3",
+    "@tsparticles/confetti": "^3.9.1",
+    "@tsparticles/engine": "^3.9.1",
     "@types/jspdf": "^2.0.0",
     "@vercel/analytics": "^1.5.0",
     "@vercel/speed-insights": "^1.2.0",

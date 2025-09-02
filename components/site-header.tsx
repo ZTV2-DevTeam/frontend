@@ -33,7 +33,7 @@ export function SiteHeader() {
   const pathname = usePathname()
   const { isPreviewMode, currentRole, actualUserRole } = useUserRole()
   const currentPageName = getCurrentPageName(pathname)
-  const { trigger, ConfettiComponent } = useConfetti()
+  const { triggerValentine } = useConfetti()
   
   // Easter egg state
   const [clickCount, setClickCount] = useState(0)
@@ -76,7 +76,7 @@ export function SiteHeader() {
 
     // Trigger confetti if 5 clicks reached
     if (newCount >= 5) {
-      trigger()
+      triggerValentine()
       setClickCount(0)
       return
     }
@@ -89,7 +89,6 @@ export function SiteHeader() {
 
   return (
     <>
-      <ConfettiComponent />
       <header className="flex h-16 md:h-14 shrink-0 items-center gap-2 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 transition-[width,height] ease-linear">
         <div className="flex items-center w-full gap-3 px-4 lg:gap-4 lg:px-6">
           <SidebarTrigger className="-ml-1 h-9 w-9 md:h-8 md:w-8" />
