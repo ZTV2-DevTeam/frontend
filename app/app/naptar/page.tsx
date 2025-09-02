@@ -12,6 +12,8 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+  import Link from "next/link"
 import { 
   Calendar,
   Plus,
@@ -27,7 +29,11 @@ import {
   Grid3X3,
   List,
   Loader2,
-  AlertCircle
+  AlertCircle,
+  X,
+  ArrowLeft,
+  Phone,
+  Mail
 } from "lucide-react"
 import { useApiQuery } from "@/lib/api-helpers"
 import { ForgatSchema } from "@/lib/types"
@@ -40,6 +46,7 @@ export default function CalendarPage() {
   const [currentDate, setCurrentDate] = useState(new Date())
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [viewMode, setViewMode] = useState<"month" | "list">("month")
+  const [selectedSession, setSelectedSession] = useState<ForgatSchema | null>(null)
   const { isAuthenticated } = useAuth()
   
   // Fetch filming sessions data - same approach as forgatasok page
@@ -121,6 +128,134 @@ export default function CalendarPage() {
     return 'bg-blue-100 text-blue-800 border-blue-200'
   }
 
+  // SessionDetails component for dialog
+  const SessionDetails = ({ session }: { session: ForgatSchema }) => {
+    return (
+      <div className="space-y-4 sm:space-y-6">
+        {/* Basic Info */}
+        <div className="space-y-3 sm:space-y-4">
+          <div className="flex items-start gap-3 sm:gap-4">
+            <div className="p-2 bg-primary/10 rounded-lg flex-shrink-0">
+              {getEventIcon(session.type) && <div className="h-4 w-4 sm:h-5 sm:w-5">{getEventIcon(session.type)}</div>}
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="text-base sm:text-lg font-semibold">{session.name}</h3>
+              <p className="text-sm text-muted-foreground mt-1">{session.description}</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+            <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
+              <Calendar className="h-4 w-4 text-primary flex-shrink-0" />
+              <div className="min-w-0">
+                <div className="font-medium text-sm">Dátum</div>
+                <div className="text-sm text-muted-foreground truncate">
+                  {formatSessionDate(session.date)}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
+              <Clock className="h-4 w-4 text-primary flex-shrink-0" />
+              <div className="min-w-0">
+                <div className="font-medium text-sm">Időpont</div>
+                <div className="text-sm text-muted-foreground truncate">
+                  {session.time_from && session.time_to 
+                    ? `${formatTime(session.time_from)} - ${formatTime(session.time_to)}`
+                    : 'Nincs megadva'
+                  }
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
+              <MapPin className="h-4 w-4 text-primary flex-shrink-0" />
+              <div className="min-w-0">
+                <div className="font-medium text-sm">Helyszín</div>
+                <div className="text-sm text-muted-foreground truncate">
+                  {session.location?.name || 'Nincs megadva'}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
+              <Users className="h-4 w-4 text-primary flex-shrink-0" />
+              <div className="min-w-0">
+                <div className="font-medium text-sm">Eszközök</div>
+                <div className="text-sm text-muted-foreground">
+                  {session.equipment_count || 0} eszköz
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Contact Person */}
+        {session.contact_person && (
+          <div className="space-y-3">
+            <h4 className="font-semibold">Kapcsolattartó</h4>
+            <div className="p-3 bg-muted/30 rounded-lg">
+              <div className="flex items-center gap-2 mb-2">
+                <Users className="h-4 w-4 flex-shrink-0" />
+                <span className="font-medium">{session.contact_person.name}</span>
+              </div>
+              <div className="space-y-1 text-sm text-muted-foreground">
+                {session.contact_person.phone && (
+                  <div className="flex items-center gap-2">
+                    <Phone className="h-3 w-3 flex-shrink-0" />
+                    <span className="truncate">{session.contact_person.phone}</span>
+                  </div>
+                )}
+                {session.contact_person.email && (
+                  <div className="flex items-center gap-2">
+                    <Mail className="h-3 w-3 flex-shrink-0" />
+                    <span className="truncate">{session.contact_person.email}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Actions */}
+        <div className="flex flex-col sm:flex-row gap-2 pt-4 border-t">
+          <Link href={`/app/forgatasok/${session.id}`} className="flex-1">
+            <Button className="w-full">
+              Részletek megtekintése
+            </Button>
+          </Link>
+          <Button
+            variant="outline"
+            onClick={() => setSelectedSession(null)}
+            className="sm:w-auto"
+          >
+            Bezárás
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
+  // Date helper for better formatting
+  const formatSessionDate = (dateStr: string) => {
+    try {
+      const date = new Date(dateStr)
+      return format(date, 'yyyy. MMMM dd. (EEEE)', { locale: hu })
+    } catch {
+      return dateStr
+    }
+  }
+
+  // Time helper
+  const formatTime = (timeStr: string) => {
+    try {
+      const [hours, minutes] = timeStr.split(':')
+      return `${hours}:${minutes}`
+    } catch {
+      return timeStr
+    }
+  }
+
   const weekDays = ['H', 'K', 'Sze', 'Cs', 'P', 'Szo', 'V']
 
   if (filmingLoading) {
@@ -196,144 +331,199 @@ export default function CalendarPage() {
                   Lista
                 </Button>
               </div>
-              {/* <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                Új forgatás
-              </Button> */}
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            {/* Calendar or List View */}
-            <div className="lg:col-span-3">
-              {viewMode === "month" ? (
-                <Card>
-                  <CardHeader className="pb-3">
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-xl">
-                        {format(currentDate, 'MMMM yyyy', { locale: hu })}
-                      </CardTitle>
-                      <div className="flex items-center gap-2">
-                        <Button variant="outline" size="sm" onClick={goToToday}>
-                          Ma
-                        </Button>
-                        <Button variant="outline" size="sm" onClick={previousMonth}>
-                          <ChevronLeft className="h-4 w-4" />
-                        </Button>
-                        <Button variant="outline" size="sm" onClick={nextMonth}>
-                          <ChevronRight className="h-4 w-4" />
-                        </Button>
+          {/* Google/Apple Calendar Style Layout */}
+          <div className="space-y-4">
+            {viewMode === "month" ? (
+              <div className="bg-background rounded-lg border shadow-sm overflow-hidden">
+                {/* Calendar Header */}
+                <div className="flex items-center justify-between p-4 border-b bg-muted/30">
+                  <div className="flex items-center gap-4">
+                    <h2 className="text-2xl font-semibold">
+                      {format(currentDate, 'MMMM yyyy', { locale: hu })}
+                    </h2>
+                    <Button variant="outline" size="sm" onClick={goToToday}>
+                      Ma
+                    </Button>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Button variant="ghost" size="sm" onClick={previousMonth}>
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="sm" onClick={nextMonth}>
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Calendar Grid */}
+                <div className="bg-background">
+                  {/* Days of Week Header */}
+                  <div className="grid grid-cols-7 border-b bg-muted/20">
+                    {['Hétfő', 'Kedd', 'Szerda', 'Csütörtök', 'Péntek', 'Szombat', 'Vasárnap'].map((day) => (
+                      <div key={day} className="p-3 text-center text-sm font-medium text-muted-foreground border-r last:border-r-0">
+                        <span className="hidden sm:inline">{day}</span>
+                        <span className="sm:hidden">{day.slice(0, 2)}</span>
                       </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    {/* Calendar Grid */}
-                    <div className="grid grid-cols-7 gap-1 mb-2">
-                      {weekDays.map((day) => (
+                    ))}
+                  </div>
+
+                  {/* Calendar Days Grid */}
+                  <div className="grid grid-cols-7">
+                    {calendarDays.map((day, index) => {
+                      const dayEvents = getEventsForDay(day)
+                      const isCurrentMonth = isSameMonth(day, currentDate)
+                      const isToday = isSameDay(day, new Date())
+                      const isSelected = selectedDate && isSameDay(day, selectedDate)
+                      const isLastRow = Math.floor(index / 7) === Math.floor((calendarDays.length - 1) / 7)
+                      
+                      return (
                         <div
-                          key={day}
-                          className="h-8 flex items-center justify-center text-sm font-medium text-muted-foreground"
+                          key={day.toISOString()}
+                          className={`
+                            min-h-[80px] sm:min-h-[120px] p-1 sm:p-2 border-r border-b last:border-r-0 cursor-pointer transition-all
+                            ${!isLastRow ? 'border-b' : ''}
+                            ${isCurrentMonth ? 'bg-background hover:bg-muted/20' : 'bg-muted/10 hover:bg-muted/30'}
+                            ${isToday ? 'bg-blue-50 dark:bg-blue-950/20' : ''}
+                            ${isSelected ? 'bg-blue-100 dark:bg-blue-900/30 ring-2 ring-blue-200 dark:ring-blue-800' : ''}
+                          `}
+                          onClick={() => setSelectedDate(day)}
                         >
-                          {day}
-                        </div>
-                      ))}
-                    </div>
-                    <div className="grid grid-cols-7 gap-1">
-                      {calendarDays.map((day) => {
-                        const dayEvents = getEventsForDay(day)
-                        const isCurrentMonth = isSameMonth(day, currentDate)
-                        const isToday = isSameDay(day, new Date())
-                        const isSelected = selectedDate && isSameDay(day, selectedDate)
-                        
-                        return (
-                          <div
-                            key={day.toISOString()}
-                            className={`
-                              min-h-[100px] p-1 border border-border/20 cursor-pointer transition-colors
-                              ${isCurrentMonth ? 'bg-background' : 'bg-muted/30'}
-                              ${isToday ? 'bg-primary/5 border-primary/30' : ''}
-                              ${isSelected ? 'bg-primary/10 border-primary' : ''}
-                              hover:bg-muted/50
-                            `}
-                            onClick={() => setSelectedDate(day)}
-                          >
-                            <div className={`
-                              text-sm font-medium mb-1
-                              ${isCurrentMonth ? 'text-foreground' : 'text-muted-foreground'}
-                              ${isToday ? 'text-primary font-bold' : ''}
-                            `}>
+                          {/* Day Number */}
+                          <div className="flex items-center justify-between mb-1">
+                            <span
+                              className={`
+                                text-xs sm:text-sm font-medium flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-full
+                                ${!isCurrentMonth ? 'text-muted-foreground' : 'text-foreground'}
+                                ${isToday ? 'bg-blue-600 text-white font-bold' : ''}
+                              `}
+                            >
                               {format(day, 'd')}
+                            </span>
+                            {dayEvents.length > 0 && (
+                              <span className="text-xs text-muted-foreground hidden sm:inline">
+                                {dayEvents.length}
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Events */}
+                          <div className="space-y-0.5 sm:space-y-1">
+                            {/* Mobile: Show only dots, Desktop: Show event details */}
+                            <div className="sm:hidden">
+                              {dayEvents.length > 0 && (
+                                <div className="flex gap-0.5 flex-wrap">
+                                  {dayEvents.slice(0, 4).map((event) => (
+                                    <div
+                                      key={event.id}
+                                      className={`
+                                        w-1.5 h-1.5 rounded-full cursor-pointer
+                                        ${event.type === 'kacsa' 
+                                          ? 'bg-yellow-500' 
+                                          : event.type === 'rendezveny'
+                                          ? 'bg-purple-500'
+                                          : 'bg-blue-500'
+                                        }
+                                      `}
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+                                        setSelectedSession(event.rawData)
+                                      }}
+                                    />
+                                  ))}
+                                  {dayEvents.length > 4 && (
+                                    <span className="text-xs text-muted-foreground ml-1">+</span>
+                                  )}
+                                </div>
+                              )}
                             </div>
-                            <div className="space-y-1">
-                              {dayEvents.slice(0, 2).map((event) => (
+                            
+                            {/* Desktop: Show event cards */}
+                            <div className="hidden sm:block">
+                              {dayEvents.slice(0, 3).map((event, eventIndex) => (
                                 <div
                                   key={event.id}
-                                  className="text-xs p-1 rounded bg-blue-100 text-blue-800 truncate"
+                                  className={`
+                                    text-xs px-2 py-1 rounded-sm cursor-pointer transition-colors
+                                    ${event.type === 'kacsa' 
+                                      ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300' 
+                                      : event.type === 'rendezveny'
+                                      ? 'bg-purple-100 text-purple-800 hover:bg-purple-200 dark:bg-purple-900/30 dark:text-purple-300'
+                                      : 'bg-blue-100 text-blue-800 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300'
+                                    }
+                                    ${eventIndex >= 2 ? 'opacity-75' : ''}
+                                  `}
                                   title={`${event.title} - ${event.time}`}
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    setSelectedSession(event.rawData)
+                                  }}
                                 >
-                                  {event.title}
+                                  <div className="truncate font-medium">
+                                    {event.title}
+                                  </div>
+                                  <div className="truncate text-xs opacity-75">
+                                    {event.time.split(' - ')[0]}
+                                  </div>
                                 </div>
                               ))}
-                              {dayEvents.length > 2 && (
-                                <div className="text-xs text-muted-foreground">
-                                  +{dayEvents.length - 2} további
+                              {dayEvents.length > 3 && (
+                                <div 
+                                  className="text-xs text-muted-foreground cursor-pointer hover:text-foreground"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    setSelectedDate(day)
+                                  }}
+                                >
+                                  +{dayEvents.length - 3} további
                                 </div>
                               )}
                             </div>
                           </div>
-                        )
-                      })}
-                    </div>
-                  </CardContent>
-                </Card>
-              ) : (
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Közelgő forgások</CardTitle>
-                    <CardDescription>
-                      A következő forgások időrendi sorrendben
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {upcomingEvents.length === 0 ? (
-                        <div className="text-center py-8 text-muted-foreground">
-                          Nincsenek közelgő forgások.
                         </div>
-                      ) : (
-                        upcomingEvents.map((event) => (
-                          <div
-                            key={event.id}
-                            className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
-                          >
-                            <div className="flex items-center space-x-4">
-                              <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10">
+                      )
+                    })}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Közelgő forgatások</CardTitle>
+                  <CardDescription>
+                    A következő forgatások időrendi sorrendben
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {upcomingEvents.length === 0 ? (
+                      <div className="text-center py-8 text-muted-foreground">
+                        Nincsenek közelgő forgatások.
+                      </div>
+                    ) : (
+                      upcomingEvents.map((event) => (
+                        <div
+                          key={event.id}
+                          className="p-3 sm:p-4 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
+                          onClick={() => setSelectedSession(event.rawData)}
+                        >
+                          <div className="flex items-start justify-between mb-2">
+                            <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+                              <div className="p-1 sm:p-2 bg-primary/10 rounded flex-shrink-0">
                                 {getEventIcon(event.type)}
                               </div>
-                              <div>
-                                <div className="font-medium">{event.title}</div>
-                                <div className="text-sm text-muted-foreground">
-                                  {event.description.substring(0, 100)}
-                                  {event.description.length > 100 ? '...' : ''}
-                                </div>
-                                <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
-                                  <div className="flex items-center gap-1">
-                                    <Clock className="h-3 w-3" />
-                                    {event.time}
-                                  </div>
-                                  <div className="flex items-center gap-1">
-                                    <MapPin className="h-3 w-3" />
-                                    {event.location}
-                                  </div>
-                                  <div className="flex items-center gap-1">
-                                    <Users className="h-3 w-3" />
-                                    {event.participants} eszköz
-                                  </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="font-medium text-sm sm:text-base truncate">{event.title}</div>
+                                <div className="text-xs sm:text-sm text-muted-foreground mt-1 line-clamp-2">
+                                  {event.description.substring(0, 80)}
+                                  {event.description.length > 80 ? '...' : ''}
                                 </div>
                               </div>
                             </div>
-                            <div className="flex items-center space-x-2">
-                              <Badge className={`text-xs ${getEventBadgeColor(event.type)}`}>
+                            <div className="flex flex-col gap-1 items-end flex-shrink-0 ml-2">
+                              <Badge className="text-xs bg-blue-100 text-blue-800 border-blue-200">
                                 {event.typeDisplay}
                               </Badge>
                               <Badge variant="outline" className="text-xs">
@@ -344,71 +534,115 @@ export default function CalendarPage() {
                               </Badge>
                             </div>
                           </div>
-                        ))
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
+                          
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 mt-3 text-xs sm:text-sm text-muted-foreground">
+                            <div className="flex items-center gap-2">
+                              <Clock className="h-3 w-3 flex-shrink-0" />
+                              <span className="truncate">{event.time}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <MapPin className="h-3 w-3 flex-shrink-0" />
+                              <span className="truncate">{event.location}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Users className="h-3 w-3 flex-shrink-0" />
+                              <span>{event.participants} eszköz</span>
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
-            {/* Selected Day Details */}
-            <div className="lg:col-span-1">
-              <Card className="sticky top-4">
+            {/* Mobile Selected Day Details - Show below calendar on mobile */}
+            {selectedDate && (
+              <Card className="sm:hidden">
                 <CardHeader>
                   <CardTitle className="text-lg">
-                    {selectedDate ? format(selectedDate, 'MMMM d., yyyy', { locale: hu }) : 'Válassz napot'}
+                    {format(selectedDate, 'MMMM d., yyyy', { locale: hu })}
                   </CardTitle>
                   <CardDescription>
-                    {selectedDate ? 
-                      `${selectedDayEvents.length} forgatás` : 
-                      'Kattints egy napra a részletekért'
-                    }
+                    {selectedDayEvents.length} forgatás ezen a napon
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {selectedDate && selectedDayEvents.length > 0 ? (
-                    <div className="space-y-4">
+                  {selectedDayEvents.length > 0 ? (
+                    <div className="space-y-3">
                       {selectedDayEvents.map((event) => (
-                        <div key={event.id} className="p-3 border rounded-lg">
-                          <div className="font-medium text-sm mb-2">{event.title}</div>
-                          <div className="space-y-2 text-xs text-muted-foreground">
+                        <div 
+                          key={event.id} 
+                          className="p-3 border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
+                          onClick={() => setSelectedSession(event.rawData)}
+                        >
+                          <div className="flex items-start justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              <div className="p-1 bg-primary/10 rounded">
+                                {getEventIcon(event.type)}
+                              </div>
+                              <div className="font-medium text-sm">{event.title}</div>
+                            </div>
+                            <Badge className={`text-xs ${getEventBadgeColor(event.type)}`}>
+                              {event.typeDisplay}
+                            </Badge>
+                          </div>
+                          
+                          <div className="grid grid-cols-1 gap-2 text-xs text-muted-foreground">
                             <div className="flex items-center gap-2">
                               <Clock className="h-3 w-3" />
-                              {event.time}
+                              <span>{event.time}</span>
                             </div>
                             <div className="flex items-center gap-2">
                               <MapPin className="h-3 w-3" />
-                              {event.location}
+                              <span>{event.location}</span>
                             </div>
                             <div className="flex items-center gap-2">
                               <Users className="h-3 w-3" />
-                              {event.participants} eszköz
+                              <span>{event.participants} eszköz</span>
                             </div>
                           </div>
+                          
                           {event.description && (
-                            <div className="mt-2 text-xs text-muted-foreground">
+                            <div className="mt-2 text-xs text-muted-foreground line-clamp-2">
                               {event.description}
                             </div>
                           )}
-                          <Badge className={`mt-2 text-xs ${getEventBadgeColor(event.type)}`}>
-                            {event.typeDisplay}
-                          </Badge>
                         </div>
                       ))}
                     </div>
-                  ) : selectedDate ? (
-                    <div className="text-center py-4 text-muted-foreground text-sm">
-                      Nincs forgatás ezen a napon.
-                    </div>
                   ) : (
                     <div className="text-center py-4 text-muted-foreground text-sm">
-                      Válassz egy napot a naptárból a forgások megtekintéséhez.
+                      Nincs forgatás ezen a napon.
                     </div>
                   )}
                 </CardContent>
               </Card>
-            </div>
+            )}
+
+            {/* Filming Session Detail Dialog */}
+            <Dialog open={!!selectedSession} onOpenChange={() => setSelectedSession(null)}>
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto mx-4 sm:mx-0 p-4 sm:p-6">
+                <DialogHeader>
+                  <div className="flex items-start justify-between gap-4">
+                    <DialogTitle className="text-lg sm:text-xl pr-4">
+                      {selectedSession?.name || "Forgatás részletei"}
+                    </DialogTitle>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setSelectedSession(null)}
+                      className="flex-shrink-0"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </DialogHeader>
+                
+                {selectedSession && <SessionDetails session={selectedSession} />}
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
       </SidebarInset>

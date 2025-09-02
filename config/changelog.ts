@@ -49,6 +49,11 @@ const rawChangelogData: ChangelogEntry[] = [
         'Mobilnézet térkitöltés javítása',
         'Eltűntettünk egy felesleges térkitöltést a képernyő legalján mobilnézetben.'
       ),
+      createChange(
+        'improvement',
+        'Naptár mobilnézetének újragondolása',
+        'Újraterveztük a Naptár menüt a mobilnézet észben tartásával.'
+      ),
     ]
   ),
   createChangelogEntry(
