@@ -16,7 +16,7 @@ const rawChangelogData: ChangelogEntry[] = [
       ),
       createChange(
         'bugfix',
-        '',
+        'Hiányzó profilképek megjelenítése a beosztások részleteinél',
         'Javítottunk egy hibát, mely nem jelenítette meg a profilképeket a beosztások részleteinél.'
       ),
     ]
