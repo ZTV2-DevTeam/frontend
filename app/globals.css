@@ -130,16 +130,16 @@
   }
   
   body {
-    background: var(--sidebar);
-    color: var(--sidebar-foreground);
+    background: var(--background);
+    color: var(--foreground);
     /* Overscroll behavior for mobile and touchpad */
     overscroll-behavior: contain;
     overscroll-behavior-y: auto;
   }
   
-  /* Overscroll background colors that match border colors */
+  /* Overscroll background colors that match background colors */
   html {
-    background: var(--sidebar);
+    background: var(--background);
   }
   
   /* iOS Safari overscroll handling
@@ -163,39 +163,40 @@
     left: 0;
     right: 0;
     height: 200px;
-    background: linear-gradient(to bottom, var(--sidebar-border), var(--sidebar));
+    background: linear-gradient(to bottom, var(--background), var(--background));
     z-index: -1;
     pointer-events: none;
   }
   
   body::before {
     top: -200px;
-    background: linear-gradient(to bottom, var(--sidebar-border), var(--sidebar));
+    background: linear-gradient(to bottom, var(--background), var(--background));
   }
   
   body::after {
     bottom: -200px;
-    background: linear-gradient(to top, var(--sidebar-border), var(--sidebar));
+    background: linear-gradient(to top, var(--background), var(--background));
   }
   
   /* Enhanced mobile overscroll with rubber band effect */
   @media (max-width: 768px) {
     html {
       overscroll-behavior-y: auto;
-      background: var(--sidebar-border);
+      background: var(--background);
     }
     
     body {
       overscroll-behavior-y: contain;
       -webkit-overflow-scrolling: touch;
-      background: var(--sidebar);
+      background: var(--background);
     }
     
-    /* Main content container for mobile */
+    /* Main content container for mobile - remove borders and padding to have full-width content */
     .relative.flex.min-h-screen.flex-col {
-      background: var(--sidebar);
-      border-top: 1px solid var(--sidebar-border);
-      border-bottom: 1px solid var(--sidebar-border);
+      background: var(--background);
+      border: none;
+      margin: 0;
+      padding: 0;
     }
   }
 }

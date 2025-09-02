@@ -44,6 +44,11 @@ const rawChangelogData: ChangelogEntry[] = [
         'Időzónakezelés javítása - Távollét menü',
         'Javítottuk a hibát, mely nem engedett új távollétet rögzíteni, mivel hiba volt az időzónakezelésben.'
       ),
+      createChange(
+        'bugfix',
+        'Mobilnézet térkitöltés javítása',
+        'Eltűntettünk egy felesleges térkitöltést a képernyő legalján mobilnézetben.'
+      ),
     ]
   ),
   createChangelogEntry(
