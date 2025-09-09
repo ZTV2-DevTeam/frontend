@@ -1264,9 +1264,27 @@ export default function Page() {
       case 'student':
         return (
           <div className="grid gap-6">
-            <div className="col-span-full">
+            {/* Forgatások widget disabled per request */}
+            {/* <div className="col-span-full">
               <UpcomingShootingsWidget />
-            </div>
+            </div> */}
+            <Card>
+              <CardContent className="pt-12 pb-12 text-center">
+                <div className="max-w-sm mx-auto space-y-4">
+                  <div className="p-4 bg-muted rounded-full w-fit mx-auto">
+                    <GraduationCap className="h-8 w-8 text-muted-foreground" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold mb-2">
+                      Diák irányítópult hamarosan
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      A diák irányítópult jelenleg fejlesztés alatt áll. Hamarosan elérhető lesz!
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         )
 
@@ -1401,6 +1419,22 @@ export default function Page() {
           {/* Role-specific widgets */}
           <div className="space-y-4">
             {renderRoleSpecificWidgets()}
+          </div>
+          
+          {/* Feedback suggestion for all dashboards */}
+          <div className="mt-6">
+            <p className="text-xs text-center text-muted-foreground">
+              Hiányolsz valamit? Mondd el nekünk milyen widgetekkel segíthetjük a munkádat a{" "}
+              <a 
+                href="https://forms.gle/ATyvgiutqNNaKT46A" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline hover:no-underline transition-colors"
+              >
+                visszajelzési űrlapon
+              </a>
+              !
+            </p>
           </div>
         </div>
       </SidebarInset>
