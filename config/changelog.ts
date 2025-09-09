@@ -18,6 +18,11 @@ const rawChangelogData: ChangelogEntry[] = [
         'bugfix',
         'Változások oldal elrendezésének javítása',
         'Javítottuk a változások oldal elrendezését, hogy az jobban alkalmazkodjon a különböző képernyőméretekhez.'
+      ),      
+      createChange(
+        'bugfix',
+        'Lábléc elrendezésének javítása',
+        'Javítottuk a lábléc elrendezését, hogy az jobban alkalmazkodjon a különböző képernyőméretekhez.'
       ),
     ]
   ),
