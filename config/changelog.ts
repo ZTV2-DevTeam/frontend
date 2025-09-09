@@ -5,6 +5,18 @@ import { create } from 'domain';
 
 const rawChangelogData: ChangelogEntry[] = [
   createChangelogEntry(
+    'v1.0.0-beta.11',
+    '2025. szeptember 09.',
+    '2025-09-09T10:00:00Z',
+    [
+      createChange(
+        'bugfix',
+        'Főoldal átiríányítási folyamat javítása',
+        'Javítottuk a hibát, mely a főoldal elérésekor, lejárt tokennel váratlanull átirányította a felhasználókat a bejelentkezési oldalra.'
+      ),
+    ]
+  ),
+  createChangelogEntry(
     'v1.0.0-beta.10',
     '2025. szeptember 02.',
     '2025-09-02T10:00:00Z',

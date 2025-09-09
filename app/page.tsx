@@ -18,6 +18,7 @@ export default function LandingPage() {
   const router = useRouter()
 
   useEffect(() => {
+    // Only redirect to app if user is actually authenticated (not just has a token)
     if (!isLoading && isAuthenticated) {
       router.push('/app/iranyitopult')
     }

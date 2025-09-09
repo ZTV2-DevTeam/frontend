@@ -43,7 +43,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           })
         }
         
-        if (apiClient.isAuthenticated()) {
+        // Only try to authenticate if we have a token
+        if (token && token.trim() !== '' && token !== 'null') {
           try {
             // Use a timeout for profile fetch to avoid infinite loading
             const profile = await Promise.race([
@@ -53,6 +54,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               )
             ])
             
+            // Only set user if profile fetch succeeds (token is actually valid)
             setUser({
               user_id: profile.user_id,
               username: profile.username,
@@ -71,6 +73,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             console.error('Failed to get user profile:', profileError)
             
             // If profile fetch fails with any auth-related error, clear token immediately
+            // This prevents unnecessary redirects from homepage to app when token is expired
             if (profileError instanceof Error && (
               profileError.message.includes('401') ||
               profileError.message.includes('Unauthorized') ||
@@ -81,11 +84,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               profileError.message.includes('Invalid token') ||
               profileError.message.includes('Token expired')
             )) {
-              console.log('🔑 Clearing token due to profile fetch error:', profileError.message)
+              console.log('🔑 Clearing expired/invalid token during initialization:', profileError.message)
               apiClient.setToken(null)
               setUser(null)
               
-              // Force redirect to login if we're in the app
+              // Only force redirect to login if we're already in the app area
+              // Don't redirect from public pages like homepage
               if (typeof window !== 'undefined' && window.location.pathname.startsWith('/app')) {
                 console.log('🔄 Token expired in app area - redirecting to login')
                 window.location.href = '/login'

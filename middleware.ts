@@ -26,7 +26,12 @@ export function middleware(request: NextRequest) {
   }
 
   // Check if token is actually valid (not just present)
-  const hasValidToken = token && token.trim() !== '' && token !== 'null' && token !== 'undefined'
+  // Note: We can only do basic validation here, full validation happens client-side
+  const hasValidToken = token && 
+                       token.trim() !== '' && 
+                       token !== 'null' && 
+                       token !== 'undefined' &&
+                       token.length > 10 // Basic sanity check for token length
 
   // Protected routes - require authentication
   const protectedPaths = ['/app']
