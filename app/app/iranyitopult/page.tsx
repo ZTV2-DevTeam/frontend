@@ -639,16 +639,9 @@ function QuickActionsWidget() {
     // Could add toast notification here
   }
 
-  // Function to handle creating new forgatás (same logic as CreateForgatásDialog)
+  // Function to handle creating new forgatás (same logic as sidebar)
   const handleCreateForgatás = () => {
-    // Import the database admin logic
-    const getDatabaseAdminUrl = (path: string) => {
-      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'
-      return `${baseUrl}/admin/${path}`
-    }
-    
-    const adminUrl = getDatabaseAdminUrl('main/forgatas/add')
-    window.open(adminUrl, '_blank')
+    router.push("/app/forgatasok/uj")
   }
 
   return (
