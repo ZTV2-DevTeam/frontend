@@ -52,6 +52,8 @@ import {
   HelpCircle
 } from "lucide-react"
 import { UserAvatar } from "@/components/user-avatar"
+import { AnnouncementDialog } from "@/components/announcement-dialog"
+import { Shadow } from "@tsparticles/engine"
 
 // Function to get dynamic welcome message based on time of day and season
 function getDynamicWelcomeMessage(firstName: string = 'Felhasználó'): string {
@@ -537,35 +539,178 @@ function PendingForgatásokWidget() {
 //   )
 // }
 
-// Temporary replacement for Quick Actions
-function QuickActionsDisabledMessage() {
+// Quick Actions Widget with new design
+function QuickActionsWidget() {
+  const router = useRouter()
+  const [createForgatásOpen, setCreateForgatásOpen] = useState(false)
+  const [createAnnouncementOpen, setCreateAnnouncementOpen] = useState(false)
+  
+  const quickActions = [
+    { 
+      name: "Új forgatás", 
+      description: "Forgatás létrehozása",
+      icon: Plus, 
+      action: () => setCreateForgatásOpen(true),
+      color: "blue"
+    },
+    { 
+      name: "Új közlemény", 
+      description: "Közlemény létrehozása",
+      icon: Megaphone, 
+      action: () => setCreateAnnouncementOpen(true),
+      color: "orange"
+    },
+    { 
+      name: "Stáb Áttekintése", 
+      description: "Csapat kezelése",
+      icon: Users, 
+      action: () => router.push("/app/stab"),
+      color: "green"
+    },
+    { 
+      name: "Naptár", 
+      description: "Események megnyitása",
+      icon: CalendarDays, 
+      action: () => router.push("/app/naptar"),
+      color: "purple"
+    },
+  ]
+
+  const getColorClasses = (color: string) => {
+    switch (color) {
+      case 'blue':
+        return {
+          border: 'border-blue-500',
+          bg: 'bg-blue-500',
+          text: 'text-blue-500',
+          icon: 'text-blue-500',
+          shadow: 'shadow-blue-500'
+        }
+      case 'orange':
+        return {
+          border: 'border-orange-500',
+          bg: 'bg-orange-500', 
+          text: 'text-orange-500',
+          icon: 'text-orange-500',
+          shadow: 'shadow-orange-500'
+        }
+      case 'green':
+        return {
+          border: 'border-green-500',
+          bg: 'bg-green-500',
+          text: 'text-green-500',
+          icon: 'text-green-500',
+          shadow: 'shadow-green-500'
+        }
+      case 'purple':
+        return {
+          border: 'border-purple-500',
+          bg: 'bg-purple-500',
+          text: 'text-purple-500',
+          icon: 'text-purple-500',
+          shadow: 'shadow-purple-500'
+        }
+      default:
+        return {
+          border: 'border-gray-500',
+          bg: 'bg-gray-500',
+          text: 'text-gray-500',
+          icon: 'text-gray-500',
+          shadow: 'shadow-gray-500'
+        }
+    }
+  }
+
+  const handleActionClick = (action: () => void, actionName: string) => {
+    try {
+      action()
+    } catch (error) {
+      console.error(`Failed to execute ${actionName}:`, error)
+    }
+  }
+
+  const handleCreateForgatásSuccess = () => {
+    setCreateForgatásOpen(false)
+    // Could add toast notification here
+  }
+
+  const handleCreateAnnouncementSuccess = () => {
+    setCreateAnnouncementOpen(false)
+    // Could add toast notification here
+  }
+
+  // Function to handle creating new forgatás (same logic as CreateForgatásDialog)
+  const handleCreateForgatás = () => {
+    // Import the database admin logic
+    const getDatabaseAdminUrl = (path: string) => {
+      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'
+      return `${baseUrl}/admin/${path}`
+    }
+    
+    const adminUrl = getDatabaseAdminUrl('main/forgatas/add')
+    window.open(adminUrl, '_blank')
+  }
+
   return (
-    <Card className="h-96 flex flex-col border-dashed border-muted-foreground/30">
-      <CardHeader className="pb-3">
-        <div className="flex items-center gap-2">
-          <div className="p-1.5 bg-muted rounded-lg">
-            <Zap className="h-4 w-4 text-muted-foreground" />
-          </div>
-          <div>
-            <CardTitle className="text-base">Gyors műveletek</CardTitle>
-            <CardDescription className="text-xs">Átmenetileg nem elérhető</CardDescription>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="pt-0 flex-1 flex items-center justify-center">
-        <div className="text-center py-6">
-          <div className="w-12 h-12 bg-muted/50 rounded-full flex items-center justify-center mx-auto mb-3">
-            <Settings className="h-6 w-6 text-muted-foreground" />
-          </div>
-          <p className="text-sm text-muted-foreground mb-2">
-            Funkció karbantartás alatt
-          </p>
-          <p className="text-xs text-muted-foreground">
-            Hamarosan újra elérhető lesz
-          </p>
-        </div>
-      </CardContent>
-    </Card>
+    <>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-0 sm:gap-4">
+        {quickActions.map((action) => {
+          const colorClasses = getColorClasses(action.color)
+          return (
+            <div
+              key={action.name}
+              onClick={() => {
+                if (action.name === "Új forgatás") {
+                  handleCreateForgatás()
+                } else if (action.name === "Új közlemény") {
+                  setCreateAnnouncementOpen(true)
+                } else {
+                  handleActionClick(action.action, action.name)
+                }
+              }}
+              className={`
+                h-auto px-5 py-4 flex flex-col items-start justify-center gap-3 
+                ${colorClasses.border} ${colorClasses.bg}/10 ${colorClasses.text} hover:${colorClasses.bg}/20
+                transition-all duration-200 hover:scale-[1.02] cursor-pointer
+                border-2 hover:border-opacity-80 rounded-md
+                scale-90 sm:scale-100
+                hover:shadow-sm ${colorClasses.shadow}
+              `}
+              role="button"
+              tabIndex={0}
+              aria-label={`${action.name} - ${action.description}`}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  if (action.name === "Új forgatás") {
+                    handleCreateForgatás()
+                  } else if (action.name === "Új közlemény") {
+                    setCreateAnnouncementOpen(true)
+                  } else {
+                    handleActionClick(action.action, action.name)
+                  }
+                }
+              }}
+            >
+              <action.icon className={`h-5 w-5 ${colorClasses.icon}`} />
+              <div className="text-left">
+                <div className="font-semibold text-sm leading-tight">{action.name}</div>
+                <div className="text-xs opacity-75 mt-1">{action.description}</div>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Create Announcement Dialog */}
+      {createAnnouncementOpen && (
+        <AnnouncementDialog
+          trigger={null}
+          mode="create"
+          onSuccess={handleCreateAnnouncementSuccess}
+        />
+      )}
+    </>
   )
 }
 
@@ -856,7 +1001,7 @@ function IgazolasStatsWidget() {
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm font-medium">Cél elérése</span>
+              <span className="text-sm font-medium">Trendek</span>
             </div>
             <span className="text-sm text-muted-foreground">{monthlyCount}/100 ({Math.round((monthlyCount/100)*100)}%)</span>
           </div>
@@ -1102,6 +1247,9 @@ export default function Page() {
       case 'admin':
         return (
           <>
+            {/* Quick Actions Widget - positioned between welcome message and other widgets */}
+            <QuickActionsWidget />
+            
             {/* Top row: Key operational widgets in 3-column layout */}
             <div className="grid gap-4 md:gap-6 md:grid-cols-3">
               <div className="col-span-1">
@@ -1111,14 +1259,6 @@ export default function Page() {
                 <SystemOverviewWidget />
               </div>
               <div className="col-span-1">
-                {/* Quick Actions temporarily disabled */}
-                <QuickActionsDisabledMessage />
-              </div>
-            </div>
-            
-            {/* Main content: Pending shootings takes full width for better readability */}
-            <div className="grid gap-4 md:gap-6">
-              <div className="col-span-full">
                 <PendingForgatásokWidget />
               </div>
             </div>

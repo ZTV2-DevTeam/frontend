@@ -14,6 +14,12 @@ const rawChangelogData: ChangelogEntry[] = [
         'Új Dizájn a Beállításokban',
         'Teljesen újragondoltuk a Beállítások menüt, hogy az felhasználóbarátabb és könnyebben navigálható legyen.'
       ),
+      createChange(
+        'feature',
+        'Adminisztrátori gyors műveletek visszaállítása',
+        'Visszahoztuk, a gyors műveleteket az adminisztrátori irányítópultra, megújult dizájnnal.'
+      ),
+
     ]
   ),
   createChangelogEntry(
