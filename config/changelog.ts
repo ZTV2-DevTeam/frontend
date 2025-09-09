@@ -14,6 +14,11 @@ const rawChangelogData: ChangelogEntry[] = [
         'Főoldal átiríányítási folyamat javítása',
         'Javítottuk a hibát, mely a főoldal elérésekor, lejárt tokennel váratlanull átirányította a felhasználókat a bejelentkezési oldalra.'
       ),
+      createChange(
+        'bugfix',
+        'Változások oldal elrendezésének javítása',
+        'Javítottuk a változások oldal elrendezését, hogy az jobban alkalmazkodjon a különböző képernyőméretekhez.'
+      ),
     ]
   ),
   createChangelogEntry(
