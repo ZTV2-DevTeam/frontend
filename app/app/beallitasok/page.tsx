@@ -14,7 +14,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { UserAvatar } from "@/components/user-avatar"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Separator } from "@/components/ui/separator"
 import {
   Settings,
   Shield,
@@ -28,314 +30,359 @@ import {
   Palette,
   Bell,
   Lock,
+  Edit,
+  Calendar,
+  Clock,
+  ChevronRight,
+  HelpCircle,
+  LogOut,
+  Sparkles,
+  Activity,
 } from "lucide-react"
 
 export default function SettingsPage() {
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
   const { currentRole } = useUserRole()
 
   if (!user) return null
 
   const userDisplayName = `${user.last_name} ${user.first_name}`.trim() || user.username
-
   const isAdmin = currentRole === 'admin'
+
+  const getUserInitials = () => {
+    if (!user) return '?'
+    const firstInitial = user.first_name?.[0] || user.username[0]
+    const lastInitial = user.last_name?.[0] || user.username[1] || ''
+    return `${firstInitial}${lastInitial}`.toUpperCase()
+  }
+
+  const handleLogout = async () => {
+    try {
+      await logout()
+    } catch (error) {
+      console.error('Logout failed:', error)
+    }
+  }
+
+  const settingSections = [
+    {
+      id: 'account',
+      label: 'Fiók beállítások',
+      icon: User,
+      description: 'Profil és személyes adatok kezelése',
+      disabled: true
+    },
+    {
+      id: 'notifications',
+      label: 'Értesítések',
+      icon: Bell,
+      description: 'Email és push értesítési preferenciák',
+      disabled: true
+    },
+  ]
 
   return (
     <SidebarProvider>
       <AppSidebar variant="inset" />
       <SidebarInset>
         <SiteHeader />
-        <div className="flex flex-1 flex-col p-4 md:p-8">
-          {/* Page Header */}
-          <div className="mb-12">
-            <div className="flex items-start gap-4 mb-6">
-              <div className="p-2 bg-primary rounded-lg">
-                <Settings className="h-5 w-5 text-primary-foreground" />
+        <div className="flex flex-1 flex-col p-3 sm:p-4 md:p-6 lg:p-8">
+          {/* Enhanced Header */}
+          <div className="mb-6 md:mb-8">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+              <div className="flex items-start gap-3 sm:gap-4">
+                <div className="p-2 sm:p-3 bg-gradient-to-br from-primary to-primary/80 rounded-xl shadow-lg flex-shrink-0">
+                  <Settings className="h-5 w-5 sm:h-6 sm:w-6 text-primary-foreground" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h1 className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent break-words">
+                    Beállítások
+                  </h1>
+                  <p className="text-muted-foreground mt-1 text-sm sm:text-base md:text-lg">
+                    Személyre szabás és fiókkezelés
+                  </p>
+                </div>
               </div>
-              <div>
-                <h1 className="text-2xl font-bold text-black dark:text-white">Beállítások</h1>
-                <p className="text-muted-foreground mt-2">
-                  Személyre szabd az alkalmazást és kezeld a fiókod
-                </p>
+              <div className="flex items-center gap-2 self-start sm:self-auto">
+                <div className="px-2 sm:px-3 py-1 sm:py-1.5 bg-primary/10 text-primary rounded-full text-xs sm:text-sm font-medium whitespace-nowrap">
+                  {currentRole === 'admin' ? 'Admin' : 
+                   currentRole === 'class-teacher' ? 'Tanár' : 'Diák'}
+                </div>
               </div>
             </div>
             <div className="w-full h-px bg-gradient-to-r from-border via-border/50 to-transparent"></div>
           </div>
 
-          <div className="max-w-5xl mx-auto">
-            <Tabs defaultValue="profile" className="w-full">
-              <TabsList className="flex justify-center w-full max-w-2xl mx-auto mb-6 h-12 p-1">
-                <TabsTrigger value="profile" className="flex items-center gap-2 h-10 px-4">
-                  <User className="h-4 w-4" />
-                  <span>Profil</span>
-                </TabsTrigger>
-                <TabsTrigger value="appearance" className="flex items-center gap-2 h-10 px-4">
-                  <Palette className="h-4 w-4" />
-                  <span>Téma</span>
-                </TabsTrigger>
-                <TabsTrigger value="notifications" className="flex items-center gap-2 h-10 px-4" disabled>
-                  <Bell className="h-4 w-4" />
-                  <span>Értesítések</span>
-                </TabsTrigger>
-                <TabsTrigger value="security" className="flex items-center gap-2 h-10 px-4" disabled>
-                  <Lock className="h-4 w-4" />
-                  <span>Biztonság</span>
-                </TabsTrigger>
-                {isAdmin && (
-                  <TabsTrigger value="admin" className="flex items-center gap-2 h-10 px-4">
-                    <Shield className="h-4 w-4" />
-                    <span>Admin</span>
-                  </TabsTrigger>
-                )}
-              </TabsList>
-
-              {/* Profile Tab */}
-              <TabsContent value="profile" className="space-y-6">
-                <div className="flex items-start gap-6 p-6 bg-gradient-to-r from-muted/30 to-muted/10 rounded-xl border border-border/50">
-                  <UserAvatar
-                    email={user.email}
-                    firstName={user.first_name}
-                    lastName={user.last_name}
-                    username={user.username}
-                    size="xl"
-                    className="rounded-xl shadow-sm"
-                    fallbackClassName="rounded-xl text-xl font-semibold bg-gradient-to-br from-primary to-primary/80 text-primary-foreground"
-                  />
-                  <div className="flex-1 space-y-2">
-                    <h2 className="text-2xl font-bold">{userDisplayName}</h2>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <div className="px-3 py-1.5 bg-primary/10 text-primary rounded-full text-sm font-medium">
-                        {currentRole === 'admin' ? 'Adminisztrátor' : 
-                         currentRole === 'class-teacher' ? 'Osztályfőnök' : 'Diák'}
+          <div className="w-full max-w-6xl mx-auto space-y-6 md:space-y-8">
+            {/* Profile Overview Card */}
+            <Card className="border-2 shadow-lg bg-gradient-to-r from-card to-card/50">
+              <CardHeader className="p-4 sm:p-6 pb-4">
+                <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6">
+                  <div className="flex items-center gap-4 sm:gap-6 w-full sm:w-auto">
+                    <Avatar className="w-16 h-16 sm:w-20 sm:h-20 border-4 border-primary/20 shadow-xl flex-shrink-0">
+                      <AvatarImage 
+                        src={`https://api.dicebear.com/7.x/initials/svg?seed=${user?.username}&backgroundColor=transparent`}
+                        alt={userDisplayName}
+                      />
+                      <AvatarFallback className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground font-bold text-lg sm:text-2xl">
+                        {getUserInitials()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="space-y-2 min-w-0 flex-1 sm:flex-initial">
+                      <h2 className="text-lg sm:text-xl md:text-2xl font-bold break-words">{userDisplayName}</h2>
+                      <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 sm:gap-3">
+                        <div className="flex items-center gap-2 text-muted-foreground text-xs sm:text-sm">
+                          <Mail className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                          <span className="break-all">{user.email}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-muted-foreground text-xs sm:text-sm">
+                          <AtSign className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                          <span className="break-all">{user.username}</span>
+                        </div>
                       </div>
-                      <div className="px-3 py-1.5 bg-secondary/80 text-secondary-foreground rounded-full text-sm font-medium">
-                        @{user.username}
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                        <div className="px-2 sm:px-3 py-1 bg-primary/15 text-primary rounded-full text-xs sm:text-sm font-medium">
+                          <Activity className="w-3 h-3 inline mr-1" />
+                          {currentRole === 'admin' ? 'Rendszer adminisztrátor' : 
+                           currentRole === 'class-teacher' ? 'Osztályfőnök' : 'Diák'}
+                        </div>
+                        <div className="px-2 sm:px-3 py-1 bg-muted rounded-full text-xs sm:text-sm">
+                          ID: #{user.user_id}
+                        </div>
                       </div>
                     </div>
-                    <p className="text-muted-foreground">{user.email}</p>
+                  </div>
+                  <div className="w-full sm:w-auto sm:ml-auto">
+                    <Button variant="outline" size="sm" disabled className="w-full sm:w-auto">
+                      <Edit className="w-4 h-4 mr-2" />
+                      Szerkesztés
+                    </Button>
                   </div>
                 </div>
+              </CardHeader>
+            </Card>
 
-                <div className="p-6 bg-card/50 rounded-xl border border-border/50 space-y-6">
-                  <div>
-                    <h3 className="text-lg font-semibold mb-2">Személyes információk</h3>
-                    <p className="text-muted-foreground text-sm">Kezeld a fiókod alapvető adatait</p>
+            {/* Enhanced Theme Section */}
+            <Card className="border-2 shadow-lg">
+              <CardHeader className="p-4 sm:p-6 pb-4">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                  <div className="flex items-center gap-3 sm:gap-4 flex-1">
+                    <div className="p-2 sm:p-3 bg-gradient-to-br from-violet-500/20 to-purple-500/20 rounded-xl flex-shrink-0">
+                      <Palette className="w-5 h-5 sm:w-6 sm:h-6 text-violet-600 dark:text-violet-400" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <CardTitle className="text-lg sm:text-xl break-words">Megjelenés és téma</CardTitle>
+                      <CardDescription className="text-sm sm:text-base">
+                        Személyre szabd az alkalmazás kinézetét és színvilágát
+                      </CardDescription>
+                    </div>
                   </div>
-                  
-                  <form className="space-y-4">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="firstName" className="text-sm font-medium">
-                          Keresztnév
-                        </Label>
-                        <Input
-                          id="firstName"
-                          value={user.first_name}
-                          disabled
-                          className="h-10 disabled:opacity-60 disabled:bg-muted/50"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="lastName" className="text-sm font-medium">
-                          Vezetéknév
-                        </Label>
-                        <Input
-                          id="lastName"
-                          value={user.last_name}
-                          disabled
-                          className="h-10 disabled:opacity-60 disabled:bg-muted/50"
-                        />
-                      </div>
+                  <div className="w-full sm:w-auto">
+                    <div className="px-2 sm:px-3 py-1 sm:py-1.5 bg-gradient-to-r from-violet-500/10 to-purple-500/10 text-violet-700 dark:text-violet-300 rounded-full text-xs sm:text-sm font-medium flex items-center justify-center sm:justify-start gap-2">
+                      <Sparkles className="w-3 h-3" />
+                      Aktív
                     </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="email" className="text-sm font-medium">
-                        Email cím
-                      </Label>
-                      <div className="relative">
-                        <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          id="email"
-                          type="email"
-                          value={user.email}
-                          disabled
-                          className="h-10 pl-10 disabled:opacity-60 disabled:bg-muted/50"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="username" className="text-sm font-medium">
-                        Felhasználónév
-                      </Label>
-                      <div className="relative">
-                        <AtSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          id="username"
-                          value={user.username}
-                          disabled
-                          className="h-10 pl-10 disabled:opacity-60 disabled:bg-muted/50"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-border/50">
-                      <Button type="button" disabled className="h-10 px-4 opacity-50">
-                        <Save className="mr-2 h-4 w-4" />
-                        Profil mentése
-                      </Button>
-                      <Button type="button" variant="outline" disabled className="h-10 px-4 opacity-50">
-                        Jelszó változtatása
-                      </Button>
-                    </div>
-                  </form>
+                  </div>
                 </div>
-              </TabsContent>
-
-              {/* Appearance Tab */}
-              <TabsContent value="appearance" className="space-y-6">
-                <div className="p-6 bg-card/50 rounded-xl border border-border/50">
-                  <div className="mb-6">
-                    <h2 className="text-lg font-semibold mb-2">Megjelenés és téma</h2>
-                    <p className="text-muted-foreground text-sm">Személyre szabd az alkalmazás kinézetét és színvilágát</p>
-                  </div>
+              </CardHeader>
+              <CardContent className="p-4 sm:p-6 pt-2 flex justify-center">
+                <div className="w-full max-w-md">
                   <ThemeSelector />
                 </div>
-              </TabsContent>
+              </CardContent>
+            </Card>
 
-              {/* Notifications Tab */}
-              <TabsContent value="notifications" className="space-y-6">
-                <div className="p-6 bg-card/30 rounded-xl border border-border/30 opacity-60">
-                  <div className="mb-6">
-                    <h2 className="text-lg font-semibold mb-2 text-muted-foreground">Értesítési beállítások</h2>
-                    <p className="text-muted-foreground text-sm">Email és push értesítések kezelése</p>
+            {/* Detailed Profile Information */}
+            <Card className="border-2 shadow-lg">
+              <CardHeader className="p-4 sm:p-6">
+                <div className="flex items-center gap-3 sm:gap-4">
+                  <div className="p-2 sm:p-3 bg-blue-500/10 rounded-xl flex-shrink-0">
+                    <User className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400" />
                   </div>
-                  
-                  <form className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="emailNotifications" className="text-sm font-medium text-muted-foreground">
-                        Email értesítések
-                      </Label>
-                      <Input
-                        id="emailNotifications"
-                        placeholder="Hamarosan elérhető..."
-                        disabled
-                        className="h-10 disabled:opacity-40"
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="pushNotifications" className="text-sm font-medium text-muted-foreground">
-                        Push értesítések
-                      </Label>
-                      <Input
-                        id="pushNotifications"
-                        placeholder="Hamarosan elérhető..."
-                        disabled
-                        className="h-10 disabled:opacity-40"
-                      />
-                    </div>
-
-                    <Button type="button" disabled className="h-10 px-4 opacity-40">
-                      <Save className="mr-2 h-4 w-4" />
-                      Értesítések mentése
-                    </Button>
-                  </form>
-                  
-                  <div className="mt-6 text-center">
-                    <p className="text-sm text-muted-foreground">📅 Várható megjelenés: <strong>2025 Q3</strong></p>
+                  <div className="min-w-0 flex-1">
+                    <CardTitle className="text-lg sm:text-xl break-words">Profil információk</CardTitle>
+                    <CardDescription className="text-sm sm:text-base">
+                      Alapvető fiókadatok és beállítások
+                    </CardDescription>
                   </div>
                 </div>
-              </TabsContent>
-
-              {/* Security Tab */}
-              <TabsContent value="security" className="space-y-6">
-                <div className="p-6 bg-card/30 rounded-xl border border-border/30 opacity-60">
-                  <div className="mb-6">
-                    <h2 className="text-lg font-semibold mb-2 text-muted-foreground">Biztonsági beállítások</h2>
-                    <p className="text-muted-foreground text-sm">Kétfaktoros hitelesítés és munkamenetek kezelése</p>
+              </CardHeader>
+              <CardContent className="p-4 sm:p-6 space-y-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="lastName" className="text-xs sm:text-sm font-medium flex items-center gap-2">
+                        <User className="w-3 h-3 sm:w-4 sm:h-4" />
+                        Vezetéknév
+                      </Label>
+                      <Input
+                        id="lastName"
+                        value={user.last_name}
+                        disabled
+                        className="h-10 sm:h-11 disabled:opacity-60 disabled:bg-muted/50"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="firstName" className="text-xs sm:text-sm font-medium flex items-center gap-2">
+                        <User className="w-3 h-3 sm:w-4 sm:h-4" />
+                        Keresztnév
+                      </Label>
+                      <Input
+                        id="firstName"
+                        value={user.first_name}
+                        disabled
+                        className="h-10 sm:h-11 disabled:opacity-60 disabled:bg-muted/50"
+                      />
+                    </div>
                   </div>
-                  
-                  <form className="space-y-4">
+                  <div className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="twoFactor" className="text-sm font-medium text-muted-foreground">
-                        Kétfaktoros hitelesítés
+                      <Label htmlFor="email" className="text-xs sm:text-sm font-medium flex items-center gap-2">
+                        <Mail className="w-3 h-3 sm:w-4 sm:h-4" />
+                        Email cím
                       </Label>
                       <Input
-                        id="twoFactor"
-                        placeholder="Hamarosan elérhető..."
+                        id="email"
+                        type="email"
+                        value={user.email}
                         disabled
-                        className="h-10 disabled:opacity-40"
+                        className="h-10 sm:h-11 disabled:opacity-60 disabled:bg-muted/50 text-xs sm:text-sm"
                       />
                     </div>
-                    
                     <div className="space-y-2">
-                      <Label htmlFor="sessions" className="text-sm font-medium text-muted-foreground">
-                        Aktív munkamenetek
+                      <Label htmlFor="username" className="text-xs sm:text-sm font-medium flex items-center gap-2">
+                        <AtSign className="w-3 h-3 sm:w-4 sm:h-4" />
+                        Felhasználónév
                       </Label>
                       <Input
-                        id="sessions"
-                        placeholder="Hamarosan elérhető..."
+                        id="username"
+                        value={user.username}
                         disabled
-                        className="h-10 disabled:opacity-40"
+                        className="h-10 sm:h-11 disabled:opacity-60 disabled:bg-muted/50"
                       />
                     </div>
-
-                    <Button type="button" disabled className="h-10 px-4 opacity-40">
-                      <Save className="mr-2 h-4 w-4" />
-                      Biztonsági beállítások mentése
-                    </Button>
-                  </form>
-                  
-                  <div className="mt-6 text-center">
-                    <p className="text-sm text-muted-foreground">🔒 Várható megjelenés: <strong>2025 Q4</strong></p>
                   </div>
                 </div>
-              </TabsContent>
 
-              {/* Admin Tab */}
-              {isAdmin && (
-                <TabsContent value="admin" className="space-y-6">
-                  <Alert className="border-orange-200 bg-orange-50 dark:border-orange-800 dark:bg-orange-950/30 p-4">
-                    <AlertTriangle className="h-4 w-4 text-orange-600" />
-                    <AlertDescription className="text-orange-800 dark:text-orange-200">
-                      <div className="space-y-2">
-                        <p className="font-medium">Globális rendszerbeállítások</p>
-                        <p className="text-sm">
-                          A rendszer alapvető konfigurációja, kapcsolati sztringek, és egyéb kritikus beállítások 
-                          biztonsági okokból csak közvetlen adatbázis-hozzáféréssel módosíthatók.
-                        </p>
+                {/* System Information */}
+                <div className="pt-4 border-t">
+                  <h3 className="font-semibold mb-3 flex items-center gap-2 text-sm sm:text-base">
+                    <Activity className="w-4 h-4" />
+                    Rendszerinformációk
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 text-xs sm:text-sm">
+                    <div className="flex items-center gap-2 p-3 bg-muted/30 rounded-lg">
+                      <Clock className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                      <div className="min-w-0 flex-1">
+                        <span className="text-muted-foreground block">Utolsó bejelentkezés:</span>
+                        <div className="font-mono text-xs">Ma</div>
                       </div>
-                    </AlertDescription>
-                  </Alert>
-
-                  <div className="p-6 bg-card/50 rounded-xl border border-border/50">
-                    <div className="mb-6">
-                      <h2 className="text-lg font-semibold mb-2">Rendszeradminisztráció</h2>
-                      <p className="text-muted-foreground text-sm">Speciális adminisztrátori eszközök és beállítások</p>
                     </div>
-                    
-                    <div className="flex items-center justify-between p-4 border rounded-lg bg-muted/30">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 bg-primary/10 rounded-lg">
-                          <Database className="h-5 w-5 text-primary" />
-                        </div>
-                        <div>
-                          <h3 className="font-semibold">Adatbázis adminisztráció</h3>
-                          <p className="text-muted-foreground text-sm">Közvetlen hozzáférés az adatbázis-kezelő felülethez</p>
-                        </div>
+                    <div className="flex items-center gap-2 p-3 bg-muted/30 rounded-lg">
+                      <Calendar className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                      <div className="min-w-0 flex-1">
+                        <span className="text-muted-foreground block">Regisztráció:</span>
+                        <div className="font-mono text-xs">2024</div>
                       </div>
-                      <Button variant="outline" size="sm" asChild className="h-10 px-4">
-                        <a href="/app/database-admin" target="_blank" className="flex items-center gap-2 cursor-pointer">
-                          <Globe className="h-4 w-4" />
-                          Megnyitás
-                        </a>
-                      </Button>
+                    </div>
+                    <div className="flex items-center gap-2 p-3 bg-muted/30 rounded-lg sm:col-span-2 lg:col-span-1">
+                      <User className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                      <div className="min-w-0 flex-1">
+                        <span className="text-muted-foreground block">Felhasználó ID:</span>
+                        <div className="font-mono text-xs">#{user.user_id}</div>
+                      </div>
                     </div>
                   </div>
-                </TabsContent>
-              )}
-            </Tabs>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t">
+                  <Button type="button" disabled className="h-10 sm:h-11 px-4 sm:px-6 opacity-50 flex-1 sm:flex-initial">
+                    <Save className="mr-2 h-4 w-4" />
+                    <span className="hidden sm:inline">Profil </span>mentése
+                  </Button>
+                  <Button type="button" variant="outline" disabled className="h-10 sm:h-11 px-4 sm:px-6 opacity-50 flex-1 sm:flex-initial">
+                    <Lock className="mr-2 h-4 w-4" />
+                    <span className="hidden sm:inline">Jelszó </span>változtatása
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Additional Settings */}
+            <Card className="border-2 shadow-lg">
+              <CardHeader className="p-4 sm:p-6">
+                <div className="flex items-center gap-3 sm:gap-4">
+                  <div className="p-2 sm:p-3 bg-emerald-500/10 rounded-xl flex-shrink-0">
+                    <Settings className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600 dark:text-emerald-400" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <CardTitle className="text-lg sm:text-xl break-words">További beállítások</CardTitle>
+                    <CardDescription className="text-sm sm:text-base">
+                      Hamarosan elérhető funkciók és speciális opciók
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="p-4 sm:p-6 space-y-3">
+                {settingSections.map((section) => {
+                  const IconComponent = section.icon
+                  return (
+                    <Button
+                      key={section.id}
+                      variant="ghost"
+                      className="w-full justify-between h-auto p-3 sm:p-4 text-left border border-transparent hover:border-border/50"
+                      disabled={section.disabled}
+                    >
+                      <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
+                        <div className={`p-2 sm:p-3 rounded-xl flex-shrink-0 ${
+                          section.disabled 
+                            ? 'bg-muted/50 text-muted-foreground/50' 
+                            : 'bg-primary/10 text-primary'
+                        }`}>
+                          <IconComponent className="w-4 h-4 sm:w-5 sm:h-5" />
+                        </div>
+                        <div className="space-y-1 min-w-0 flex-1">
+                          <div className={`font-semibold text-sm sm:text-base break-words ${
+                            section.disabled ? 'text-muted-foreground/70' : ''
+                          }`}>
+                            {section.label}
+                          </div>
+                          <div className={`text-xs sm:text-sm break-words ${
+                            section.disabled ? 'text-muted-foreground/50' : 'text-muted-foreground'
+                          }`}>
+                            {section.description}
+                          </div>
+                        </div>
+                      </div>
+                      <ChevronRight className={`w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0 ${
+                        section.disabled ? 'text-muted-foreground/30' : 'text-muted-foreground'
+                      }`} />
+                    </Button>
+                  )
+                })}
+              </CardContent>
+            </Card>
+
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4 sm:pt-6 px-2 sm:px-4">
+              <Button
+                variant="outline"
+                size="lg"
+                className="flex-1 h-12 sm:h-14 text-sm sm:text-base px-6 sm:px-8 py-3"
+                onClick={() => window.history.back()}
+              >
+                Vissza
+              </Button>
+              <Button
+                variant="destructive"
+                size="lg"
+                className="flex-1 h-12 sm:h-14 text-sm sm:text-base px-6 sm:px-8 py-3"
+                onClick={handleLogout}
+              >
+                <LogOut className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                Kijelentkezés
+              </Button>
+            </div>
           </div>
         </div>
       </SidebarInset>
