@@ -131,60 +131,63 @@ export default function CalendarPage() {
   // SessionDetails component for dialog
   const SessionDetails = ({ session }: { session: ForgatSchema }) => {
     return (
-      <div className="space-y-4 sm:space-y-6">
-        {/* Basic Info */}
-        <div className="space-y-3 sm:space-y-4">
-          <div className="flex items-start gap-3 sm:gap-4">
+      <div className="space-y-6">
+        {/* Description */}
+        {session.description && (
+          <div className="p-4 bg-muted/30 rounded-lg">
+            <p className="text-sm text-muted-foreground leading-relaxed">{session.description}</p>
+          </div>
+        )}
+
+        {/* Basic Info Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="flex items-center gap-3 p-4 bg-muted/30 rounded-lg">
             <div className="p-2 bg-primary/10 rounded-lg flex-shrink-0">
-              {getEventIcon(session.type) && <div className="h-4 w-4 sm:h-5 sm:w-5">{getEventIcon(session.type)}</div>}
+              <Calendar className="h-4 w-4 text-primary" />
             </div>
-            <div className="flex-1 min-w-0">
-              <h3 className="text-base sm:text-lg font-semibold">{session.name}</h3>
-              <p className="text-sm text-muted-foreground mt-1">{session.description}</p>
+            <div className="min-w-0 flex-1">
+              <div className="font-medium text-sm">Dátum</div>
+              <div className="text-sm text-muted-foreground truncate">
+                {formatSessionDate(session.date)}
+              </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-            <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
-              <Calendar className="h-4 w-4 text-primary flex-shrink-0" />
-              <div className="min-w-0">
-                <div className="font-medium text-sm">Dátum</div>
-                <div className="text-sm text-muted-foreground truncate">
-                  {formatSessionDate(session.date)}
-                </div>
+          <div className="flex items-center gap-3 p-4 bg-muted/30 rounded-lg">
+            <div className="p-2 bg-primary/10 rounded-lg flex-shrink-0">
+              <Clock className="h-4 w-4 text-primary" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="font-medium text-sm">Időpont</div>
+              <div className="text-sm text-muted-foreground truncate">
+                {session.time_from && session.time_to 
+                  ? `${formatTime(session.time_from)} - ${formatTime(session.time_to)}`
+                  : 'Nincs megadva'
+                }
               </div>
             </div>
+          </div>
 
-            <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
-              <Clock className="h-4 w-4 text-primary flex-shrink-0" />
-              <div className="min-w-0">
-                <div className="font-medium text-sm">Időpont</div>
-                <div className="text-sm text-muted-foreground truncate">
-                  {session.time_from && session.time_to 
-                    ? `${formatTime(session.time_from)} - ${formatTime(session.time_to)}`
-                    : 'Nincs megadva'
-                  }
-                </div>
+          <div className="flex items-center gap-3 p-4 bg-muted/30 rounded-lg">
+            <div className="p-2 bg-primary/10 rounded-lg flex-shrink-0">
+              <MapPin className="h-4 w-4 text-primary" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="font-medium text-sm">Helyszín</div>
+              <div className="text-sm text-muted-foreground truncate">
+                {session.location?.name || 'Nincs megadva'}
               </div>
             </div>
+          </div>
 
-            <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
-              <MapPin className="h-4 w-4 text-primary flex-shrink-0" />
-              <div className="min-w-0">
-                <div className="font-medium text-sm">Helyszín</div>
-                <div className="text-sm text-muted-foreground truncate">
-                  {session.location?.name || 'Nincs megadva'}
-                </div>
-              </div>
+          <div className="flex items-center gap-3 p-4 bg-muted/30 rounded-lg">
+            <div className="p-2 bg-primary/10 rounded-lg flex-shrink-0">
+              <Users className="h-4 w-4 text-primary" />
             </div>
-
-            <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
-              <Users className="h-4 w-4 text-primary flex-shrink-0" />
-              <div className="min-w-0">
-                <div className="font-medium text-sm">Eszközök</div>
-                <div className="text-sm text-muted-foreground">
-                  {session.equipment_count || 0} eszköz
-                </div>
+            <div className="min-w-0 flex-1">
+              <div className="font-medium text-sm">Eszközök</div>
+              <div className="text-sm text-muted-foreground">
+                {session.equipment_count || 0} eszköz
               </div>
             </div>
           </div>
@@ -193,13 +196,15 @@ export default function CalendarPage() {
         {/* Contact Person */}
         {session.contact_person && (
           <div className="space-y-3">
-            <h4 className="font-semibold">Kapcsolattartó</h4>
-            <div className="p-3 bg-muted/30 rounded-lg">
-              <div className="flex items-center gap-2 mb-2">
-                <Users className="h-4 w-4 flex-shrink-0" />
+            <h4 className="text-base font-semibold">Kapcsolattartó</h4>
+            <div className="p-4 bg-muted/30 rounded-lg">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 bg-primary/10 rounded-lg flex-shrink-0">
+                  <Users className="h-4 w-4 text-primary" />
+                </div>
                 <span className="font-medium">{session.contact_person.name}</span>
               </div>
-              <div className="space-y-1 text-sm text-muted-foreground">
+              <div className="space-y-2 ml-11 text-sm text-muted-foreground">
                 {session.contact_person.phone && (
                   <div className="flex items-center gap-2">
                     <Phone className="h-3 w-3 flex-shrink-0" />
@@ -218,19 +223,13 @@ export default function CalendarPage() {
         )}
 
         {/* Actions */}
-        <div className="flex flex-col sm:flex-row gap-2 pt-4 border-t">
+        <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t">
           <Link href={`/app/forgatasok/${session.id}`} className="flex-1">
-            <Button className="w-full">
+            <Button className="w-full" size="default">
+              <ArrowLeft className="h-4 w-4 mr-2" />
               Részletek megtekintése
             </Button>
           </Link>
-          <Button
-            variant="outline"
-            onClick={() => setSelectedSession(null)}
-            className="sm:w-auto"
-          >
-            Bezárás
-          </Button>
         </div>
       </div>
     )
@@ -387,7 +386,7 @@ export default function CalendarPage() {
                             ${!isLastRow ? 'border-b' : ''}
                             ${isCurrentMonth ? 'bg-background hover:bg-muted/20' : 'bg-muted/10 hover:bg-muted/30'}
                             ${isToday ? 'bg-blue-50 dark:bg-blue-950/20' : ''}
-                            ${isSelected ? 'bg-blue-100 dark:bg-blue-900/30 ring-2 ring-blue-200 dark:ring-blue-800' : ''}
+                            ${isSelected ? 'bg-blue-100 dark:bg-blue-900/30 z-10 outline-5 scale-105 outline-blue-200 dark:outline-blue-800 rounded-xs' : ''}
                           `}
                           onClick={() => setSelectedDate(day)}
                         >
@@ -448,10 +447,10 @@ export default function CalendarPage() {
                                   className={`
                                     text-xs px-2 py-1 rounded-sm cursor-pointer transition-colors
                                     ${event.type === 'kacsa' 
-                                      ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300' 
+                                      ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-300 dark:hover:bg-yellow-900/70 dark:bg-yellow-900/40 dark:text-yellow-300'
                                       : event.type === 'rendezveny'
-                                      ? 'bg-purple-100 text-purple-800 hover:bg-purple-200 dark:bg-purple-900/30 dark:text-purple-300'
-                                      : 'bg-blue-100 text-blue-800 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300'
+                                      ? 'bg-purple-100 text-purple-800 hover:bg-purple-300 dark:hover:bg-purple-900/70 dark:bg-purple-900/40 dark:text-purple-300'
+                                      : 'bg-blue-100 text-blue-800 hover:bg-blue-300 dark:hover:bg-blue-900/70 dark:bg-blue-900/40 dark:text-blue-300'
                                     }
                                     ${eventIndex >= 2 ? 'opacity-75' : ''}
                                   `}
@@ -465,7 +464,11 @@ export default function CalendarPage() {
                                     {event.title}
                                   </div>
                                   <div className="truncate text-xs opacity-75">
-                                    {event.time.split(' - ')[0]}
+                                    {(() => {
+                                      const [from, to] = event.time.split(' - ')
+                                      const formatShort = (t: string) => t ? t.slice(0, 5) : ''
+                                      return `${formatShort(from)} - ${formatShort(to)}`
+                                    })()}
                                   </div>
                                 </div>
                               ))}
@@ -623,21 +626,11 @@ export default function CalendarPage() {
 
             {/* Filming Session Detail Dialog */}
             <Dialog open={!!selectedSession} onOpenChange={() => setSelectedSession(null)}>
-              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto mx-4 sm:mx-0 p-4 sm:p-6">
-                <DialogHeader>
-                  <div className="flex items-start justify-between gap-4">
-                    <DialogTitle className="text-lg sm:text-xl pr-4">
-                      {selectedSession?.name || "Forgatás részletei"}
-                    </DialogTitle>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setSelectedSession(null)}
-                      className="flex-shrink-0"
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto mx-4 sm:mx-0">
+                <DialogHeader className="pb-4">
+                  <DialogTitle className="text-lg sm:text-xl">
+                    {selectedSession?.name || "Forgatás részletei"}
+                  </DialogTitle>
                 </DialogHeader>
                 
                 {selectedSession && <SessionDetails session={selectedSession} />}

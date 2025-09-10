@@ -5,6 +5,29 @@ import { create } from 'domain';
 
 const rawChangelogData: ChangelogEntry[] = [
   createChangelogEntry(
+    'v1.0.0-beta.13',
+    '2025. szeptember 10.',
+    '2025-09-10T10:00:00Z',
+    [
+      createChange(
+        'improvement',
+        'Forgatások részletezője a naptárban',
+        'Az események részleteit mostantól egy részletes dialógusban tekinthetik meg a felhasználók.'
+      ),
+      createChange(
+        'improvement',
+        'Események színkódolása',
+        'Az események típusaihoz színkódokat rendeltünk, így könnyebben átláthatóak a különböző események.'
+      ),
+      createChange(
+        'bugfix',
+        'Kisebb hibák javítása a naptár komponensben',
+        'Javítottunk néhány apróbb hibát, amelyek a naptár használhatóságát fejlesztették.'
+      ),
+    ]
+  ),
+  
+  createChangelogEntry(
     'v1.0.0-beta.12',
     '2025. szeptember 09.',
     '2025-09-09T23:00:00Z',
@@ -19,7 +42,6 @@ const rawChangelogData: ChangelogEntry[] = [
         'Adminisztrátori gyors műveletek visszaállítása',
         'Visszahoztuk, a gyors műveleteket az adminisztrátori irányítópultra, megújult dizájnnal.'
       ),
-
     ]
   ),
   createChangelogEntry(
