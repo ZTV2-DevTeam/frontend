@@ -111,14 +111,19 @@ export default function DatabaseAdminPage() {
       <AppSidebar variant="inset" />
       <SidebarInset>
         <SiteHeader />
-        <div className="flex-1 space-y-6 p-4 md:p-8 pt-6">
+        <div className="flex-1 space-y-4 p-4 md:p-6">
           {/* Header */}
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">Adatbázis Adminisztráció</h1>
-              <p className="text-muted-foreground">
-                Django admin felület elérése és adatbázis modellek kezelése
-              </p>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-primary rounded-xl shadow-sm">
+                <Database className="h-6 w-6 text-primary-foreground" />
+              </div>
+              <div className="space-y-1">
+                <h1 className="text-3xl font-bold text-black dark:text-white tracking-tight">Adatbázis Adminisztráció</h1>
+                <p className="text-base text-muted-foreground">
+                  Django admin felület elérése és adatbázis modellek kezelése
+                </p>
+              </div>
             </div>
             <Badge variant="outline" className="text-sm">
               <Database className="w-3 h-3 mr-1" />

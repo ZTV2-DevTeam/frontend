@@ -16,23 +16,23 @@ function StudentAbsencesPageReal() {
     <StandardizedLayout>
       <div className="space-y-6 animate-in fade-in-50 duration-500">
         {/* Header */}
-        <div className="space-y-2">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-primary rounded-lg">
-              <FileText className="h-5 w-5 text-primary-foreground" />
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-primary rounded-xl shadow-sm">
+              <FileText className="h-6 w-6 text-primary-foreground" />
             </div>
-            <div>
-              <h1 className="text-2xl font-bold text-black dark:text-white">Automatikus Igazoláskezelés</h1>
-              <p className="text-muted-foreground">
+            <div className="space-y-1">
+              <h1 className="text-3xl font-bold text-black dark:text-white tracking-tight">Automatikus Igazoláskezelés</h1>
+              <p className="text-base text-muted-foreground">
                 A hiányzásaid automatikusan kezelve vannak a forgatási információid alapján
               </p>
             </div>
-            <Badge variant="outline" className="bg-blue-500/10 text-blue-400 border-blue-500/30">
-              {isPreviewMode && actualUserRole === 'class-teacher' 
-                ? 'Ofő Előnézet - Diák nézet' 
-                : `${user?.first_name} ${user?.last_name}`}
-            </Badge>
           </div>
+          <Badge variant="outline" className="bg-blue-500/10 text-blue-400 border-blue-500/30">
+            {isPreviewMode && actualUserRole === 'class-teacher' 
+              ? 'Ofő Előnézet - Diák nézet' 
+              : `${user?.first_name} ${user?.last_name}`}
+          </Badge>
         </div>
 
         {/* Main Information Card */}

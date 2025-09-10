@@ -158,14 +158,14 @@ export default function MessageBoardPage() {
         <SiteHeader />
         <div className="flex-1 space-y-4 p-4 md:p-6">
           {/* Header */}
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-primary rounded-lg">
-                <Megaphone className="h-5 w-5 text-primary-foreground" />
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-primary rounded-xl shadow-sm">
+                <Megaphone className="h-6 w-6 text-primary-foreground" />
               </div>
-              <div>
-                <h1 className="text-2xl font-bold text-black dark:text-white">Üzenőfal</h1>
-                <p className="text-muted-foreground">
+              <div className="space-y-1">
+                <h1 className="text-3xl font-bold text-black dark:text-white tracking-tight">Üzenőfal</h1>
+                <p className="text-base text-muted-foreground">
                   Közlemények és bejelentések • {sortedAnnouncements.length} üzenet
                 </p>
               </div>

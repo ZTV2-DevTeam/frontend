@@ -86,31 +86,26 @@ export default function SettingsPage() {
       <AppSidebar variant="inset" />
       <SidebarInset>
         <SiteHeader />
-        <div className="flex flex-1 flex-col p-3 sm:p-4 md:p-6 lg:p-8">
-          {/* Enhanced Header */}
-          <div className="mb-6 md:mb-8">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-              <div className="flex items-start gap-3 sm:gap-4">
-                <div className="p-2 sm:p-3 bg-gradient-to-br from-primary to-primary/80 rounded-xl shadow-lg flex-shrink-0">
-                  <Settings className="h-5 w-5 sm:h-6 sm:w-6 text-primary-foreground" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <h1 className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent break-words">
-                    Beállítások
-                  </h1>
-                  <p className="text-muted-foreground mt-1 text-sm sm:text-base md:text-lg">
-                    Személyre szabás és fiókkezelés
-                  </p>
-                </div>
+        <div className="flex flex-1 flex-col gap-4 p-4 md:p-6">
+          {/* Header */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-primary rounded-xl shadow-sm">
+                <Settings className="h-6 w-6 text-primary-foreground" />
               </div>
-              <div className="flex items-center gap-2 self-start sm:self-auto">
-                <div className="px-2 sm:px-3 py-1 sm:py-1.5 bg-primary/10 text-primary rounded-full text-xs sm:text-sm font-medium whitespace-nowrap">
-                  {currentRole === 'admin' ? 'Admin' : 
-                   currentRole === 'class-teacher' ? 'Tanár' : 'Diák'}
-                </div>
+              <div className="space-y-1">
+                <h1 className="text-3xl font-bold text-black dark:text-white tracking-tight">Beállítások</h1>
+                <p className="text-base text-muted-foreground">
+                  Személyre szabás és fiókkezelés
+                </p>
               </div>
             </div>
-            <div className="w-full h-px bg-gradient-to-r from-border via-border/50 to-transparent"></div>
+            <div className="flex items-center gap-2 self-start sm:self-auto">
+              <div className="px-2 sm:px-3 py-1 sm:py-1.5 bg-primary/10 text-primary rounded-full text-xs sm:text-sm font-medium whitespace-nowrap">
+                {currentRole === 'admin' ? 'Admin' : 
+                 currentRole === 'class-teacher' ? 'Tanár' : 'Diák'}
+              </div>
+            </div>
           </div>
 
           <div className="w-full max-w-6xl mx-auto space-y-6 md:space-y-8">
@@ -376,7 +371,8 @@ export default function SettingsPage() {
               <Button
                 variant="destructive"
                 size="lg"
-                className="flex-1 h-12 sm:h-14 text-sm sm:text-base px-6 sm:px-8 py-3"
+                className="flex-1 h-12 sm:h-14 text-sm sm:text-base px-6 sm:px-8 py-3
+                dark:bg-red-600 dark:hover:bg-red-600/50"
                 onClick={handleLogout}
               >
                 <LogOut className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />

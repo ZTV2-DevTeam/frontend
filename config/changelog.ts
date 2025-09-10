@@ -24,6 +24,11 @@ const rawChangelogData: ChangelogEntry[] = [
         'Kisebb hibák javítása a naptár komponensben',
         'Javítottunk néhány apróbb hibát, amelyek a naptár használhatóságát fejlesztették.'
       ),
+      createChange(
+        'improvement',
+        'Áttekinthetőbb fejléc stílusok a főbb komponensekben',
+        'Frissítettük a fejléc stílusokat, hogy azok egységesebbek és esztétikusabbak legyenek a főbb komponensekben.'
+      ),
     ]
   ),
   
