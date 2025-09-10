@@ -7,7 +7,7 @@ const rawChangelogData: ChangelogEntry[] = [
   createChangelogEntry(
     'v1.0.0-beta.13',
     '2025. szeptember 10.',
-    '2025-09-10T10:00:00Z',
+    '2025-09-10T13:00:00Z',
     [
       createChange(
         'improvement',
