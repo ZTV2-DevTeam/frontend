@@ -283,7 +283,7 @@ function UserCard({ user, onEdit, onDelete }: {
       color: 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400' 
     };
     if (user.admin_type === 'teacher') return { 
-      name: 'Tanár', 
+      name: 'Médiatanár', 
       icon: '👨‍🏫', 
       color: 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400' 
     };
@@ -699,7 +699,7 @@ export default function StabPage() {
     // Check admin_type first
     if (user.admin_type === 'system_admin') return { name: 'Rendszergazda', icon: '👑', color: 'bg-red-100 text-red-800' };
     if (user.admin_type === 'developer') return { name: 'Fejlesztő', icon: '💻', color: 'bg-gray-100 text-gray-800' };
-    if (user.admin_type === 'teacher') return { name: 'Tanár', icon: '👨‍🏫', color: 'bg-green-100 text-green-800' };
+    if (user.admin_type === 'teacher') return { name: 'Médiatanár', icon: '👨‍🏫', color: 'bg-green-100 text-green-800' };
     
     // Check for Osztályfőnök using multiple possible fields (same logic as permissions-context)
     const isClassTeacher = user.is_osztaly_fonok || 
@@ -1191,7 +1191,7 @@ export default function StabPage() {
 
                     const sortedRoles = Object.keys(usersByRole).sort((a, b) => {
                       // Custom sort: Admins first, then staff roles, then students
-                      const roleOrder = ['Rendszergazda', 'Fejlesztő', 'Tanár', 'Gyártásvezető', 'Diák']
+                      const roleOrder = ['Rendszergazda', 'Fejlesztő', 'Médiatanár', 'Gyártásvezető', 'Diák']
                       const aIndex = roleOrder.indexOf(a)
                       const bIndex = roleOrder.indexOf(b)
                       if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex

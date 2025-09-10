@@ -249,9 +249,9 @@ function ActiveUsersWidget() {
   // Get user role display - using the same logic as in stab page
   const getUserRoleDisplay = (user: any) => {
     // Check admin_type first
-    if (user.admin_type === 'system_admin') return 'Rendszeradmin'
     if (user.admin_type === 'developer') return 'Fejlesztő'
-    if (user.admin_type === 'teacher') return 'Szaktanár'
+    if (user.admin_type === 'teacher') return 'Médiatanár'
+    if (user.admin_type === 'system_admin' || user.admin_type === 'admin') return 'Rendszergazda'
     
     // Check special_role
     if (user.special_role === 'class_teacher') return 'Osztályfőnök'
@@ -1206,8 +1206,17 @@ function FirstStepsWidget() {
 
 export default function Page() {
   const { currentRole, isPreviewMode, actualUserRole } = useUserRole()
-  const { user } = useAuth()
+  const { user, isAuthenticated } = useAuth()
   const [welcomeMessage, setWelcomeMessage] = useState('')
+  
+  // Get detailed user data that includes admin_type by fetching all users and finding current user
+  const { data: allUsersData } = useApiQuery(
+    () => isAuthenticated ? apiClient.getAllUsersDetailed() : Promise.resolve([]),
+    [isAuthenticated]
+  )
+  
+  // Find current user in the detailed data
+  const currentUserDetailed = allUsersData?.find((u: any) => u.user_id === user?.user_id || u.id === user?.user_id)
 
   // Debug logging
   console.log('🎭 Dashboard state:', {
@@ -1326,6 +1335,21 @@ export default function Page() {
   const getRoleInfo = () => {
     switch (currentRole) {
       case 'admin':
+        // Check user's admin_type using detailed user data
+        if (currentUserDetailed?.admin_type) {
+          if (currentUserDetailed.admin_type === 'teacher') {
+            return { 
+              title: 'Médiatanár', 
+              icon: Shield
+            }
+          }
+          if (currentUserDetailed.admin_type === 'developer') {
+            return { 
+              title: 'Fejlesztő', 
+              icon: Shield
+            }
+          }
+        }
         return { 
           title: 'Rendszergazda', 
           icon: Shield

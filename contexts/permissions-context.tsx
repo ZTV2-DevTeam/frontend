@@ -297,7 +297,7 @@ export function PermissionsProvider({ children }: { children: React.ReactNode })
       special_role: role_info?.special_role
     })
     
-    // Admin role: Rendszeradmin OR Tanár-admin (Médiatanár) OR Developer admin OR általános admin szerepkör
+    // Admin role: Rendszergazda OR Tanár-admin (Médiatanár) OR Developer admin OR általános admin szerepkör
     if (isSystemAdmin || isTeacherAdmin || isDeveloperAdmin || isGeneralAdmin) {
       roles.push('admin')
     }

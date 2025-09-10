@@ -40,7 +40,7 @@ export default function FirstStepsPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-muted-foreground">
-              Jelenleg Ön a rendszeradminisztrátor. Önnek teljes körű hozzáférése van a rendszerhez, 
+              Jelenleg Ön a rendszergazda. Önnek teljes körű hozzáférése van a rendszerhez, 
               mind ezen a felületen, mind a rendszer adatbázisát közvetlenül kezelő eszközökhöz (Django Admin).
             </p>
             

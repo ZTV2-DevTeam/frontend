@@ -87,7 +87,7 @@ export default function HelpPage() {
           },
           {
             question: "Mit tegyek, ha nem tudok részt venni egy forgatáson?",
-            answer: "Ha nem tudsz egy forgatáson részt venni, azonnal értesítsd a beosztást készítő szaktanárt."
+            answer: "Ha nem tudsz egy forgatáson részt venni, azonnal értesítsd a beosztást készítő médiatanárt."
           },
           {
             question: "Hol találom a forgatási információkat?",

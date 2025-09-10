@@ -84,7 +84,7 @@ export default function TermsOfServicePage() {
                 <div className="space-y-3">
                   <ul className="space-y-2 text-sm">
                     <li>• A felhasználók kötelesek a platformot a rendeltetése szerint használni</li>
-                    <li>• Tilos jogellenes, mások jogait sértő vagy obszcén tartalmat közzétenni, minden tartalmat abban a tudatban kell közzétenni, hogy azokat szaktanárok, osztályfőnökök és más diákok is láthatják.</li>
+                    <li>• Tilos jogellenes, mások jogait sértő vagy obszcén tartalmat közzétenni, minden tartalmat abban a tudatban kell közzétenni, hogy azokat médiatanárok, osztályfőnökök és más diákok is láthatják.</li>
                     <li>• Minden felhasználó köteles a saját hozzáférési adatait bizalmasan kezelni.</li>
                     <li>• Informatikai rendszerek hibáit és hiányosságait kihasználni szigorúan tilos. Amennyiben a felhasználó tudomására jut ilyen módszer, azt haladéktalanul jelenteni kell a rendszergazdának.</li>
                   </ul>

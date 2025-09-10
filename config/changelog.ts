@@ -29,6 +29,11 @@ const rawChangelogData: ChangelogEntry[] = [
         'Áttekinthetőbb fejléc stílusok a főbb komponensekben',
         'Frissítettük a fejléc stílusokat, hogy azok egységesebbek és esztétikusabbak legyenek a főbb komponensekben.'
       ),
+      createChange(
+        'improvement',
+        'Szerepkörök cimkéinek tisztázása és egységesítése',
+        'A szerepkörök címkéit egységesítettük és tisztáztuk, hogy azok jobban tükrözzék a felhasználók valós címeit.'
+      ),
     ]
   ),
   
