@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { Clapperboard, Info } from "lucide-react"
 import { FeaturesSection } from "@/app/features-section"
-import { WhyBetterSection } from "@/components/why-better-section"
+import { SpeedComparisonSection } from "@/components/speed-comparison-section"
 import { CountdownTimer } from "@/components/countdown-timer"
 import { DevelopersSection } from "@/components/developers-section"
 import { StatsSection } from "@/components/stats-section"
@@ -57,7 +57,7 @@ export default function LandingPage() {
               Funkciók
             </a>
             <a href="#why-better" className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
-              Előnyök
+              Teljesítmény
             </a>
             <a href="#about" className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
               Rólunk
@@ -125,23 +125,28 @@ export default function LandingPage() {
       </section>
       
       <section id="why-better">
-        <WhyBetterSection />
+        <SpeedComparisonSection />
       </section>
       
       <section id="about">
         <DevelopersSection />
       </section>
 
-      <div className="flex justify-center py-8">
-        <div className="max-w-2xl p-6 mx-4 border border-dashed rounded-xl bg-card/50 border-border">
-          <div className="flex items-start gap-3 mb-3">
-            <Info className="w-5 h-5 mt-0.5 text-muted-foreground" />
-            <div>
-              <h3 className="font-semibold leading-none tracking-tight text-lg mb-2">Zártkörű alkalmazás</h3>
-              <p className="text-muted-foreground leading-relaxed">
-                A regisztráció nem lehetséges. Ez az alkalmazás kizárólag a Kőbányai Szent László Gimnázium Média Tagozata
-                számára készült.
-              </p>
+      <div className="flex justify-center py-12">
+        <div className="max-w-3xl mx-4">
+          <div className="bg-background/50 border border-primary/20 rounded-xl p-8 shadow-sm">
+            <div className="flex items-start gap-4">
+              <div className="p-3 rounded-xl bg-primary/10 shrink-0">
+                <Info className="w-6 h-6 text-primary" />
+              </div>
+              <div className="space-y-3">
+                <h3 className="text-xl font-semibold tracking-tight">Zártkörű alkalmazás</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  A regisztráció nem lehetséges. Ez az alkalmazás kizárólag a 
+                  <span className="font-medium text-foreground"> Kőbányai Szent László Gimnázium Média Tagozata </span>
+                  számára készült.
+                </p>
+              </div>
             </div>
           </div>
         </div>

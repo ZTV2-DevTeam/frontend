@@ -43,6 +43,8 @@ const developers: Developer[] = [
 ]
 
 export function DevelopersSection() {
+  const [leadDeveloper, ...otherDevelopers] = developers
+
   return (
     <section className="container px-4 py-16 mx-auto sm:px-6 lg:px-8">
       <div className="mb-12 text-center">
@@ -55,37 +57,84 @@ export function DevelopersSection() {
         </p>
       </div>
 
-      <div className="max-w-2xl mx-auto space-y-4">
-        {developers.map((dev) => (
-          <div key={dev.github} className="flex items-center gap-3">
-            <Avatar className="w-8 h-8">
+      <div className="max-w-4xl mx-auto">
+        {/* Lead Developer - Bigger */}
+        <div className="mb-8 p-6 bg-primary/5 rounded-xl border border-primary/10">
+          <div className="flex items-start gap-6">
+            <Avatar className="w-16 h-16 border-2 border-primary/20">
               <AvatarImage
-                src={`https://github.com/${dev.github}.png`}
-                alt={`${dev.name} profile picture`}
+                src={`https://github.com/${leadDeveloper.github}.png`}
+                alt={`${leadDeveloper.name} profile picture`}
                 className="object-cover"
               />
-              <AvatarFallback className="text-xs font-semibold">
-                {dev.name.split(' ').map(n => n[0]).join('')}
+              <AvatarFallback className="text-lg font-bold text-primary">
+                {leadDeveloper.name.split(' ').map(n => n[0]).join('')}
               </AvatarFallback>
             </Avatar>
             
-            <div>
-              <a
-                href={`https://github.com/${dev.github}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-semibold underline transition-colors duration-200 text-primary hover:text-primary/80"
-              >
-                {dev.name}
-              </a>
-              <span className="text-muted-foreground">
-                {" - " + dev.class}
-                {(dev.role || dev.title) && " - "}
-                {dev.role && dev.title ? `${dev.role}, ${dev.title}` : dev.role || dev.title}
-              </span>
+            <div className="flex-1">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
+                <a
+                  href={`https://github.com/${leadDeveloper.github}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xl font-bold underline transition-colors duration-200 text-primary hover:text-primary/80"
+                >
+                  {leadDeveloper.name}
+                </a>
+                <div className="flex items-center gap-2">
+                  <span className="text-muted-foreground">- {leadDeveloper.class}</span>
+                  {leadDeveloper.role && (
+                    <span className="px-2 py-1 text-xs font-semibold bg-primary/10 text-primary rounded-full">
+                      {leadDeveloper.role}
+                    </span>
+                  )}
+                </div>
+              </div>
+              {leadDeveloper.title && (
+                <p className="text-muted-foreground leading-relaxed">
+                  {leadDeveloper.title}
+                </p>
+              )}
             </div>
           </div>
-        ))}
+        </div>
+
+        {/* Other Developers - Regular Size */}
+        <div className="space-y-4">
+          {otherDevelopers.map((dev) => (
+            <div key={dev.github} className="flex items-center gap-4 p-3 rounded-lg hover:bg-muted/20 transition-colors">
+              <Avatar className="w-10 h-10">
+                <AvatarImage
+                  src={`https://github.com/${dev.github}.png`}
+                  alt={`${dev.name} profile picture`}
+                  className="object-cover"
+                />
+                <AvatarFallback className="text-sm font-semibold">
+                  {dev.name.split(' ').map(n => n[0]).join('')}
+                </AvatarFallback>
+              </Avatar>
+              
+              <div className="flex-1">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                  <a
+                    href={`https://github.com/${dev.github}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-semibold underline transition-colors duration-200 text-primary hover:text-primary/80"
+                  >
+                    {dev.name}
+                  </a>
+                  <span className="text-muted-foreground text-sm">
+                    - {dev.class}
+                    {dev.role && ` - ${dev.role}`}
+                    {dev.title && ` - ${dev.title}`}
+                  </span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   )
