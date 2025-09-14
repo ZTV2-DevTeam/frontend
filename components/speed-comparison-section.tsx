@@ -2,8 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { motion } from 'motion/react'
-import { Zap, Clock, Database, Server, Gauge, ArrowRight } from 'lucide-react'
-import Link from 'next/link'
+import { Zap } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 
 interface MetricData {
@@ -165,20 +164,7 @@ export function SpeedComparisonSection() {
           ))}
         </div>
 
-        {/* Technical Details Link */}
-        <div className="flex flex-col items-center justify-center mt-20 space-y-4 text-center">
-          <div className="space-y-3">
-            <h3 className="text-2xl font-bold tracking-tighter sm:text-3xl">Technikai részletek</h3>
-            <p className="max-w-[700px] text-muted-foreground md:text-lg/relaxed">
-              Részletes információk az FTV által használt rendszerekről és technológiákról
-            </p>
-          </div>
-          <Link href="/technical-details" className="group inline-flex items-center gap-2 px-6 py-3 mt-4 text-sm font-medium transition-all bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 hover:scale-105 cursor-pointer">
-            <Zap className="w-4 h-4" />
-            <span>Technikai részletek megtekintése</span>
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-          </Link>
-        </div>
+        {/* End of comparison section */}
       </div>
     </section>
   )
