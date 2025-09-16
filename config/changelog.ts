@@ -34,6 +34,16 @@ const rawChangelogData: ChangelogEntry[] = [
         'Új forgatás - Korábban nem rögzített Partnerek és Kapcsolattartók kezelése',
         'Mostantól lehetőség van új forgatások létrehozására olyan partnerekkel és kapcsolattartókkal, akik korábban nem kerültek rögzítésre a rendszerben.'
       ),
+      createChange(
+        'bugfix',
+        'Stáb menü - Biztonságos hozzáférés diákoknak is',
+        'Javítottunk egy hibát, mely miatt a diákok nem férhettek hozzá a Stáb menühöz.'
+      ),
+      createChange(
+        'improvement',
+        'Overscroll szín a témához igazítva',
+        'Az overscroll szín mostantól a kiválasztott témához igazodik, így egységesebb megjelenést biztosítva.'
+      ),
     ]
   ),
   createChangelogEntry(

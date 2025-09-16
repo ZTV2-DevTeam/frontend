@@ -266,13 +266,14 @@ function ErrorDisplay({
 }
 
 // User Card Component
-function UserCard({ user, onEdit, onDelete }: { 
+function UserCard({ user, onEdit, onDelete, hasAdminPermissions = false }: { 
   user: any, 
   onEdit?: (user: any) => void,
-  onDelete?: (user: any) => void 
+  onDelete?: (user: any) => void,
+  hasAdminPermissions?: boolean
 }) {
   const getRoleInfo = (user: any) => {
-    // Check admin_type first - with dark mode support
+    // Check admin_type (simplified for basic user data with dark mode support)
     if (user.admin_type === 'system_admin') return { 
       name: 'Rendszergazda', 
       icon: '👑', 
@@ -289,38 +290,8 @@ function UserCard({ user, onEdit, onDelete }: {
       color: 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400' 
     };
     
-    // Check for Osztályfőnök using multiple possible fields (same logic as permissions-context)
-    const isClassTeacher = user.is_osztaly_fonok || 
-                          user.special_role === 'class_teacher' || 
-                          user.can_manage_class_students ||
-                          user.permissions?.is_osztaly_fonok ||
-                          user.role_info?.special_role === 'class_teacher' ||
-                          (user.owned_osztaly_count && user.owned_osztaly_count > 0)
-    
-    if (isClassTeacher) return { 
-      name: 'Osztályfőnök', 
-      icon: '🏫', 
-      color: 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400' 
-    };
-    
-    // Check other special_roles
-    if (user.special_role === 'production_leader') return { 
-      name: 'Gyártásvezető', 
-      icon: '🎬', 
-      color: 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400' 
-    };
-    
-    // If admin_type is 'none' or not set, and no special role, it's a student
-    if ((user.admin_type === 'none' || !user.admin_type) && 
-        (user.special_role === 'none' || !user.special_role)) {
-      return { 
-        name: 'Diák', 
-        icon: '🎓', 
-        color: 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400' 
-      };
-    }
-    
-    // Default to student for safety
+    // For UserProfileSchema, we don't have detailed special role info
+    // Default to student for anyone without admin privileges
     return { 
       name: 'Diák', 
       icon: '🎓', 
@@ -390,18 +361,22 @@ function UserCard({ user, onEdit, onDelete }: {
                   <Eye className="h-4 w-4 mr-2" />
                   Megtekintés
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onEdit?.(user)}>
-                  <Edit className="h-4 w-4 mr-2" />
-                  Szerkesztés
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem 
-                  onClick={() => onDelete?.(user)}
-                  className="text-destructive focus:text-destructive"
-                >
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Törlés
-                </DropdownMenuItem>
+                {hasAdminPermissions && (
+                  <>
+                    <DropdownMenuItem onClick={() => onEdit?.(user)}>
+                      <Edit className="h-4 w-4 mr-2" />
+                      Szerkesztés
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem 
+                      onClick={() => onDelete?.(user)}
+                      className="text-destructive focus:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Törlés
+                    </DropdownMenuItem>
+                  </>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -502,7 +477,11 @@ export default function StabPage() {
   const [selectedUser, setSelectedUser] = useState<any>(null) // Add state for modal
   
   // Check if user has permission to access detailed user data
-  const canAccessUserData = hasPermission('is_admin') || hasPermission('is_system_admin') || hasPermission('is_teacher_admin')
+  // Staff contact information should be accessible to all users
+  const canAccessUserData = true // Allow all authenticated users to view staff contact info
+  
+  // Check if user has admin permissions for advanced features (editing, deleting, etc.)
+  const hasAdminPermissions = hasPermission('is_admin') || hasPermission('is_system_admin') || hasPermission('is_teacher_admin')
   
   // Fetch data from API
   const usersQuery = useApiQuery(
@@ -512,26 +491,16 @@ export default function StabPage() {
           return []
         }
         
-        // Only fetch detailed data if user has permission
-        if (!canAccessUserData) {
-          return []
-        }
-        
-        // Call without any filters to get ALL users
-        const result = await apiClient.getAllUsersDetailed()
+        // Use basic user endpoint that's accessible to all authenticated users
+        const result = await apiClient.getAllUsers()
         console.log('Users fetched successfully:', result?.length || 0, 'users')
-        console.log('Users by admin_type:', result?.reduce((acc: any, user: any) => {
-          const type = user.admin_type || 'unknown'
-          acc[type] = (acc[type] || 0) + 1
-          return acc
-        }, {}))
         return result || []
       } catch (error) {
         console.error('Failed to fetch users:', error)
         throw error
       }
     },
-    [isAuthenticated, canAccessUserData]
+    [isAuthenticated]
   )
   
   const classesQuery = useApiQuery(
@@ -618,8 +587,6 @@ export default function StabPage() {
           return (a.admin_type || "").localeCompare(b.admin_type || "")
         case "class":
           return (a.osztaly_name || "").localeCompare(b.osztaly_name || "")
-        case "last_login":
-          return new Date(b.last_login || 0).getTime() - new Date(a.last_login || 0).getTime()
         default:
           return 0
       }
@@ -670,15 +637,13 @@ export default function StabPage() {
     return a.localeCompare(b, 'hu')
   })
 
-  // Separate into categories for legacy views
+  // Separate into categories for legacy views (simplified for basic user data)
   const students = filteredUsers.filter((user: any) => 
     user?.admin_type === 'none' || !user?.admin_type ||
-    (user?.admin_type !== 'system_admin' && user?.admin_type !== 'developer' && 
-     user?.admin_type !== 'teacher' && user?.special_role !== 'production_leader')
+    !['system_admin', 'developer', 'teacher'].includes(user?.admin_type)
   )
   const staff = filteredUsers.filter((user: any) => 
-    user?.admin_type && ['system_admin', 'developer', 'teacher'].includes(user.admin_type) ||
-    user?.special_role === 'production_leader'
+    user?.admin_type && ['system_admin', 'developer', 'teacher'].includes(user.admin_type)
   )
 
   const availableClasses = [...new Set(normalizedUsers
@@ -705,29 +670,16 @@ export default function StabPage() {
     console.log('Delete user:', user)
   }
 
-  // Helper function to get role info (defined here for global use)
+  // Helper function to get role info (simplified for basic user data)
   const getRoleInfo = (user: any) => {
-    // Check admin_type first
+    // Check admin_type from UserProfileSchema
     if (user.admin_type === 'system_admin') return { name: 'Rendszergazda', icon: '👑', color: 'bg-red-100 text-red-800' };
     if (user.admin_type === 'developer') return { name: 'Fejlesztő', icon: '💻', color: 'bg-gray-100 text-gray-800' };
     if (user.admin_type === 'teacher') return { name: 'Médiatanár', icon: '👨‍🏫', color: 'bg-green-100 text-green-800' };
     
-    // Check for Osztályfőnök using multiple possible fields (same logic as permissions-context)
-    const isClassTeacher = user.is_osztaly_fonok || 
-                          user.special_role === 'class_teacher' || 
-                          user.can_manage_class_students ||
-                          user.permissions?.is_osztaly_fonok ||
-                          user.role_info?.special_role === 'class_teacher' ||
-                          (user.owned_osztaly_count && user.owned_osztaly_count > 0)
-    
-    if (isClassTeacher) return { name: 'Osztályfőnök', icon: '🏫', color: 'bg-purple-100 text-purple-800' };
-    
-    // Check other special_roles
-    if (user.special_role === 'production_leader') return { name: 'Gyártásvezető', icon: '🎬', color: 'bg-orange-100 text-orange-800' };
-    
-    // If admin_type is 'none' or not set, and no special role, it's a student
-    if ((user.admin_type === 'none' || !user.admin_type) && 
-        (user.special_role === 'none' || !user.special_role)) {
+    // For UserProfileSchema, we don't have detailed special_role info
+    // So we'll default to student for anyone without admin_type
+    if (user.admin_type === 'none' || !user.admin_type) {
       return { name: 'Diák', icon: '🎓', color: 'bg-blue-100 text-blue-800' };
     }
     
@@ -955,7 +907,6 @@ export default function StabPage() {
                           <SelectItem value="name">Név szerint</SelectItem>
                           <SelectItem value="role">Szerepkör szerint</SelectItem>
                           <SelectItem value="class">Osztály szerint</SelectItem>
-                          <SelectItem value="last_login">Utolsó bejelentkezés</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -982,43 +933,25 @@ export default function StabPage() {
                     let roleGroups: any[] = []
                     
                     if (isOsztalyNelkul) {
-                      // For "Osztály nélkül", separate by roles instead of stáb
+                      // For "Osztály nélkül", separate by roles (simplified for basic user data)
                       const adminUsers = classUsers.filter((user: any) => user.admin_type === 'system_admin')
                       const developerUsers = classUsers.filter((user: any) => user.admin_type === 'developer')
                       const teacherUsers = classUsers.filter((user: any) => user.admin_type === 'teacher')
                       
-                      // Use comprehensive class teacher detection (same as permissions-context)
-                      const classTeacherUsers = classUsers.filter((user: any) => {
-                        return user.is_osztaly_fonok || 
-                               user.special_role === 'class_teacher' || 
-                               user.can_manage_class_students ||
-                               user.permissions?.is_osztaly_fonok ||
-                               user.role_info?.special_role === 'class_teacher' ||
-                               (user.owned_osztaly_count && user.owned_osztaly_count > 0)
-                      })
-                      
-                      const productionLeaderUsers = classUsers.filter((user: any) => user.special_role === 'production_leader')
+                      // For basic UserProfileSchema, we don't have detailed special role info
+                      // So we'll just group remaining users as "Egyéb"
                       const otherRoleUsers = classUsers.filter((user: any) => {
                         const isAdmin = user.admin_type === 'system_admin'
                         const isDeveloper = user.admin_type === 'developer' 
                         const isTeacher = user.admin_type === 'teacher'
-                        const isClassTeacher = user.is_osztaly_fonok || 
-                                             user.special_role === 'class_teacher' || 
-                                             user.can_manage_class_students ||
-                                             user.permissions?.is_osztaly_fonok ||
-                                             user.role_info?.special_role === 'class_teacher' ||
-                                             (user.owned_osztaly_count && user.owned_osztaly_count > 0)
-                        const isProductionLeader = user.special_role === 'production_leader'
                         
-                        return !isAdmin && !isDeveloper && !isTeacher && !isClassTeacher && !isProductionLeader
+                        return !isAdmin && !isDeveloper && !isTeacher
                       })
                       
                       roleGroups = [
                         { users: adminUsers, name: 'Rendszergazdák', icon: '👑', color: 'bg-red-500/10 text-red-600 border-red-500/30 dark:bg-red-400/10 dark:text-red-300 dark:border-red-400/30' },
                         { users: developerUsers, name: 'Fejlesztők', icon: '💻', color: 'bg-gray-500/10 text-gray-600 border-gray-500/30 dark:bg-gray-400/10 dark:text-gray-300 dark:border-gray-400/30' },
                         { users: teacherUsers, name: 'Tanárok', icon: '👨‍🏫', color: 'bg-green-500/10 text-green-600 border-green-500/30 dark:bg-green-400/10 dark:text-green-300 dark:border-green-400/30' },
-                        { users: classTeacherUsers, name: 'Osztályfőnökök', icon: '🏫', color: 'bg-purple-500/10 text-purple-600 border-purple-500/30 dark:bg-purple-400/10 dark:text-purple-300 dark:border-purple-400/30' },
-                        { users: productionLeaderUsers, name: 'Gyártásvezetők', icon: '🎬', color: 'bg-orange-500/10 text-orange-600 border-orange-500/30 dark:bg-orange-400/10 dark:text-orange-300 dark:border-orange-400/30' },
                         { users: otherRoleUsers, name: 'Egyéb', icon: '👤', color: 'bg-blue-500/10 text-blue-600 border-blue-500/30 dark:bg-blue-400/10 dark:text-blue-300 dark:border-blue-400/30' }
                       ].filter(group => group.users.length > 0)
                       
@@ -1120,6 +1053,7 @@ export default function StabPage() {
                                           user={user} 
                                           onEdit={handleEdit}
                                           onDelete={handleDelete}
+                                          hasAdminPermissions={hasAdminPermissions}
                                         />
                                       ))}
                                     </div>
@@ -1146,6 +1080,7 @@ export default function StabPage() {
                                           user={user} 
                                           onEdit={handleEdit}
                                           onDelete={handleDelete}
+                                          hasAdminPermissions={hasAdminPermissions}
                                         />
                                       ))}
                                     </div>
@@ -1169,6 +1104,7 @@ export default function StabPage() {
                                           user={user} 
                                           onEdit={handleEdit}
                                           onDelete={handleDelete}
+                                          hasAdminPermissions={hasAdminPermissions}
                                         />
                                       ))}
                                     </div>
@@ -1184,6 +1120,7 @@ export default function StabPage() {
                                     user={user} 
                                     onEdit={handleEdit}
                                     onDelete={handleDelete}
+                                    hasAdminPermissions={hasAdminPermissions}
                                   />
                                 ))}
                               </div>
@@ -1208,6 +1145,7 @@ export default function StabPage() {
                                   user={user} 
                                   onEdit={handleEdit}
                                   onDelete={handleDelete}
+                                  hasAdminPermissions={hasAdminPermissions}
                                 />
                               ))}
                             </div>
@@ -1275,6 +1213,7 @@ export default function StabPage() {
                                 user={user} 
                                 onEdit={handleEdit}
                                 onDelete={handleDelete}
+                                hasAdminPermissions={hasAdminPermissions}
                               />
                             ))}
                           </div>
@@ -1305,6 +1244,7 @@ export default function StabPage() {
                         user={user} 
                         onEdit={handleEdit}
                         onDelete={handleDelete}
+                        hasAdminPermissions={hasAdminPermissions}
                       />
                     ))}
                   </div>

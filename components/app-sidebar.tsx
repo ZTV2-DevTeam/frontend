@@ -139,6 +139,11 @@ const data = {
         url: "/app/iranyitopult",
         icon: IconDashboard,
       },
+      {
+        title: "Stáb",
+        url: "/app/stab",
+        icon: IconUsers,
+      },
     ],
     student: [
       {
@@ -150,6 +155,11 @@ const data = {
         title: "Üzenőfal",
         url: "/app/uzenofal",
         icon: Mail,
+      },
+      {
+        title: "Stáb",
+        url: "/app/stab",
+        icon: IconUsers,
       },
       {
         title: "Naptár",
