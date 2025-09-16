@@ -54,6 +54,7 @@ import {
 } from "lucide-react"
 import { UserAvatar } from "@/components/user-avatar"
 import { AnnouncementDialog } from "@/components/announcement-dialog"
+import { VersionInfo } from "@/components/version-info"
 import { Shadow } from "@tsparticles/engine"
 
 // Function to get dynamic welcome message based on time of day and season
@@ -1475,6 +1476,9 @@ export default function Page() {
               !
             </p>
           </div>
+
+          {/* Version Information */}
+          <VersionInfo className="mt-4" />
         </div>
       </SidebarInset>
     </SidebarProvider>

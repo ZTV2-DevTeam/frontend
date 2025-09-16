@@ -5,7 +5,7 @@ import { create } from 'domain';
 
 const rawChangelogData: ChangelogEntry[] = [
   createChangelogEntry(
-    'v1.0.0-beta.14',
+    'v1.1.0-beta',
     '2025. szeptember 16.',
     '2025-09-16T23:00:00Z',
     [
@@ -49,10 +49,15 @@ const rawChangelogData: ChangelogEntry[] = [
         'Konfetti animáció Új Forgatás sikeres létrehozásakor',
         'Mostantól konfetti animáció kíséri az új forgatás sikeres létrehozását.'
       ),
+      createChange(
+        'feature',
+        'Verziószám in-app',
+        'Mostantól a verziószám megtekinthető az alkalmazáson belül is, a láblécben.'
+      ),
     ]
   ),
   createChangelogEntry(
-    'v1.0.0-beta.13',
+    'v1.0.13-beta',
     '2025. szeptember 10.',
     '2025-09-10T13:00:00Z',
     [
@@ -85,7 +90,7 @@ const rawChangelogData: ChangelogEntry[] = [
   ),
   
   createChangelogEntry(
-    'v1.0.0-beta.12',
+    'v1.0.12-beta',
     '2025. szeptember 09.',
     '2025-09-09T23:00:00Z',
     [
@@ -102,7 +107,7 @@ const rawChangelogData: ChangelogEntry[] = [
     ]
   ),
   createChangelogEntry(
-    'v1.0.0-beta.11',
+    'v1.0.11-beta',
     '2025. szeptember 09.',
     '2025-09-09T10:00:00Z',
     [
@@ -124,7 +129,7 @@ const rawChangelogData: ChangelogEntry[] = [
     ]
   ),
   createChangelogEntry(
-    'v1.0.0-beta.10',
+    'v1.0.10-beta',
     '2025. szeptember 02.',
     '2025-09-02T10:00:00Z',
     [
@@ -176,7 +181,7 @@ const rawChangelogData: ChangelogEntry[] = [
     ]
   ),
   createChangelogEntry(
-    'v1.0.0-beta.9',
+    'v1.0.9-beta',
     '2025. augusztus 27.',
     '2025-08-27T10:00:00Z',
     [
@@ -213,7 +218,7 @@ const rawChangelogData: ChangelogEntry[] = [
     ]
   ),
   createChangelogEntry(
-    'v1.0.0-beta.8',
+    'v1.0.8-beta',
     '2025. augusztus 25.',
     '2025-08-25T22:45:00Z',
     [
@@ -245,7 +250,7 @@ const rawChangelogData: ChangelogEntry[] = [
     ]
   ),
   createChangelogEntry(
-    'v1.0.0-beta.7',
+    'v1.0.7-beta',
     '2025. augusztus 25.',
     '2025-08-25T13:00:00Z',
     [
@@ -297,7 +302,7 @@ const rawChangelogData: ChangelogEntry[] = [
     ]
   ),
   createChangelogEntry(
-    'v1.0.0-beta.6',
+    'v1.0.6-beta',
     '2025. augusztus 25.',
     '2025-08-25T10:30:00Z',
     [
@@ -384,7 +389,7 @@ const rawChangelogData: ChangelogEntry[] = [
     ]
   ),
   createChangelogEntry(
-    'v1.0.0-beta.5',
+    'v1.0.5-beta',
     '2025. augusztus 25.',
     '2025-08-25T01:48:56Z',
     [
@@ -436,7 +441,7 @@ const rawChangelogData: ChangelogEntry[] = [
     ]
   ),
   createChangelogEntry(
-    'v1.0.0.-beta.4',
+    'v1.0.4-beta',
     '2025. augusztus 24.',
     '2025-08-24T12:00:00Z',
     [
@@ -448,7 +453,7 @@ const rawChangelogData: ChangelogEntry[] = [
     ]
   ),
   createChangelogEntry(
-    'v1.0.0-beta.3',
+    'v1.0.3-beta',
     '2025. augusztus 22.',
     '2025-08-22T13:51:42Z',
     [
@@ -475,7 +480,7 @@ const rawChangelogData: ChangelogEntry[] = [
     ]
   ),
   createChangelogEntry(
-    'v1.0.0-beta.2',
+    'v1.0.2-beta',
     'HelloZTV - Beta élesítés',
     '2025-08-20T02:02:01Z',
     [
@@ -512,7 +517,7 @@ const rawChangelogData: ChangelogEntry[] = [
     ]
   ),
   createChangelogEntry(
-    'v1.0.0-beta.1',
+    'v1.0.1-beta',
     '2025. augusztus 15.',
     '2025-08-15T09:00:00Z',
     [
