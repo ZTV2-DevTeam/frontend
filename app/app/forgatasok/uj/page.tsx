@@ -277,10 +277,8 @@ export default function NewShooting() {
     )
   }
 
-  // Permission check - students can only create 'rendes', admins can create any type
-  const classDisplayName = permissions?.role_info?.class_display_name || permissions?.role_info?.class_assignment?.display_name
-  const is10FStudent = currentRole === 'student' && classDisplayName === '10F'
-  const canCreateForgatás = hasPermission('can_create_forgatas') || hasPermission('is_admin') || currentRole === 'admin' || is10FStudent
+  // Permission check - use can_create_forgatas permission
+  const canCreateForgatás = hasPermission('can_create_forgatas')
 
   if (!canCreateForgatás) {
     return (
@@ -296,7 +294,7 @@ export default function NewShooting() {
           </div>
           
           <ForgatásErrorHandler 
-            error="Nincs jogosultsága forgatás létrehozására. Ez a funkció csak 10F-es diákoknak és adminisztrátoroknak elérhető."
+            error="Nincs jogosultsága forgatás létrehozására. Ez a funkció csak engedéllyel rendelkező felhasználóknak elérhető."
             showRetryButton={false}
           />
         </div>

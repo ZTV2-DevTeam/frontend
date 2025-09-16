@@ -13,9 +13,7 @@ export function CreateForgatásDialog() {
   const { user } = useAuth()
   const { hasPermission, permissions } = usePermissions()
 
-  const classDisplayName = permissions?.role_info?.class_display_name || permissions?.role_info?.class_assignment?.display_name
-  const is10FStudent = currentRole === 'student' && classDisplayName === '10F'
-  const canCreateForgatás = hasPermission('can_create_forgatas') || hasPermission('is_admin') || currentRole === 'admin' || is10FStudent
+  const canCreateForgatás = hasPermission('can_create_forgatas')
 
   if (!canCreateForgatás) {
     return null

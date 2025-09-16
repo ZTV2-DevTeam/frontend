@@ -513,7 +513,12 @@ const rawChangelogData: ChangelogEntry[] = [
         'feature',
         'Jelszavak importálásának lehetősége',
         'Mostantól az adminisztátorok a Felhasználói rekordok importálásánál a jelszó mezőt is kitölthetik. Ez eddig biztonsági okokból nem volt jelen a rendszerben, illetve mert egy FirstLogin rendszer is üzemelt. Ez ki lett kapcsolva.'
-      )
+      ),
+      createChange(
+        'improvement',
+        'Új Forgatást készíthet - jogosultság helyes alkalmazása',
+        'Mostantól csak azok a felhasználók hozhatnak létre új forgatást, akik rendelkeznek a megfelelő jogosultsággal.'
+      ),
     ]
   ),
   createChangelogEntry(

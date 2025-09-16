@@ -96,10 +96,8 @@ export function CreateForgatásForm() {
     )
   }
 
-  // Permission check - only 10F students can create
-  const classDisplayName = permissions?.role_info?.class_display_name || permissions?.role_info?.class_assignment?.display_name
-  const is10FStudent = currentRole === 'student' && classDisplayName === '10F'
-  const canCreateForgatás = hasPermission('can_create_forgatas') || hasPermission('is_admin') || currentRole === 'admin' || is10FStudent
+  // Permission check - only users with can_create_forgatas permission can create
+  const canCreateForgatás = hasPermission('can_create_forgatas')
 
   if (!canCreateForgatás) {
     return (
@@ -110,14 +108,14 @@ export function CreateForgatásForm() {
             Forgatás létrehozása
           </CardTitle>
           <CardDescription>
-            Ez a funkció csak 10F-es diákoknak elérhető.
+            Ez a funkció csak engedéllyel rendelkező felhasználóknak érhető el.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="text-center py-8 text-muted-foreground">
             <Camera className="h-12 w-12 mx-auto mb-4 opacity-50" />
             <p>Nincs jogosultságod forgatás létrehozására.</p>
-            <p className="text-sm mt-2">Csak jogosult felhasználók (admin vagy engedéllyel rendelkező diák) hozhatnak létre forgatásokat.</p>
+            <p className="text-sm mt-2">Csak engedéllyel rendelkező felhasználók hozhatnak létre forgatásokat.</p>
           </div>
         </CardContent>
       </Card>

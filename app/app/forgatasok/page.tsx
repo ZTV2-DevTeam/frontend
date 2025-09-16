@@ -112,10 +112,8 @@ export default function FilmingSessionsPage() {
   // Combined loading state
   const loading = sessionsLoading || assignmentsLoading || usersLoading
 
-  // Permission check - students can only create 'rendes', admins can create any type
-  const classDisplayName = permissions?.role_info?.class_display_name || permissions?.role_info?.class_assignment?.display_name
-  const is10FStudent = currentRole === 'student' && classDisplayName === '10F'
-  const canCreateForgatás = hasPermission('can_create_forgatas') || hasPermission('is_admin') || currentRole === 'admin' || is10FStudent
+  // Permission check - use can_create_forgatas permission
+  const canCreateForgatás = hasPermission('can_create_forgatas')
 
   // Create a map of assignments by filming session ID for quick lookup
   const assignmentMap = useMemo(() => {

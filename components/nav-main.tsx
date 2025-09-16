@@ -14,6 +14,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import { useUserRole } from "@/contexts/user-role-context"
+import { usePermissions } from "@/contexts/permissions-context"
 
 export function NavMain({
   items,
@@ -26,11 +27,12 @@ export function NavMain({
 }) {
   const pathname = usePathname()
   const { currentRole } = useUserRole()
+  const { hasPermission } = usePermissions()
 
   return (
     <SidebarGroup>
       <SidebarGroupContent className="flex flex-col gap-2">
-        {currentRole === 'admin' && (
+        {hasPermission('can_create_forgatas') && (
           <SidebarMenu>
             <SidebarMenuItem className="flex items-center gap-2">
               <SidebarMenuButton
