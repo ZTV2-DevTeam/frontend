@@ -29,6 +29,7 @@ import {
   getCurrentSchoolYear,
   getSchoolYearFromDate,
 } from "@/lib/config/form-data"
+import { useConfetti } from "@/components/confetti"
 
 interface ShootingFormData {
   name: string
@@ -50,6 +51,7 @@ export default function NewShooting() {
   const { currentRole } = useUserRole()
   const { user, isAuthenticated, isLoading } = useAuth()
   const { hasPermission, permissions } = usePermissions()
+  const { triggerSuccess } = useConfetti()
 
   const [formData, setFormData] = useState<ShootingFormData>({
     name: "",
@@ -363,8 +365,13 @@ export default function NewShooting() {
       
       const result = await createForgatás.execute(apiData)
       
-      // Success - redirect to the created session
-      router.push(`/app/forgatasok/${result.id}`)
+      // Success - show confetti celebration!
+      triggerSuccess()
+      
+      // Delay redirect slightly to allow confetti animation to start
+      setTimeout(() => {
+        router.push(`/app/forgatasok/${result.id}`)
+      }, 500) // 500ms delay gives time for confetti to start
       
     } catch (error) {
       console.error('Error creating forgatás:', error)

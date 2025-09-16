@@ -44,6 +44,11 @@ const rawChangelogData: ChangelogEntry[] = [
         'Overscroll szín a témához igazítva',
         'Az overscroll szín mostantól a kiválasztott témához igazodik, így egységesebb megjelenést biztosítva.'
       ),
+      createChange(
+        'feature',
+        'Konfetti animáció Új Forgatás sikeres létrehozásakor',
+        'Mostantól konfetti animáció kíséri az új forgatás sikeres létrehozását.'
+      ),
     ]
   ),
   createChangelogEntry(
