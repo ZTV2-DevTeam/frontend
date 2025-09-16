@@ -6,6 +6,7 @@
 import { useState } from "react"
 import * as React from "react"
 import { useAuth } from "@/contexts/auth-context"
+import { usePermissions } from "@/contexts/permissions-context"
 import { AppSidebar } from "@/components/app-sidebar"
 import { SiteHeader } from "@/components/site-header"
 import { ProtectedRoute } from "@/components/protected-route"
@@ -490,6 +491,7 @@ function UserCard({ user, onEdit, onDelete }: {
 // Main Component
 export default function StabPage() {
   const { isAuthenticated } = useAuth()
+  const { hasPermission } = usePermissions()
   const [selectedClass, setSelectedClass] = useState<string>("all")
   const [selectedRole, setSelectedRole] = useState<string>("all")
   const [searchTerm, setSearchTerm] = useState("")
@@ -499,6 +501,9 @@ export default function StabPage() {
   const [isOsztalyNelkulOpen, setIsOsztalyNelkulOpen] = useState<boolean>(false) // Collapsible state
   const [selectedUser, setSelectedUser] = useState<any>(null) // Add state for modal
   
+  // Check if user has permission to access detailed user data
+  const canAccessUserData = hasPermission('is_admin') || hasPermission('is_system_admin') || hasPermission('is_teacher_admin')
+  
   // Fetch data from API
   const usersQuery = useApiQuery(
     async () => {
@@ -506,6 +511,12 @@ export default function StabPage() {
         if (!isAuthenticated) {
           return []
         }
+        
+        // Only fetch detailed data if user has permission
+        if (!canAccessUserData) {
+          return []
+        }
+        
         // Call without any filters to get ALL users
         const result = await apiClient.getAllUsersDetailed()
         console.log('Users fetched successfully:', result?.length || 0, 'users')
@@ -520,7 +531,7 @@ export default function StabPage() {
         throw error
       }
     },
-    [isAuthenticated]
+    [isAuthenticated, canAccessUserData]
   )
   
   const classesQuery = useApiQuery(
@@ -778,6 +789,40 @@ export default function StabPage() {
       }
       alert(errorMessage)
     }
+  }
+
+  // If user doesn't have permission to access user data, show a message
+  if (!canAccessUserData) {
+    return (
+      <ProtectedRoute>
+        <TooltipProvider>
+          <SidebarProvider>
+            <AppSidebar variant="inset" />
+            <SidebarInset>
+              <SiteHeader />
+              <div className="flex-1 space-y-6 p-6">
+                <div className="flex items-center justify-center min-h-[400px]">
+                  <Card className="max-w-md mx-auto">
+                    <CardContent className="flex flex-col items-center justify-center py-12 space-y-4">
+                      <AlertCircle className="h-12 w-12 text-muted-foreground" />
+                      <div className="text-center space-y-2">
+                        <h3 className="text-lg font-semibold">Hozzáférés korlátozott</h3>
+                        <p className="text-sm text-muted-foreground">
+                          A stáb részletes adatainak megtekintéséhez adminisztrátori jogosultság szükséges.
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          Kapcsolattartási adatok a forgatásoknál elérhetők.
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            </SidebarInset>
+          </SidebarProvider>
+        </TooltipProvider>
+      </ProtectedRoute>
+    )
   }
 
   return (

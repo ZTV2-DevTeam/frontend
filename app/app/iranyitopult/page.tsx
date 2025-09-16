@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { useUserRole } from "@/contexts/user-role-context"
 import { useAuth } from "@/contexts/auth-context"
+import { usePermissions } from "@/contexts/permissions-context"
 import { useApiQuery } from "@/lib/api-helpers"
 import { apiClient } from "@/lib/api"
 import type { UserRole } from "@/contexts/user-role-context"
@@ -129,9 +130,19 @@ function getRoleDisplayName(role: UserRole | null): string {
 // Admin Widget Components - Database Admin Style
 function ActiveUsersWidget() {
   const { isAuthenticated } = useAuth()
+  const { hasPermission } = usePermissions()
+  
+  // Only fetch users if user has admin permissions
+  const canAccessUserData = hasPermission('is_admin') || hasPermission('is_system_admin') || hasPermission('is_teacher_admin')
+  
+  // Don't render the widget if user doesn't have permission
+  if (!canAccessUserData) {
+    return null
+  }
+  
   const { data: usersData, loading, error } = useApiQuery(
-    () => isAuthenticated ? apiClient.getAllUsersDetailed() : Promise.resolve([]),
-    [isAuthenticated]
+    () => isAuthenticated && canAccessUserData ? apiClient.getAllUsersDetailed() : Promise.resolve([]),
+    [isAuthenticated, canAccessUserData]
   )
 
   if (loading) {
@@ -1207,16 +1218,20 @@ function FirstStepsWidget() {
 export default function Page() {
   const { currentRole, isPreviewMode, actualUserRole } = useUserRole()
   const { user, isAuthenticated } = useAuth()
+  const { hasPermission } = usePermissions()
   const [welcomeMessage, setWelcomeMessage] = useState('')
+  
+  // Only fetch detailed user data if user has admin permissions (for admin_type info)
+  const canAccessUserData = hasPermission('is_admin') || hasPermission('is_system_admin') || hasPermission('is_teacher_admin')
   
   // Get detailed user data that includes admin_type by fetching all users and finding current user
   const { data: allUsersData } = useApiQuery(
-    () => isAuthenticated ? apiClient.getAllUsersDetailed() : Promise.resolve([]),
-    [isAuthenticated]
+    () => isAuthenticated && canAccessUserData ? apiClient.getAllUsersDetailed() : Promise.resolve([]),
+    [isAuthenticated, canAccessUserData]
   )
   
-  // Find current user in the detailed data
-  const currentUserDetailed = allUsersData?.find((u: any) => u.user_id === user?.user_id || u.id === user?.user_id)
+  // Find current user in the detailed data (only if we have permission to fetch it)
+  const currentUserDetailed = canAccessUserData ? allUsersData?.find((u: any) => u.user_id === user?.user_id || u.id === user?.user_id) : null
 
   // Debug logging
   console.log('🎭 Dashboard state:', {

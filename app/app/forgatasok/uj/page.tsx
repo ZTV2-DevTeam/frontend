@@ -95,10 +95,11 @@ export default function NewShooting() {
     [skipQueries]
   )
 
-  // Fetch students from API  
+  // Fetch students from API - only if user has basic permission to see reporters
   const { data: students, loading: studentsLoading, error: studentsError } = useApiQuery(
     async () => {
       if (skipQueries) return []
+      // Szerkesztők are public info for anyone who can access forgatasok pages - no additional check needed
       return await apiClient.getReporters()
     },
     [skipQueries]
@@ -130,12 +131,13 @@ export default function NewShooting() {
     
     const types = filmingTypes
     
-    if (currentRole === 'admin' || hasPermission('is_admin')) {
+    if (currentRole === 'admin' || hasPermission('is_admin') || currentRole === 'class-teacher') {
+      // Admins and class-teachers can see all types including 'kacsa'
       return types
     } else {
-      // Students can only create 'rendes' type
+      // Students can see all types EXCEPT 'kacsa' - they can create rendes, rendezveny, egyeb, etc.
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return types.filter((type: any) => type.value === 'rendes')
+      return types.filter((type: any) => type.value !== 'kacsa')
     }
   }, [filmingTypes, typesError, currentRole, hasPermission])
 
@@ -263,7 +265,7 @@ export default function NewShooting() {
       if (!studentsError && formData.reporterId && reporterOptions.length > 0) {
         const validReporter = reporterOptions.find(r => r.value === formData.reporterId)
         if (!validReporter) {
-          throw new Error("A kiválasztott riporter nem érvényes")
+          throw new Error("A kiválasztott szerkesztő nem érvényes")
         }
       }
 
@@ -297,7 +299,7 @@ export default function NewShooting() {
         type: formData.type,
         location_id: formData.locationId ? parseInt(formData.locationId) : undefined,
         contact_person_id: formData.contactId ? parseInt(formData.contactId) : undefined,
-        riporter_id: formData.reporterId ? parseInt(formData.reporterId) : undefined,
+        riporter_id: formData.reporterId ? parseInt(formData.reporterId) : undefined, // API still uses 'riporter_id' field name
         notes: formData.notes || "",
         related_kacsa_id: formData.relatedKacsaId ? parseInt(formData.relatedKacsaId) : undefined,
         equipment_ids: []
@@ -352,11 +354,77 @@ export default function NewShooting() {
   
   // Reporters - only show if API data is available
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const reporterOptions = students && !studentsError ? students.map((student: any) => ({
-    value: student.id.toString(),
-    label: student.full_name,
-    description: `${student.osztaly_display || student.oszta} • ${student.is_experienced ? 'Tapasztalt' : 'Új'} riporter`,
-  })) : []
+  const reporterOptions = students && !studentsError ? students.map((student: any) => {
+    // Use the reason field from the API, fallback to 'Lehetséges Szerkesztő' if not provided
+    const statusDescription = student.reason || 'Lehetséges Szerkesztő'
+    
+    return {
+      value: student.id.toString(),
+      label: student.full_name,
+      description: `${student.osztaly_display || student.oszta} • ${statusDescription}`,
+    }
+  }) : []
+
+  // Auto-select current user as szerkesztő if they are a student and in the reporters list
+  const isStudentUser = currentRole === 'student'
+  const isAdminUser = currentRole === 'admin' || hasPermission('is_admin') || currentRole === 'class-teacher'
+  
+  // More robust user matching - try multiple approaches to find current user
+  const currentUserInReporters = reporterOptions.find(reporter => {
+    if (!user) return false
+    
+    // Try matching by various user properties
+    const userId = (user as any).id || (user as any).user_id || user.username
+    const userFullName = (user as any).full_name || (user as any).name
+    const userUsername = user.username
+    
+    // Match by ID (most reliable)
+    if (userId && reporter.value === userId.toString()) {
+      return true
+    }
+    
+    // Match by full name
+    if (userFullName && reporter.label === userFullName) {
+      return true
+    }
+    
+    // Match by username (fallback)
+    if (userUsername && reporter.label.includes(userUsername)) {
+      return true
+    }
+    
+    return false
+  })
+  
+  console.log('🔍 User matching debug:', {
+    user: user,
+    userId: (user as any)?.id || (user as any)?.user_id || user?.username,
+    userFullName: (user as any)?.full_name || (user as any)?.name,
+    currentUserInReporters: currentUserInReporters,
+    isStudentUser,
+    reporterOptionsCount: reporterOptions.length,
+    firstReporter: reporterOptions[0]
+  })
+  
+  // Effect to auto-select student user
+  useEffect(() => {
+    console.log('🔄 Auto-select effect running:', {
+      isStudentUser,
+      currentUserInReporters: currentUserInReporters?.label,
+      currentReporterId: formData.reporterId,
+      shouldAutoSelect: isStudentUser && currentUserInReporters && !formData.reporterId
+    })
+    
+    if (isStudentUser && currentUserInReporters && !formData.reporterId) {
+      console.log('✅ Auto-selecting user:', currentUserInReporters.label, 'with ID:', currentUserInReporters.value)
+      setFormData(prev => ({
+        ...prev,
+        reporterId: currentUserInReporters.value
+      }))
+    }
+  }, [isStudentUser, currentUserInReporters, formData.reporterId])
+
+  const isReporterFieldDisabled = isStudentUser && !!currentUserInReporters
 
   // Locations - only show if API data is available
   const locationOptions = partners && !partnersError ? partners.map((partner: PartnerSchema) => ({
@@ -433,7 +501,7 @@ export default function NewShooting() {
           {(studentsError || contactPersonsError || kacsaError) && (
             <ForgatásApiWarning 
               warnings={[
-                ...(studentsError ? ['Riporterek betöltése sikertelen'] : []),
+                ...(studentsError ? ['Szerkesztők betöltése sikertelen'] : []),
                 ...(contactPersonsError ? ['Kapcsolattartók betöltése sikertelen'] : []),
                 ...(kacsaError ? ['KaCsa forgatások betöltése sikertelen'] : [])
               ]}
@@ -511,32 +579,32 @@ export default function NewShooting() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="reporter">Riporter</Label>
+                    <Label htmlFor="reporter">Szerkesztő</Label>
                     {studentsError ? (
                       <div className="space-y-2">
                         <div className="p-3 text-sm text-amber-800 bg-amber-100 border border-amber-300 rounded-md">
-                          ⚠️ Riporterek betöltése sikertelen. Ez a mező opcionális - a forgatás létrehozható riporter nélkül.
+                          ⚠️ Szerkesztők betöltése sikertelen. Ez a mező opcionális - a forgatás létrehozható szerkesztő nélkül.
                         </div>
                         <input 
                           disabled 
-                          placeholder="Riporterek betöltése sikertelen - mező opcionális" 
+                          placeholder="Szerkesztők betöltése sikertelen - mező opcionális" 
                           className="w-full px-3 py-2 border border-amber-300 rounded-md bg-amber-50 text-amber-700 cursor-not-allowed"
                         />
                       </div>
                     ) : studentsLoading ? (
                       <div className="space-y-2">
                         <div className="w-full px-3 py-2 border rounded-md bg-muted animate-pulse">
-                          Riporterek betöltése...
+                          Szerkesztők betöltése...
                         </div>
                       </div>
                     ) : reporterOptions.length === 0 ? (
                       <div className="space-y-2">
                         <div className="p-3 text-sm text-amber-800 bg-amber-100 border border-amber-300 rounded-md">
-                          ℹ️ Nincs elérhető riporter. Ez opcionális mező - a forgatás létrehozható riporter nélkül.
+                          ℹ️ Nincs elérhető szerkesztő. Ez opcionális mező - a forgatás létrehozható szerkesztő nélkül.
                         </div>
                         <input 
                           disabled 
-                          placeholder="Nincs elérhető riporter - mező opcionális" 
+                          placeholder="Nincs elérhető szerkesztő - mező opcionális" 
                           className="w-full px-3 py-2 border border-muted rounded-md bg-muted text-muted-foreground cursor-not-allowed"
                         />
                       </div>
@@ -545,9 +613,15 @@ export default function NewShooting() {
                         options={reporterOptions}
                         value={formData.reporterId}
                         onValueChange={(value) => handleInputChange("reporterId", value)}
-                        placeholder="Válassz riportert..."
-                        searchPlaceholder="Riporter keresése..."
+                        placeholder="Válassz szerkesztőt..."
+                        searchPlaceholder="Szerkesztő keresése..."
+                        disabled={isReporterFieldDisabled}
                       />
+                    )}
+                    {isReporterFieldDisabled && currentUserInReporters && (
+                      <p className="text-xs text-muted-foreground mt-2">
+                        ℹ️ Automatikusan kiválasztva. Ha ez az információ helytelen, kérjük írja le a megjegyzések mezőben.
+                      </p>
                     )}
                   </div>
                 </div>
@@ -668,9 +742,9 @@ export default function NewShooting() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <LinkIcon className="h-5 w-5 text-yellow-400" />
-                    Kapcsolódó forgatás
+                    Kapcsolódó KaCsa
                   </CardTitle>
-                  <CardDescription>Rendes forgatások esetében, a kapcsolódó KaCsa Összejátszás</CardDescription>
+                  <CardDescription>Kapcsolódó KaCsa Összejátszás kiválasztása</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
@@ -678,28 +752,28 @@ export default function NewShooting() {
                     {kacsaError ? (
                       <div className="space-y-2">
                         <div className="p-3 text-sm text-amber-800 bg-amber-100 border border-amber-300 rounded-md">
-                          ⚠️ KaCsa forgatások betöltése sikertelen. Ez a mező jelenleg nem használható.
+                          ⚠️ KaCsa Összejátszások betöltése sikertelen. Ez a mező jelenleg nem használható.
                         </div>
                         <input 
                           disabled 
-                          placeholder="KaCsa forgatások betöltése sikertelen" 
+                          placeholder="KaCsa Összejátszások betöltése sikertelen" 
                           className="w-full px-3 py-2 border border-destructive/30 rounded-md bg-destructive/10 text-destructive cursor-not-allowed"
                         />
                       </div>
                     ) : kacsaLoading ? (
                       <div className="space-y-2">
                         <div className="w-full px-3 py-2 border rounded-md bg-muted animate-pulse">
-                          KaCsa forgatások betöltése...
+                          KaCsa Összejátszások betöltése...
                         </div>
                       </div>
                     ) : kacsaOptions.length === 0 ? (
                       <div className="space-y-2">
                         <div className="p-3 text-sm text-blue-800 bg-blue-100 border border-blue-300 rounded-md">
-                          ℹ️ Nincs linkelhető KaCsa forgatás. Ez opcionális mező.
+                          ℹ️ Nincs linkelhető KaCsa Összejátszás. Ez opcionális mező.
                         </div>
                         <input 
                           disabled 
-                          placeholder="Nincs linkelhető KaCsa forgatás" 
+                          placeholder="Nincs linkelhető KaCsa Összejátszás" 
                           className="w-full px-3 py-2 border border-muted rounded-md bg-muted text-muted-foreground cursor-not-allowed"
                         />
                       </div>
@@ -708,7 +782,7 @@ export default function NewShooting() {
                         options={kacsaOptions}
                         value={formData.relatedKacsaId}
                         onValueChange={(value) => handleInputChange("relatedKacsaId", value)}
-                        placeholder="Válassz KaCsa forgatást..."
+                        placeholder="Válassz KaCsa Összejátszást..."
                         searchPlaceholder="KaCsa keresése..."
                       />
                     )}

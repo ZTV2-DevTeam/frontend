@@ -14,6 +14,21 @@ const rawChangelogData: ChangelogEntry[] = [
         'Médiatanár szerepkör megjelenítése',
         'A médiatanár szerepkör mostantól megfelelően jelenik meg a felhasználói felületen.'
       ),
+      createChange(
+        'improvement',
+        'Új forgatás kiírása - Szerepkör alapú típusok',
+        'Az új forgatás létrehozásakor, a felhasználók mostantól relevánsabb adatokkal találkozhatnak.'
+      ),
+      createChange(
+        'bugfix',
+        'Bejelentkezési hiba javítása',
+        'Javítottunk egy kritikus hibát ami senkit sem engedett bejelentkezni',
+      ),
+      createChange(
+        'improvement',
+        'Hibás hivatzkozás, Riporterek -> Szerkesztők',
+        'A Szerkesztő szerepkör mostantól megfelelően jelenik meg a felhasználói felületen. Nem összetévesztendő a Riporter szerepkörrel.',
+      ),
     ]
   ),
   createChangelogEntry(
