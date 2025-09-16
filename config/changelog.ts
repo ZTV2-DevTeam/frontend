@@ -5,6 +5,18 @@ import { create } from 'domain';
 
 const rawChangelogData: ChangelogEntry[] = [
   createChangelogEntry(
+    'v1.0.0-beta.14',
+    '2025. szeptember 16.',
+    '2025-09-16T23:00:00Z',
+    [
+      createChange(
+        'improvement',
+        'Médiatanár szerepkör megjelenítése',
+        'A médiatanár szerepkör mostantól megfelelően jelenik meg a felhasználói felületen.'
+      ),
+    ]
+  ),
+  createChangelogEntry(
     'v1.0.0-beta.13',
     '2025. szeptember 10.',
     '2025-09-10T13:00:00Z',

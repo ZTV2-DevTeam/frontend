@@ -21,6 +21,7 @@ import {
 import { useUserRole, type UserRole } from "@/contexts/user-role-context"
 import { usePermissions } from "@/contexts/permissions-context"
 import { useAuth } from "@/contexts/auth-context"
+import { getAdminTypeDisplayName } from "@/lib/utils"
 
 interface Team {
   name: string
@@ -116,6 +117,16 @@ export function TeamSwitcher({
       (team.role === 'class-teacher' && !isAdminAndClassTeacher)
     )) || (isPureClassTeacher && team.role === 'student') // Class teachers can preview student role
   }))
+
+  // Function to get dynamic team name based on admin type
+  const getTeamDisplayName = (team: Team) => {
+    if (team.role === 'admin') {
+      // For admin role, use the specific admin type from permissions
+      const adminType = permissions?.role_info?.admin_type
+      return getAdminTypeDisplayName(adminType)
+    }
+    return team.name
+  }
   
   const activeTeam = allowedTeams.find(team => team.role === currentRole) || allowedTeams[0]
 
@@ -162,7 +173,7 @@ export function TeamSwitcher({
                 </span>
               </div>
               <span className="truncate text-xs">
-                {activeTeam.isPreview ? `${activeTeam.name} (Előnézet)` : activeTeam.name}
+                {activeTeam.isPreview ? `${getTeamDisplayName(activeTeam)} (Előnézet)` : getTeamDisplayName(activeTeam)}
               </span>
             </div>
           </SidebarMenuButton>
@@ -200,7 +211,7 @@ export function TeamSwitcher({
                   </span>
                 </div>
                 <span className="truncate text-xs">
-                  {activeTeam.isPreview ? `${activeTeam.name} (Előnézet)` : activeTeam.name}
+                  {activeTeam.isPreview ? `${getTeamDisplayName(activeTeam)} (Előnézet)` : getTeamDisplayName(activeTeam)}
                 </span>
               </div>
               <ChevronsUpDown className="ml-auto" />
@@ -225,7 +236,7 @@ export function TeamSwitcher({
                   <team.logo className="size-3.5 shrink-0" />
                 </div>
                 <div className="flex-1 flex items-center gap-2">
-                  <span>{team.name}</span>
+                  <span>{getTeamDisplayName(team)}</span>
                   {team.isPreview && (
                     <span className="px-1 py-0.5 text-[8px] font-semibold bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded border border-blue-200 dark:border-blue-700">
                       ELŐNÉZET
