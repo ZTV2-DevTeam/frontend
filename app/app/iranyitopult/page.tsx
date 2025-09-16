@@ -136,15 +136,16 @@ function ActiveUsersWidget() {
   // Only fetch users if user has admin permissions
   const canAccessUserData = hasPermission('is_admin') || hasPermission('is_system_admin') || hasPermission('is_teacher_admin')
   
-  // Don't render the widget if user doesn't have permission
-  if (!canAccessUserData) {
-    return null
-  }
-  
+  // Always call the hook, but conditionally fetch data
   const { data: usersData, loading, error } = useApiQuery(
     () => isAuthenticated && canAccessUserData ? apiClient.getAllUsersDetailed() : Promise.resolve([]),
     [isAuthenticated, canAccessUserData]
   )
+  
+  // Don't render the widget if user doesn't have permission
+  if (!canAccessUserData) {
+    return null
+  }
 
   if (loading) {
     return (

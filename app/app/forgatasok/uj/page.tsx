@@ -189,6 +189,66 @@ export default function NewShooting() {
     }
   }, [isLoading, isAuthenticated, user, router])
 
+  // Process data for reporter options - need this before the useEffect below
+  const reporterOptions = students && !studentsError ? students.map((student: any) => {
+    // Use the reason field from the API, fallback to 'Lehetséges Szerkesztő' if not provided
+    const statusDescription = student.reason || 'Lehetséges Szerkesztő'
+    
+    return {
+      value: student.id.toString(),
+      label: student.full_name,
+      description: `${student.osztaly_display || student.oszta} • ${statusDescription}`,
+    }
+  }) : []
+
+  // Auto-select current user as szerkesztő if they are a student and in the reporters list
+  const isStudentUser = currentRole === 'student'
+  
+  // More robust user matching - try multiple approaches to find current user
+  const currentUserInReporters = reporterOptions.find(reporter => {
+    if (!user) return false
+    
+    // Try matching by various user properties
+    const userId = (user as any).id || (user as any).user_id || user.username
+    const userFullName = (user as any).full_name || (user as any).name
+    const userUsername = user.username
+    
+    // Match by ID (most reliable)
+    if (userId && reporter.value === userId.toString()) {
+      return true
+    }
+    
+    // Match by full name
+    if (userFullName && reporter.label === userFullName) {
+      return true
+    }
+    
+    // Match by username (fallback)
+    if (userUsername && reporter.label.includes(userUsername)) {
+      return true
+    }
+    
+    return false
+  })
+
+  // Effect to auto-select student user
+  useEffect(() => {
+    console.log('🔄 Auto-select effect running:', {
+      isStudentUser,
+      currentUserInReporters: currentUserInReporters?.label,
+      currentReporterId: formData.reporterId,
+      shouldAutoSelect: isStudentUser && currentUserInReporters && !formData.reporterId
+    })
+    
+    if (isStudentUser && currentUserInReporters && !formData.reporterId) {
+      console.log('✅ Auto-selecting user:', currentUserInReporters.label, 'with ID:', currentUserInReporters.value)
+      setFormData(prev => ({
+        ...prev,
+        reporterId: currentUserInReporters.value
+      }))
+    }
+  }, [isStudentUser, currentUserInReporters, formData.reporterId])
+
   // Show loading while auth is being checked
   if (isLoading) {
     return (
@@ -397,49 +457,7 @@ export default function NewShooting() {
 
   // Transform data for comboboxes with proper error handling
   
-  // Reporters - only show if API data is available
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const reporterOptions = students && !studentsError ? students.map((student: any) => {
-    // Use the reason field from the API, fallback to 'Lehetséges Szerkesztő' if not provided
-    const statusDescription = student.reason || 'Lehetséges Szerkesztő'
-    
-    return {
-      value: student.id.toString(),
-      label: student.full_name,
-      description: `${student.osztaly_display || student.oszta} • ${statusDescription}`,
-    }
-  }) : []
-
-  // Auto-select current user as szerkesztő if they are a student and in the reporters list
-  const isStudentUser = currentRole === 'student'
   const isAdminUser = currentRole === 'admin' || hasPermission('is_admin') || currentRole === 'class-teacher'
-  
-  // More robust user matching - try multiple approaches to find current user
-  const currentUserInReporters = reporterOptions.find(reporter => {
-    if (!user) return false
-    
-    // Try matching by various user properties
-    const userId = (user as any).id || (user as any).user_id || user.username
-    const userFullName = (user as any).full_name || (user as any).name
-    const userUsername = user.username
-    
-    // Match by ID (most reliable)
-    if (userId && reporter.value === userId.toString()) {
-      return true
-    }
-    
-    // Match by full name
-    if (userFullName && reporter.label === userFullName) {
-      return true
-    }
-    
-    // Match by username (fallback)
-    if (userUsername && reporter.label.includes(userUsername)) {
-      return true
-    }
-    
-    return false
-  })
   
   console.log('🔍 User matching debug:', {
     user: user,
@@ -451,24 +469,6 @@ export default function NewShooting() {
     firstReporter: reporterOptions[0]
   })
   
-  // Effect to auto-select student user
-  useEffect(() => {
-    console.log('🔄 Auto-select effect running:', {
-      isStudentUser,
-      currentUserInReporters: currentUserInReporters?.label,
-      currentReporterId: formData.reporterId,
-      shouldAutoSelect: isStudentUser && currentUserInReporters && !formData.reporterId
-    })
-    
-    if (isStudentUser && currentUserInReporters && !formData.reporterId) {
-      console.log('✅ Auto-selecting user:', currentUserInReporters.label, 'with ID:', currentUserInReporters.value)
-      setFormData(prev => ({
-        ...prev,
-        reporterId: currentUserInReporters.value
-      }))
-    }
-  }, [isStudentUser, currentUserInReporters, formData.reporterId])
-
   const isReporterFieldDisabled = isStudentUser && !!currentUserInReporters
 
   // Locations - only show if API data is available, including newly created partners
