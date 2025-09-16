@@ -48,6 +48,11 @@ export interface TanevConfigStatusSchema {
 }
 
 // === PARTNERS ===
+export interface PartnerTipusSchema {
+  id: number
+  name: string
+}
+
 export interface PartnerSchema {
   id: number
   name: string
@@ -59,8 +64,7 @@ export interface PartnerSchema {
 export interface PartnerCreateSchema {
   name: string
   address?: string
-  institution?: string
-  imageURL?: string
+  type_id: number
 }
 
 export interface PartnerUpdateSchema {
@@ -1245,6 +1249,10 @@ class ApiClient {
   }
 
   // === PARTNERS ===
+  async getPartnerTypes(): Promise<PartnerTipusSchema[]> {
+    return this.request<PartnerTipusSchema[]>('/api/partners/types')
+  }
+
   async getPartners(): Promise<PartnerSchema[]> {
     return this.request<PartnerSchema[]>('/api/partners')
   }

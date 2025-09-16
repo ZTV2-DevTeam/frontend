@@ -20,6 +20,8 @@ import { useApiQuery, useApiMutation } from "@/lib/api-helpers"
 import { ApiErrorBoundary } from "@/components/api-error-boundary"
 import { ForgatásErrorHandler, CriticalForgatásError, ForgatásApiWarning } from "@/components/forgatas-error-handler"
 import { AuthTokenDebug } from "@/components/auth-token-debug"
+import { CreatePartnerDialog } from "@/components/create-partner-dialog"
+import { CreateContactPersonDialog } from "@/components/create-contact-person-dialog"
 import { apiClient } from "@/lib/api"
 import type { ForgatCreateSchema, PartnerSchema, ContactPersonSchema, ReporterSchema, KacsaAvailableSchema } from "@/lib/api"
 import { SystemDatePicker, SystemTimePicker } from "@/components/ui/date-time-components"
@@ -66,6 +68,42 @@ export default function NewShooting() {
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
+
+  // Modal states
+  const [showCreatePartnerDialog, setShowCreatePartnerDialog] = useState(false)
+  const [showCreateContactPersonDialog, setShowCreateContactPersonDialog] = useState(false)
+
+  // Local state for newly created items (to update the lists without refetching)
+  const [newPartners, setNewPartners] = useState<PartnerSchema[]>([])
+  const [newContactPersons, setNewContactPersons] = useState<ContactPersonSchema[]>([])
+
+  // Handle successful partner creation
+  const handlePartnerCreated = (newPartner: PartnerSchema) => {
+    // Add to local state to update the options list
+    setNewPartners((prev) => [...prev, newPartner])
+    
+    // Auto-select the newly created partner
+    setFormData((prev) => ({
+      ...prev,
+      locationId: newPartner.id.toString()
+    }))
+    
+    console.log('New partner created:', newPartner)
+  }
+
+  // Handle successful contact person creation
+  const handleContactPersonCreated = (newContactPerson: ContactPersonSchema) => {
+    // Add to local state to update the options list
+    setNewContactPersons((prev) => [...prev, newContactPerson])
+    
+    // Auto-select the newly created contact person
+    setFormData((prev) => ({
+      ...prev,
+      contactId: newContactPerson.id.toString()
+    }))
+    
+    console.log('New contact person created:', newContactPerson)
+  }
 
   // API queries - Always call hooks unconditionally
   const skipQueries = isLoading || !isAuthenticated || !user
@@ -426,15 +464,17 @@ export default function NewShooting() {
 
   const isReporterFieldDisabled = isStudentUser && !!currentUserInReporters
 
-  // Locations - only show if API data is available
-  const locationOptions = partners && !partnersError ? partners.map((partner: PartnerSchema) => ({
+  // Locations - only show if API data is available, including newly created partners
+  const allPartners = [...(partners || []), ...newPartners]
+  const locationOptions = allPartners.length > 0 && !partnersError ? allPartners.map((partner: PartnerSchema) => ({
     value: partner.id.toString(),
     label: partner.name,
     description: `${partner.institution || 'Partnerintézmény'} • ${partner.address || 'Cím nincs megadva'}`,
   })) : []
 
-  // Contact persons - only show if API data is available
-  const contactOptions = contactPersons && !contactPersonsError ? contactPersons.map((contact: ContactPersonSchema) => ({
+  // Contact persons - only show if API data is available, including newly created contact persons
+  const allContactPersons = [...(contactPersons || []), ...newContactPersons]
+  const contactOptions = allContactPersons.length > 0 && !contactPersonsError ? allContactPersons.map((contact: ContactPersonSchema) => ({
     value: contact.id.toString(),
     label: contact.name,
     description: contact.context 
@@ -689,6 +729,9 @@ export default function NewShooting() {
                       onValueChange={(value) => handleInputChange("locationId", value)}
                       placeholder="Válassz helyszínt..."
                       searchPlaceholder="Helyszín keresése..."
+                      allowCustomAdd={true}
+                      customAddLabel="Új Partner hozzáadása"
+                      onCustomAdd={() => setShowCreatePartnerDialog(true)}
                     />
                   </div>
 
@@ -729,6 +772,9 @@ export default function NewShooting() {
                         onValueChange={(value) => handleInputChange("contactId", value)}
                         placeholder="Válassz kapcsolattartót..."
                         searchPlaceholder="Kapcsolattartó keresése..."
+                        allowCustomAdd={true}
+                        customAddLabel="Új Kapcsolattartó hozzáadása"
+                        onCustomAdd={() => setShowCreateContactPersonDialog(true)}
                       />
                     )}
                   </div>
@@ -852,6 +898,19 @@ export default function NewShooting() {
             </div>
           </form>
         </div>
+
+        {/* Modal Dialogs */}
+        <CreatePartnerDialog
+          open={showCreatePartnerDialog}
+          onOpenChange={setShowCreatePartnerDialog}
+          onPartnerCreated={handlePartnerCreated}
+        />
+        
+        <CreateContactPersonDialog
+          open={showCreateContactPersonDialog}
+          onOpenChange={setShowCreateContactPersonDialog}
+          onContactPersonCreated={handleContactPersonCreated}
+        />
       </StandardizedLayout>
     </ApiErrorBoundary>
   )

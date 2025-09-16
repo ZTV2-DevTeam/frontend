@@ -29,6 +29,11 @@ const rawChangelogData: ChangelogEntry[] = [
         'Hibás hivatzkozás, Riporterek -> Szerkesztők',
         'A Szerkesztő szerepkör mostantól megfelelően jelenik meg a felhasználói felületen. Nem összetévesztendő a Riporter szerepkörrel.',
       ),
+      createChange(
+        'feature',
+        'Új forgatás - Korábban nem rögzített Partnerek és Kapcsolattartók kezelése',
+        'Mostantól lehetőség van új forgatások létrehozására olyan partnerekkel és kapcsolattartókkal, akik korábban nem kerültek rögzítésre a rendszerben.'
+      ),
     ]
   ),
   createChangelogEntry(
