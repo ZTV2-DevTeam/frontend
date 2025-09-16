@@ -26,7 +26,7 @@ const rawChangelogData: ChangelogEntry[] = [
       ),
       createChange(
         'improvement',
-        'Hibás hivatzkozás, Riporterek -> Szerkesztők',
+        'Hibás hivatkozás, Riporterek -> Szerkesztők',
         'A Szerkesztő szerepkör mostantól megfelelően jelenik meg a felhasználói felületen. Nem összetévesztendő a Riporter szerepkörrel.',
       ),
       createChange(
