@@ -1613,7 +1613,7 @@ class ApiClient {
   async getFilmingTypes(): Promise<ForgatoTipusSchema[]> {
     // Static filming types as per backend specification
     return Promise.resolve([
-      { value: 'rendes', label: 'Rendes forgatás' },
+      { value: 'rendes', label: 'KaCsa forgatás' },
       { value: 'kacsa', label: 'Kacsa összejátszás' },
       { value: 'rendezveny', label: 'Rendezvény forgatás' },
       { value: 'egyeb', label: 'Egyéb forgatás' }

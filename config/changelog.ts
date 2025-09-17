@@ -5,6 +5,23 @@ import { create } from 'domain';
 
 const rawChangelogData: ChangelogEntry[] = [
   createChangelogEntry(
+    'v1.1.1-beta',
+    '2025. szeptember 17.',
+    '2025-09-17T08:00:00Z',
+    [
+      createChange(
+        'improvement',
+        'Forgatási típusok tisztázása',
+        'A korábban "KaCsa Forgatás" néven, hibásan feltüntetett forgatási típus mostantól "KaCsa Összejátszás" néven, a  korábban "Rendes Forgatás" néven feltüntetett típus pedig "KaCsa Forgatás" néven érhető el. Egyszavas kontextusban a "KaCsa", illetve továbbra is a "Rendes" elnevezés használatos.',
+      ),
+      createChange(
+        'removed',
+        'KaCsa Összejátszás kiírásának lehetősége eltávolítva',
+        'A KaCsa Összejátszás típusú forgatások kiírásának lehetősége eltávolításra került a felhasználói felületről, mivel ezeket az összejátszásokat mostantól kizárólag az adminisztrációs felületen lehet kezelni, a megfelelő jogosultságokkal, importálás lehetőséggel egyetemben.'
+      ),
+    ]
+  ),
+  createChangelogEntry(
     'v1.1.0-beta',
     '2025. szeptember 16.',
     '2025-09-16T23:00:00Z',

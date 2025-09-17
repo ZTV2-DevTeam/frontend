@@ -165,20 +165,15 @@ export default function NewShooting() {
     if (typesError || !filmingTypes) {
       // Return minimal default types if API fails
       return [
-        { value: 'rendes', label: 'Rendes forgatás', description: 'Normál forgatási típus' }
+        { value: 'rendes', label: 'KaCsa forgatás', description: 'Normál forgatási típus' }
       ]
     }
     
     const types = filmingTypes
     
-    if (currentRole === 'admin' || hasPermission('is_admin') || currentRole === 'class-teacher') {
-      // Admins and class-teachers can see all types including 'kacsa'
-      return types
-    } else {
-      // Students can see all types EXCEPT 'kacsa' - they can create rendes, rendezveny, egyeb, etc.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return types.filter((type: any) => type.value !== 'kacsa')
-    }
+    // All users (including admins) should NOT see 'kacsa' type - KaCsa Összejátszás should not be selectable
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return types.filter((type: any) => type.value !== 'kacsa')
   }, [filmingTypes, typesError, currentRole, hasPermission])
 
   // Redirect to login if not authenticated (but wait for loading to complete)
@@ -548,7 +543,7 @@ export default function NewShooting() {
               warnings={[
                 ...(studentsError ? ['Szerkesztők betöltése sikertelen'] : []),
                 ...(contactPersonsError ? ['Kapcsolattartók betöltése sikertelen'] : []),
-                ...(kacsaError ? ['KaCsa forgatások betöltése sikertelen'] : [])
+                ...(kacsaError ? ['KaCsa összejátszások betöltése sikertelen'] : [])
               ]}
             />
           )}

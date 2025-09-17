@@ -454,7 +454,7 @@ export default function AdminGuidePage() {
                       <li>• Új forgatások létrehozása</li>
                       <li>• Dátum, idő és helyszín módosítása</li>
                       <li>• Riporter kijelölése</li>
-                      <li>• Típus beállítása (kacsa, rendes, rendezvény, egyéb)</li>
+                      <li>• Típus beállítása (kacsa, rendezvény, egyéb)</li>
                       <li>• Felszerelések hozzárendelése</li>
                     </ul>
                   </div>

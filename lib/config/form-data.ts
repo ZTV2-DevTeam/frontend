@@ -128,7 +128,7 @@ export const kacsaShootings: KacsaShooting[] = [
 export const shootingTypes: ShootingType[] = [
   {
     value: 'rendes',
-    label: 'Rendes forgatás',
+    label: 'KaCsa forgatás',
     description: 'Hagyományos forgatási projekt'
   },
   {
