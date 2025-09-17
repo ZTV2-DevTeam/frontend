@@ -19,6 +19,11 @@ const rawChangelogData: ChangelogEntry[] = [
         'KaCsa Összejátszás kiírásának lehetősége eltávolítva',
         'A KaCsa Összejátszás típusú forgatások kiírásának lehetősége eltávolításra került a felhasználói felületről, mivel ezeket az összejátszásokat mostantól kizárólag az adminisztrációs felületen lehet kezelni, a megfelelő jogosultságokkal, importálás lehetőséggel egyetemben.'
       ),
+      createChange(
+        'improvement',
+        'Segítség menü reszponzivitásának javítása',
+        'Javítottuk a Segítség menüpont reszponzivitását.'
+      ),
     ]
   ),
   createChangelogEntry(

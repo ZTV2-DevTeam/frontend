@@ -321,28 +321,39 @@ export default function HelpPage() {
 
           {/* Main Content Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-5">
-              <TabsTrigger value="general" className="flex items-center gap-2">
-                <HelpCircle className="w-4 h-4" />
-                Általános
-              </TabsTrigger>
-              <TabsTrigger value="role-specific" className="flex items-center gap-2">
-                <roleContent.icon className="w-4 h-4" />
-                {currentRole === 'admin' ? 'Admin' : currentRole === 'class-teacher' ? 'Osztályfőnök' : 'Diák'}
-              </TabsTrigger>
-              <TabsTrigger value="guides" className="flex items-center gap-2">
-                <BookOpen className="w-4 h-4" />
-                Útmutatók
-              </TabsTrigger>
-              <TabsTrigger value="feedback" className="flex items-center gap-2">
-                <MessageSquare className="w-4 h-4" />
-                Visszajelzés
-              </TabsTrigger>
-              <TabsTrigger value="resources" className="flex items-center gap-2">
-                <FileText className="w-4 h-4" />
-                Erőforrások
-              </TabsTrigger>
-            </TabsList>
+            <div className="w-full overflow-x-auto pb-2">
+              <TabsList className="inline-flex h-auto w-auto min-w-full flex-wrap gap-1 p-1 sm:flex-nowrap">
+                <TabsTrigger value="general" className="flex items-center gap-1 px-2 py-2 text-xs sm:gap-2 sm:px-3 sm:text-sm">
+                  <HelpCircle className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">Általános</span>
+                  <span className="sm:hidden">GYIK</span>
+                </TabsTrigger>
+                <TabsTrigger value="role-specific" className="flex items-center gap-1 px-2 py-2 text-xs sm:gap-2 sm:px-3 sm:text-sm">
+                  <roleContent.icon className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">
+                    {currentRole === 'admin' ? 'Admin' : currentRole === 'class-teacher' ? 'Osztályfőnök' : 'Diák'}
+                  </span>
+                  <span className="sm:hidden">
+                    {currentRole === 'admin' ? 'Admin' : currentRole === 'class-teacher' ? 'Ofők' : 'Diák'}
+                  </span>
+                </TabsTrigger>
+                <TabsTrigger value="guides" className="flex items-center gap-1 px-2 py-2 text-xs sm:gap-2 sm:px-3 sm:text-sm">
+                  <BookOpen className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">Útmutatók</span>
+                  <span className="sm:hidden">Útmutató</span>
+                </TabsTrigger>
+                <TabsTrigger value="feedback" className="flex items-center gap-1 px-2 py-2 text-xs sm:gap-2 sm:px-3 sm:text-sm">
+                  <MessageSquare className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">Visszajelzés</span>
+                  <span className="sm:hidden">Feedback</span>
+                </TabsTrigger>
+                <TabsTrigger value="resources" className="flex items-center gap-1 px-2 py-2 text-xs sm:gap-2 sm:px-3 sm:text-sm">
+                  <FileText className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">Erőforrások</span>
+                  <span className="sm:hidden">Extra</span>
+                </TabsTrigger>
+              </TabsList>
+            </div>
 
             {/* General FAQ Tab */}
             <TabsContent value="general" className="space-y-4">
