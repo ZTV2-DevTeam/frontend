@@ -29,8 +29,15 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "FTV (BETA)",
-  description: "FTV Adminisztációs felület - Early Access BETA verzió",
+  title: {
+    default: "FTV - Forgatásszervező Platform",
+    template: "%s | FTV - Kőbányai Szent László Gimnázium"
+  },
+  description: "Professzionális forgatásszervező rendszer a Kőbányai Szent László Gimnázium Média tagozata számára.",
+  keywords: ["forgatás", "média", "oktatás", "gimnázium", "Budapest", "Kőbánya", "adminisztráció", "szervezés", "KaCsa", "Kamasz Csatorna"],
+  authors: [{ name: "FTV Fejlesztői Csapat" }],
+  creator: "FTV Fejlesztői Csapat",
+  publisher: "Kőbányai Szent László Gimnázium",
   viewport: {
     width: "device-width",
     initialScale: 1,
@@ -38,10 +45,40 @@ export const metadata: Metadata = {
     userScalable: false,
     viewportFit: "cover"
   },
+  robots: "index, follow",
+  openGraph: {
+    type: "website",
+    locale: "hu_HU",
+    siteName: "FTV - Kőbányai Szent László Gimnázium",
+    title: "FTV - Forgatásszervező Platform",
+    description: "Professzionális forgatásszervező rendszer a Kőbányai Szent László Gimnázium média tagozata számára.",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "FTV - Forgatásszervező Platform",
+      },
+    ],
+  },
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "oklch(0.929 0.013 255.508)" },
     { media: "(prefers-color-scheme: dark)", color: "oklch(1 0 0 / 10%)" }
-  ]
+  ],
+  alternates: {
+    canonical: process.env.NEXT_PUBLIC_SITE_URL || "https://ftv.szlg.info",
+  },
+  other: {
+    "application-name": "FTV",
+    "apple-mobile-web-app-title": "FTV",
+    "apple-mobile-web-app-capable": "yes",
+    "apple-mobile-web-app-status-bar-style": "default",
+    "format-detection": "telephone=no",
+    "mobile-web-app-capable": "yes",
+    "msapplication-TileColor": "#ffffff",
+    "msapplication-tap-highlight": "no",
+    "google-site-verification": "o8RQPMh2yTLjsRTpZXKsEM11cLnCFbTZVpuY_QDYWAQ",
+  },
 };
 
 export default function RootLayout({

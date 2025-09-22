@@ -1,7 +1,32 @@
+import type { Metadata } from "next";
 import Link from "next/link"
 import { Clapperboard, FileText, Users, Shield, AlertTriangle, Settings, Scale } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { SiteFooter } from "@/components/site-footer"
+
+export const metadata: Metadata = {
+  title: "Felhasználási feltételek",
+  description: "Az FTV (Film és Televízió Rendszer) felhasználási feltételei. Szabályok és irányelvek a Kőbányai Szent László Gimnázium média adminisztrációs rendszerének használatához.",
+  keywords: [
+    "felhasználási feltételek",
+    "használati feltételek", 
+    "terms of service",
+    "FTV szabályok",
+    "média rendszer szabályok",
+    "Kőbányai Szent László Gimnázium",
+    "platform használat",
+    "felhasználói megállapodás",
+    "rendszer irányelvek"
+  ],
+  openGraph: {
+    title: "Felhasználási feltételek | FTV",
+    description: "Az FTV platform használatának feltételei és szabályai.",
+    type: "website",
+  },
+  alternates: {
+    canonical: "/terms-of-service",
+  },
+};
 
 export default function TermsOfServicePage() {
   return (

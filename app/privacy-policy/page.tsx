@@ -1,7 +1,33 @@
+import type { Metadata } from "next";
 import Link from "next/link"
 import { Clapperboard, Settings, Database, AlertCircle, Shield } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { SiteFooter } from "@/components/site-footer"
+
+export const metadata: Metadata = {
+  title: "Adatvédelmi szabályzat",
+  description: "Az FTV (Film és Televízió Rendszer) adatvédelmi szabályzata. Információk a személyes adatok kezeléséről, felhasználásáról és védelméről a Kőbányai Szent László Gimnázium média rendszerében.",
+  keywords: [
+    "adatvédelem",
+    "személyes adatok",
+    "GDPR",
+    "adatkezelés",
+    "FTV",
+    "Kőbányai Szent László Gimnázium",
+    "privacy policy",
+    "adatbiztonság",
+    "cookies",
+    "felhasználói adatok"
+  ],
+  openGraph: {
+    title: "Adatvédelmi szabályzat | FTV",
+    description: "Az FTV adatvédelmi szabályzata - személyes adatok kezelése és védelme.",
+    type: "website",
+  },
+  alternates: {
+    canonical: "/privacy-policy",
+  },
+};
 
 export default function PrivacyPolicyPage() {
   return (

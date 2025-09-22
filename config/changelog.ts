@@ -33,6 +33,11 @@ const rawChangelogData: ChangelogEntry[] = [
         'Globális változások az oldal akadálymentességében',
         'A weboldal akadálymentességi funkciói jelentős fejlesztéseken mentek keresztül, beleértve a billentyűzet navigáció, kontraszt és a képernyőolvasók támogatásának javítását.'
       ),
+      createChange(
+        'improvement',
+        'Fejlett SEO optimalizáció és Open Graph támogatás',
+        'Javítottuk a keresőmotor optimalizációt (SEO), hogy a weboldal jobban teljesítsen a keresési eredmények között növelve ezzel az oldal könnyebb elérését például a Google, a Bing és a DuckDuckGo keresőkben. Ezen felül, az Open Graph meta tagek hozzáadásával a megosztott linkek előnézeti képei és leírásai is javultak a közösségi médiában és chatfelületeken.'
+      ),
     ]
   ),
   createChangelogEntry(
