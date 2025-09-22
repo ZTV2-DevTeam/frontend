@@ -218,10 +218,6 @@ export default function ChangelogPage() {
                   </div>
                   <div className="flex items-start gap-2">
                     <Zap className="w-3 h-3 text-purple-600 mt-0.5 flex-shrink-0" />
-                    <span className="text-xs break-words">Naptár integrációk (Google, Apple)</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <Zap className="w-3 h-3 text-purple-600 mt-0.5 flex-shrink-0" />
                     <span className="text-xs break-words">Dinamikus e-mail értesítések</span>
                   </div>
                   <div className="flex items-start gap-2">
