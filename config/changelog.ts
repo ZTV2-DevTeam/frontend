@@ -27,7 +27,12 @@ const rawChangelogData: ChangelogEntry[] = [
         'feature',
         'Tesztfelület létrehozása',
         'Létrehoztunk egy dedikált tesztfelületet, ahol különböző komponensek és funkciók tesztelhetők anélkül, hogy befolyásolnák a fő alkalmazást. Ez megkönnyíti a fejlesztést és a hibakeresést.'
-      )
+      ),
+      createChange(
+        'improvement',
+        'Globális változások az oldal akadálymentességében',
+        'A weboldal akadálymentességi funkciói jelentős fejlesztéseken mentek keresztül, beleértve a billentyűzet navigáció, kontraszt és a képernyőolvasók támogatásának javítását.'
+      ),
     ]
   ),
   createChangelogEntry(

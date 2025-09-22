@@ -15,6 +15,8 @@ import { ConnectionStatus } from "@/components/connection-status";
 import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Toaster } from "@/components/ui/sonner"
+import { AccessibilityProvider } from "@/components/accessibility-utils"
+import { KeyboardNavigationEnhancer } from "@/components/keyboard-navigation"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -56,28 +58,40 @@ export default function RootLayout({
           <ErrorToastProvider>
             <GlobalErrorHandler />
             <ConsoleDebugger />
-            <ThemeProvider 
-              attribute="class" 
-              defaultTheme="system" 
-              enableSystem
-              disableTransitionOnChange
-            >
-              <ColorThemeProvider>
-                <AuthProvider>
-                  <PermissionsProvider>
-                    <UserRoleProvider>
-                      <RoleSynchronizer />
-                      <ConnectionStatus showText={false} />
-                      <div className="relative flex min-h-screen flex-col">
-                        <div className="transition-opacity duration-500 ease-in-out opacity-100" id="page-transition">
-                          {children}
+            <AccessibilityProvider>
+              <KeyboardNavigationEnhancer />
+              <ThemeProvider 
+                attribute="class" 
+                defaultTheme="system" 
+                enableSystem
+                disableTransitionOnChange
+              >
+                <ColorThemeProvider>
+                  <AuthProvider>
+                    <PermissionsProvider>
+                      <UserRoleProvider>
+                        <RoleSynchronizer />
+                        <ConnectionStatus showText={false} />
+                        {/* Skip to content link for keyboard navigation */}
+                        <a
+                          href="#main-content"
+                          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-md focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 transition-all duration-200"
+                        >
+                          Ugrás a fő tartalomhoz
+                        </a>
+                        <div className="relative flex min-h-screen flex-col">
+                          <div className="transition-opacity duration-500 ease-in-out opacity-100" id="page-transition">
+                            <main id="main-content" className="flex-1">
+                              {children}
+                            </main>
+                          </div>
                         </div>
-                      </div>
-                    </UserRoleProvider>
-                  </PermissionsProvider>
-                </AuthProvider>
-              </ColorThemeProvider>
-            </ThemeProvider>
+                      </UserRoleProvider>
+                    </PermissionsProvider>
+                  </AuthProvider>
+                </ColorThemeProvider>
+              </ThemeProvider>
+            </AccessibilityProvider>
           </ErrorToastProvider>
         </GlobalErrorBoundary>
         <Toaster />

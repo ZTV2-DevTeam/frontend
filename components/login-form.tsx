@@ -99,11 +99,16 @@ export function LoginForm({
           <CardTitle className="text-xl">Bejelentkezés</CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} noValidate aria-label="Bejelentkezési űrlap">
             <div className="grid gap-6">
               <div className="grid gap-6">
                 {error && (
-                  <div className="p-3 text-sm text-red-600 border border-red-200 rounded-md bg-red-50">
+                  <div 
+                    className="p-3 text-sm text-red-600 border border-red-200 rounded-md bg-red-50"
+                    role="alert"
+                    aria-live="polite"
+                    id="login-error"
+                  >
                     {error}
                   </div>
                 )}
@@ -118,6 +123,11 @@ export function LoginForm({
                     required
                     disabled={isLoading}
                     tabIndex={1}
+                    aria-describedby={error ? "login-error" : undefined}
+                    aria-invalid={error ? "true" : "false"}
+                    autoComplete="username"
+                    autoCapitalize="none"
+                    spellCheck="false"
                   />
                 </div>
                 <div className="grid gap-3">
@@ -127,6 +137,7 @@ export function LoginForm({
                       href="/elfelejtett_jelszo"
                       className="ml-auto text-sm underline-offset-4 hover:underline"
                       tabIndex={4}
+                      aria-label="Elfelejtett jelszó helyreállítás"
                     >
                       Elfelejtett jelszó?
                     </Link>
@@ -139,18 +150,32 @@ export function LoginForm({
                     required
                     disabled={isLoading}
                     tabIndex={2}
+                    aria-describedby={error ? "login-error" : undefined}
+                    aria-invalid={error ? "true" : "false"}
+                    autoComplete="current-password"
                   />
                 </div>
-                <Button type="submit" className="w-full" disabled={isLoading} tabIndex={3}>
+                <Button 
+                  type="submit" 
+                  className="w-full" 
+                  disabled={isLoading} 
+                  tabIndex={3}
+                  aria-describedby={isLoading ? "login-status" : undefined}
+                >
                   {isLoading ? 'Bejelentkezés...' : 'Bejelentkezés'}
                 </Button>
+                {isLoading && (
+                  <div id="login-status" className="sr-only" aria-live="polite">
+                    Bejelentkezés folyamatban
+                  </div>
+                )}
               </div>
             </div>
           </form>
         </CardContent>
       </Card>
       <div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
-        A folytatásra kattintva elfogadod a <a href="/terms-of-service" className="cursor-pointer">Felhasználási feltételeket</a> és az <a href="/privacy-policy" className="cursor-pointer">Adatvédelmi szabályzatot</a>. A weboldal nem-követő sütiket használ, melyek elengedhetetlenek a weboldal működéséhez.
+        A folytatásra kattintva elfogadod a <a href="/terms-of-service" className="cursor-pointer" aria-label="Felhasználási feltételek megnyitása">Felhasználási feltételeket</a> és az <a href="/privacy-policy" className="cursor-pointer" aria-label="Adatvédelmi szabályzat megnyitása">Adatvédelmi szabályzatot</a>. A weboldal nem-követő sütiket használ, melyek elengedhetetlenek a weboldal működéséhez.
       </div>
     </div>
   )

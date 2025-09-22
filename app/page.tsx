@@ -38,13 +38,13 @@ export default function LandingPage() {
 
   return (
     <div className="flex flex-col transition-colors duration-500 min-h-dvh bg-background text-foreground">
-      <header className="container flex items-center justify-between px-4 py-4 mx-auto sm:px-6 lg:px-8 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <Link href="/" className="flex items-center gap-3 text-2xl font-bold hover:opacity-80 transition-opacity cursor-pointer">
-          <Clapperboard className="w-8 h-8 text-primary" />
+      <header role="banner" className="container flex items-center justify-between px-4 py-4 mx-auto sm:px-6 lg:px-8 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <Link href="/" className="flex items-center gap-3 text-2xl font-bold hover:opacity-80 transition-opacity cursor-pointer" aria-label="FTV főoldal">
+          <Clapperboard className="w-8 h-8 text-primary" aria-hidden="true" />
           <div className="flex flex-col">
             <div className="flex items-center gap-2">
               <span>FTV</span>
-              <span className="px-2 py-0.5 text-xs font-semibold bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200 rounded-full border border-orange-200 dark:border-orange-700">
+              <span className="px-2 py-0.5 text-xs font-semibold bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200 rounded-full border border-orange-200 dark:border-orange-700" aria-label="Beta verzió">
                 BETA
               </span>
             </div>
@@ -52,7 +52,7 @@ export default function LandingPage() {
           </div>
         </Link>
         <div className="flex items-center gap-4">
-          <nav className="hidden md:flex items-center gap-6 text-sm">
+          <nav role="navigation" aria-label="Főnavigáció" className="hidden md:flex items-center gap-6 text-sm">
             <a href="#features" className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
               Funkciók
             </a>
@@ -69,6 +69,7 @@ export default function LandingPage() {
           <Link
             href="/login"
             className="px-4 py-2 text-sm font-medium transition-colors bg-primary text-primary-foreground rounded-md hover:bg-primary/90 flex items-center gap-2 cursor-pointer"
+            aria-label="Bejelentkezés az alkalmazásba"
           >
             Bejelentkezés
           </Link>
@@ -76,7 +77,7 @@ export default function LandingPage() {
       </header>
 
       {/* Beta Disclaimer Banner */}
-      <div className="w-full bg-orange-50/80 dark:bg-orange-950/80 border-b border-orange-200 dark:border-orange-800">
+      <aside role="complementary" aria-label="Beta verzió figyelmeztetés" className="w-full bg-orange-50/80 dark:bg-orange-950/80 border-b border-orange-200 dark:border-orange-800">
         <div className="container px-4 py-3 mx-auto sm:px-6 lg:px-8">
           <div className="flex items-center justify-center gap-3 text-center">
             <div className="px-2 py-1 text-xs font-semibold bg-orange-200 text-orange-900 dark:bg-orange-800 dark:text-orange-100 rounded-full border border-orange-300 dark:border-orange-700">
@@ -87,10 +88,10 @@ export default function LandingPage() {
             </p>
           </div>
         </div>
-      </div>
+      </aside>
 
-      <main className="flex flex-col items-center justify-center px-4 text-center py-16 md:py-24 lg:py-32 relative">
-        <div className="absolute inset-0 bg-muted/30 -z-10" />
+      <main role="main" className="flex flex-col items-center justify-center px-4 text-center py-16 md:py-24 lg:py-32 relative">
+        <div className="absolute inset-0 bg-muted/30 -z-10" aria-hidden="true" />
         <div className="space-y-6 max-w-4xl mx-auto">
           <h1 className="text-4xl font-extrabold leading-tight tracking-tighter sm:text-5xl md:text-6xl lg:text-7xl">
             viszlát ztv.
@@ -106,13 +107,15 @@ export default function LandingPage() {
             <Link 
               href="/login"
               className="w-full sm:w-auto px-8 py-4 text-lg font-medium transition-all bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 hover:scale-105 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl cursor-pointer"
+              aria-label="Kezdés - bejelentkezés az alkalmazásba"
             >
               Kezdés
-              <Clapperboard className="w-5 h-5" />
+              <Clapperboard className="w-5 h-5" aria-hidden="true" />
             </Link>
             <a 
               href="#features"
               className="w-full sm:w-auto px-8 py-4 text-lg font-medium transition-all border-2 border-border rounded-xl hover:bg-accent hover:text-accent-foreground hover:scale-105 cursor-pointer"
+              aria-label="Tudj meg többet a platform funkciókról"
             >
               Tudj meg többet
             </a>
@@ -120,27 +123,30 @@ export default function LandingPage() {
         </div>
       </main>
 
-      <section id="features">
+      <section id="features" aria-labelledby="features-heading">
+        <h2 id="features-heading" className="sr-only">Platform funkciók</h2>
         <FeaturesSection />
       </section>
       
-      <section id="why-better">
+      <section id="why-better" aria-labelledby="performance-heading">
+        <h2 id="performance-heading" className="sr-only">Teljesítmény összehasonlítás</h2>
         <SpeedComparisonSection />
       </section>
       
-      <section id="about">
+      <section id="about" aria-labelledby="about-heading">
+        <h2 id="about-heading" className="sr-only">Fejlesztőkről</h2>
         <DevelopersSection />
       </section>
 
-      <div className="flex justify-center py-12">
+      <aside role="complementary" aria-labelledby="access-info-heading" className="flex justify-center py-12">
         <div className="max-w-3xl mx-4">
           <div className="bg-background/50 border border-primary/20 rounded-xl p-8 shadow-sm">
             <div className="flex items-start gap-4">
-              <div className="p-3 rounded-xl bg-primary/10 shrink-0">
+              <div className="p-3 rounded-xl bg-primary/10 shrink-0" aria-hidden="true">
                 <Info className="w-6 h-6 text-primary" />
               </div>
               <div className="space-y-3">
-                <h3 className="text-xl font-semibold tracking-tight">Zártkörű alkalmazás</h3>
+                <h3 id="access-info-heading" className="text-xl font-semibold tracking-tight">Zártkörű alkalmazás</h3>
                 <p className="text-muted-foreground leading-relaxed">
                   A regisztráció nem lehetséges. Ez az alkalmazás kizárólag a 
                   <span className="font-medium text-foreground"> Kőbányai Szent László Gimnázium Média Tagozata </span>
@@ -150,7 +156,7 @@ export default function LandingPage() {
             </div>
           </div>
         </div>
-      </div>
+      </aside>
 
       <SiteFooter />
     </div>
