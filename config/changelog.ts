@@ -43,6 +43,11 @@ const rawChangelogData: ChangelogEntry[] = [
         'Megfelelőségi és biztonsági nyilatkozatok',
         'Létrehoztunk egy új szakaszt a főoldalon, ahol a felhasználók megtekinthetik a szolgáltatásunkkal kapcsolatos megfelelőségi és biztonsági nyilatkozatokat.'
       ),
+      createChange(
+        'feature',
+        '404, 500 és globális hibaoldalak egyedi felületen',
+        'A 404-es (Nem található) és 500-as (Belső szerverhiba) hibák mostantól egyedi, felhasználóbarát felületen jelennek meg, amely segít a felhasználóknak megérteni a problémát és javaslatokat kínál a továbblépésre.'
+      ),
     ]
   ),
   createChangelogEntry(
