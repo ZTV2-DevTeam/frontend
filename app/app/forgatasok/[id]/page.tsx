@@ -11,6 +11,7 @@ import { ApiErrorBoundary } from "@/components/api-error-boundary"
 import { ApiErrorFallback } from "@/components/api-error-fallback"
 import { StabBadge, UserStabBadge } from "@/components/stab-badge"
 import { UserAvatar } from "@/components/user-avatar"
+import { GoogleCalendarButton } from "@/components/google-calendar-button"
 import {
   SidebarInset,
   SidebarProvider,
@@ -531,6 +532,56 @@ export default function FilmingSessionDetail({ params }: PageProps) {
 
               {/* Sidebar */}
               <div className="space-y-6">
+                {/* Quick Actions */}
+                <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
+                  <CardHeader>
+                    <CardTitle>Gyors Műveletek</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <GoogleCalendarButton
+                      forgatas={{
+                        name: session.name,
+                        description: session.description,
+                        date: session.date,
+                        time_from: session.time_from,
+                        time_to: session.time_to,
+                        location: session.location
+                      }}
+                      variant="outline"
+                      size="sm"
+                      className="w-full bg-transparent"
+                    >
+                      Hozzáadás a Naptárhoz
+                    </GoogleCalendarButton>
+                    {/* Future actions can be uncommented here
+                    <Button className="w-full bg-transparent" variant="outline" size="sm">
+                      <FileText className="h-4 w-4 mr-2" />
+                      Forgatási Terv
+                    </Button>
+                    <Button className="w-full bg-transparent" variant="outline" size="sm">
+                      <Users className="h-4 w-4 mr-2" />
+                      Stáb Értesítése
+                    </Button>
+                    {equipmentList && equipmentList.length > 0 && (
+                      <Button className="w-full bg-transparent" variant="outline" size="sm">
+                        <Camera className="h-4 w-4 mr-2" />
+                        Eszköz Állapot
+                      </Button>
+                    )}
+                    {assignments && assignments.length > 0 && (() => {
+                      const sessionAssignment = assignments.find((assignment: BeosztasSchema) => 
+                        assignment.forgatas.id === parseInt(id)
+                      )
+                      return sessionAssignment && (
+                        <Button className="w-full bg-transparent" variant="outline" size="sm">
+                          <Users className="h-4 w-4 mr-2" />
+                          {sessionAssignment.kesz ? 'Beosztás megtekintése' : 'Beosztás szerkesztése'}
+                        </Button>
+                      )
+                    })()} */}
+                  </CardContent>
+                </Card>
+
                 {/* Crew */}
                 <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
                   <CardHeader>
@@ -585,47 +636,6 @@ export default function FilmingSessionDetail({ params }: PageProps) {
                           </button>
                         ))
                       )}
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Quick Actions */}
-                <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
-                  <CardHeader>
-                    <CardTitle>Gyors Műveletek</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    {/* <Button className="w-full bg-transparent" variant="outline" size="sm">
-                      <Calendar className="h-4 w-4 mr-2" />
-                      Naptárba Mentés
-                    </Button>
-                    <Button className="w-full bg-transparent" variant="outline" size="sm">
-                      <FileText className="h-4 w-4 mr-2" />
-                      Forgatási Terv
-                    </Button>
-                    <Button className="w-full bg-transparent" variant="outline" size="sm">
-                      <Users className="h-4 w-4 mr-2" />
-                      Stáb Értesítése
-                    </Button>
-                    {equipmentList && equipmentList.length > 0 && (
-                      <Button className="w-full bg-transparent" variant="outline" size="sm">
-                        <Camera className="h-4 w-4 mr-2" />
-                        Eszköz Állapot
-                      </Button>
-                    )}
-                    {assignments && assignments.length > 0 && (() => {
-                      const sessionAssignment = assignments.find((assignment: BeosztasSchema) => 
-                        assignment.forgatas.id === parseInt(id)
-                      )
-                      return sessionAssignment && (
-                        <Button className="w-full bg-transparent" variant="outline" size="sm">
-                          <Users className="h-4 w-4 mr-2" />
-                          {sessionAssignment.kesz ? 'Beosztás megtekintése' : 'Beosztás szerkesztése'}
-                        </Button>
-                      )
-                    })()} */}
-                    <div className="text-muted-foreground text-sm text-center py-4">
-                      Nincsenek elérhető gyors műveletek.
                     </div>
                   </CardContent>
                 </Card>

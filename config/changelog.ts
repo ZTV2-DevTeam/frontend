@@ -5,13 +5,19 @@ const rawChangelogData: ChangelogEntry[] = [
   createChangelogEntry(
     'v1.1.3-beta',
     '2025. szeptember 22.',
-    '2025-09-22T23:30:00Z',
+    '2025-09-23T01:00:00Z',
     [
       createChange(
         'integration',
         'Google Maps integráció',
         'Integráltuk a Google Maps szolgáltatást az alkalmazásba, jelenleg egy gyors hozzáférést biztosít a helyszín megtekintéséhez a Google Maps-en keresztül. Elérhető a forgatások részleteinél.',
         'https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Google_Maps_icon_%282020%29.svg/256px-Google_Maps_icon_%282020%29.svg.png?20200218211225'
+      ),
+      createChange(
+        'integration',
+        'Google Calendar integráció',
+        'Mostantól lehetőség van a forgatások eseményeinek gyors hozzáadására a Google Naptárba egy dedikált gomb segítségével. Elérhető a forgatások részleteinél.',
+        'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Google_Calendar_icon_%282020%29.svg/512px-Google_Calendar_icon_%282020%29.svg.png?20221106121915'
       ),
     ]
   ),
