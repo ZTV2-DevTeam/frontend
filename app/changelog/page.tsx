@@ -1,7 +1,8 @@
 'use client'
 
 import Link from "next/link"
-import { ArrowLeft, Calendar, Clapperboard, Plus, Bug, Zap, Shield, AlertTriangle, Minus, Share2, Check } from "lucide-react"
+import Image from "next/image"
+import { ArrowLeft, Calendar, Clapperboard, Plus, Bug, Zap, Shield, AlertTriangle, Minus, Share2, Check, Puzzle } from "lucide-react"
 import { changelogData } from "@/config/changelog"
 import { ChangelogType } from "@/types/changelog"
 import { SiteFooter } from "@/components/site-footer"
@@ -24,6 +25,8 @@ const getChangeTypeIcon = (type: ChangelogType) => {
       return <AlertTriangle className="w-4 h-4" />
     case 'removed':
       return <Minus className="w-4 h-4" />
+    case 'integration':
+      return <Puzzle className="w-4 h-4" />
     default:
       return <Plus className="w-4 h-4" />
   }
@@ -43,6 +46,8 @@ const getChangeTypeColor = (type: ChangelogType) => {
       return 'text-purple-600 bg-purple-50 border-purple-200 dark:text-purple-400 dark:bg-purple-950 dark:border-purple-800'
     case 'removed':
       return 'text-red-600 bg-red-50 border-red-200 dark:text-red-400 dark:bg-red-950 dark:border-red-800'
+    case 'integration':
+      return 'text-indigo-600 bg-gradient-to-r from-indigo-50 to-purple-50 border-indigo-200 dark:text-indigo-400 dark:bg-gradient-to-r dark:from-indigo-950/30 dark:to-purple-950/30 dark:border-indigo-800'
     default:
       return 'text-gray-600 bg-gray-50 border-gray-200 dark:text-gray-400 dark:bg-gray-950 dark:border-gray-800'
   }
@@ -62,6 +67,8 @@ const getChangeTypeLabel = (type: ChangelogType) => {
       return 'Áttörés'
     case 'removed':
       return 'Eltávolítva'
+    case 'integration':
+      return 'Integráció'
     default:
       return 'Változás'
   }
@@ -81,7 +88,7 @@ export default function ChangelogPage() {
   const [copiedId, setCopiedId] = useState<string | null>(null)
   
   // Initialize theme context to ensure proper hydration
-  const { themeColor, themeMode } = useTheme()
+  useTheme()
 
   // Handle URL hash scrolling on mount
   useEffect(() => {
@@ -289,18 +296,47 @@ export default function ChangelogPage() {
 
                       <div className="space-y-3 sm:space-y-4">
                         {entry.changes.map((change) => (
-                          <div key={change.id} className="border border-border rounded-lg p-3 sm:p-4 bg-muted/20 overflow-hidden">
+                          <div key={change.id} className={`border border-border rounded-lg p-3 sm:p-4 overflow-hidden ${
+                            change.type === 'integration' 
+                              ? 'bg-gradient-to-r from-indigo-50/50 to-purple-50/50 dark:from-indigo-950/20 dark:to-purple-950/20 border-indigo-200 dark:border-indigo-800' 
+                              : 'bg-muted/20'
+                          }`}>
                             <div className="space-y-2 sm:space-y-3">
-                              <div className={`flex items-center gap-1 sm:gap-2 px-1.5 sm:px-2 py-1 rounded-full text-xs font-medium border w-fit ${getChangeTypeColor(change.type)}`}>
-                                {getChangeTypeIcon(change.type)}
-                                <span className="whitespace-nowrap">{getChangeTypeLabel(change.type)}</span>
+                              <div className="flex items-center gap-2 sm:gap-3">
+                                <div className={`flex items-center gap-1 sm:gap-2 px-1.5 sm:px-2 py-1 rounded-full text-xs font-medium border w-fit ${getChangeTypeColor(change.type)}`}>
+                                  {getChangeTypeIcon(change.type)}
+                                  <span className="whitespace-nowrap">{getChangeTypeLabel(change.type)}</span>
+                                </div>
+                                {change.type === 'integration' && change.integrationLogo && (
+                                  <div className="flex items-center gap-2 ml-auto">
+                                    <span className="text-xs text-muted-foreground hidden sm:inline">Szolgáltató:</span>
+                                    <Image 
+                                      src={change.integrationLogo} 
+                                      alt="Integration logo" 
+                                      width={32}
+                                      height={32}
+                                      className="w-6 h-6 sm:w-8 sm:h-8 object-contain rounded border border-border shadow-sm bg-white/50 dark:bg-gray-900/50 p-1"
+                                      onError={(e) => {
+                                        (e.target as HTMLImageElement).style.display = 'none';
+                                      }}
+                                    />
+                                  </div>
+                                )}
                               </div>
                               <div>
-                                <h3 className="font-medium text-foreground mb-1 break-words text-sm sm:text-base">
+                                <h3 className={`font-medium mb-1 break-words text-sm sm:text-base ${
+                                  change.type === 'integration' 
+                                    ? 'text-indigo-900 dark:text-indigo-100' 
+                                    : 'text-foreground'
+                                }`}>
                                   {change.description}
                                 </h3>
                                 {change.details && (
-                                  <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed break-words">
+                                  <p className={`text-xs sm:text-sm leading-relaxed break-words ${
+                                    change.type === 'integration' 
+                                      ? 'text-indigo-700 dark:text-indigo-300' 
+                                      : 'text-muted-foreground'
+                                  }`}>
                                     {change.details}
                                   </p>
                                 )}

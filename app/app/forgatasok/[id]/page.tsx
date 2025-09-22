@@ -36,6 +36,7 @@ import {
   Loader2,
 } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 import { format } from "date-fns"
 import { hu } from "date-fns/locale"
 import { notFound } from "next/navigation"
@@ -261,12 +262,31 @@ export default function FilmingSessionDetail({ params }: PageProps) {
                       <div className="space-y-3">
                         <div className="flex items-center gap-3 p-3 rounded-lg bg-background/50 border border-border/50">
                           <MapPin className="h-4 w-4 text-blue-400" />
-                          <div>
+                          <div className="flex-1">
                             <div className="text-sm text-muted-foreground">Helyszín</div>
                             <div className="font-medium">{session.location?.name || 'Helyszín nincs megadva'}</div>
                             {session.location?.address && (
                               <div className="text-xs text-muted-foreground">{session.location.address}</div>
                             )}
+                          {session.location?.address && (
+                            <a
+                              href={`https://maps.google.com/?q=${encodeURIComponent(session.location.name)}+${encodeURIComponent(session.location.address)}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center mt-2 gap-2 px-3 py-2 rounded-full
+                              bg-muted/40 hover:bg-muted/60 border border-border text-muted-foreground
+                              transition-colors text-sm font-medium w-fit"
+                            >
+                              <Image
+                              src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Google_Maps_icon_%282020%29.svg/256px-Google_Maps_icon_%282020%29.svg.png"
+                              alt="Google Maps"
+                              width={16}
+                              height={16}
+                              className="shrink-0"
+                              />
+                              Google Maps
+                            </a>
+                          )}
                           </div>
                         </div>
 

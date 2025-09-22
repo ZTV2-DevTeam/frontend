@@ -1,9 +1,20 @@
 import { ChangelogEntry } from '@/types/changelog';
 import { createChangelogEntry, createChange, sortChangelogEntries } from '@/lib/changelog-utils';
-import { create } from 'domain';
-import { m } from 'motion/react';
 
 const rawChangelogData: ChangelogEntry[] = [
+  createChangelogEntry(
+    'v1.1.3-beta',
+    '2025. szeptember 22.',
+    '2025-09-22T23:30:00Z',
+    [
+      createChange(
+        'integration',
+        'Google Maps integráció',
+        'Integráltuk a Google Maps szolgáltatást az alkalmazásba, jelenleg egy gyors hozzáférést biztosít a helyszín megtekintéséhez a Google Maps-en keresztül. Elérhető a forgatások részleteinél.',
+        'https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Google_Maps_icon_%282020%29.svg/256px-Google_Maps_icon_%282020%29.svg.png?20200218211225'
+      ),
+    ]
+  ),
   createChangelogEntry(
     'v1.1.2-beta',
     '2025. szeptember 22.',

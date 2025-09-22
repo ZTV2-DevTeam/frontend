@@ -26,12 +26,14 @@ export function createChangelogEntry(
 export function createChange(
   type: ChangelogChange['type'],
   description: string,
-  details?: string
+  details?: string,
+  integrationLogo?: string
 ): Omit<ChangelogChange, 'id'> {
   return {
     type,
     description,
-    details
+    details,
+    integrationLogo
   };
 }
 

@@ -7,9 +7,10 @@ export interface ChangelogEntry {
 
 export interface ChangelogChange {
   id: string;
-  type: 'feature' | 'improvement' | 'bugfix' | 'breaking' | 'security' | 'removed';
+  type: 'feature' | 'improvement' | 'bugfix' | 'breaking' | 'security' | 'removed' | 'integration';
   description: string;
   details?: string;
+  integrationLogo?: string; // URL for integration logos
 }
 
 export type ChangelogType = ChangelogChange['type'];
