@@ -117,24 +117,3 @@ Clean-param: utm_source&utm_medium&utm_campaign&utm_term&utm_content
     },
   });
 }
-
-/**
- * Utility function to generate custom robots.txt for different environments
- */
-export function generateCustomRobots(environment: 'development' | 'staging' | 'production') {
-  const baseConfig = SEO_CONFIG.robots;
-  
-  if (environment === 'development' || environment === 'staging') {
-    return `# Robots.txt for ${environment} environment
-# Block all crawlers in non-production
-
-User-agent: *
-Disallow: /
-
-# Sitemap (if needed for testing)
-# Sitemap: ${baseConfig.sitemap}
-`;
-  }
-  
-  return baseConfig;
-}
