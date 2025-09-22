@@ -4,16 +4,14 @@ import Link from "next/link"
 import { Clapperboard, Info } from "lucide-react"
 import { FeaturesSection } from "@/app/features-section"
 import { SpeedComparisonSection } from "@/components/speed-comparison-section"
-import { CountdownTimer } from "@/components/countdown-timer"
 import { DevelopersSection } from "@/components/developers-section"
-import { StatsSection } from "@/components/stats-section"
 import { SiteFooter } from "@/components/site-footer"
+import { SecurityBadges } from "@/components/security-badges"
 import { useAuth } from "@/contexts/auth-context"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
 
 export default function LandingPage() {
-  const launchDate = new Date("2025-08-11T12:00:00")
   const { isAuthenticated, isLoading } = useAuth()
   const router = useRouter()
 
@@ -157,6 +155,8 @@ export default function LandingPage() {
           </div>
         </div>
       </aside>
+
+      <SecurityBadges />
 
       <SiteFooter />
     </div>

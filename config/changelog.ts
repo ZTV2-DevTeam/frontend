@@ -38,6 +38,11 @@ const rawChangelogData: ChangelogEntry[] = [
         'Fejlett SEO optimalizáció és Open Graph támogatás',
         'Javítottuk a keresőmotor optimalizációt (SEO), hogy a weboldal jobban teljesítsen a keresési eredmények között növelve ezzel az oldal könnyebb elérését például a Google, a Bing és a DuckDuckGo keresőkben. Ezen felül, az Open Graph meta tagek hozzáadásával a megosztott linkek előnézeti képei és leírásai is javultak a közösségi médiában és chatfelületeken.'
       ),
+      createChange(
+        'feature',
+        'Megfelelőségi és biztonsági nyilatkozatok',
+        'Létrehoztunk egy új szakaszt a főoldalon, ahol a felhasználók megtekinthetik a szolgáltatásunkkal kapcsolatos megfelelőségi és biztonsági nyilatkozatokat.'
+      ),
     ]
   ),
   createChangelogEntry(
