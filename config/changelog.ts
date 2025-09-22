@@ -1,9 +1,35 @@
 import { ChangelogEntry } from '@/types/changelog';
 import { createChangelogEntry, createChange, sortChangelogEntries } from '@/lib/changelog-utils';
-import { m } from 'motion/react';
 import { create } from 'domain';
+import { m } from 'motion/react';
 
 const rawChangelogData: ChangelogEntry[] = [
+  createChangelogEntry(
+    'v1.1.2-beta',
+    '2025. szeptember 22.',
+    '2025-09-22T23:00:00Z',
+    [
+      createChange(
+        'feature',
+        'Egységes hibakezelés - Toast',
+        'Mostantól a hibák egységesen, toast értesítések formájában jelennek meg a felhasználói felületen, a jobb felül sarokban. Ez biztosítja, hogy a felhasználók azonnal értesüljenek a problémákról anélkül, hogy megszakítanák a munkafolyamatukat.'),
+      createChange(
+        'improvement',
+        'Új forgatás form - Hibaüzenetek',
+        'Integráltuk az egységes hibakezelést az új forgatás létrehozásának folyamatába.'
+      ),
+      createChange(
+        'improvement',
+        'Loading komponens - Új dizájn',
+        'Újragondoltuk a betöltő komponens megjelenését'
+      ),
+      createChange(
+        'feature',
+        'Tesztfelület létrehozása',
+        'Létrehoztunk egy dedikált tesztfelületet, ahol különböző komponensek és funkciók tesztelhetők anélkül, hogy befolyásolnák a fő alkalmazást. Ez megkönnyíti a fejlesztést és a hibakeresést.'
+      )
+    ]
+  ),
   createChangelogEntry(
     'v1.1.1-beta',
     '2025. szeptember 17.',

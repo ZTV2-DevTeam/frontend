@@ -11,11 +11,8 @@ import {
   Clock, 
   Shield, 
   Mail,
-  Phone,
   RefreshCw,
-  Sparkles,
-  Server,
-  Zap
+  Server
 } from 'lucide-react'
 
 interface EnhancedLoadingProps {
@@ -112,8 +109,7 @@ export function EnhancedLoading({
     if (isConnecting) {
       return (
         <div className="relative">
-          <RefreshCw className="h-10 w-10 animate-spin text-primary" />
-          <div className="absolute inset-0 rounded-full border-2 border-primary/30 animate-pulse" />
+          <RefreshCw className="h-8 w-8 animate-spin text-primary" />
         </div>
       )
     }
@@ -121,47 +117,42 @@ export function EnhancedLoading({
     if (timeElapsed > 15000) {
       return (
         <div className="relative">
-          <WifiOff className="h-10 w-10 text-orange-500 animate-pulse" />
-          <div className="absolute -inset-2 rounded-full border-2 border-orange-200 animate-ping" />
+          <WifiOff className="h-8 w-8 text-chart-4" />
         </div>
       )
     }
     
     return (
       <div className="relative">
-        <Loader2 className="h-10 w-10 animate-spin text-primary" />
-        <Sparkles className="absolute -top-1 -right-1 h-4 w-4 text-primary animate-pulse" />
-        {timeElapsed > 8000 && (
-          <div className="absolute inset-0 rounded-full border-2 border-primary/20 animate-pulse" />
-        )}
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     )
   }
 
   const getTipsContent = () => {
     return (
-      <div className="space-y-4 text-sm">
-        <div className="flex items-start gap-3 p-3 rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border border-blue-100 dark:border-blue-800">
-          <Shield className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
+      <div className="space-y-3 text-sm">
+        <div className="flex items-start gap-3 p-3 rounded-lg bg-primary/5 border border-primary/20">
+          <Shield className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
           <div>
-            <p className="font-semibold text-blue-900 dark:text-blue-100">Biztonsági ellenőrzés</p>
-            <p className="text-blue-800 dark:text-blue-200">A rendszer biztonsági okokból alaposan ellenőrzi a jogosultságokat. Ez néhány másodpercig tarthat.</p>
+            <p className="font-semibold text-foreground">Biztonsági ellenőrzés</p>
+            <p className="text-muted-foreground">A rendszer biztonsági okokból alaposan ellenőrzi a jogosultságokat. Ez néhány másodpercig tarthat.</p>
           </div>
         </div>
         
-        <div className="flex items-start gap-3 p-3 rounded-lg bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 border border-amber-100 dark:border-amber-800">
-          <Server className="h-5 w-5 text-amber-500 mt-0.5 flex-shrink-0" />
+        <div className="flex items-start gap-3 p-3 rounded-lg bg-chart-4/5 border border-chart-4/20">
+          <Server className="h-5 w-5 text-chart-4 mt-0.5 flex-shrink-0" />
           <div>
-            <p className="font-semibold text-amber-900 dark:text-amber-100">Szerver kapcsolat</p>
-            <p className="text-amber-800 dark:text-amber-200">A szerver esetenként lassabban válaszol. Kérjük, legyen türelemmel.</p>
+            <p className="font-semibold text-foreground">Szerver kapcsolat</p>
+            <p className="text-muted-foreground">A szerver esetenként lassabban válaszol. Kérjük, legyen türelemmel.</p>
           </div>
         </div>
         
-        <div className="flex items-start gap-3 p-3 rounded-lg bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 border border-green-100 dark:border-green-800">
-          <Wifi className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+        <div className="flex items-start gap-3 p-3 rounded-lg bg-chart-2/5 border border-chart-2/20">
+          <Wifi className="h-5 w-5 text-chart-2 mt-0.5 flex-shrink-0" />
           <div>
-            <p className="font-semibold text-green-900 dark:text-green-100">Hálózati kapcsolat</p>
-            <p className="text-green-800 dark:text-green-200">Ellenőrizze az internetkapcsolatot, ha a betöltés túl sokáig tart.</p>
+            <p className="font-semibold text-foreground">Hálózati kapcsolat</p>
+            <p className="text-muted-foreground">Ellenőrizze az internetkapcsolatot, ha a betöltés túl sokáig tart.</p>
           </div>
         </div>
       </div>
@@ -194,9 +185,9 @@ export function EnhancedLoading({
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-muted/50 to-muted/80 backdrop-blur-sm rounded-lg p-4 space-y-3 border border-border/50">
+        <div className="bg-muted/30 rounded-lg p-4 space-y-3 border border-border">
           <p className="font-medium text-sm flex items-center gap-2">
-            <Sparkles className="h-4 w-4" />
+            <Server className="h-4 w-4" />
             Mit tehet:
           </p>
           <ul className="space-y-2 text-sm text-muted-foreground">
@@ -205,30 +196,26 @@ export function EnhancedLoading({
               <span>Próbálja újra a kapcsolódást</span>
             </li>
             <li className="flex items-start gap-2">
-              <Wifi className="h-4 w-4 mt-0.5 flex-shrink-0 text-green-500" />
+              <Wifi className="h-4 w-4 mt-0.5 flex-shrink-0 text-chart-2" />
               <span>Ellenőrizze az internetkapcsolatot</span>
             </li>
             <li className="flex items-start gap-2">
-              <Clock className="h-4 w-4 mt-0.5 flex-shrink-0 text-amber-500" />
+              <Clock className="h-4 w-4 mt-0.5 flex-shrink-0 text-chart-4" />
               <span>Várjon egy keveset, majd próbálja újra</span>
             </li>
           </ul>
         </div>
 
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-          <p className="font-medium text-sm text-blue-900 dark:text-blue-100 mb-2 flex items-center gap-2">
+        <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+          <p className="font-medium text-sm text-foreground mb-2 flex items-center gap-2">
             <Mail className="h-4 w-4" />
             Továbbra sem működik?
           </p>
-          <div className="space-y-2 text-sm text-blue-800 dark:text-blue-200">
+          <div className="space-y-2 text-sm text-muted-foreground">
             <div className="flex items-center gap-2">
               <Mail className="h-4 w-4" />
               <span>Email: balla.botond.23f@szlgbp.hu</span>
             </div>
-            {/* <div className="flex items-center gap-2">
-              <Phone className="h-4 w-4" />
-              <span>Fejlesztői támogatás: +36 30 123 4567</span>
-            </div> */}
           </div>
         </div>
       </div>
@@ -241,8 +228,8 @@ export function EnhancedLoading({
   }
 
   return (
-    <div className="flex items-center justify-center min-h-[60vh] px-4">
-      <Card className="max-w-lg w-full shadow-xl border-0 bg-gradient-to-br from-card to-card/80 backdrop-blur-sm">
+    <div className="flex items-center justify-center min-h-screen px-4">
+      <Card className="max-w-lg w-full shadow-sm border border-border">
         <CardContent className="p-8 text-center space-y-6">
           {showError || error ? (
             <>
@@ -251,7 +238,7 @@ export function EnhancedLoading({
                 <Button 
                   onClick={handleRetry} 
                   disabled={isConnecting}
-                  className="flex-1 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 transition-all duration-300 shadow-lg"
+                  className="flex-1"
                 >
                   {isConnecting ? (
                     <>
@@ -276,7 +263,7 @@ export function EnhancedLoading({
 
               {/* Status text */}
               <div className="space-y-3">
-                <p className="text-xl font-semibold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+                <p className="text-lg font-semibold text-foreground">
                   {getStageText()}
                 </p>
                 {timeElapsed > 5000 && (
@@ -288,12 +275,11 @@ export function EnhancedLoading({
                 
                 {/* Progress bar visual */}
                 {timeElapsed > 3000 && (
-                  <div className="w-full bg-muted/50 rounded-full h-2 overflow-hidden">
+                  <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
                     <div 
-                      className="h-full bg-gradient-to-r from-primary to-primary/80 transition-all duration-1000 ease-out rounded-full"
+                      className="h-full bg-primary transition-all duration-1000 ease-out rounded-full"
                       style={{ 
-                        width: `${Math.min((timeElapsed / timeout) * 100, 95)}%`,
-                        animation: timeElapsed > 10000 ? 'pulse 2s infinite' : undefined
+                        width: `${Math.min((timeElapsed / timeout) * 100, 95)}%`
                       }}
                     />
                   </div>
@@ -302,9 +288,9 @@ export function EnhancedLoading({
 
               {/* Tips section with improved styling */}
               {(showTips || timeElapsed > 2000) && (
-                <div className="text-left space-y-4 border-t border-border/50 pt-6">
-                  <h4 className="font-semibold text-center text-lg flex items-center justify-center gap-2">
-                    <Sparkles className="h-5 w-5 text-primary" />
+                <div className="text-left space-y-4 border-t border-border pt-6">
+                  <h4 className="font-semibold text-center text-base flex items-center justify-center gap-2">
+                    <Server className="h-5 w-5 text-primary" />
                     Miért tart ez ilyen sokáig?
                   </h4>
                   {getTipsContent()}

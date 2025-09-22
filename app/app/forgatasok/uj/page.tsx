@@ -12,14 +12,13 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Combobox } from "@/components/ui/combobox"
 import { Badge } from "@/components/ui/badge"
-import { Camera, MapPin, Clock, FileText, ArrowLeft, Save, Star, Music, LinkIcon } from "lucide-react"
+import { Camera, MapPin, Clock, FileText, ArrowLeft, Save, Star, Music, LinkIcon, AlertTriangle, RefreshCw } from "lucide-react"
 import { useUserRole } from "@/contexts/user-role-context"
 import { useAuth } from "@/contexts/auth-context"
 import { usePermissions } from "@/contexts/permissions-context"
 import { useApiQuery, useApiMutation } from "@/lib/api-helpers"
 import { ApiErrorBoundary } from "@/components/api-error-boundary"
-import { ForgatásErrorHandler, CriticalForgatásError, ForgatásApiWarning } from "@/components/forgatas-error-handler"
-import { AuthTokenDebug } from "@/components/auth-token-debug"
+import { useErrorToast } from "@/contexts/error-toast-context"
 import { CreatePartnerDialog } from "@/components/create-partner-dialog"
 import { CreateContactPersonDialog } from "@/components/create-contact-person-dialog"
 import { apiClient } from "@/lib/api"
@@ -50,8 +49,9 @@ export default function NewShooting() {
   const router = useRouter()
   const { currentRole } = useUserRole()
   const { user, isAuthenticated, isLoading } = useAuth()
-  const { hasPermission, permissions } = usePermissions()
+  const { hasPermission } = usePermissions()
   const { triggerSuccess } = useConfetti()
+  const { showErrorToast, showNetworkErrorToast, showPermissionErrorToast } = useErrorToast()
 
   const [formData, setFormData] = useState<ShootingFormData>({
     name: "",
@@ -69,7 +69,6 @@ export default function NewShooting() {
   })
 
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [submitError, setSubmitError] = useState<string | null>(null)
 
   // Modal states
   const [showCreatePartnerDialog, setShowCreatePartnerDialog] = useState(false)
@@ -276,6 +275,9 @@ export default function NewShooting() {
   const canCreateForgatás = hasPermission('can_create_forgatas')
 
   if (!canCreateForgatás) {
+    // Show permission error toast and redirect
+    showPermissionErrorToast('Nincs jogosultsága forgatás létrehozására. Ez a funkció csak engedéllyel rendelkező felhasználóknak elérhető.')
+    
     return (
       <StandardizedLayout>
         <div className="space-y-6 animate-in fade-in-50 duration-500">
@@ -288,10 +290,19 @@ export default function NewShooting() {
             </Link>
           </div>
           
-          <ForgatásErrorHandler 
-            error="Nincs jogosultsága forgatás létrehozására. Ez a funkció csak engedéllyel rendelkező felhasználóknak elérhető."
-            showRetryButton={false}
-          />
+          <Card className="border-orange-500/50 bg-orange-500/10">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-center gap-4 text-center">
+                <Camera className="h-12 w-12 opacity-50" />
+                <div>
+                  <h3 className="text-lg font-semibold mb-2">Nincs jogosultság</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Nincs megfelelő jogosultsága forgatás létrehozására.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </StandardizedLayout>
     )
@@ -321,7 +332,6 @@ export default function NewShooting() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
-    setSubmitError(null)
 
     try {
       // Ensure user is authenticated before proceeding
@@ -434,10 +444,18 @@ export default function NewShooting() {
       if (error instanceof Error) {
         errorMessage = error.message
       } else if (typeof error === 'object' && error !== null && 'message' in error) {
-        errorMessage = (error as any).message
+        errorMessage = (error as { message: string }).message
       }
       
-      setSubmitError(errorMessage)
+      // Use global error toast system instead of local state
+      if (errorMessage.includes('Network') || errorMessage.includes('fetch') || errorMessage.includes('timeout')) {
+        showNetworkErrorToast(errorMessage)
+      } else if (errorMessage.includes('401') || errorMessage.includes('Unauthorized') || errorMessage.includes('munkamenet lejárt')) {
+        showPermissionErrorToast(errorMessage)
+      } else {
+        showErrorToast(errorMessage)
+      }
+      
       setIsSubmitting(false)
     }
   }
@@ -450,12 +468,8 @@ export default function NewShooting() {
 
   // Transform data for comboboxes with proper error handling
   
-  const isAdminUser = currentRole === 'admin' || hasPermission('is_admin') || currentRole === 'class-teacher'
-  
   console.log('🔍 User matching debug:', {
     user: user,
-    userId: (user as any)?.id || (user as any)?.user_id || user?.username,
-    userFullName: (user as any)?.full_name || (user as any)?.name,
     currentUserInReporters: currentUserInReporters,
     isStudentUser,
     reporterOptionsCount: reporterOptions.length,
@@ -499,6 +513,9 @@ export default function NewShooting() {
   if (typesError) criticalErrors.push("Forgatás típusok betöltése sikertelen")
   
   if (criticalErrors.length > 0) {
+    // Show network error toast for critical issues
+    criticalErrors.forEach(error => showNetworkErrorToast(error))
+    
     return (
       <StandardizedLayout>
         <div className="space-y-6 animate-in fade-in-50 duration-500">
@@ -511,7 +528,36 @@ export default function NewShooting() {
             </Link>
           </div>
           
-          <CriticalForgatásError errors={criticalErrors} />
+          <Card className="border-destructive/50 bg-destructive/10">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-destructive">
+                <AlertTriangle className="h-5 w-5" />
+                Kritikus hiba
+              </CardTitle>
+              <CardDescription>
+                A forgatás létrehozásához szükséges adatok nem tölthetők be.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                {criticalErrors.map((error, index) => (
+                  <div key={index} className="p-2 text-sm bg-destructive/20 rounded border border-destructive/30">
+                    • {error}
+                  </div>
+                ))}
+              </div>
+              
+              <div className="flex gap-2">
+                <Button onClick={() => window.location.reload()} variant="outline">
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Újra próbálkozás
+                </Button>
+                <Button onClick={() => router.push('/app/forgatasok')} variant="default">
+                  Vissza a forgatásokhoz
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </StandardizedLayout>
     )
@@ -539,13 +585,24 @@ export default function NewShooting() {
 
           {/* API Status Warnings */}
           {(studentsError || contactPersonsError || kacsaError) && (
-            <ForgatásApiWarning 
-              warnings={[
-                ...(studentsError ? ['Szerkesztők betöltése sikertelen'] : []),
-                ...(contactPersonsError ? ['Kapcsolattartók betöltése sikertelen'] : []),
-                ...(kacsaError ? ['KaCsa összejátszások betöltése sikertelen'] : [])
-              ]}
-            />
+            <Card className="border-amber-500/50 bg-amber-500/10">
+              <CardContent className="p-4">
+                <div className="flex items-start gap-3">
+                  <div className="text-amber-500 text-lg">⚠️</div>
+                  <div className="flex-1">
+                    <p className="font-medium text-amber-800">Néhány mező jelenleg nem elérhető</p>
+                    <div className="text-sm text-amber-700 mt-1 space-y-1">
+                      {studentsError && <div>• Szerkesztők betöltése sikertelen</div>}
+                      {contactPersonsError && <div>• Kapcsolattartók betöltése sikertelen</div>}
+                      {kacsaError && <div>• KaCsa összejátszások betöltése sikertelen</div>}
+                    </div>
+                    <p className="text-sm text-amber-700 mt-2">
+                      Ezek a mezők opcionálisak vagy később módosíthatók. A forgatás továbbra is létrehozható.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -863,17 +920,8 @@ export default function NewShooting() {
               </CardContent>
             </Card>
 
-            {/* Error Display */}
-            {(createForgatás.error || submitError) && (
-              <ForgatásErrorHandler 
-                error={submitError || createForgatás.error}
-                onRetry={() => {
-                  setSubmitError(null)
-                  // Clear the mutation error by re-executing without triggering
-                  // The error will be cleared when the component re-renders
-                }}
-              />
-            )}
+            {/* Error Display - Now handled by global error toasts */}
+            {/* Removed ForgatásErrorHandler - errors now shown via toast notifications */}
 
             {/* Submit Button */}
             <div className="flex justify-end gap-4">

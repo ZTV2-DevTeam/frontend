@@ -6,10 +6,11 @@ import { ThemeProvider as ColorThemeProvider } from "@/contexts/theme-context";
 import { UserRoleProvider } from "@/contexts/user-role-context";
 import { AuthProvider } from "@/contexts/auth-context";
 import { PermissionsProvider } from "@/contexts/permissions-context";
+import { ErrorToastProvider } from "@/contexts/error-toast-context";
 import { GlobalErrorHandler } from "@/components/global-error-handler";
 import { ConsoleDebugger } from "@/components/console-debugger";
 import { RoleSynchronizer } from "@/components/role-synchronizer";
-import { EnhancedErrorBoundary } from "@/components/enhanced-error-boundary";
+import { GlobalErrorBoundary } from "@/components/global-error-boundary";
 import { ConnectionStatus } from "@/components/connection-status";
 import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
@@ -51,32 +52,34 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased font-sans`}
       >
-        <EnhancedErrorBoundary>
-          <GlobalErrorHandler />
-          <ConsoleDebugger />
-          <ThemeProvider 
-            attribute="class" 
-            defaultTheme="system" 
-            enableSystem
-            disableTransitionOnChange
-          >
-            <ColorThemeProvider>
-              <AuthProvider>
-                <PermissionsProvider>
-                  <UserRoleProvider>
-                    <RoleSynchronizer />
-                    <ConnectionStatus showText={false} />
-                    <div className="relative flex min-h-screen flex-col">
-                      <div className="transition-opacity duration-500 ease-in-out opacity-100" id="page-transition">
-                        {children}
+        <GlobalErrorBoundary level="global">
+          <ErrorToastProvider>
+            <GlobalErrorHandler />
+            <ConsoleDebugger />
+            <ThemeProvider 
+              attribute="class" 
+              defaultTheme="system" 
+              enableSystem
+              disableTransitionOnChange
+            >
+              <ColorThemeProvider>
+                <AuthProvider>
+                  <PermissionsProvider>
+                    <UserRoleProvider>
+                      <RoleSynchronizer />
+                      <ConnectionStatus showText={false} />
+                      <div className="relative flex min-h-screen flex-col">
+                        <div className="transition-opacity duration-500 ease-in-out opacity-100" id="page-transition">
+                          {children}
+                        </div>
                       </div>
-                    </div>
-                  </UserRoleProvider>
-                </PermissionsProvider>
-              </AuthProvider>
-            </ColorThemeProvider>
-          </ThemeProvider>
-        </EnhancedErrorBoundary>
+                    </UserRoleProvider>
+                  </PermissionsProvider>
+                </AuthProvider>
+              </ColorThemeProvider>
+            </ThemeProvider>
+          </ErrorToastProvider>
+        </GlobalErrorBoundary>
         <Toaster />
         <Analytics />
         <SpeedInsights />

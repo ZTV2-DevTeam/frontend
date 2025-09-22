@@ -1,11 +1,10 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { SimpleLoading, LoadingOverlay } from '@/components/simple-loading'
 import { EnhancedLoading } from '@/components/enhanced-loading'
 import { Card, CardContent } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
-import { Sparkles, Shield, Server } from 'lucide-react'
+import { Loader2, Shield, Server } from 'lucide-react'
 
 interface LoadingPageProps {
   variant?: 'simple' | 'enhanced' | 'splash' | 'progress'
@@ -39,8 +38,13 @@ export function LoadingPage({
 
   if (variant === 'simple') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted/20">
-        <SimpleLoading size="lg" text={title} variant="gradient" />
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center space-y-4">
+          <div className="relative inline-flex">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+          <p className="text-sm text-muted-foreground font-medium">{title}</p>
+        </div>
       </div>
     )
   }
@@ -58,21 +62,21 @@ export function LoadingPage({
 
   if (variant === 'progress') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted/20 px-4">
-        <Card className="w-full max-w-md shadow-xl border-0 bg-gradient-to-br from-card to-card/80 backdrop-blur-sm">
+      <div className="min-h-screen flex items-center justify-center bg-background px-4">
+        <Card className="w-full max-w-md shadow-sm border border-border">
           <CardContent className="p-8 space-y-6">
             {/* Logo or Icon */}
             {showLogo && (
               <div className="text-center">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-primary to-primary/80 shadow-lg">
-                  <Sparkles className="h-8 w-8 text-primary-foreground" />
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-lg bg-primary/10 border border-primary/20">
+                  <Server className="h-8 w-8 text-primary" />
                 </div>
               </div>
             )}
 
             {/* Title and Subtitle */}
             <div className="text-center space-y-2">
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+              <h1 className="text-2xl font-bold text-foreground">
                 {title}
               </h1>
               {subtitle && (
@@ -134,19 +138,18 @@ export function LoadingPage({
 
   // Splash variant
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-secondary/5">
+    <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="text-center space-y-8 max-w-md mx-auto px-4">
         {/* Animated Logo */}
         <div className="relative">
-          <div className="w-24 h-24 mx-auto rounded-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-2xl">
-            <Sparkles className="h-12 w-12 text-primary-foreground animate-pulse" />
+          <div className="w-24 h-24 mx-auto rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
+            <Server className="h-12 w-12 text-primary" />
           </div>
-          <div className="absolute inset-0 w-24 h-24 mx-auto rounded-full border-4 border-primary/20 animate-ping" />
         </div>
 
         {/* Title */}
         <div className="space-y-4">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary via-primary/90 to-primary/80 bg-clip-text text-transparent">
+          <h1 className="text-4xl font-bold text-foreground">
             {title}
           </h1>
           {subtitle && (
@@ -154,19 +157,24 @@ export function LoadingPage({
           )}
         </div>
 
+        {/* Loading indicator */}
+        <div className="relative inline-flex">
+          <Loader2 className="h-6 w-6 animate-spin text-primary" />
+        </div>
+
         {/* Features */}
         <div className="grid grid-cols-1 gap-4 mt-8">
           {[
-            { icon: Shield, text: 'Biztonságos kapcsolat', color: 'text-blue-500' },
-            { icon: Server, text: 'Szerver inicializálás', color: 'text-green-500' },
-            { icon: Sparkles, text: 'Felhasználói felület', color: 'text-purple-500' }
+            { icon: Shield, text: 'Biztonságos kapcsolat', color: 'text-primary' },
+            { icon: Server, text: 'Szerver inicializálás', color: 'text-chart-2' },
+            { icon: Loader2, text: 'Felhasználói felület', color: 'text-chart-4' }
           ].map((feature, index) => (
             <div 
               key={index}
-              className="flex items-center gap-3 justify-center opacity-70 hover:opacity-100 transition-opacity"
+              className="flex items-center gap-3 justify-center text-muted-foreground"
             >
               <feature.icon className={`h-5 w-5 ${feature.color}`} />
-              <span className="text-sm text-muted-foreground">{feature.text}</span>
+              <span className="text-sm">{feature.text}</span>
             </div>
           ))}
         </div>
