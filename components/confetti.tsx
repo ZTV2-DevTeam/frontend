@@ -11,24 +11,13 @@ const FORGATAS_SUCCESS_CONFIG = {
   }
 }
 
-function fireForgatasConfetti(particleRatio: number, opts: any) {
+function fireForgatasConfetti(particleRatio: number, opts: object) {
   const { count, defaults } = FORGATAS_SUCCESS_CONFIG
   confetti({
     ...defaults,
     ...opts,
     particleCount: Math.floor(count * particleRatio),
   })
-}
-
-// Valentine's day easter egg configuration
-const VALENTINE_CONFIG = {
-  spread: 360,
-  ticks: 100,
-  gravity: 0,
-  decay: 0.94,
-  startVelocity: 30,
-  shapes: ["heart"],
-  colors: ["FFC0CB", "FF69B4", "FF1493", "C71585"],
 }
 
 export const confettiAnimations = {
@@ -102,23 +91,35 @@ export const confettiAnimations = {
 
   // Valentine's day easter egg
   valentine: () => {
-    confetti({
-      ...VALENTINE_CONFIG,
-      particleCount: 50,
-      scalar: 2,
-    })
+    const duration = 15 * 1000,
+      animationEnd = Date.now() + duration,
+      defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
 
-    confetti({
-      ...VALENTINE_CONFIG,
-      particleCount: 25,
-      scalar: 3,
-    })
+    function randomInRange(min: number, max: number) {
+      return Math.random() * (max - min) + min;
+    }
 
-    confetti({
-      ...VALENTINE_CONFIG,
-      particleCount: 10,
-      scalar: 4,
-    })
+    const interval = setInterval(function() {
+      const timeLeft = animationEnd - Date.now();
+
+      if (timeLeft <= 0) {
+        return clearInterval(interval);
+      }
+
+      const particleCount = 50 * (timeLeft / duration);
+
+      // since particles fall down, start a bit higher than random
+      confetti({
+        ...defaults,
+        particleCount,
+        origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
+      });
+      confetti({
+        ...defaults,
+        particleCount,
+        origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
+      });
+    }, 250);
   },
 
   // Generic celebration
@@ -157,18 +158,11 @@ export function useConfetti() {
     console.log('❤️ Triggering valentine confetti...')
     setIsActive(true)
     
-    // Simple test first
-    confetti({
-      particleCount: 50,
-      spread: 60,
-      origin: { y: 0.6 }
-    })
-    
-    // Then the valentine animation
+    // Trigger the new easter egg animation
     confettiAnimations.valentine()
     
-    // Reset state after animation
-    setTimeout(() => setIsActive(false), 3000)
+    // Reset state after animation (15 seconds)
+    setTimeout(() => setIsActive(false), 15000)
   }, [])
 
   const triggerCelebrate = useCallback(() => {
