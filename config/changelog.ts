@@ -3,6 +3,23 @@ import { createChangelogEntry, createChange, sortChangelogEntries } from '@/lib/
 
 const rawChangelogData: ChangelogEntry[] = [
   createChangelogEntry(
+    'v1.1.4-beta',
+    '2025. szeptember 23.',
+    '2025-09-23T01:00:00Z',
+    [
+      createChange(
+        'feature',
+        'Kezdetleges Beosztáskezelő',
+        'Bevezettük a kezdetleges Beosztáskezelőt, amely lehetővé teszi a médiatanárok számára, hogy a forgatásokhoz diákokat rendeljenek különböző szerepkörökben. Ez a funkció még fejlesztés alatt áll, és a jövőben további fejlesztéseket és finomításokat tervezünk (Új nézetek, drag-n-drop nézet, fejlett és áttekinthető statisztika).',
+      ),
+      createChange(
+        'feature',
+        'Rendszerüzenetek',
+        'Bevezettük a Rendszerüzenetek funkciót, amely lehetővé teszi az adminisztrátorok, fejlesztők és üzemeltetők számára, hogy fontos üzeneteket jelenítsenek meg a felhasználói felületen. Ezek az üzenetek lehetnek információk, figyelmeztetések vagy kritikus értesítések, és céljuk, hogy javítsák a felhasználói élményt és tájékoztassák a felhasználókat a rendszer állapotáról vagy fontos eseményekről.',
+      ),
+    ]
+  ),
+  createChangelogEntry(
     'v1.1.3-beta',
     '2025. szeptember 22.',
     '2025-09-23T01:00:00Z',

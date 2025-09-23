@@ -547,6 +547,96 @@ export interface AbsenceFromAssignmentSchema {
   affected_classes: string[]
 }
 
+// === AVAILABILITY & STATISTICS TYPES ===
+export interface UserAvailabilitySchema {
+  user_id: number
+  username: string
+  first_name: string
+  last_name: string
+  full_name: string
+  is_available: boolean
+  conflicts: Array<{
+    type: 'vacation' | 'radio_session' | 'other'
+    reason?: string
+    description?: string
+    start_date?: string
+    end_date?: string
+    date?: string
+    time_from?: string
+    time_to?: string
+    approved?: boolean
+    radio_stab?: string
+  }>
+  is_on_vacation: boolean
+  has_radio_session: boolean
+}
+
+export interface BeosztasWithAvailabilitySchema extends BeosztasSchema {
+  user_availability: {
+    users_available: Array<{
+      user: UserBasicSchema
+      role: SzerepkorSchema
+      availability: UserAvailabilitySchema
+    }>
+    users_on_vacation: Array<{
+      user: UserBasicSchema
+      role: SzerepkorSchema
+      availability: UserAvailabilitySchema
+    }>
+    users_with_radio_session: Array<{
+      user: UserBasicSchema
+      role: SzerepkorSchema
+      availability: UserAvailabilitySchema
+    }>
+    summary: {
+      total_users: number
+      available_count: number
+      vacation_count: number
+      radio_session_count: number
+    }
+  }
+}
+
+export interface UserRoleStatisticsSchema {
+  user: UserBasicSchema
+  summary: {
+    total_assignments: number
+    total_different_roles: number
+    most_used_role: SzerepkorSchema | null
+    most_used_count: number
+  }
+  role_statistics: Array<{
+    role: SzerepkorSchema
+    total_times: number
+    last_time: string | null
+    last_forgatas: {
+      id: number
+      name: string
+      date: string
+    } | null
+    assignments: Array<{
+      assignment_id: number
+      forgatas: {
+        id: number
+        name: string
+        date: string
+        type: string
+      }
+      finalized: boolean
+      created_at: string
+    }>
+  }>
+}
+
+export interface RolesByYearSchema {
+  grouped_roles: Array<{
+    year: number | null
+    year_label: string
+    roles: SzerepkorSchema[]
+  }>
+  total_roles: number
+}
+
 // === LEGACY BEOSZTAS TYPES ===
 export interface LegacyBeosztasItemSchema {
   id: number

@@ -6,6 +6,7 @@ import { SiteHeader } from "@/components/site-header"
 import { useApiQuery } from "@/lib/api-helpers"
 import { apiClient } from "@/lib/api"
 import { useAuth } from "@/contexts/auth-context"
+import { usePermissions } from "@/contexts/permissions-context"
 import type { ForgatSchema, BeosztasDetailSchema, EquipmentSchema, BeosztasSchema } from "@/lib/types"
 import { ApiErrorBoundary } from "@/components/api-error-boundary"
 import { ApiErrorFallback } from "@/components/api-error-fallback"
@@ -35,6 +36,7 @@ import {
   FileText,
   AlertCircle,
   Loader2,
+  Settings,
 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
@@ -88,6 +90,10 @@ export default function FilmingSessionDetail({ params }: PageProps) {
   
   // Context hooks
   const { isAuthenticated } = useAuth()
+  const { hasPermission } = usePermissions()
+  
+  // Permission checks
+  const canEditAssignments = hasPermission('can_manage_forgatas') || hasPermission('is_admin') || hasPermission('is_teacher_admin')
   
   // API queries
   const sessionQuery = useApiQuery(
@@ -346,22 +352,24 @@ export default function FilmingSessionDetail({ params }: PageProps) {
                       
                       return (
                         <div className="p-3 rounded-lg bg-blue-500/10 border border-blue-500/30">
-                          <div className="flex items-center justify-between">
+                          <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center gap-2">
                               <Users className="h-4 w-4 text-blue-400" />
                               <span className="font-medium text-blue-400">
                                 Beosztás: {assignment.student_count} diák hozzárendelve
                               </span>
                             </div>
-                            <Badge 
-                              variant={assignment.kesz ? "default" : "outline"}
-                              className={assignment.kesz ? 
-                                "bg-green-500/20 text-green-400 border-green-500/30" : 
-                                "bg-yellow-500/20 text-yellow-400 border-yellow-500/30"
-                              }
-                            >
-                              {assignment.kesz ? "Végleges" : "Tervezet"}
-                            </Badge>
+                            <div className="flex items-center gap-2">
+                              <Badge 
+                                variant={assignment.kesz ? "default" : "outline"}
+                                className={assignment.kesz ? 
+                                  "bg-green-500/20 text-green-400 border-green-500/30" : 
+                                  "bg-yellow-500/20 text-yellow-400 border-yellow-500/30"
+                                }
+                              >
+                                {assignment.kesz ? "Végleges" : "Tervezet"}
+                              </Badge>
+                            </div>
                           </div>
                           {/* Assignment Stab Information */}
                           {assignment.stab && (
@@ -585,18 +593,30 @@ export default function FilmingSessionDetail({ params }: PageProps) {
                 {/* Crew */}
                 <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
                   <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Users className="h-5 w-5 text-purple-400" />
-                      Stáb ({crew.length} fő)
-                    </CardTitle>
-                    <CardDescription>
-                      Forgatásban résztvevő diákok
-                      {assignment && (
-                        <span className="ml-2">
-                          • {assignment.kesz ? 'Végleges beosztás' : 'Tervezet'}
-                        </span>
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1 min-w-0">
+                        <CardTitle className="flex items-center gap-2">
+                          <Users className="h-5 w-5 text-purple-400" />
+                          Stáb ({crew.length} fő)
+                        </CardTitle>
+                        <CardDescription>
+                          Forgatásban résztvevő diákok
+                          {assignment && (
+                            <span className="ml-2">
+                              • {assignment.kesz ? 'Végleges beosztás' : 'Tervezet'}
+                            </span>
+                          )}
+                        </CardDescription>
+                      </div>
+                      {canEditAssignments && assignment && (
+                        <Link href={`/app/forgatasok/${id}/beosztas`} className="ml-3 shrink-0">
+                          <Button variant="ghost" size="sm" className="h-8 px-2 text-xs hover:bg-purple-500/10 hover:text-purple-400 border border-purple-500/20 hover:border-purple-500/30">
+                            <Settings className="h-3 w-3 mr-1" />
+                            Szerkesztés
+                          </Button>
+                        </Link>
                       )}
-                    </CardDescription>
+                    </div>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">

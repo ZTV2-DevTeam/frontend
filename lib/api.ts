@@ -416,6 +416,38 @@ export interface AnnouncementUpdateSchema {
   recipient_ids?: number[]
 }
 
+// === SYSTEM MESSAGES ===
+export interface SystemMessageSchema {
+  id: number
+  title: string
+  message: string
+  severity: 'info' | 'warning' | 'error'
+  messageType: 'user' | 'developer' | 'operator' | 'support'
+  showFrom: string
+  showTo: string
+  created_at: string
+  updated_at: string
+  is_active: boolean
+}
+
+export interface SystemMessageCreateSchema {
+  title: string
+  message: string
+  severity?: 'info' | 'warning' | 'error'
+  messageType?: 'user' | 'developer' | 'operator' | 'support'
+  showFrom: string
+  showTo: string
+}
+
+export interface SystemMessageUpdateSchema {
+  title?: string
+  message?: string
+  severity?: 'info' | 'warning' | 'error'
+  messageType?: 'user' | 'developer' | 'operator' | 'support'
+  showFrom?: string
+  showTo?: string
+}
+
 // === ORGANIZATION ===
 export interface StabSchema {
   id: number
@@ -495,6 +527,96 @@ export interface BeosztasCreateSchema {
   tanev_id?: number
   szerepkor_relacio_ids?: number[]
   stab_id?: number
+}
+
+// === NEW ASSIGNMENT TYPES ===
+export interface UserAvailabilitySchema {
+  user_id: number
+  username: string
+  first_name: string
+  last_name: string
+  full_name: string
+  is_available: boolean
+  conflicts: Array<{
+    type: 'vacation' | 'radio_session' | 'other'
+    reason?: string
+    description?: string
+    start_date?: string
+    end_date?: string
+    date?: string
+    time_from?: string
+    time_to?: string
+    approved?: boolean
+    radio_stab?: string
+  }>
+  is_on_vacation: boolean
+  has_radio_session: boolean
+}
+
+export interface BeosztasWithAvailabilitySchema extends BeosztasSchema {
+  user_availability: {
+    users_available: Array<{
+      user: UserBasicSchema
+      role: SzerepkorSchema
+      availability: UserAvailabilitySchema
+    }>
+    users_on_vacation: Array<{
+      user: UserBasicSchema
+      role: SzerepkorSchema
+      availability: UserAvailabilitySchema
+    }>
+    users_with_radio_session: Array<{
+      user: UserBasicSchema
+      role: SzerepkorSchema
+      availability: UserAvailabilitySchema
+    }>
+    summary: {
+      total_users: number
+      available_count: number
+      vacation_count: number
+      radio_session_count: number
+    }
+  }
+}
+
+export interface UserRoleStatisticsSchema {
+  user: UserBasicSchema
+  summary: {
+    total_assignments: number
+    total_different_roles: number
+    most_used_role: SzerepkorSchema | null
+    most_used_count: number
+  }
+  role_statistics: Array<{
+    role: SzerepkorSchema
+    total_times: number
+    last_time: string | null
+    last_forgatas: {
+      id: number
+      name: string
+      date: string
+    } | null
+    assignments: Array<{
+      assignment_id: number
+      forgatas: {
+        id: number
+        name: string
+        date: string
+        type: string
+      }
+      finalized: boolean
+      created_at: string
+    }>
+  }>
+}
+
+export interface RolesByYearSchema {
+  grouped_roles: Array<{
+    year: number | null
+    year_label: string
+    roles: SzerepkorSchema[]
+  }>
+  total_roles: number
 }
 
 // === LEGACY BEOSZTAS TYPES ===
@@ -1691,6 +1813,55 @@ class ApiClient {
     return this.request<UserBasicSchema[]>(`/api/communications/announcements/${announcementId}/recipients`)
   }
 
+  // === SYSTEM MESSAGES ===
+  async getSystemMessages(
+    severity?: 'info' | 'warning' | 'error',
+    messageType?: 'user' | 'developer' | 'operator' | 'support'
+  ): Promise<SystemMessageSchema[]> {
+    const params = new URLSearchParams()
+    if (severity) params.append('severity', severity)
+    if (messageType) params.append('messageType', messageType)
+    const query = params.toString() ? `?${params.toString()}` : ''
+    return this.request<SystemMessageSchema[]>(`/api/communications/system-messages${query}`)
+  }
+
+  async getSystemMessageDetail(messageId: number): Promise<SystemMessageSchema> {
+    return this.request<SystemMessageSchema>(`/api/communications/system-messages/${messageId}`)
+  }
+
+  async createSystemMessage(data: SystemMessageCreateSchema): Promise<SystemMessageSchema> {
+    return this.request<SystemMessageSchema>('/api/communications/system-messages', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async updateSystemMessage(messageId: number, data: SystemMessageUpdateSchema): Promise<SystemMessageSchema> {
+    return this.request<SystemMessageSchema>(`/api/communications/system-messages/${messageId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async deleteSystemMessage(messageId: number): Promise<{ message: string; deleted_id: number }> {
+    return this.request<{ message: string; deleted_id: number }>(`/api/communications/system-messages/${messageId}`, {
+      method: 'DELETE',
+    })
+  }
+
+  async getAllSystemMessages(
+    severity?: 'info' | 'warning' | 'error',
+    messageType?: 'user' | 'developer' | 'operator' | 'support',
+    activeOnly?: boolean
+  ): Promise<SystemMessageSchema[]> {
+    const params = new URLSearchParams()
+    if (severity) params.append('severity', severity)
+    if (messageType) params.append('messageType', messageType)
+    if (activeOnly !== undefined) params.append('active_only', activeOnly.toString())
+    const query = params.toString() ? `?${params.toString()}` : ''
+    return this.request<SystemMessageSchema[]>(`/api/communications/system-messages/all${query}`)
+  }
+
   // === ORGANIZATION ===
   async getStabs(): Promise<StabSchema[]> {
     return this.request<StabSchema[]>('/api/stabs')
@@ -1768,10 +1939,10 @@ class ApiClient {
   }
 
   // === FILMING ASSIGNMENTS ===
-  async getFilmingAssignments(forgatotId?: number, kesz?: boolean, startDate?: string, endDate?: string): Promise<BeosztasSchema[] | BeosztasSchema> {
+  async getFilmingAssignments(forgatotId?: number, kesz?: boolean, startDate?: string, endDate?: string, stabId?: number): Promise<BeosztasSchema[] | BeosztasSchema> {
     // If forgatotId is provided, use direct endpoint
     if (forgatotId) {
-      return this.request<BeosztasSchema>(`/api/assignments/filming-assignments/${forgatotId}`)
+      return this.request<BeosztasSchema>(`/api/assignments/filming-assignments/by-forgatas/${forgatotId}`)
     }
     
     // Otherwise, use general endpoint with query parameters
@@ -1779,8 +1950,24 @@ class ApiClient {
     if (kesz !== undefined) params.append('kesz', kesz.toString())
     if (startDate) params.append('start_date', startDate)
     if (endDate) params.append('end_date', endDate)
+    if (stabId) params.append('stab_id', stabId.toString())
     const query = params.toString() ? `?${params.toString()}` : ''
     return this.request<BeosztasSchema[]>(`/api/assignments/filming-assignments${query}`)
+  }
+
+  async getFilmingAssignmentsWithAvailability(forgatotId?: number, kesz?: boolean, startDate?: string, endDate?: string, stabId?: number): Promise<BeosztasWithAvailabilitySchema[]> {
+    const params = new URLSearchParams()
+    if (forgatotId) params.append('forgatas_id', forgatotId.toString())
+    if (kesz !== undefined) params.append('kesz', kesz.toString())
+    if (startDate) params.append('start_date', startDate)
+    if (endDate) params.append('end_date', endDate)
+    if (stabId) params.append('stab_id', stabId.toString())
+    const query = params.toString() ? `?${params.toString()}` : ''
+    return this.request<BeosztasWithAvailabilitySchema[]>(`/api/assignments/filming-assignments-with-availability${query}`)
+  }
+
+  async getFilmingAssignmentAvailability(forgatotId: number): Promise<BeosztasWithAvailabilitySchema> {
+    return this.request<BeosztasWithAvailabilitySchema>(`/api/assignments/filming-assignments/by-forgatas/${forgatotId}/availability`)
   }
 
   async getFilmingAssignmentDetails(assignmentId: number): Promise<BeosztasDetailSchema> {
@@ -1807,6 +1994,18 @@ class ApiClient {
     })
   }
 
+  async markFilmingAssignmentDone(assignmentId: number): Promise<BeosztasSchema> {
+    return this.request<BeosztasSchema>(`/api/assignments/filming-assignments/${assignmentId}/mark-done`, {
+      method: 'POST',
+    })
+  }
+
+  async markFilmingAssignmentDraft(assignmentId: number): Promise<BeosztasSchema> {
+    return this.request<BeosztasSchema>(`/api/assignments/filming-assignments/${assignmentId}/mark-draft`, {
+      method: 'POST',
+    })
+  }
+
   async deleteFilmingAssignment(assignmentId: number): Promise<Record<string, any>> {
     return this.request<Record<string, any>>(`/api/assignments/filming-assignments/${assignmentId}`, {
       method: 'DELETE',
@@ -1815,6 +2014,52 @@ class ApiClient {
 
   async getFilmingAssignmentAbsences(assignmentId: number): Promise<AbsenceFromAssignmentSchema[]> {
     return this.request<AbsenceFromAssignmentSchema[]>(`/api/assignments/filming-assignments/${assignmentId}/absences`)
+  }
+
+  // === ROLES MANAGEMENT ===
+  async getAvailableRoles(ev?: number): Promise<SzerepkorSchema[]> {
+    const params = new URLSearchParams()
+    if (ev !== undefined) params.append('ev', ev.toString())
+    const query = params.toString() ? `?${params.toString()}` : ''
+    return this.request<SzerepkorSchema[]>(`/api/assignments/roles${query}`)
+  }
+
+  async getRoleDetails(roleId: number): Promise<SzerepkorSchema> {
+    return this.request<SzerepkorSchema>(`/api/assignments/roles/${roleId}`)
+  }
+
+  async getRolesByYear(): Promise<RolesByYearSchema> {
+    return this.request<RolesByYearSchema>('/api/assignments/roles-by-year')
+  }
+
+  // === USER STATISTICS & AVAILABILITY ===
+  async getUserRoleStatistics(userId: number): Promise<UserRoleStatisticsSchema> {
+    return this.request<UserRoleStatisticsSchema>(`/api/assignments/user-role-statistics/${userId}`)
+  }
+
+  async checkUserAvailabilityForForgatas(userId: number, forgatosId: number): Promise<{
+    user: UserBasicSchema
+    forgatas: ForgatSchema
+    availability: UserAvailabilitySchema
+  }> {
+    return this.request<{
+      user: UserBasicSchema
+      forgatas: ForgatSchema
+      availability: UserAvailabilitySchema
+    }>(`/api/assignments/check-user-availability/${userId}?forgatas_id=${forgatosId}`)
+  }
+
+  // === EMAIL TESTING ===
+  async testAvailabilityEmail(): Promise<Record<string, any>> {
+    return this.request<Record<string, any>>('/api/assignments/test-availability-email', {
+      method: 'POST',
+    })
+  }
+
+  async testAssignmentEmail(): Promise<Record<string, any>> {
+    return this.request<Record<string, any>>('/api/assignments/test-email', {
+      method: 'POST',
+    })
   }
 
   async createAbsenceFromAssignment(data: AbsenceFromAssignmentSchema): Promise<AbsenceFromAssignmentSchema> {

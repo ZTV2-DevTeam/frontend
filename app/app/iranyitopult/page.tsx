@@ -55,6 +55,7 @@ import {
 import { UserAvatar } from "@/components/user-avatar"
 import { AnnouncementDialog } from "@/components/announcement-dialog"
 import { VersionInfo } from "@/components/version-info"
+import { SystemMessages } from "@/components/system-messages"
 import { Shadow } from "@tsparticles/engine"
 
 // Function to get dynamic welcome message based on time of day and season
@@ -1456,6 +1457,9 @@ export default function Page() {
               </div>
             </CardContent>
           </Card>
+
+          {/* System Messages */}
+          <SystemMessages />
 
           {/* Role-specific widgets */}
           <div className="space-y-4">
