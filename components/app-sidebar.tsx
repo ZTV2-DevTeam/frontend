@@ -338,7 +338,26 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   
   // Filter navigation items based on permissions
   const getFilteredNavMain = () => {
-    return data.navMain[currentRole].filter(item => canAccessPage(item.url))
+    let filteredItems = data.navMain[currentRole].filter(item => canAccessPage(item.url))
+    
+    // Remove "Stáb" menu for pure class-teacher users (osztályfőnök without admin privileges)
+    if (currentRole === 'class-teacher') {
+      const isAnyAdmin = permissions?.permissions?.is_admin || 
+                       permissions?.permissions?.is_system_admin || 
+                       permissions?.permissions?.is_teacher_admin ||
+                       permissions?.permissions?.is_developer_admin ||
+                       permissions?.role_info?.admin_type === 'system_admin' ||
+                       permissions?.role_info?.admin_type === 'teacher' ||
+                       permissions?.role_info?.admin_type === 'dev' ||
+                       permissions?.role_info?.admin_type === 'developer'
+      
+      // If user is class-teacher but NOT an admin, remove Stáb menu access
+      if (!isAnyAdmin) {
+        filteredItems = filteredItems.filter(item => item.url !== '/app/stab')
+      }
+    }
+    
+    return filteredItems
   }
 
   const getFilteredShootings = () => {

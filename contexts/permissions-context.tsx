@@ -212,9 +212,13 @@ export function PermissionsProvider({ children }: { children: React.ReactNode })
       case '/app/iranyitopult':
         return true
 
-      // Staff page - accessible by everyone except class teachers (osztályfőnökök)
+      // Staff page - accessible by everyone except pure class teachers (osztályfőnökök without admin privileges)
       case '/app/stab':
-        return true // Everyone can access staff contact info
+        // Check if user is a class teacher without admin privileges
+        if (isClassTeacher && !isSystemAdmin && !isTeacherAdmin && !isGeneralAdmin) {
+          return false // Pure class teachers cannot access staff page
+        }
+        return true // Everyone else can access staff contact info
       
       case '/app/database-admin':
         return perms.is_developer_admin || perms.is_system_admin
