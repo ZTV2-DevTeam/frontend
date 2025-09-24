@@ -17,6 +17,7 @@ function fireForgatasConfetti(particleRatio: number, opts: object) {
     ...defaults,
     ...opts,
     particleCount: Math.floor(count * particleRatio),
+    zIndex: 30,
   })
 }
 
@@ -93,7 +94,7 @@ export const confettiAnimations = {
   valentine: () => {
     const duration = 15 * 1000,
       animationEnd = Date.now() + duration,
-      defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+      defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 30 };
 
     function randomInRange(min: number, max: number) {
       return Math.random() * (max - min) + min;
@@ -127,7 +128,8 @@ export const confettiAnimations = {
     confetti({
       particleCount: 100,
       spread: 70,
-      origin: { y: 0.6 }
+      origin: { y: 0.6 },
+      zIndex: 30,
     })
   }
 }
@@ -144,7 +146,8 @@ export function useConfetti() {
     confetti({
       particleCount: 100,
       spread: 70,
-      origin: { y: 0.6 }
+      origin: { y: 0.6 },
+      zIndex: 30,
     })
     
     // Then the complex animation
