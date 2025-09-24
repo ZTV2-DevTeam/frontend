@@ -18,9 +18,11 @@ import {
   ToggleLeft,
   ToggleRight,
   RefreshCw,
+  Edit2,
+  AlertTriangle,
 } from "lucide-react"
 import { useState, useEffect } from "react"
-import { useAuth } from "@/contexts/auth-context"
+// import { useAuth } from "@/contexts/auth-context" // Unused for now
 import { usePermissions } from "@/contexts/permissions-context"
 import { useUserRole } from "@/contexts/user-role-context"
 import {
@@ -80,6 +82,14 @@ const MOCK_ABSENCES: ExtendedAbsence[] = [
     unexcused: false,
     status: 'nincs_dontes',
     affected_classes: [2, 3, 4, 5, 6],
+    affected_classes_with_student_time: [2, 3, 4, 5, 6],
+    student_extra_time_before: 0,
+    student_extra_time_after: 0,
+    student_edited: false,
+    student_edit_timestamp: undefined,
+    student_edit_note: undefined,
+    effective_time_from: '09:00',
+    effective_time_to: '15:00',
     osztaly: {
       id: 1,
       name: '10.F',
@@ -119,6 +129,14 @@ const MOCK_ABSENCES: ExtendedAbsence[] = [
     unexcused: false,
     status: 'igazolt',
     affected_classes: [2, 3, 4, 5, 6],
+    affected_classes_with_student_time: [1, 2, 3, 4, 5, 6, 7],
+    student_extra_time_before: 30,
+    student_extra_time_after: 45,
+    student_edited: true,
+    student_edit_timestamp: '2024-03-14T10:30:00Z',
+    student_edit_note: 'Korábban kellett távoznom a forgatáshoz, és később tértem vissza.',
+    effective_time_from: '08:30',
+    effective_time_to: '15:45',
     osztaly: {
       id: 1,
       name: '10.F',
@@ -158,6 +176,14 @@ const MOCK_ABSENCES: ExtendedAbsence[] = [
     unexcused: true,
     status: 'igazolatlan',
     affected_classes: [3, 4],
+    affected_classes_with_student_time: [3, 4],
+    student_extra_time_before: 0,
+    student_extra_time_after: 0,
+    student_edited: false,
+    student_edit_timestamp: undefined,
+    student_edit_note: undefined,
+    effective_time_from: '10:30',
+    effective_time_to: '12:00',
     osztaly: {
       id: 2,
       name: '10.F',
@@ -176,7 +202,7 @@ const MOCK_ABSENCES: ExtendedAbsence[] = [
 ]
 
 export function TeacherAbsencesPage() {
-  const { user } = useAuth()
+  // const { user } = useAuth() // Unused for now
   const { permissions, hasPermission } = usePermissions()
   const { isPreviewMode, actualUserRole, currentRole } = useUserRole()
   const [allAbsences, setAllAbsences] = useState<ExtendedAbsence[]>([])
@@ -392,6 +418,45 @@ export function TeacherAbsencesPage() {
     } catch (err) {
       console.error('Error rejecting absence:', err)
       setError(err instanceof Error ? err.message : 'Hiba történt az elutasítás során')
+    } finally {
+      setUpdating(prev => {
+        const newSet = new Set(prev)
+        newSet.delete(absenceId)
+        return newSet
+      })
+    }
+  }
+
+  const handleReset = async (absenceId: number) => {
+    // If using mock data (admin in preview mode), just update the local state
+    if (shouldUseMockData || isPreviewWithMockData) {
+      console.log('🎭 Mock action: Resetting absence status', absenceId)
+      setAllAbsences(prev => prev.map(absence => 
+        absence.id === absenceId 
+          ? { ...absence, excused: false, unexcused: false, status: 'nincs_dontes' as const }
+          : absence
+      ))
+      return
+    }
+
+    try {
+      setUpdating(prev => new Set(prev).add(absenceId))
+      
+      await updateSchoolAbsence(absenceId, {
+        excused: false,
+        unexcused: false
+      })
+      
+      // Update local state
+      setAllAbsences(prev => prev.map(absence => 
+        absence.id === absenceId 
+          ? { ...absence, excused: false, unexcused: false, status: 'nincs_dontes' as const }
+          : absence
+      ))
+      
+    } catch (err) {
+      console.error('Error resetting absence status:', err)
+      setError(err instanceof Error ? err.message : 'Hiba történt a státusz visszaállításakor')
     } finally {
       setUpdating(prev => {
         const newSet = new Set(prev)
@@ -658,31 +723,37 @@ export function TeacherAbsencesPage() {
         {/* Legend */}
         <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
           <CardContent className="p-4">
-            <div className="flex flex-wrap items-center gap-6 text-sm">
-              <span className="text-muted-foreground font-medium">Jelmagyarázat:</span>
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-full bg-green-500 flex items-center justify-center text-white text-xs font-bold shadow-lg shadow-green-500/25">
-                  1
+            <div className="space-y-3">
+              <span className="text-muted-foreground font-medium block sm:inline">Jelmagyarázat:</span>
+              <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-3 sm:gap-6 text-xs sm:text-sm">
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-green-500 flex items-center justify-center text-white text-xs font-bold shadow-lg shadow-green-500/25 flex-shrink-0">
+                    1
+                  </div>
+                  <span>Igazolt hiányzás</span>
                 </div>
-                <span>Igazolt hiányzás</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-full bg-red-500 flex items-center justify-center text-white text-xs font-bold shadow-lg shadow-red-500/25">
-                  2
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-red-500 flex items-center justify-center text-white text-xs font-bold shadow-lg shadow-red-500/25 flex-shrink-0">
+                    2
+                  </div>
+                  <span>Igazolatlan hiányzás</span>
                 </div>
-                <span>Igazolatlan hiányzás</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-full bg-yellow-500 flex items-center justify-center text-white text-xs font-bold shadow-lg shadow-yellow-500/25">
-                  3
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-yellow-500 flex items-center justify-center text-white text-xs font-bold shadow-lg shadow-yellow-500/25 flex-shrink-0">
+                    3
+                  </div>
+                  <span>Elbírálás alatt</span>
                 </div>
-                <span>Elbírálás alatt</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-full bg-gray-700/50 border border-gray-600/30 flex items-center justify-center text-gray-500 text-xs font-bold">
-                  4
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-gray-700/50 border border-gray-600/30 flex items-center justify-center text-gray-500 text-xs font-bold flex-shrink-0">
+                    4
+                  </div>
+                  <span>Nem érintett óra</span>
                 </div>
-                <span>Nem érintett óra</span>
+                <div className="flex items-center gap-2 col-span-2 sm:col-span-1">
+                  <Edit2 className="h-4 w-4 text-purple-600 flex-shrink-0" />
+                  <span>Diák által korrigált</span>
+                </div>
               </div>
             </div>
           </CardContent>
@@ -731,23 +802,22 @@ export function TeacherAbsencesPage() {
                     <div className="space-y-3 ml-6">
                       {(group as any).absences.map((absence: ExtendedAbsence, index: number) => {
                         const StatusIcon = getStatusIcon(absence)
-                        const isPending = !absence.excused && !absence.unexcused
                         const isUpdating = updating.has(absence.id)
 
                         return (
                           <div
                             key={absence.id}
-                            className="flex items-center gap-6 p-4 rounded-lg bg-background/30 border border-border/30 hover:bg-background/50 transition-all duration-200"
+                            className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 p-4 rounded-lg bg-background/30 border border-border/30 hover:bg-background/50 transition-all duration-200"
                             style={{ animationDelay: `${groupIndex * 100 + index * 50}ms` }}
                           >
-                            {/* Tanórák körök */}
-                            <div className="flex gap-2">
+                            {/* Tanórák körök - Mobile optimized */}
+                            <div className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-1 scrollbar-hide">
                               {Object.keys(SCHOOL_SCHEDULE).map((classNum) => {
                                 const num = Number.parseInt(classNum)
                                 return (
                                   <div
                                     key={num}
-                                    className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all hover:scale-110 ${getClassCircleColor(
+                                    className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold transition-all hover:scale-110 flex-shrink-0 ${getClassCircleColor(
                                       num,
                                       absence,
                                     )}`}
@@ -763,60 +833,114 @@ export function TeacherAbsencesPage() {
 
                             {/* Tanuló neve és információk */}
                             <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-3 mb-1">
-                                <h4 className="font-medium text-lg truncate">
+                              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
+                                <h4 className="font-medium text-base sm:text-lg truncate">
                                   {groupBy === "shooting" ? absence.studentName : absence.shootingTitle}
                                 </h4>
-                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                  <Calendar className="h-4 w-4" />
+                                <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
+                                  <Calendar className="h-3 w-3 sm:h-4 sm:w-4" />
                                   <span className="font-medium">
                                     {groupBy === "shooting" ? absence.studentClass : absence.date}
                                   </span>
                                 </div>
                               </div>
-                              <p className="text-xs text-muted-foreground">
-                                {absence.timeFrom} - {absence.timeTo}
-                              </p>
+                              <div className="space-y-1">
+                                <p className="text-xs text-muted-foreground">
+                                  {absence.student_edited ? (
+                                    <>
+                                      <span className="line-through opacity-60">
+                                        {absence.timeFrom} - {absence.timeTo}
+                                      </span>
+                                      <span className="ml-2 font-medium text-purple-600">
+                                        {absence.effective_time_from} - {absence.effective_time_to}
+                                      </span>
+                                    </>
+                                  ) : (
+                                    `${absence.timeFrom} - ${absence.timeTo}`
+                                  )}
+                                </p>
+                                {absence.student_edited && (
+                                  <div className="flex items-center gap-1 text-xs text-purple-600">
+                                    <Edit2 className="h-3 w-3" />
+                                    <span>Diák által korrigálva</span>
+                                    {absence.student_edit_timestamp && (
+                                      <span className="text-muted-foreground hidden sm:inline">
+                                        - {new Date(absence.student_edit_timestamp).toLocaleString('hu-HU')}
+                                      </span>
+                                    )}
+                                  </div>
+                                )}
+                                {absence.student_edit_note && (
+                                  <p className="text-xs text-purple-700 dark:text-purple-300 italic">
+                                    &ldquo;{absence.student_edit_note}&rdquo;
+                                  </p>
+                                )}
+                              </div>
                             </div>
 
-                            {/* Státusz és akciók */}
-                            <div className="flex items-center gap-3">
-                              <Badge className={`${getAbsenceStatusColor(absence)} px-3 py-1`}>
+                            {/* Státusz és akciók - Mobile optimized */}
+                            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                              <Badge className={`${getAbsenceStatusColor(absence)} px-3 py-1 text-center sm:text-left`}>
                                 <StatusIcon className="h-3 w-3 mr-1" />
                                 {getAbsenceStatusText(absence)}
                               </Badge>
 
-                              {isPending && (
-                                <div className="flex gap-2">
-                                  <Button
-                                    size="sm"
-                                    onClick={() => handleApprove(absence.id)}
-                                    disabled={isUpdating}
-                                    className="bg-green-500/20 hover:bg-green-500/30 text-green-400 border-green-500/30 h-9 px-3"
-                                  >
-                                    {isUpdating ? (
-                                      <RefreshCw className="h-4 w-4 mr-1 animate-spin" />
-                                    ) : (
-                                      <Check className="h-4 w-4 mr-1" />
-                                    )}
-                                    Igazol
-                                  </Button>
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => handleReject(absence.id)}
-                                    disabled={isUpdating}
-                                    className="bg-red-500/20 hover:bg-red-500/30 text-red-400 border-red-500/30 h-9 px-3"
-                                  >
-                                    {isUpdating ? (
-                                      <RefreshCw className="h-4 w-4 mr-1 animate-spin" />
-                                    ) : (
-                                      <X className="h-4 w-4 mr-1" />
-                                    )}
-                                    Elutasít
-                                  </Button>
-                                </div>
-                              )}
+                              <div className="flex flex-col sm:flex-row gap-2">
+                                {/* Three-way switch: Pending / Excused / Unexcused */}
+                                {!absence.excused && !absence.unexcused ? (
+                                  <>
+                                    {/* Pending state - show approve and reject buttons */}
+                                    <Button
+                                      size="sm"
+                                      onClick={() => handleApprove(absence.id)}
+                                      disabled={isUpdating}
+                                      className="bg-green-500/20 hover:bg-green-500/30 text-green-400 border-green-500/30 h-9 px-3 w-full sm:w-auto"
+                                      title="Igazolt hiányzásnak jelöli"
+                                    >
+                                      {isUpdating ? (
+                                        <RefreshCw className="h-4 w-4 mr-1 animate-spin" />
+                                      ) : (
+                                        <Check className="h-4 w-4 mr-1" />
+                                      )}
+                                      <span className="sm:inline">Igazol</span>
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => handleReject(absence.id)}
+                                      disabled={isUpdating}
+                                      className="bg-red-500/20 hover:bg-red-500/30 text-red-400 border-red-500/30 h-9 px-3 w-full sm:w-auto"
+                                      title="Igazolatlan hiányzásnak jelöli"
+                                    >
+                                      {isUpdating ? (
+                                        <RefreshCw className="h-4 w-4 mr-1 animate-spin" />
+                                      ) : (
+                                        <X className="h-4 w-4 mr-1" />
+                                      )}
+                                      <span className="sm:inline">Elutasít</span>
+                                    </Button>
+                                  </>
+                                ) : (
+                                  <>
+                                    {/* Already decided state - show reset button */}
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => handleReset(absence.id)}
+                                      disabled={isUpdating}
+                                      className="bg-orange-500/20 hover:bg-orange-500/30 text-orange-600 border-orange-500/30 h-9 px-3 w-full sm:w-auto"
+                                      title="Visszaállítja függőben állapotra - lehetővé teszi az újbóli döntést"
+                                    >
+                                      {isUpdating ? (
+                                        <RefreshCw className="h-4 w-4 mr-1 animate-spin" />
+                                      ) : (
+                                        <AlertTriangle className="h-4 w-4 mr-1" />
+                                      )}
+                                      <span className="sm:inline">Visszavon</span>
+                                    </Button>
+                                  </>
+                                )}
+                              </div>
                             </div>
                           </div>
                         )

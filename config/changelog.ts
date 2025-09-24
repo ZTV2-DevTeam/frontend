@@ -3,6 +3,18 @@ import { createChangelogEntry, createChange, sortChangelogEntries } from '@/lib/
 
 const rawChangelogData: ChangelogEntry[] = [
   createChangelogEntry(
+    'v1.1.5-beta',
+    '2025. szeptember 24.',
+    '2025-09-24T15:00:00Z',
+    [
+      createChange(
+        'feature',
+        'Igazolások menü',
+        'Létrehoztuk az Igazolások menüt diákoknak, akik módosításokat végezhetnek el a hiányzásaikon, valamint osztályfőnököknek, akik felülvizsgálhatják és kezelhetik ezeket a módosításokat.'
+      ),
+    ]
+  ),
+  createChangelogEntry(
     'v1.1.4-beta',
     '2025. szeptember 23.',
     '2025-09-23T01:00:00Z',

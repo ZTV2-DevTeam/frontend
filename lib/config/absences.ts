@@ -29,6 +29,14 @@ export interface Absence {
   unexcused: boolean
   status: 'igazolt' | 'igazolatlan' | 'nincs_dontes'
   affected_classes: number[]
+  affected_classes_with_student_time: number[]
+  student_extra_time_before: number
+  student_extra_time_after: number
+  student_edited: boolean
+  student_edit_timestamp?: string
+  student_edit_note?: string
+  effective_time_from: string
+  effective_time_to: string
   osztaly?: {
     id: number
     name: string
@@ -234,6 +242,185 @@ export async function getClassAbsenceStatistics(
   }
 ): Promise<AbsenceStats> {
   return apiClient.getClassAbsenceStatistics(classId, params)
+}
+
+// === STUDENT ABSENCE FUNCTIONS ===
+
+/**
+ * Get current student's own absences
+ */
+export async function getMyAbsences(params?: {
+  start_date?: string
+  end_date?: string
+}): Promise<Absence[]> {
+  try {
+    const rawData = await apiClient.getMyAbsences(params)
+    
+    // Ensure proper type conversion
+    return rawData.map((item: unknown): Absence => {
+      const typedItem = item as Record<string, unknown> & {
+        diak?: Record<string, unknown>
+        forgatas?: Record<string, unknown>
+        osztaly?: Record<string, unknown>
+      }
+      return {
+        ...typedItem,
+        id: Number(typedItem.id),
+        diak: {
+          ...typedItem.diak,
+          id: Number(typedItem.diak?.id)
+        },
+        forgatas: {
+          ...typedItem.forgatas,
+          id: Number(typedItem.forgatas?.id)
+        },
+        osztaly: typedItem.osztaly ? {
+          ...typedItem.osztaly,
+          id: Number(typedItem.osztaly.id)
+        } : undefined,
+        // Ensure student editing fields have default values
+        student_extra_time_before: Number(typedItem.student_extra_time_before) || 0,
+        student_extra_time_after: Number(typedItem.student_extra_time_after) || 0,
+        student_edited: Boolean(typedItem.student_edited),
+        affected_classes_with_student_time: typedItem.affected_classes_with_student_time || typedItem.affected_classes || []
+      } as Absence
+    })
+  } catch (error) {
+    console.error('Error fetching my absences:', error)
+    throw error
+  }
+}
+
+/**
+ * Get detailed information about student's own absence
+ */
+export async function getMyAbsenceDetails(absenceId: number): Promise<Absence> {
+  const rawData = await apiClient.getMyAbsenceDetails(absenceId)
+  
+  // Ensure proper type conversion
+  return {
+    ...rawData,
+    id: Number(rawData.id),
+    diak: {
+      ...rawData.diak,
+      id: Number(rawData.diak.id)
+    },
+    forgatas: {
+      ...rawData.forgatas,
+      id: Number(rawData.forgatas.id)
+    },
+    osztaly: rawData.osztaly ? {
+      ...rawData.osztaly,
+      id: Number(rawData.osztaly.id)
+    } : undefined,
+    student_extra_time_before: Number(rawData.student_extra_time_before) || 0,
+    student_extra_time_after: Number(rawData.student_extra_time_after) || 0,
+    student_edited: Boolean(rawData.student_edited),
+    affected_classes_with_student_time: rawData.affected_classes_with_student_time || rawData.affected_classes || []
+  }
+}
+
+/**
+ * Update extra time for student's own absence
+ */
+export async function updateMyAbsenceExtraTime(absenceId: number, data: {
+  extra_time_before?: number
+  extra_time_after?: number
+  note?: string
+}): Promise<Absence> {
+  const rawData = await apiClient.updateMyAbsenceExtraTime(absenceId, data)
+  
+  // Ensure proper type conversion in response
+  return {
+    ...rawData,
+    id: Number(rawData.id),
+    diak: {
+      ...rawData.diak,
+      id: Number(rawData.diak.id)
+    },
+    forgatas: {
+      ...rawData.forgatas,
+      id: Number(rawData.forgatas.id)
+    },
+    osztaly: rawData.osztaly ? {
+      ...rawData.osztaly,
+      id: Number(rawData.osztaly.id)
+    } : undefined,
+    student_extra_time_before: Number(rawData.student_extra_time_before) || 0,
+    student_extra_time_after: Number(rawData.student_extra_time_after) || 0,
+    student_edited: Boolean(rawData.student_edited),
+    affected_classes_with_student_time: rawData.affected_classes_with_student_time || rawData.affected_classes || []
+  }
+}
+
+/**
+ * Reset extra time for student's own absence
+ */
+export async function resetMyAbsenceExtraTime(absenceId: number): Promise<Absence> {
+  const rawData = await apiClient.resetMyAbsenceExtraTime(absenceId)
+  
+  // Ensure proper type conversion in response
+  return {
+    ...rawData,
+    id: Number(rawData.id),
+    diak: {
+      ...rawData.diak,
+      id: Number(rawData.diak.id)
+    },
+    forgatas: {
+      ...rawData.forgatas,
+      id: Number(rawData.forgatas.id)
+    },
+    osztaly: rawData.osztaly ? {
+      ...rawData.osztaly,
+      id: Number(rawData.osztaly.id)
+    } : undefined,
+    student_extra_time_before: Number(rawData.student_extra_time_before) || 0,
+    student_extra_time_after: Number(rawData.student_extra_time_after) || 0,
+    student_edited: Boolean(rawData.student_edited),
+    affected_classes_with_student_time: rawData.affected_classes_with_student_time || rawData.affected_classes || []
+  }
+}
+
+/**
+ * Get upcoming absences for student
+ */
+export async function getMyUpcomingAbsences(): Promise<Absence[]> {
+  try {
+    const rawData = await apiClient.getMyUpcomingAbsences()
+    
+    // Ensure proper type conversion
+    return rawData.map((item: unknown): Absence => {
+      const typedItem = item as Record<string, unknown> & {
+        diak?: Record<string, unknown>
+        forgatas?: Record<string, unknown>
+        osztaly?: Record<string, unknown>
+      }
+      return {
+        ...typedItem,
+        id: Number(typedItem.id),
+        diak: {
+          ...typedItem.diak,
+          id: Number(typedItem.diak?.id)
+        },
+        forgatas: {
+          ...typedItem.forgatas,
+          id: Number(typedItem.forgatas?.id)
+        },
+        osztaly: typedItem.osztaly ? {
+          ...typedItem.osztaly,
+          id: Number(typedItem.osztaly.id)
+        } : undefined,
+        student_extra_time_before: Number(typedItem.student_extra_time_before) || 0,
+        student_extra_time_after: Number(typedItem.student_extra_time_after) || 0,
+        student_edited: Boolean(typedItem.student_edited),
+        affected_classes_with_student_time: typedItem.affected_classes_with_student_time || typedItem.affected_classes || []
+      } as Absence
+    })
+  } catch (error) {
+    console.error('Error fetching upcoming absences:', error)
+    throw error
+  }
 }
 
 // === HELPER FUNCTIONS ===

@@ -2282,6 +2282,44 @@ class ApiClient {
     return this.request<any>(`/api/school-absences/stats/class/${classId}${query}`)
   }
 
+  // === STUDENT ABSENCE MANAGEMENT ===
+  async getMyAbsences(params?: {
+    start_date?: string
+    end_date?: string
+  }): Promise<any[]> {
+    const queryParams = new URLSearchParams()
+    if (params?.start_date) queryParams.append('start_date', params.start_date)
+    if (params?.end_date) queryParams.append('end_date', params.end_date)
+    
+    const query = queryParams.toString() ? `?${queryParams.toString()}` : ''
+    return this.request<any[]>(`/api/my-absences${query}`)
+  }
+
+  async getMyAbsenceDetails(absenceId: number): Promise<any> {
+    return this.request<any>(`/api/my-absences/${absenceId}`)
+  }
+
+  async updateMyAbsenceExtraTime(absenceId: number, data: {
+    extra_time_before?: number
+    extra_time_after?: number
+    note?: string
+  }): Promise<any> {
+    return this.request<any>(`/api/my-absences/${absenceId}/extra-time`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async resetMyAbsenceExtraTime(absenceId: number): Promise<any> {
+    return this.request<any>(`/api/my-absences/${absenceId}/extra-time`, {
+      method: 'DELETE',
+    })
+  }
+
+  async getMyUpcomingAbsences(): Promise<any[]> {
+    return this.request<any[]>('/api/my-absences/upcoming')
+  }
+
   // === UTILITY METHODS ===
   isAuthenticated(): boolean {
     // Always check fresh token from storage
