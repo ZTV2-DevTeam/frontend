@@ -1370,6 +1370,17 @@ class ApiClient {
     })
   }
 
+  async changePassword(data: {
+    old_password: string;
+    new_password: string;
+    confirmNewPassword: string;
+  }): Promise<{ message: string }> {
+    return this.request('/api/change-password', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
   // === PARTNERS ===
   async getPartnerTypes(): Promise<PartnerTipusSchema[]> {
     return this.request<PartnerTipusSchema[]>('/api/partners/types')

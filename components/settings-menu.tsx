@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/auth-context'
 import { useTheme } from '@/contexts/theme-context'
 import { ThemeSelector } from '@/components/theme-selector'
@@ -45,6 +46,7 @@ export function SettingsMenu({ onClose }: SettingsMenuProps) {
   const { user, logout } = useAuth()
   const { themeColor } = useTheme()
   const [activeSection, setActiveSection] = useState<string | null>(null)
+  const router = useRouter()
 
   const handleLogout = async () => {
     try {
@@ -154,7 +156,7 @@ export function SettingsMenu({ onClose }: SettingsMenuProps) {
                   <Edit className="w-4 h-4" />
                   Profil szerkesztése
                 </DropdownMenuItem>
-                <DropdownMenuItem disabled>
+                <DropdownMenuItem onClick={() => router.push('/app/jelszo-modositas')}>
                   <Shield className="w-4 h-4" />
                   Jelszó módosítása
                 </DropdownMenuItem>

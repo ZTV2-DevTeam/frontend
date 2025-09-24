@@ -1,5 +1,6 @@
 "use client"
 
+import { useRouter } from "next/navigation"
 import { AppSidebar } from "@/components/app-sidebar"
 import { SiteHeader } from "@/components/site-header"
 import { ThemeSelector } from "@/components/theme-selector"
@@ -43,6 +44,7 @@ import {
 export default function SettingsPage() {
   const { user, logout } = useAuth()
   const { currentRole } = useUserRole()
+  const router = useRouter()
 
   if (!user) return null
 
@@ -295,7 +297,12 @@ export default function SettingsPage() {
                     <Save className="mr-2 h-4 w-4" />
                     <span className="hidden sm:inline">Profil </span>mentése
                   </Button>
-                  <Button type="button" variant="outline" disabled className="h-10 sm:h-11 px-4 sm:px-6 opacity-50 flex-1 sm:flex-initial">
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    className="h-10 sm:h-11 px-4 sm:px-6 flex-1 sm:flex-initial"
+                    onClick={() => router.push('/app/jelszo-modositas')}
+                  >
                     <Lock className="mr-2 h-4 w-4" />
                     <span className="hidden sm:inline">Jelszó </span>változtatása
                   </Button>
