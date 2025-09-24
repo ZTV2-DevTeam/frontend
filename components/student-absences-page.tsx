@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useUserRole } from '@/contexts/user-role-context'
 import { useAuth } from '@/contexts/auth-context'
 import { StandardizedLayout } from '@/components/standardized-layout'
@@ -26,7 +26,7 @@ export function StudentAbsencesPage() {
   const [error, setError] = useState<string | null>(null)
 
   // Load student's absences
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setLoading(true)
     setError(null)
     
@@ -60,6 +60,12 @@ export function StudentAbsencesPage() {
           unexcused: false,
           status: 'igazolt',
           affected_classes: [1, 2, 3],
+          affected_classes_with_student_time: [1, 2, 3],
+          student_extra_time_before: 0,
+          student_extra_time_after: 0,
+          student_edited: false,
+          effective_time_from: '08:00',
+          effective_time_to: '11:30',
           osztaly: {
             id: 1,
             name: 'NYF',
@@ -91,6 +97,12 @@ export function StudentAbsencesPage() {
           unexcused: false,
           status: 'nincs_dontes',
           affected_classes: [6, 7],
+          affected_classes_with_student_time: [6, 7],
+          student_extra_time_before: 0,
+          student_extra_time_after: 0,
+          student_edited: false,
+          effective_time_from: '13:00',
+          effective_time_to: '15:30',
           osztaly: {
             id: 1,
             name: 'NYF',
@@ -108,7 +120,7 @@ export function StudentAbsencesPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [user])
 
   // Load data on component mount
   useEffect(() => {
