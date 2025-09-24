@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { apiClient } from "@/lib/api"
 import { ConnectionIndicator } from "@/components/connection-indicator"
+import { OnDemandPasswordValidation, useOnDemandPasswordValidation } from "@/components/ondemand-password-validation"
 import { ArrowLeft, Eye, EyeOff, Lock, Shield } from "lucide-react"
 
 export function ChangePasswordForm({
@@ -32,10 +33,17 @@ export function ChangePasswordForm({
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
-  const [passwordValidation, setPasswordValidation] = useState<{
-    valid: boolean;
-    errors: string[];
-  } | null>(null)
+
+  // Use our new on-demand password validation
+  const { isValid: passwordValid } = useOnDemandPasswordValidation(
+    newPassword,
+    {
+      username: user?.username,
+      email: user?.email,
+      first_name: user?.first_name,
+      last_name: user?.last_name
+    }
+  )
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -44,38 +52,7 @@ export function ChangePasswordForm({
     }
   }, [user, router])
 
-  // Validate new password in real-time
-  useEffect(() => {
-    const validatePassword = async () => {
-      if (newPassword.length === 0) {
-        setPasswordValidation(null)
-        return
-      }
-
-      try {
-        const result = await apiClient.checkPasswordValidation({
-          password: newPassword,
-          username: user?.username,
-          email: user?.email,
-          first_name: user?.first_name,
-          last_name: user?.last_name
-        })
-        setPasswordValidation({
-          valid: result.valid || false,
-          errors: result.errors || []
-        })
-      } catch (error) {
-        console.error('Password validation failed:', error)
-        setPasswordValidation({
-          valid: false,
-          errors: ['Hiba történt a jelszó ellenőrzése során.']
-        })
-      }
-    }
-
-    const timeoutId = setTimeout(validatePassword, 300) // Debounce validation
-    return () => clearTimeout(timeoutId)
-  }, [newPassword, user])
+  // No need for separate validation effect - using on-demand validation
 
   if (!user) {
     return null // Will redirect via useEffect
@@ -112,7 +89,7 @@ export function ChangePasswordForm({
     }
 
     // Check password validation before submitting
-    if (passwordValidation && !passwordValidation.valid) {
+    if (!passwordValid) {
       setError('Az új jelszó nem felel meg a biztonsági követelményeknek.')
       setIsLoading(false)
       return
@@ -255,26 +232,17 @@ export function ChangePasswordForm({
                 </div>
                 
                 {/* Password validation feedback */}
-                {passwordValidation && newPassword.length > 0 && (
-                  <div className={`p-3 text-sm rounded-md ${
-                    passwordValidation.valid 
-                      ? 'bg-green-50 border border-green-200 text-green-700 dark:bg-green-950 dark:border-green-800 dark:text-green-400'
-                      : 'bg-yellow-50 border border-yellow-200 text-yellow-700 dark:bg-yellow-950 dark:border-yellow-800 dark:text-yellow-400'
-                  }`}>
-                    {passwordValidation.valid ? (
-                      <p>✓ A jelszó megfelel a biztonsági követelményeknek</p>
-                    ) : (
-                      <div>
-                        <p className="font-medium mb-1">A jelszó nem felel meg a követelményeknek:</p>
-                        <ul className="list-disc list-inside space-y-1">
-                          {passwordValidation.errors.map((error, index) => (
-                            <li key={index} className="text-xs">{error}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                  </div>
-                )}
+                <OnDemandPasswordValidation
+                  password={newPassword}
+                  userData={{
+                    username: user?.username,
+                    email: user?.email,
+                    first_name: user?.first_name,
+                    last_name: user?.last_name
+                  }}
+                  showStrengthMeter={true}
+                  compact={true}
+                />
               </div>
 
               {/* Confirm New Password */}
@@ -333,7 +301,7 @@ export function ChangePasswordForm({
                 </Button>
                 <Button 
                   type="submit" 
-                  disabled={isLoading || (passwordValidation && !passwordValidation.valid) || newPassword !== confirmPassword}
+                  disabled={isLoading || !passwordValid || newPassword !== confirmPassword}
                   className="order-1 sm:order-2"
                 >
                   {isLoading ? 'Módosítás...' : 'Jelszó módosítása'}
@@ -343,18 +311,6 @@ export function ChangePasswordForm({
           </form>
         </CardContent>
       </Card>
-      
-      <div className="text-muted-foreground text-center text-xs text-balance">
-        <p className="mb-2">
-          <strong>Biztonsági tippek:</strong>
-        </p>
-        <ul className="space-y-1 text-left max-w-sm mx-auto">
-          <li>• Használjon legalább 8 karakter hosszú jelszót</li>
-          <li>• Kombinálja a nagy- és kisbetűket, számokat</li>
-          <li>• Ne használja személyes adatait a jelszóban</li>
-          <li>• Ne ossza meg senkivel a jelszavát</li>
-        </ul>
-      </div>
     </div>
   )
 }

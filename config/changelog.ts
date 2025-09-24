@@ -3,6 +3,18 @@ import { createChangelogEntry, createChange, sortChangelogEntries } from '@/lib/
 
 const rawChangelogData: ChangelogEntry[] = [
   createChangelogEntry(
+    'v1.1.6-beta',
+    '2025. szeptember 24.',
+    '2025-09-24T18:00:00Z',
+    [
+      createChange(
+        'feature',
+        'Jelszó Módosítása',
+        'Mostantól a felhasználók módosíthatják jelszavukat a Beállítások menüben, anélkül, hogy elfelejtették volna azt. Ez a funkció biztonságos és egyszerű módot kínál a jelszó frissítésére.'
+      ),
+    ]
+  ),
+  createChangelogEntry(
     'v1.1.5-beta',
     '2025. szeptember 24.',
     '2025-09-24T15:00:00Z',

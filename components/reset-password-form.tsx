@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { apiClient } from "@/lib/api"
 import { ConnectionIndicator } from "@/components/connection-indicator"
+import { OnDemandPasswordValidation, useOnDemandPasswordValidation } from "@/components/ondemand-password-validation"
 
 interface ResetPasswordFormProps extends React.ComponentProps<"div"> {
   token: string
@@ -33,13 +34,16 @@ export function ResetPasswordForm({
   const [tokenValid, setTokenValid] = useState(false)
   
   const router = useRouter()
+  
+  // Use our new on-demand password validation
+  const { isValid: passwordValid } = useOnDemandPasswordValidation(password)
 
   useEffect(() => {
     const verifyToken = async () => {
       try {
         const result = await apiClient.verifyResetToken(token)
         setTokenValid(result.valid)
-      } catch (error) {
+      } catch {
         setTokenValid(false)
         setError('A jelszó visszaállítási link érvénytelen vagy lejárt.')
       } finally {
@@ -60,8 +64,8 @@ export function ResetPasswordForm({
       return
     }
 
-    if (password.length < 6) {
-      setError('A jelszónak legalább 6 karakternek kell lennie.')
+    if (!passwordValid) {
+      setError('A jelszó nem felel meg a biztonsági követelményeknek.')
       return
     }
 
@@ -188,13 +192,20 @@ export function ResetPasswordForm({
                   <Input
                     id="password"
                     type="password"
-                    placeholder="Legalább 6 karakter"
+                    placeholder="Adjon meg egy erős jelszót"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     disabled={isLoading}
                   />
                 </div>
+                
+                {/* Password validation feedback */}
+                <OnDemandPasswordValidation
+                  password={password}
+                  showStrengthMeter={true}
+                  compact={true}
+                />
                 <div className="grid gap-3">
                   <Label htmlFor="confirmPassword">Jelszó megerősítése</Label>
                   <Input
@@ -207,7 +218,11 @@ export function ResetPasswordForm({
                     disabled={isLoading}
                   />
                 </div>
-                <Button type="submit" className="w-full" disabled={isLoading}>
+                <Button 
+                  type="submit" 
+                  className="w-full" 
+                  disabled={isLoading || !passwordValid || password !== confirmPassword}
+                >
                   {isLoading ? 'Módosítás...' : 'Jelszó módosítása'}
                 </Button>
                 <Button
@@ -223,9 +238,6 @@ export function ResetPasswordForm({
           </form>
         </CardContent>
       </Card>
-      <div className="text-muted-foreground text-center text-xs text-balance">
-        A jelszónak legalább 6 karakternek kell lennie.
-      </div>
     </div>
   )
 }

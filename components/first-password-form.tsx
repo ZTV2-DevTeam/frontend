@@ -12,14 +12,13 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Badge } from "@/components/ui/badge"
+
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { 
   Eye, 
   EyeOff, 
   CheckCircle, 
   Lock, 
-  Shield, 
   UserCheck, 
   Info, 
   AlertCircle, 
@@ -28,7 +27,7 @@ import {
   Loader2
 } from 'lucide-react'
 import { apiClient } from "@/lib/api"
-import { usePasswordValidation } from "@/hooks/use-password-validation"
+import { OnDemandPasswordValidation, useOnDemandPasswordValidation } from "@/components/ondemand-password-validation"
 import { ConnectionIndicator } from "@/components/connection-indicator"
 
 interface FirstPasswordFormProps extends React.ComponentProps<"div"> {
@@ -57,17 +56,19 @@ export function FirstPasswordForm({
   const [success, setSuccess] = useState(false)
   const [tokenValid, setTokenValid] = useState(false)
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null)
-  const [validationErrors, setValidationErrors] = useState<string[]>([])
   
   const router = useRouter()
   
-  const { 
-    validatePassword, 
-    getPasswordStrength, 
-    getPasswordRequirements,
-    rules,
-    isLoading: rulesLoading
-  } = usePasswordValidation()
+  // Use our new on-demand password validation
+  const { isValid: passwordValid } = useOnDemandPasswordValidation(
+    password,
+    {
+      username: userInfo?.username,
+      email: userInfo?.email,
+      first_name: userInfo?.first_name,
+      last_name: userInfo?.last_name
+    }
+  )
 
   useEffect(() => {
     const verifyToken = async () => {
@@ -79,7 +80,7 @@ export function FirstPasswordForm({
         } else if (result.error) {
           setError(result.error)
         }
-      } catch (error) {
+      } catch {
         setTokenValid(false)
         setError('Az első bejelentkezési link érvénytelen vagy lejárt.')
       } finally {
@@ -92,23 +93,7 @@ export function FirstPasswordForm({
     }
   }, [token])
 
-  // Real-time password validation
-  useEffect(() => {
-    if (password && userInfo) {
-      const runValidation = async () => {
-        const result = await validatePassword(password, {
-          username: userInfo.username,
-          email: userInfo.email,
-          first_name: userInfo.first_name,
-          last_name: userInfo.last_name
-        })
-        setValidationErrors(result.errors)
-      }
-      runValidation()
-    } else {
-      setValidationErrors([])
-    }
-  }, [password, userInfo, validatePassword])
+  // Password validation is now handled by the on-demand validation hook
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -118,7 +103,7 @@ export function FirstPasswordForm({
       return
     }
 
-    if (validationErrors.length > 0) {
+    if (!passwordValid) {
       setError('A jelszó nem felel meg a biztonsági követelményeknek.')
       return
     }
@@ -132,14 +117,14 @@ export function FirstPasswordForm({
       setTimeout(() => {
         router.push('/login')
       }, 3000)
-    } catch (error: any) {
-      setError(error.message || 'Hiba történt a jelszó beállítása során.')
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Hiba történt a jelszó beállítása során.')
     } finally {
       setIsLoading(false)
     }
   }
 
-  if (isVerifying || rulesLoading) {
+  if (isVerifying) {
     return (
       <div className={cn("flex flex-col gap-6", className)} {...props}>
         <Card className="relative">
@@ -252,8 +237,7 @@ export function FirstPasswordForm({
     )
   }
 
-  const passwordStrength = getPasswordStrength(password)
-  const requirements = getPasswordRequirements()
+
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -330,60 +314,17 @@ export function FirstPasswordForm({
                 </Button>
               </div>
               
-              {password && (
-                <div className="space-y-3">
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1 bg-muted h-2 rounded-full overflow-hidden">
-                        <div
-                          className={`h-full transition-all ${passwordStrength.color}`}
-                          style={{ width: `${(passwordStrength.strength / 4) * 100}%` }}
-                        />
-                      </div>
-                      <Badge variant="secondary" className="text-xs">
-                        {passwordStrength.label}
-                      </Badge>
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      {passwordStrength.description}
-                    </p>
-                  </div>
-
-                  {rules && (
-                    <div className="bg-slate-50 p-3 rounded-lg border border-slate-200">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Shield className="h-4 w-4 text-slate-600" />
-                        <span className="text-sm font-medium text-slate-700">Jelszó követelmények:</span>
-                      </div>
-                      <div className="space-y-1">
-                        {requirements.map((req, index) => (
-                          <div key={index} className="flex items-center gap-2">
-                            <div className="h-1.5 w-1.5 bg-slate-400 rounded-full" />
-                            <span className="text-xs text-slate-600">{req}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {validationErrors.length > 0 && (
-                    <div className="bg-red-50 p-3 rounded-lg border border-red-200">
-                      <div className="flex items-center gap-2 mb-2">
-                        <X className="h-4 w-4 text-red-600" />
-                        <span className="text-sm font-medium text-red-700">Jelszó hibák:</span>
-                      </div>
-                      <div className="space-y-1">
-                        {validationErrors.map((error, index) => (
-                          <div key={index} className="flex items-center gap-2">
-                            <div className="h-1.5 w-1.5 bg-red-500 rounded-full" />
-                            <span className="text-xs text-red-600">{error}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
+              <OnDemandPasswordValidation
+                password={password}
+                userData={{
+                  username: userInfo?.username,
+                  email: userInfo?.email,
+                  first_name: userInfo?.first_name,
+                  last_name: userInfo?.last_name
+                }}
+                showStrengthMeter={true}
+                compact={false}
+              />
             </div>
 
             <div className="space-y-2">
@@ -444,7 +385,7 @@ export function FirstPasswordForm({
             <Button
               type="submit"
               className="w-full"
-              disabled={isLoading || !password || !confirmPassword || validationErrors.length > 0 || password !== confirmPassword}
+              disabled={isLoading || !password || !confirmPassword || !passwordValid || password !== confirmPassword}
             >
               {isLoading ? (
                 <>
