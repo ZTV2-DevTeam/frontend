@@ -129,7 +129,7 @@ export default function HelpPage() {
           },
           {
             question: "Hogyan osztom be a diákokat forgatásokra?",
-            answer: "Egylőre a Django Admin felületen egy új Beosztás rekordot kell létrehoznia, majd ezen belül a diákokat úgynevezett Szerepkör Relációk segítségével lehet a megfelelő mezőhöz hozzáadni. Amennyiben nem létezik még megfelelő reláció, a + gombbal hozhat létre újat."
+            answer: "Egy adott forgatás kiválasztásakor megjelenű Szerkesztés gombra kattintva."
           },
         ]
       },
