@@ -937,20 +937,20 @@ export function TeacherAbsencesPage() {
         {/* 8th Period DSE Global Warning */}
         {pendingEighthPeriodAbsences.length > 0 && (
           <Card className="border-orange-500/30 bg-orange-500/5">
-            <CardContent className="p-4">
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex items-start gap-3">
+            <CardContent className="p-3 sm:p-4">
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
+                <div className="flex items-start gap-3 min-w-0 flex-1">
                   <AlertTriangle className="h-5 w-5 text-orange-400 flex-shrink-0 mt-0.5" />
-                  <div className="space-y-2">
-                    <h4 className="font-semibold text-orange-400">8. órai hiányzások észlelve</h4>
-                    <p className="text-sm text-orange-300">
+                  <div className="space-y-2 min-w-0 flex-1">
+                    <h4 className="font-semibold text-orange-400 text-sm sm:text-base">8. órai hiányzások észlelve</h4>
+                    <p className="text-xs sm:text-sm text-orange-300 leading-relaxed">
                       {pendingEighthPeriodAbsences.length} diáknak van 8. órában hiányzása. 
                       Ha a diáknak nincs 8. órája, akkor DSE edzést kell igazolni. 
                       Ha DSE sincs, automatikusan igazoltnak jelölhető, ezzel figyelmen kívül helyezhető az &quot;Auto igazol&quot; gombbal.
                     </p>
-                    <div className="flex items-center gap-2 text-xs text-orange-400">
-                      <span>Érintett diákok:</span>
-                      <span className="font-medium">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-xs text-orange-400">
+                      <span className="font-medium">Érintett diákok:</span>
+                      <span className="break-words">
                         {pendingEighthPeriodAbsences.map(a => a.studentName).join(', ')}
                       </span>
                     </div>
@@ -967,7 +967,7 @@ export function TeacherAbsencesPage() {
                         .forEach(absence => handleAutoExcuseEighthPeriod(absence.id))
                     }}
                     disabled={updating.size > 0}
-                    className="bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 border-blue-500/30 flex-shrink-0"
+                    className="bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 border-blue-500/30 w-full sm:w-auto sm:flex-shrink-0 min-h-[40px]"
                     title="Automatikus igazolás minden jogosult 8. órai hiányzásra"
                   >
                     {updating.size > 0 ? (
@@ -975,7 +975,7 @@ export function TeacherAbsencesPage() {
                     ) : (
                       <Check className="h-4 w-4 mr-2" />
                     )}
-                    Összes Auto igazol
+                    <span className="text-xs sm:text-sm">Összes Auto igazol</span>
                   </Button>
                 )}
               </div>
