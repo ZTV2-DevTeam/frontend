@@ -200,15 +200,6 @@ export default function ChangelogPage() {
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-start gap-2">
-                    <Plus className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
-                    <div className="min-w-0">
-                      <p className="font-medium text-sm break-words">Élesítés</p>
-                      <p className="text-xs text-muted-foreground break-words">
-                        A teljes üzem elindítása
-                      </p>
-                    </div>
-                  </div>
                 </div>
               </div>
 
