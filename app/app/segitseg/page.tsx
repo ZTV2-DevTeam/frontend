@@ -205,6 +205,10 @@ export default function HelpPage() {
 
   const generalFaqs = [
     {
+      question: "Hol tölthetek fel saját profilképet?",
+      answer: "Profilképek feltöltésére jelenleg nincs lehetőség, ugyanis nincs mód arra, hogy a képek tartalmának megfelelőségét ellenőrizzük. Amennyiben ragaszkodsz hozzá, tanári engedély után keresd a fejlesztőket."
+    },
+    {
       question: "Mi az Early Access BETA verzió?",
       answer: "Az FTV platform jelenleg Early Access BETA verzióban érhető el. Ez azt jelenti, hogy a rendszer még fejlesztés alatt áll, és előfordulhatnak hibák, hiányos funkciók vagy nem várt viselkedések. A BETA verzió célja, hogy valós környezetben tesztelhessük a funkciókat és visszajelzéseket gyűjthessünk a fejlesztéshez. Köszönjük a türelmedet és aktív részvételedet a tesztelésben!"
     },
