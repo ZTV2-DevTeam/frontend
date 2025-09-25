@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useCallback } from "react"
 import { StandardizedLayout } from "@/components/standardized-layout"
 import { useApiQuery } from "@/lib/api-helpers"
 import { apiClient } from "@/lib/api"
@@ -11,11 +11,37 @@ import { ApiErrorFallback } from "@/components/api-error-fallback"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Calendar, MapPin, Users, Star, Filter, Grid3X3, List, Music, Camera, Eye, AlertCircle, Plus } from "lucide-react"
+import { 
+  Calendar, 
+  MapPin, 
+  Users, 
+  Star, 
+  Filter, 
+  Grid3X3, 
+  List, 
+  Music, 
+  Camera, 
+  Eye, 
+  AlertCircle, 
+  Plus, 
+  ArrowUpDown,
+  ChevronDown,
+  ChevronUp,
+  Type,
+  Calendar as CalendarSort
+} from "lucide-react"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuLabel
+} from "@/components/ui/dropdown-menu"
 import Link from "next/link"
 import { format } from "date-fns"
 import { hu } from "date-fns/locale"
-import { useUserRole } from "@/contexts/user-role-context"
+
 import { usePermissions } from "@/contexts/permissions-context"
 import { StabBadge } from "@/components/stab-badge"
 import { ForgatásokLoading } from "@/components/forgatasok-loading"
@@ -30,25 +56,20 @@ const formatSessionDate = (dateStr: string) => {
   }
 }
 
-// Time helper
-const formatTime = (timeStr: string) => {
-  try {
-    const [hours, minutes] = timeStr.split(':')
-    return `${hours}:${minutes}`
-  } catch {
-    return timeStr
-  }
-}
+
+
+type SortOption = 'type' | 'date' | 'name' | 'relevance'
 
 export default function FilmingSessionsPage() {
   // State hooks
   const [showUserOnly, setShowUserOnly] = useState(false)
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
+  const [sortBy, setSortBy] = useState<SortOption>('relevance')
+  const [showPastEvents, setShowPastEvents] = useState(false)
   
   // Context hooks
   const { user, isAuthenticated } = useAuth()
-  const { currentRole } = useUserRole()
-  const { hasPermission, permissions } = usePermissions()
+  const { hasPermission } = usePermissions()
   
   // API queries
   const filmingQuery = useApiQuery(
@@ -130,17 +151,17 @@ export default function FilmingSessionsPage() {
   }, [assignmentsData])
 
   // Helper functions
-  const getSessionAssignment = (sessionId: number): BeosztasSchema | undefined => {
+  const getSessionAssignment = useCallback((sessionId: number): BeosztasSchema | undefined => {
     return assignmentMap.get(sessionId)
-  }
+  }, [assignmentMap])
 
-  const isUserInvolvedInSession = (sessionId: number): boolean => {
+  const isUserInvolvedInSession = useCallback((sessionId: number): boolean => {
     if (!user) return false
     const assignment = getSessionAssignment(sessionId)
     if (!assignment) return false
     
     return assignment.szerepkor_relaciok.some(relation => relation.user.id === user.user_id)
-  }
+  }, [user, getSessionAssignment])
 
   const isSessionLive = (sessionId: number): boolean => {
     const assignment = getSessionAssignment(sessionId)
@@ -210,30 +231,112 @@ export default function FilmingSessionsPage() {
     }
   }
 
+  // Helper function to check if an event is in the past
+  const isEventPast = useCallback((dateStr: string): boolean => {
+    const eventDate = new Date(dateStr)
+    const today = new Date()
+    today.setHours(0, 0, 0, 0) // Set to start of day for comparison
+    return eventDate < today
+  }, [])
+
+  // Sorting functions - moved to useMemo to prevent dependency issues
+  const sortSessions = useMemo(() => {
+    return (sessions: ForgatSchema[], sortBy: SortOption): ForgatSchema[] => {
+      const sorted = [...sessions]
+      switch (sortBy) {
+        case 'date':
+          return sorted.sort((a, b) => {
+            const dateA = new Date(a.date)
+            const dateB = new Date(b.date)
+            return dateA.getTime() - dateB.getTime() // Earliest first (upcoming events)
+          })
+        case 'name':
+          return sorted.sort((a, b) => a.name.localeCompare(b.name, 'hu'))
+        case 'relevance':
+          return sorted.sort((a, b) => {
+            // Sort by past/future first
+            const isPastA = isEventPast(a.date)
+            const isPastB = isEventPast(b.date)
+            if (isPastA !== isPastB) {
+              return isPastA ? 1 : -1 // Future events first
+            }
+            
+            // Then sort by user involvement
+            const userInvolvedA = isUserInvolvedInSession(a.id) ? 1 : 0
+            const userInvolvedB = isUserInvolvedInSession(b.id) ? 1 : 0
+            if (userInvolvedA !== userInvolvedB) {
+              return userInvolvedB - userInvolvedA
+            }
+            
+            // Finally by date (earliest first for future, latest first for past)
+            const dateA = new Date(a.date)
+            const dateB = new Date(b.date)
+            return isPastA ? dateB.getTime() - dateA.getTime() : dateA.getTime() - dateB.getTime()
+          })
+        case 'type':
+        default:
+          // Keep original type grouping - no sorting needed here
+          return sessions
+      }
+    }
+  }, [isUserInvolvedInSession, isEventPast])
+
   // Filter sessions by user involvement if needed
   const filteredSessions = useMemo(() => {
-    if (!showUserOnly) return sessions
-    return sessions.filter(session => isUserInvolvedInSession(session.id))
-  }, [sessions, showUserOnly, assignmentMap, user])
-
-  // Group sessions by type
-  const kacsaSessions = useMemo(() => filteredSessions.filter((s: ForgatSchema) => s.type === "kacsa"), [filteredSessions])
-  const normalSessions = useMemo(() => filteredSessions.filter((s: ForgatSchema) => s.type === "rendes"), [filteredSessions])
-  const eventSessions = useMemo(() => filteredSessions.filter((s: ForgatSchema) => s.type === "rendezveny"), [filteredSessions])
-  const egyebSessions = useMemo(() => filteredSessions.filter((s: ForgatSchema) => s.type === "egyeb"), [filteredSessions])
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "Tervezett":
-        return "bg-blue-500/20 text-blue-400 border-blue-500/30"
-      case "Folyamatban":
-        return "bg-green-500/20 text-green-400 border-green-500/30"
-      case "Befejezve":
-        return "bg-gray-500/20 text-gray-400 border-gray-500/30"
-      default:
-        return "bg-gray-500/20 text-gray-400 border-gray-500/30"
+    let filtered = showUserOnly 
+      ? sessions.filter(session => isUserInvolvedInSession(session.id))
+      : sessions
+    
+    // Apply sorting
+    if (sortBy !== 'type') {
+      filtered = sortSessions(filtered, sortBy)
     }
-  }
+    
+    return filtered
+  }, [sessions, showUserOnly, sortBy, sortSessions, isUserInvolvedInSession])
+
+  // Separate current and past events for relevance view
+  const { currentSessions, pastSessions } = useMemo(() => {
+    if (sortBy !== 'relevance') {
+      return { currentSessions: filteredSessions, pastSessions: [] }
+    }
+    
+    const current: ForgatSchema[] = []
+    const past: ForgatSchema[] = []
+    
+    filteredSessions.forEach(session => {
+      if (isEventPast(session.date)) {
+        past.push(session)
+      } else {
+        current.push(session)
+      }
+    })
+    
+    return { currentSessions: current, pastSessions: past }
+  }, [filteredSessions, sortBy, isEventPast])
+
+  // Group sessions by type (only used when sortBy === 'type')
+  const kacsaSessions = useMemo(() => {
+    const filtered = filteredSessions.filter((s: ForgatSchema) => s.type === "kacsa")
+    return sortBy === 'type' ? filtered : sortSessions(filtered, sortBy)
+  }, [filteredSessions, sortBy, sortSessions])
+  
+  const normalSessions = useMemo(() => {
+    const filtered = filteredSessions.filter((s: ForgatSchema) => s.type === "rendes")
+    return sortBy === 'type' ? filtered : sortSessions(filtered, sortBy)
+  }, [filteredSessions, sortBy, sortSessions])
+  
+  const eventSessions = useMemo(() => {
+    const filtered = filteredSessions.filter((s: ForgatSchema) => s.type === "rendezveny")
+    return sortBy === 'type' ? filtered : sortSessions(filtered, sortBy)
+  }, [filteredSessions, sortBy, sortSessions])
+  
+  const egyebSessions = useMemo(() => {
+    const filtered = filteredSessions.filter((s: ForgatSchema) => s.type === "egyeb")
+    return sortBy === 'type' ? filtered : sortSessions(filtered, sortBy)
+  }, [filteredSessions, sortBy, sortSessions])
+
+
 
   const getTypeIcon = (type: string) => {
     switch (type) {
@@ -320,7 +423,7 @@ export default function FilmingSessionsPage() {
                 <div className="space-y-2">
                   <div className="text-xs font-medium text-muted-foreground">Stáb:</div>
                   <div className="space-y-1">
-                    {crewData.crewMembers.slice(0, 3).map((member, index) => (
+                    {crewData.crewMembers.slice(0, 3).map((member) => (
                       <div key={member.id} className="text-xs">
                         <div className="font-medium truncate">{member.name}</div>
                         <div className="text-muted-foreground text-[10px] flex items-center gap-1">
@@ -544,6 +647,48 @@ export default function FilmingSessionsPage() {
                 </Link>
               )}
 
+              {/* Sort Options */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="flex items-center gap-2">
+                    <ArrowUpDown className="h-4 w-4" />
+                    <span className="hidden sm:inline">Rendezés</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>Rendezés módja</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem 
+                    onClick={() => setSortBy('type')}
+                    className={sortBy === 'type' ? 'bg-accent' : ''}
+                  >
+                    <Type className="h-4 w-4 mr-2" />
+                    Típus szerint
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={() => setSortBy('date')}
+                    className={sortBy === 'date' ? 'bg-accent' : ''}
+                  >
+                    <CalendarSort className="h-4 w-4 mr-2" />
+                    Dátum szerint
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={() => setSortBy('name')}
+                    className={sortBy === 'name' ? 'bg-accent' : ''}
+                  >
+                    <Type className="h-4 w-4 mr-2" />
+                    Név szerint
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={() => setSortBy('relevance')}
+                    className={sortBy === 'relevance' ? 'bg-accent' : ''}
+                  >
+                    <Star className="h-4 w-4 mr-2" />
+                    Relevancia szerint
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
               {/* View Mode Toggle */}
               <div className="flex items-center border border-border/50 rounded-lg p-1 bg-background/50">
                 <Button
@@ -577,7 +722,7 @@ export default function FilmingSessionsPage() {
             </div>
           </div>
 
-            {!showUserOnly && (
+            {!showUserOnly && sortBy === 'type' && (
               <>
                 {/* KaCsa Összejátszások */}
                 {kacsaSessions.length > 0 && (
@@ -743,12 +888,18 @@ export default function FilmingSessionsPage() {
               </>
             )}
 
-            {/* Filtered View */}
-            {showUserOnly && (
+            {/* Non-Type Sorted View */}
+            {!showUserOnly && sortBy !== 'type' && sortBy !== 'relevance' && (
               <div className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <Star className="h-5 w-5 text-yellow-400 fill-yellow-400" />
-                  <h2 className="text-lg sm:text-xl font-semibold">Saját Forgatások</h2>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <ArrowUpDown className="h-5 w-5 text-blue-400" />
+                  <h2 className="text-lg sm:text-xl font-semibold">
+                    Forgatások - {
+                      sortBy === 'date' ? 'Dátum szerint' :
+                      sortBy === 'name' ? 'Név szerint' :
+                      'Rendezve'
+                    }
+                  </h2>
                   <Badge variant="secondary" className="text-xs">
                     {filteredSessions.length}
                   </Badge>
@@ -777,6 +928,254 @@ export default function FilmingSessionsPage() {
                         <ShootingListItem session={session} />
                       </div>
                     ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Relevance View with Past Events Separation */}
+            {!showUserOnly && sortBy === 'relevance' && (
+              <div className="space-y-6">
+                {/* Current Events */}
+                {currentSessions.length > 0 && (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Star className="h-5 w-5 text-green-400 fill-green-400" />
+                      <h2 className="text-lg sm:text-xl font-semibold">Aktuális & Jövőbeli Forgatások</h2>
+                      <Badge variant="secondary" className="text-xs">
+                        {currentSessions.length}
+                      </Badge>
+                      <Badge variant="outline" className="text-xs bg-green-500/10 text-green-400 border-green-500/30">
+                        Relevancia szerint
+                      </Badge>
+                    </div>
+
+                    {viewMode === "grid" ? (
+                      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                        {currentSessions.map((session, index) => (
+                          <div
+                            key={session.id}
+                            className="animate-in slide-in-from-bottom-4 duration-500"
+                            style={{ animationDelay: `${index * 100}ms` }}
+                          >
+                            <ShootingGridCard session={session} />
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {currentSessions.map((session, index) => (
+                          <div
+                            key={session.id}
+                            className="animate-in slide-in-from-bottom-4 duration-500"
+                            style={{ animationDelay: `${index * 100}ms` }}
+                          >
+                            <ShootingListItem session={session} />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Past Events - Collapsible */}
+                {pastSessions.length > 0 && (
+                  <div className="space-y-4">
+                    <Button
+                      variant="ghost"
+                      onClick={() => setShowPastEvents(!showPastEvents)}
+                      className="flex items-center gap-2 h-auto p-3 w-full justify-start bg-muted/30 hover:bg-muted/50 border border-border/50 rounded-lg"
+                    >
+                      <div className="flex items-center gap-2">
+                        {showPastEvents ? (
+                          <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                        ) : (
+                          <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                        )}
+                        <Calendar className="h-5 w-5 text-muted-foreground" />
+                        <h2 className="text-lg sm:text-xl font-semibold">Elmúlt Forgatások</h2>
+                        <Badge variant="secondary" className="text-xs">
+                          {pastSessions.length}
+                        </Badge>
+                      </div>
+                    </Button>
+
+                    {showPastEvents && (
+                      <div className="animate-in slide-in-from-top-2 duration-300">
+                        {viewMode === "grid" ? (
+                          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 opacity-70">
+                            {pastSessions.map((session, index) => (
+                              <div
+                                key={session.id}
+                                className="animate-in slide-in-from-bottom-4 duration-500"
+                                style={{ animationDelay: `${index * 50}ms` }}
+                              >
+                                <ShootingGridCard session={session} />
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="space-y-3 opacity-70">
+                            {pastSessions.map((session, index) => (
+                              <div
+                                key={session.id}
+                                className="animate-in slide-in-from-bottom-4 duration-500"
+                                style={{ animationDelay: `${index * 50}ms` }}
+                              >
+                                <ShootingListItem session={session} />
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Filtered View */}
+            {showUserOnly && sortBy !== 'relevance' && (
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <Star className="h-5 w-5 text-yellow-400 fill-yellow-400" />
+                  <h2 className="text-lg sm:text-xl font-semibold">
+                    Saját Forgatások - {
+                      sortBy === 'type' ? 'Típus szerint' :
+                      sortBy === 'date' ? 'Dátum szerint' :
+                      sortBy === 'name' ? 'Név szerint' :
+                      'Rendezve'
+                    }
+                  </h2>
+                  <Badge variant="secondary" className="text-xs">
+                    {filteredSessions.length}
+                  </Badge>
+                </div>
+
+                {viewMode === "grid" ? (
+                  <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    {filteredSessions.map((session, index) => (
+                      <div
+                        key={session.id}
+                        className="animate-in slide-in-from-bottom-4 duration-500"
+                        style={{ animationDelay: `${index * 100}ms` }}
+                      >
+                        <ShootingGridCard session={session} />
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {filteredSessions.map((session, index) => (
+                      <div
+                        key={session.id}
+                        className="animate-in slide-in-from-bottom-4 duration-500"
+                        style={{ animationDelay: `${index * 100}ms` }}
+                      >
+                        <ShootingListItem session={session} />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Personal Relevance View with Past Events Separation */}
+            {showUserOnly && sortBy === 'relevance' && (
+              <div className="space-y-6">
+                {/* Current Personal Events */}
+                {currentSessions.length > 0 && (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Star className="h-5 w-5 text-yellow-400 fill-yellow-400" />
+                      <h2 className="text-lg sm:text-xl font-semibold">Saját Aktuális Forgatások</h2>
+                      <Badge variant="secondary" className="text-xs">
+                        {currentSessions.length}
+                      </Badge>
+                      <Badge variant="outline" className="text-xs bg-green-500/10 text-green-400 border-green-500/30">
+                        Relevancia szerint
+                      </Badge>
+                    </div>
+
+                    {viewMode === "grid" ? (
+                      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                        {currentSessions.map((session, index) => (
+                          <div
+                            key={session.id}
+                            className="animate-in slide-in-from-bottom-4 duration-500"
+                            style={{ animationDelay: `${index * 100}ms` }}
+                          >
+                            <ShootingGridCard session={session} />
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {currentSessions.map((session, index) => (
+                          <div
+                            key={session.id}
+                            className="animate-in slide-in-from-bottom-4 duration-500"
+                            style={{ animationDelay: `${index * 100}ms` }}
+                          >
+                            <ShootingListItem session={session} />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Past Personal Events - Collapsible */}
+                {pastSessions.length > 0 && (
+                  <div className="space-y-4">
+                    <Button
+                      variant="ghost"
+                      onClick={() => setShowPastEvents(!showPastEvents)}
+                      className="flex items-center gap-2 h-auto p-3 w-full justify-start bg-muted/30 hover:bg-muted/50 border border-border/50 rounded-lg"
+                    >
+                      <div className="flex items-center gap-2">
+                        {showPastEvents ? (
+                          <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                        ) : (
+                          <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                        )}
+                        <Calendar className="h-5 w-5 text-muted-foreground" />
+                        <h2 className="text-lg sm:text-xl font-semibold">Saját Elmúlt Forgatások</h2>
+                        <Badge variant="secondary" className="text-xs">
+                          {pastSessions.length}
+                        </Badge>
+                      </div>
+                    </Button>
+
+                    {showPastEvents && (
+                      <div className="animate-in slide-in-from-top-2 duration-300">
+                        {viewMode === "grid" ? (
+                          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 opacity-70">
+                            {pastSessions.map((session, index) => (
+                              <div
+                                key={session.id}
+                                className="animate-in slide-in-from-bottom-4 duration-500"
+                                style={{ animationDelay: `${index * 50}ms` }}
+                              >
+                                <ShootingGridCard session={session} />
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="space-y-3 opacity-70">
+                            {pastSessions.map((session, index) => (
+                              <div
+                                key={session.id}
+                                className="animate-in slide-in-from-bottom-4 duration-500"
+                                style={{ animationDelay: `${index * 50}ms` }}
+                              >
+                                <ShootingListItem session={session} />
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
