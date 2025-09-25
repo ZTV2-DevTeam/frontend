@@ -48,7 +48,8 @@ import {
   MessageCircleQuestionIcon,
   Calendar1,
   CalendarRange,
-  ShieldBan
+  ShieldBan,
+  Radio
 } from "lucide-react"
 
 export default function HelpPage() {
@@ -756,8 +757,6 @@ export default function HelpPage() {
                         ezek szerkesztésére a jövőben új felületeket hozunk létre ezen az oldalon:
                       </p>
                       <ul className="text-sm space-y-1 pl-4">
-                        <li>• <strong>Beosztáskezelő felület</strong> - Egy adott forgatást kiválasztva a szaktanárok láthatják a beosztás tervezetében szereplő diákok előre bejelentett távollétét, valamint az ütközéseket rádiós összejátszásokkal. A rendszer most is tudja ezeket kezelni, csupán nincs egy összesítő felület ahol ezek könnyedén áttekinthetőek</li>
-                        <li>• <strong>Közlemények kiírása</strong> - Közlemények létrehozása és kezelése az adminisztrátorok számára {elkeszultBadge} </li>
                         <li>• <strong>Partnerkezelő felület</strong> - Minden partner áttekintése és kezelése</li>
                         <li>• <strong>Eszközkezelő felület</strong> - Minden eszköz áttekintése és kezelése</li>
                         <li>• <strong>Felhasználókezelő felület</strong> - Minden felhasználó áttekintése és kezelése (szerepkörök, stábok, rádiós stábok)</li>
@@ -776,26 +775,6 @@ export default function HelpPage() {
                     
                     <div>
                       <h4 className="font-medium mb-2 flex items-center gap-2">
-                        <Calendar className="w-4 h-4" />
-                        Naptár integrációk - Google, Apple
-                      </h4>
-                      <p className="text-sm text-muted-foreground">
-                        A naptár integrációk lehetővé teszik a felhasználók számára, hogy a Google és Apple naptárjaikba közvetlenül importálják az eseményeket és határidőket. Ez megkönnyíti az események nyomon követését és a határidők betartását.
-                      </p>
-                    </div>
-                    
-                    <div>
-                      <h4 className="font-medium mb-2 flex items-center gap-2">
-                        <CalendarRange className="w-4 h-4" />
-                        Megszokott felület - Operációs Rendszerek integrációja
-                      </h4>
-                      <p className="text-sm text-muted-foreground">
-                        A modern webfejlesztési technológiák lehetővé teszik, hogy a felhasználók az operációs rendszerük megszokott felületén keresztül érjék el a funkciókat. Ez például azt jelenti, hogy egy dátum megadásánál a megszokott Android (Material) vagy Apple (SwiftUI) dátumválasztó mezők jelennek meg.
-                      </p>
-                    </div>
-
-                    <div>
-                      <h4 className="font-medium mb-2 flex items-center gap-2">
                         <ShieldBan className="w-4 h-4" />
                         Google Fiók alapú authentikáció
                       </h4>
@@ -803,26 +782,6 @@ export default function HelpPage() {
                         A Google Fiók alapú authentikáció lehetővé teszi a felhasználók számára, hogy a Google fiókjukkal jelentkezzenek be a rendszerbe. Ez egyszerűsíti a bejelentkezési folyamatot, és növeli a biztonságot. E funkció bevezetésével megszűnnek a fiókokhoz tartozó jelszavak és az intézményi fiókokkal lehet majd belépni. Ez lehetővé teszi jelszavak helyett, Azonosítókulcsok használatát is.
                         <br />
                         Frissítés: Az applikációt bejegyeztük a Google-nél, jelenleg a hitelesítésre várunk
-                      </p>
-                    </div>
-
-                    <div>
-                      <h4 className="font-medium mb-2 flex items-center gap-2">
-                        <MessageCircleQuestionIcon className="w-4 h-4" />
-                        Globális rendszerüzenetek
-                      </h4>
-                      <p className="text-sm text-muted-foreground">
-                        A rendszer által küldött globális üzenetek célja, hogy tájékoztassa a felhasználókat technikai problémákról, karbantartásokról, előre bejelentett leállásokról, üzemeltetői és fejlesztői támogatás szüneteiről. Az ehhez megfelelő infrastruktúrát ki fogjuk építeni az oldalon.
-                      </p>
-                    </div>
-
-                    <div>
-                      <h4 className="font-medium mb-2 flex items-center gap-2">
-                        <TicketCheck className="w-4 h-4" />
-                        Igazolásaim
-                      </h4>
-                      <p className="text-sm text-muted-foreground">
-                        A diákok igazolásait a rendszer automatikusan kezeli és generálja az aktuális beosztások alapján. A jövőben a diákok is hozzáférhetnek saját igazolásaikhoz, láthatják azok állapotát.
                       </p>
                     </div>
 
@@ -845,15 +804,14 @@ export default function HelpPage() {
                         Minden múltbeli forgatás adatainak és abból készített statisztikák áttekintése
                       </p>
                     </div>
-
-                    <div className="relative">
+                    
+                    <div>
                       <h4 className="font-medium mb-2 flex items-center gap-2">
-                      <FileText className="w-4 h-4" />
-                      Stáb adatainak exportálása
-                      {elkeszultBadge}
+                        <Radio className="w-4 h-4" />
+                        Rádiós stábok és össjátszások kezelés, megtekintése
                       </h4>
                       <p className="text-sm text-muted-foreground">
-                      Teljes stáb adatainak exportálása nyomtatható (PDF) formátumban
+                        Rádiós stábok létrehozása, kezelése és össjátszások ütemezése a felhasználói felületen.
                       </p>
                     </div>
 

@@ -50,7 +50,14 @@ import {
   Info,
   Server,
   KeyRound,
-  HelpCircle
+  HelpCircle,
+  CheckCircle2,
+  AlertTriangle,
+  XCircle,
+  TrendingDown,
+  Percent,
+  Clock4,
+  Package
 } from "lucide-react"
 import { UserAvatar } from "@/components/user-avatar"
 import { AnnouncementDialog } from "@/components/announcement-dialog"
@@ -129,7 +136,7 @@ function getRoleDisplayName(role: UserRole | null): string {
   }
 }
 
-// Admin Widget Components - Database Admin Style
+// Admin Widget Components - Professional Design
 function ActiveUsersWidget() {
   const { isAuthenticated } = useAuth()
   const { hasPermission } = usePermissions()
@@ -150,17 +157,15 @@ function ActiveUsersWidget() {
 
   if (loading) {
     return (
-      <Card>
+      <Card className="min-h-[400px]">
         <CardHeader className="pb-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg">
-                <Users className="h-5 w-5 text-white" />
-              </div>
-              <div>
-                <CardTitle className="text-lg">Legutóbbi Aktivitás</CardTitle>
-                <CardDescription>Utolsó bejelentkezések betöltése...</CardDescription>
-              </div>
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-emerald-500 rounded-lg">
+              <Users className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <CardTitle className="text-lg">Legutóbbi Aktivitás</CardTitle>
+              <CardDescription>Utolsó bejelentkezések betöltése...</CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -176,7 +181,7 @@ function ActiveUsersWidget() {
 
   if (error) {
     return (
-      <Card>
+      <Card className="min-h-[400px]">
         <CardContent className="flex flex-col items-center justify-center py-12 space-y-4">
           <AlertCircle className="h-8 w-8 text-destructive" />
           <div className="text-center">
@@ -212,23 +217,19 @@ function ActiveUsersWidget() {
   // Get most recently active users (last 5 users who logged in)
   // Sort all users by last_login (most recent first), filter out users without login, and take last 5
   const mostRecentUsers = users
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .filter((user: any) => user.last_login) // Only users who have logged in
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .sort((a: any, b: any) => {
       return new Date(b.last_login).getTime() - new Date(a.last_login).getTime()
     })
     .slice(0, 5) // Get most recent 5
 
   // Count users active in different time periods
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const activeNowCount = users.filter((user: any) => {
     if (!user.last_login) return false
     const lastLogin = new Date(user.last_login)
     return lastLogin >= fiveMinutesAgo
   }).length
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const activeTodayCount = users.filter((user: any) => {
     if (!user.last_login) return false
     const lastLogin = new Date(user.last_login)
@@ -304,17 +305,15 @@ function ActiveUsersWidget() {
   }
 
   return (
-    <Card className="h-96 flex flex-col" role="region" aria-labelledby="recent-users-title">
+    <Card className="min-h-[400px] flex flex-col" role="region" aria-labelledby="recent-users-title">
       <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg" aria-hidden="true">
-              <Users className="h-4 w-4 text-white" />
-            </div>
-            <div>
-              <CardTitle id="recent-users-title" className="text-base">Legutóbbi Aktivitás</CardTitle>
-              <CardDescription className="text-xs">Utolsó {mostRecentUsers.length} felhasználó</CardDescription>
-            </div>
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-emerald-500 rounded-lg" aria-hidden="true">
+            <Users className="h-5 w-5 text-white" />
+          </div>
+          <div>
+            <CardTitle id="recent-users-title" className="text-lg">Legutóbbi Aktivitás</CardTitle>
+            <CardDescription>Utolsó {mostRecentUsers.length} felhasználó</CardDescription>
           </div>
         </div>
       </CardHeader>
@@ -343,7 +342,7 @@ function ActiveUsersWidget() {
                           username={user.username}
                           size="md"
                           className="border border-background group-hover:border-primary/20 transition-colors"
-                          fallbackClassName="bg-gradient-to-br from-primary/20 to-primary/10 text-xs font-semibold"
+                          fallbackClassName="bg-primary/20 text-xs font-semibold"
                         />
                         <div className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border border-background ${activity.bgColor} flex items-center justify-center`}>
                           {isActive && (
@@ -376,14 +375,14 @@ function ActiveUsersWidget() {
             </div>
             
             {/* Compact Statistics */}
-            <div className="pt-2 border-t border-border/30">
-              <div className="grid grid-cols-2 gap-2 text-center">
-                <div className="p-2 rounded-lg bg-green-50 dark:bg-green-950/30">
-                  <div className="text-lg font-bold text-green-700 dark:text-green-300">{activeNowCount}</div>
-                  <div className="text-xs text-green-600 dark:text-green-400">Aktív most</div>
+            <div className="pt-3 border-t border-border/30">
+              <div className="grid grid-cols-2 gap-3 text-center">
+                <div className="p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800">
+                  <div className="text-xl font-bold text-emerald-700 dark:text-emerald-300">{activeNowCount}</div>
+                  <div className="text-xs text-emerald-600 dark:text-emerald-400">Aktív most</div>
                 </div>
-                <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-950/30">
-                  <div className="text-lg font-bold text-blue-700 dark:text-blue-300">{activeTodayCount}</div>
+                <div className="p-3 rounded-lg bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800">
+                  <div className="text-xl font-bold text-blue-700 dark:text-blue-300">{activeTodayCount}</div>
                   <div className="text-xs text-blue-600 dark:text-blue-400">Ma aktív</div>
                 </div>
               </div>
@@ -405,26 +404,24 @@ function ActiveUsersWidget() {
 
 function PendingForgatásokWidget() {
   return (
-    <Card className="h-fit">
+    <Card className="min-h-[400px]">
       <CardHeader className="pb-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg">
-              <AlertCircle className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <CardTitle className="text-lg">Függő Forgatások</CardTitle>
-              <CardDescription>Hamarosan elérhető funkció</CardDescription>
-            </div>
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-blue-500 rounded-lg">
+            <AlertCircle className="h-5 w-5 text-white" />
           </div>
-          <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/30 dark:text-blue-300 dark:border-blue-800">
-            Fejlesztés alatt
-          </Badge>
+          <div>
+            <CardTitle className="text-lg">Függő Forgatások</CardTitle>
+            <CardDescription>Hamarosan elérhető funkció</CardDescription>
+          </div>
         </div>
+        <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/30 dark:text-blue-300 dark:border-blue-800 w-fit">
+          Fejlesztés alatt
+        </Badge>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="text-center py-8">
-          <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-950/30 dark:to-purple-950/30 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="w-20 h-20 bg-blue-100 dark:bg-blue-950/30 rounded-full flex items-center justify-center mx-auto mb-4 border border-blue-200 dark:border-blue-800">
             <Video className="h-10 w-10 text-blue-600 dark:text-blue-400" />
           </div>
           <h3 className="font-semibold text-lg mb-2">Hamarosan elérhető!</h3>
@@ -437,7 +434,7 @@ function PendingForgatásokWidget() {
               <span>Fejlesztés folyamatban</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
               <span>Hamarosan kész</span>
             </div>
           </div>
@@ -786,17 +783,15 @@ function SystemOverviewWidget() {
 
   return (
     <TooltipProvider>
-      <Card className="h-96 flex flex-col">
+      <Card className="min-h-[400px] flex flex-col">
         <CardHeader className="pb-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg">
-                <Server className="h-5 w-5 text-white" />
-              </div>
-              <div>
-                <CardTitle className="text-lg">Rendszer áttekintés</CardTitle>
-                <CardDescription>Fix változók és rendszer állapot</CardDescription>
-              </div>
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-purple-500 rounded-lg">
+              <Server className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <CardTitle className="text-lg">Rendszer áttekintés</CardTitle>
+              <CardDescription>Fix változók és rendszer állapot</CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -838,6 +833,108 @@ function SystemOverviewWidget() {
 }
 
 // Student Widget Components
+function NevjegyWidget() {
+  const { user } = useAuth()
+  const { currentRole } = useUserRole()
+
+  if (!user) {
+    return null
+  }
+
+  const userDisplayName = `${user.last_name} ${user.first_name}`.trim() || user.username
+  
+  // Get role display name
+  const getRoleDisplayName = () => {
+    if (currentRole === 'student') return 'Diák'
+    if (currentRole === 'class-teacher') return 'Osztályfőnök'
+    if (currentRole === 'admin') return 'Adminisztrátor'
+    return 'Felhasználó'
+  }
+
+  // Format join date
+  const formatJoinDate = (dateString?: string) => {
+    if (!dateString) return 'Ismeretlen'
+    try {
+      return new Date(dateString).toLocaleDateString('hu-HU', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      })
+    } catch {
+      return 'Ismeretlen'
+    }
+  }
+
+  return (
+    <Card className="min-h-[300px]">
+      <CardHeader className="pb-4">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-blue-500 rounded-lg">
+            <User className="h-5 w-5 text-white" />
+          </div>
+          <div>
+            <CardTitle className="text-lg">Névjegy</CardTitle>
+            <CardDescription>Személyes adatok és fiók információk</CardDescription>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="flex items-center gap-4">
+          <UserAvatar
+            email={user.email}
+            firstName={user.first_name}
+            lastName={user.last_name}
+            username={user.username}
+            size="lg"
+            className="border-2 border-blue-200 dark:border-blue-800"
+            fallbackClassName="bg-blue-500/20 text-blue-700 dark:text-blue-300"
+          />
+          <div className="flex-1">
+            <h3 className="text-xl font-semibold text-foreground mb-1">{userDisplayName}</h3>
+            <p className="text-sm text-muted-foreground mb-2">{getRoleDisplayName()}</p>
+            <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/30 dark:text-blue-300 dark:border-blue-800">
+              Aktív felhasználó
+            </Badge>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-3">
+          <div className="p-3 rounded-lg bg-muted/30 border border-border/50">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-foreground">Felhasználónév</p>
+                <p className="text-sm text-muted-foreground">{user.username}</p>
+              </div>
+              <div className="p-1.5 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                <User className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+              </div>
+            </div>
+          </div>
+
+          <div className="p-3 rounded-lg bg-muted/30 border border-border/50">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-foreground">E-mail cím</p>
+                <p className="text-sm text-muted-foreground">{user.email}</p>
+              </div>
+              <div className="p-1.5 bg-green-100 dark:bg-green-900/30 rounded-lg">
+                <Calendar className="h-4 w-4 text-green-600 dark:text-green-400" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="pt-2 border-t border-border/30">
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-muted-foreground">Felhasználó azonosító:</span>
+            <span className="font-mono text-xs bg-muted px-2 py-1 rounded">{user.user_id}</span>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
 function UpcomingShootingsWidget() {
   const { user, isAuthenticated } = useAuth()
   const { data: filmingData, loading, error } = useApiQuery(
@@ -949,91 +1046,25 @@ function UpcomingShootingsWidget() {
   )
 }
 
-// Class Teacher Widget Components
-function IgazolasStatsWidget() {
-  const router = useRouter()
-  const { isAuthenticated } = useAuth()
-  const { data: absenceData, loading, error } = useApiQuery(
-    () => isAuthenticated ? apiClient.getAbsences() : Promise.resolve([]),
-    [isAuthenticated]
-  )
-  
-  if (loading) {
-    return (
-      <Card>
-        <CardContent className="flex items-center justify-center py-12">
-          <Loader2 className="h-6 w-6 animate-spin" />
-        </CardContent>
-      </Card>
-    )
-  }
-
-  const absences = Array.isArray(absenceData) ? absenceData : []
-  const dailyCount = absences.length > 0 ? Math.min(5, absences.length) : 0
-  const weeklyCount = absences.length > 0 ? Math.min(23, absences.length * 3) : 0
-  const monthlyCount = absences.length || 0
-
-  const stats = [
-    { label: 'Mai nap', value: dailyCount, icon: Clock },
-    { label: 'Ezen a héten', value: weeklyCount, icon: Calendar },
-    { label: 'Ebben a hónapban', value: monthlyCount, icon: BarChart3 }
-  ]
-  
+// Class Teacher Widget Components - Currently no widgets available
+function ClassTeacherPlaceholderWidget() {
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center gap-3">
-          <FileText className="h-5 w-5 text-muted-foreground" />
-          <CardTitle>Igazolás központ</CardTitle>
+    <Card className="min-h-[400px]">
+      <CardContent className="flex flex-col items-center justify-center py-12 text-center space-y-4">
+        <div className="p-4 bg-muted rounded-full">
+          <Package className="h-8 w-8 text-muted-foreground" />
         </div>
-        <CardDescription>Feldolgozott dokumentumok áttekintése</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-1 mb-4">
-          {stats.map((stat, index) => (
-            <div key={index} className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent cursor-pointer transition-colors">
-              <div className="flex items-center gap-3">
-                <stat.icon className="h-5 w-5 text-muted-foreground" />
-                <span className="font-medium">{stat.label}</span>
-              </div>
-              <div className="flex items-center text-muted-foreground">
-                <span className="text-sm font-medium mr-2">{stat.value}</span>
-                <ExternalLink className="h-4 w-4" />
-              </div>
-            </div>
-          ))}
+        <div className="space-y-2">
+          <h3 className="text-lg font-semibold text-foreground">Nincsenek elérhető widgetek</h3>
+          <p className="text-sm text-muted-foreground max-w-md">
+            Jelenleg nincsenek Widgetek az osztályfőnöki felületen. 
+            Jelezze a fejlesztőknek Widget ötleteit vagy igényeit a jövőbeni frissítésekhez.
+          </p>
         </div>
-        
-        <div className="p-3 border rounded-lg bg-muted/50 mb-4">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm font-medium">Trendek</span>
-            </div>
-            <span className="text-sm text-muted-foreground">{monthlyCount}/100 ({Math.round((monthlyCount/100)*100)}%)</span>
-          </div>
-          <div className="w-full bg-secondary rounded-full h-2">
-            <div 
-              className="bg-primary h-2 rounded-full transition-all duration-1000" 
-              style={{ width: `${Math.min((monthlyCount/100)*100, 100)}%` }}
-            ></div>
-          </div>
-        </div>
-        
-        <Button 
-          variant="outline" 
-          className="w-full" 
-          onClick={() => router.push("/app/igazolasok")}
-        >
-          <ExternalLink className="mr-2 h-4 w-4" />
-          Igazolások kezelése
-        </Button>
       </CardContent>
     </Card>
   )
-}
-
-function ShootingTrendsWidget() {
+}function ShootingTrendsWidget() {
   const trends = [
     { label: 'Napi átlag', value: 12, trend: '+8%', icon: TrendingUp },
     { label: 'Heti összesen', value: 84, trend: '+15%', icon: BarChart3 },
@@ -1266,63 +1297,78 @@ export default function Page() {
     switch (currentRole) {
       case 'admin':
         return (
-          <>
-            {/* Quick Actions Widget - positioned between welcome message and other widgets */}
-            <QuickActionsWidget />
+          <div className="space-y-6">
+            {/* Quick Actions Widget */}
+            <div className="mb-6">
+              <QuickActionsWidget />
+            </div>
             
-            {/* Top row: Key operational widgets in 3-column layout */}
-            <div className="grid gap-4 md:gap-6 md:grid-cols-3">
-              <div className="col-span-1">
+            {/* Main Widgets - Flexible Grid */}
+            <div className="grid gap-4 sm:gap-6 grid-cols-1 xl:grid-cols-3 auto-rows-fr">
+              <div className="xl:col-span-1">
                 <ActiveUsersWidget />
               </div>
-              <div className="col-span-1">
+              <div className="xl:col-span-1">
                 <SystemOverviewWidget />
               </div>
-              <div className="col-span-1">
+              <div className="xl:col-span-1">
                 <PendingForgatásokWidget />
               </div>
             </div>
-            
-            {/* First Steps Widget */}
-            {/* <FirstStepsWidget /> */}
-          </>
+          </div>
         )
 
       case 'student':
         return (
-          <div className="grid gap-6">
-            {/* Forgatások widget disabled per request */}
-            {/* <div className="col-span-full">
-              <UpcomingShootingsWidget />
-            </div> */}
-            <Card>
-              <CardContent className="pt-12 pb-12 text-center">
-                <div className="max-w-sm mx-auto space-y-4">
-                  <div className="p-4 bg-muted rounded-full w-fit mx-auto">
-                    <GraduationCap className="h-8 w-8 text-muted-foreground" />
+          <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-12">
+            {/* Personal Info Widget - Left side */}
+            <div className="lg:col-span-5">
+              <NevjegyWidget />
+            </div>
+            
+            {/* Quick Actions and Status - Right side */}
+            <div className="lg:col-span-7 space-y-4 sm:space-y-6">
+              {/* Quick Access */}
+              <Card className="min-h-[150px]">
+                <CardHeader className="pb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-emerald-500 rounded-lg">
+                      <Zap className="h-5 w-5 text-white" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-lg">Gyors hozzáférés</CardTitle>
+                      <CardDescription>Legfontosabb funkciók</CardDescription>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="text-lg font-semibold mb-2">
-                      Diák irányítópult hamarosan
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      A diák irányítópult jelenleg fejlesztés alatt áll. Hamarosan elérhető lesz!
-                    </p>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button className="p-3 rounded-lg border border-border/50 hover:bg-accent transition-colors text-left">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Calendar className="h-4 w-4 text-blue-500" />
+                        <span className="font-medium text-sm">Naptár</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground">Események</p>
+                    </button>
+                    <button className="p-3 rounded-lg border border-border/50 hover:bg-accent transition-colors text-left">
+                      <div className="flex items-center gap-2 mb-1">
+                        <FileText className="h-4 w-4 text-orange-500" />
+                        <span className="font-medium text-sm">Üzenőfal</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground">Hírek</p>
+                    </button>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         )
 
       case 'class-teacher':
         return (
-          <div className="grid gap-6 md:grid-cols-2">
-            <div className="col-span-1 md:col-span-2">
-              {/* <FirstStepsWidget /> */}
-            </div>
-            <div className="col-span-1">
-              <IgazolasStatsWidget />
+          <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-12">
+            <div className="lg:col-span-12">
+              <ClassTeacherPlaceholderWidget />
             </div>
           </div>
         )

@@ -252,10 +252,10 @@ export default function StudentGuidePage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Plus className="h-5 w-5 text-green-600" />
-                Riporter útmutató: Új forgatás létrehozása
+                Szerkesztői útmutató: Új forgatás létrehozása
               </CardTitle>
               <CardDescription>
-                Hogyan hozz létre új forgatást riporterként (csak 10F osztály diákjai számára)
+                Hogyan hozz létre új forgatást szerkesztőként (csak 10F osztály diákjai, gyártásvezetők és további megbízottak)
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
