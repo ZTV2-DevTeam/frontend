@@ -34,6 +34,7 @@ import {
 } from "@/lib/config/absences"
 
 const SCHOOL_SCHEDULE = {
+  0: { name: "0. óra", start: "07:30", end: "08:15" },
   1: { name: "1. óra", start: "08:25", end: "09:10" },
   2: { name: "2. óra", start: "09:20", end: "10:05" },
   3: { name: "3. óra", start: "10:20", end: "11:05" },
@@ -42,6 +43,30 @@ const SCHOOL_SCHEDULE = {
   6: { name: "6. óra", start: "13:25", end: "14:10" },
   7: { name: "7. óra", start: "14:20", end: "15:05" },
   8: { name: "8. óra", start: "15:15", end: "16:00" },
+}
+
+// Helper function to check if an absence involves the 8th period
+const isEighthPeriodAffected = (absence: ExtendedAbsence): boolean => {
+  return absence.affectedClasses.includes(8) || absence.affected_classes_with_student_time.includes(8)
+}
+
+// Helper function to check if a student has DSE (Student Sports Association) during 8th period
+// This is a placeholder implementation - in real use, this should check against a schedule or database
+const hasDSETraining = (_studentId: string, _date: string): boolean => {
+  // TODO: This should be replaced with actual DSE schedule check from database
+  // For now, we'll return false as a safe default
+  // In a real implementation, this would query the student's schedule or DSE enrollment
+  return false
+}
+
+// Helper function to determine if 8th period absence should be auto-excused
+const shouldAutoExcuseEighthPeriod = (absence: ExtendedAbsence): boolean => {
+  if (!isEighthPeriodAffected(absence)) {
+    return false
+  }
+  
+  // If student has no regular 8th period class and no DSE training, auto-excuse
+  return !hasDSETraining(absence.studentId, absence.date)
 }
 
 // Extended absence type for UI display
@@ -198,6 +223,102 @@ const MOCK_ABSENCES: ExtendedAbsence[] = [
     affectedClasses: [3, 4],
     timeFrom: '10:30',
     timeTo: '12:00'
+  },
+  // Test case for 8th period DSE handling
+  {
+    id: 4,
+    diak: {
+      id: 4,
+      username: 'kovacs.mark',
+      first_name: 'Márk',
+      last_name: 'Kovács',
+      full_name: 'Kovács Márk'
+    },
+    forgatas: {
+      id: 3,
+      name: 'Teszt Forgatás - 8. óra',
+      date: '2024-03-25',
+      time_from: '15:00',
+      time_to: '16:00',
+      type: 'rendes'
+    },
+    date: '2024-03-25',
+    time_from: '15:00',
+    time_to: '16:00',
+    excused: false,
+    unexcused: false,
+    status: 'nincs_dontes',
+    affected_classes: [8],
+    affected_classes_with_student_time: [8],
+    student_extra_time_before: 0,
+    student_extra_time_after: 0,
+    student_edited: false,
+    student_edit_timestamp: undefined,
+    student_edit_note: undefined,
+    effective_time_from: '15:00',
+    effective_time_to: '16:00',
+    osztaly: {
+      id: 1,
+      name: '10.F',
+      szekcio: 'Média',
+      start_year: 2021
+    },
+    studentName: 'Kovács Márk',
+    studentId: '4',
+    studentClass: '10.F',
+    shootingTitle: 'Teszt Forgatás - 8. óra',
+    shootingId: '3',
+    affectedClasses: [8],
+    timeFrom: '15:00',
+    timeTo: '16:00'
+  },
+  // Test case for 0th period
+  {
+    id: 5,
+    diak: {
+      id: 5,
+      username: 'szabo.eszter',
+      first_name: 'Eszter',
+      last_name: 'Szabó',
+      full_name: 'Szabó Eszter'
+    },
+    forgatas: {
+      id: 4,
+      name: 'Reggeli Hírműsor',
+      date: '2024-03-26',
+      time_from: '07:30',
+      time_to: '08:15',
+      type: 'rendes'
+    },
+    date: '2024-03-26',
+    time_from: '07:30',
+    time_to: '08:15',
+    excused: false,
+    unexcused: false,
+    status: 'nincs_dontes',
+    affected_classes: [0],
+    affected_classes_with_student_time: [0],
+    student_extra_time_before: 0,
+    student_extra_time_after: 0,
+    student_edited: false,
+    student_edit_timestamp: undefined,
+    student_edit_note: undefined,
+    effective_time_from: '07:30',
+    effective_time_to: '08:15',
+    osztaly: {
+      id: 1,
+      name: '10.F',
+      szekcio: 'Média',
+      start_year: 2021
+    },
+    studentName: 'Szabó Eszter',
+    studentId: '5',
+    studentClass: '10.F',
+    shootingTitle: 'Reggeli Hírműsor',
+    shootingId: '4',
+    affectedClasses: [0],
+    timeFrom: '07:30',
+    timeTo: '08:15'
   }
 ]
 
@@ -331,12 +452,17 @@ export function TeacherAbsencesPage() {
       return "bg-gray-700/50 text-gray-500 border border-gray-600/30" // Nem érintett óra
     }
 
+    // Special styling for 8th period to make it more visible
+    const isEighth = classNum === 8
+    const shadowIntensity = isEighth ? "shadow-xl" : "shadow-lg"
+    const pulseEffect = isEighth && !absence.excused && !absence.unexcused ? " animate-pulse" : ""
+
     if (absence.excused) {
-      return "bg-green-500 text-white shadow-lg shadow-green-500/25" // Igazolt
+      return `bg-green-500 text-white ${shadowIntensity} shadow-green-500/25${pulseEffect}` // Igazolt
     } else if (absence.unexcused) {
-      return "bg-red-500 text-white shadow-lg shadow-red-500/25" // Igazolatlan
+      return `bg-red-500 text-white ${shadowIntensity} shadow-red-500/25${pulseEffect}` // Igazolatlan
     } else {
-      return "bg-yellow-500 text-white shadow-lg shadow-yellow-500/25" // Elbírálás alatt
+      return `bg-yellow-500 text-white ${shadowIntensity} shadow-yellow-500/25${pulseEffect}` // Elbírálás alatt
     }
   }
 
@@ -348,6 +474,15 @@ export function TeacherAbsencesPage() {
   }
 
   const uniqueStudents = Array.from(new Set(allAbsences.map((a) => ({ id: a.studentId, name: a.studentName }))))
+
+  // Check if there are any pending 8th period absences
+  const pendingEighthPeriodAbsences = filteredAbsences.filter(absence => 
+    isEighthPeriodAffected(absence) && !absence.excused && !absence.unexcused
+  )
+  
+  const hasAutoExcusableEighthPeriod = pendingEighthPeriodAbsences.some(absence =>
+    shouldAutoExcuseEighthPeriod(absence)
+  )
 
   const handleApprove = async (absenceId: number) => {
     // If using mock data (admin in preview mode), just update the local state
@@ -466,6 +601,45 @@ export function TeacherAbsencesPage() {
     }
   }
 
+  const handleAutoExcuseEighthPeriod = async (absenceId: number) => {
+    // If using mock data (admin in preview mode), just update the local state
+    if (shouldUseMockData || isPreviewWithMockData) {
+      console.log('🎭 Mock action: Auto-excusing 8th period absence', absenceId)
+      setAllAbsences(prev => prev.map(absence => 
+        absence.id === absenceId 
+          ? { ...absence, excused: true, unexcused: false, status: 'igazolt' as const }
+          : absence
+      ))
+      return
+    }
+
+    try {
+      setUpdating(prev => new Set(prev).add(absenceId))
+      
+      await updateSchoolAbsence(absenceId, {
+        excused: true,
+        unexcused: false
+      })
+      
+      // Update local state
+      setAllAbsences(prev => prev.map(absence => 
+        absence.id === absenceId 
+          ? { ...absence, excused: true, unexcused: false, status: 'igazolt' as const }
+          : absence
+      ))
+      
+    } catch (err) {
+      console.error('Error auto-excusing 8th period absence:', err)
+      setError(err instanceof Error ? err.message : 'Hiba történt az automatikus igazolás során')
+    } finally {
+      setUpdating(prev => {
+        const newSet = new Set(prev)
+        newSet.delete(absenceId)
+        return newSet
+      })
+    }
+  }
+
   // Csoportosítás logika
   const groupedAbsences =
     groupBy === "shooting"
@@ -515,28 +689,29 @@ export function TeacherAbsencesPage() {
     <StandardizedLayout>
       <div className="space-y-6 animate-in fade-in-50 duration-500">
         {/* Header */}
-        <div className="space-y-2">
-          <div className="flex items-center gap-3">
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
-              Osztály Igazolások
-            </h1>
-            <Badge variant="outline" className="bg-blue-500/10 text-blue-400 border-blue-500/30">
-              {shouldUseMockData || isPreviewWithMockData 
-                ? 'Admin Előnézet' 
-                : isPreviewMode && actualUserRole === 'class-teacher' 
-                  ? 'Ofő Előnézet'
-                  : 'Osztályfőnök'}
-            </Badge>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-primary rounded-xl shadow-sm">
+              <FileText className="h-6 w-6 text-primary-foreground" />
+            </div>
+            <div className="space-y-1">
+              <h1 className="text-3xl font-bold text-black dark:text-white tracking-tight">Igazolások</h1>
+              <div className="flex items-center gap-2">
+                <p className="text-base text-muted-foreground">
+                  {filteredAbsences.length} hiányzás • Elbírálás alatt: {stats.pending} • Igazolt: {stats.excused} • Igazolatlan: {stats.unexcused}
+                </p>
+                <Badge variant="outline" className="bg-blue-500/10 text-blue-400 border-blue-500/30 text-xs">
+                  {shouldUseMockData || isPreviewWithMockData 
+                    ? 'Admin Előnézet' 
+                    : isPreviewMode && actualUserRole === 'class-teacher' 
+                      ? 'Ofő Előnézet'
+                      : 'Osztályfőnök'}
+                </Badge>
+              </div>
+            </div>
           </div>
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-muted-foreground">
-              {shouldUseMockData || isPreviewWithMockData 
-                ? 'Demo adatok megjelenítése - Adminisztrátor előnézet'
-                : isPreviewMode && actualUserRole === 'class-teacher'
-                  ? 'Előnézet módban - Osztályfőnök perspektívából'
-                  : 'Diákok forgatás alapú hiányzásainak kezelése'
-              }
-            </p>
+
+          <div className="flex items-center gap-2">
             <Button onClick={loadAbsences} variant="outline" size="sm">
               <RefreshCw className="h-4 w-4 mr-2" />
               Frissítés
@@ -759,6 +934,55 @@ export function TeacherAbsencesPage() {
           </CardContent>
         </Card>
 
+        {/* 8th Period DSE Global Warning */}
+        {pendingEighthPeriodAbsences.length > 0 && (
+          <Card className="border-orange-500/30 bg-orange-500/5">
+            <CardContent className="p-4">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex items-start gap-3">
+                  <AlertTriangle className="h-5 w-5 text-orange-400 flex-shrink-0 mt-0.5" />
+                  <div className="space-y-2">
+                    <h4 className="font-semibold text-orange-400">8. órai hiányzások észlelve</h4>
+                    <p className="text-sm text-orange-300">
+                      {pendingEighthPeriodAbsences.length} diáknak van 8. órában hiányzása. 
+                      Ha a diáknak nincs 8. órája, akkor DSE edzést kell igazolni. 
+                      Ha DSE sincs, automatikusan igazoltnak jelölhető, ezzel figyelmen kívül helyezhető az &quot;Auto igazol&quot; gombbal.
+                    </p>
+                    <div className="flex items-center gap-2 text-xs text-orange-400">
+                      <span>Érintett diákok:</span>
+                      <span className="font-medium">
+                        {pendingEighthPeriodAbsences.map(a => a.studentName).join(', ')}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                {/* Bulk auto-excuse button if there are auto-excusable absences */}
+                {hasAutoExcusableEighthPeriod && (
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      // Auto-excuse all eligible 8th period absences
+                      pendingEighthPeriodAbsences
+                        .filter(absence => shouldAutoExcuseEighthPeriod(absence))
+                        .forEach(absence => handleAutoExcuseEighthPeriod(absence.id))
+                    }}
+                    disabled={updating.size > 0}
+                    className="bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 border-blue-500/30 flex-shrink-0"
+                    title="Automatikus igazolás minden jogosult 8. órai hiányzásra"
+                  >
+                    {updating.size > 0 ? (
+                      <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                    ) : (
+                      <Check className="h-4 w-4 mr-2" />
+                    )}
+                    Összes Auto igazol
+                  </Button>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Absences List */}
         <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
           <CardHeader>
@@ -771,7 +995,7 @@ export function TeacherAbsencesPage() {
             </CardTitle>
             <CardDescription>Diákok forgatások alapján automatikusan generált hiányzásai</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="overflow-visible">
             {Object.keys(groupedAbsences).length === 0 ? (
               <div className="text-center py-12">
                 <FileText className="h-16 w-16 text-muted-foreground mx-auto mb-4 opacity-50" />
@@ -783,7 +1007,7 @@ export function TeacherAbsencesPage() {
                 </p>
               </div>
             ) : (
-              <div className="space-y-8">
+              <div className="space-y-8 overflow-visible">
                 {Object.entries(groupedAbsences).map(([key, group], groupIndex) => (
                   <div key={key} className="space-y-4">
                     {/* Csoport fejléc */}
@@ -799,7 +1023,7 @@ export function TeacherAbsencesPage() {
                     </div>
 
                     {/* Csoport elemei */}
-                    <div className="space-y-3 ml-6">
+                    <div className="space-y-3 ml-6 overflow-visible">
                       {(group as any).absences.map((absence: ExtendedAbsence, index: number) => {
                         const StatusIcon = getStatusIcon(absence)
                         const isUpdating = updating.has(absence.id)
@@ -807,11 +1031,12 @@ export function TeacherAbsencesPage() {
                         return (
                           <div
                             key={absence.id}
-                            className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 p-4 rounded-lg bg-background/30 border border-border/30 hover:bg-background/50 transition-all duration-200"
+                            className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 p-4 rounded-lg bg-background/30 border border-border/30 hover:bg-background/50 transition-all duration-200 overflow-visible"
                             style={{ animationDelay: `${groupIndex * 100 + index * 50}ms` }}
                           >
-                            {/* Tanórák körök - Mobile optimized */}
-                            <div className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                              {/* Tanórák körök - Mobile optimized with extra padding to prevent shadow clipping */}
+                            <div className="flex gap-1.5 sm:gap-2 py-4 px-3 -mx-2 scrollbar-hide" 
+                                 style={{ overflowX: 'auto', overflowY: 'visible' }}>
                               {Object.keys(SCHOOL_SCHEDULE).map((classNum) => {
                                 const num = Number.parseInt(classNum)
                                 return (
