@@ -1,15 +1,13 @@
 "use client"
 
 import * as React from "react"
-import { ChevronsUpDown, Plus } from "lucide-react"
+import { ChevronsUpDown } from "lucide-react"
 
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {
@@ -37,7 +35,7 @@ export function TeamSwitcher({
   teams: Team[]
 }) {
   const { isMobile } = useSidebar()
-  const { currentRole, setRole, isPreviewMode, actualUserRole } = useUserRole()
+  const { currentRole, setRole } = useUserRole()
   const { permissions, getAvailableRoles, isLoading } = usePermissions()
   const { user } = useAuth()
   
@@ -156,7 +154,7 @@ export function TeamSwitcher({
     return (
       <SidebarMenu>
         <SidebarMenuItem>
-          <SidebarMenuButton size="lg" className="cursor-default">
+          <SidebarMenuButton size="lg" className="cursor-default hover:bg-transparent hover:text-current pointer-events-none">
             <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
               <activeTeam.logo className="size-4" />
             </div>
@@ -226,7 +224,7 @@ export function TeamSwitcher({
             <DropdownMenuLabel className="text-muted-foreground text-xs">
               Elérhető szerepkörök
             </DropdownMenuLabel>
-            {allowedTeams.map((team, index) => (
+            {allowedTeams.map((team) => (
               <DropdownMenuItem
                 key={team.name}
                 onClick={() => handleTeamChange(team)}
@@ -243,7 +241,6 @@ export function TeamSwitcher({
                     </span>
                   )}
                 </div>
-                <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
               </DropdownMenuItem>
             ))}
             {/* Remove "Új szerepkör" button - users can't create new roles */}
