@@ -11,13 +11,14 @@ import { ApiErrorFallback } from "@/components/api-error-fallback"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Calendar, MapPin, Users, Star, Filter, Grid3X3, List, Music, Camera, Eye, Loader2, AlertCircle, Plus } from "lucide-react"
+import { Calendar, MapPin, Users, Star, Filter, Grid3X3, List, Music, Camera, Eye, AlertCircle, Plus } from "lucide-react"
 import Link from "next/link"
 import { format } from "date-fns"
 import { hu } from "date-fns/locale"
 import { useUserRole } from "@/contexts/user-role-context"
 import { usePermissions } from "@/contexts/permissions-context"
 import { StabBadge } from "@/components/stab-badge"
+import { ForgatásokLoading } from "@/components/forgatasok-loading"
 
 // Date helper for better formatting
 const formatSessionDate = (dateStr: string) => {
@@ -488,10 +489,15 @@ export default function FilmingSessionsPage() {
   if (loading) {
     return (
       <StandardizedLayout>
-        <div className="flex items-center justify-center py-12">
-          <Loader2 className="h-6 w-6 animate-spin mr-2" />
-          Forgatások betöltése...
-        </div>
+        <ForgatásokLoading
+          sessionsLoading={sessionsLoading}
+          assignmentsLoading={assignmentsLoading}
+          usersLoading={usersLoading}
+          sessionCount={sessions.length}
+          assignmentCount={assignmentsData?.length || 0}
+          userCount={userDetailsList?.length || 0}
+          variant="detailed"
+        />
       </StandardizedLayout>
     )
   }

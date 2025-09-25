@@ -3,6 +3,33 @@ import { createChangelogEntry, createChange, sortChangelogEntries } from '@/lib/
 
 const rawChangelogData: ChangelogEntry[] = [
   createChangelogEntry(
+    'v1.1.7-beta',
+    '2025. szeptember 25.',
+    '2025-09-25T10:00:00Z',
+    [
+      createChange(
+        'improvement',
+        'Élesítés - Célegyenes',
+        'Az előzetes fejlesztési szakasz véget ért, és az alkalmazás mostantól élesben fut.',
+      ),
+      createChange(
+        'removed',
+        'Billentyűparancsok eltávolítva a TeamSwitcher komponensből',
+        'A TeamSwitcher komponensből eltávolításra kerültek a billentyűparancsok, mivel valójában nincsenek támogatva.',
+      ),
+      createChange(
+        'improvement',
+        'Nagy változások az Igazolások oldalon',
+        'Több nagyobb javítást és fejlesztést hajtottunk végre az Igazolások oldalán, hogy az felhasználóbarátabb és hatékonyabb legyen. Ezek a változások magukban foglalják a felület átalakítását, új funkciók hozzáadását, valamint a teljesítmény optimalizálását.'
+      ),
+      createChange(
+        'improvement',
+        'Forgatások betöltésének részletei',
+        'Mostantól részletes tájékoztatást kapnak a felhasználók a forgatások menü betöltése alatt.'
+      ),
+    ]
+  ),
+  createChangelogEntry(
     'v1.1.6-beta',
     '2025. szeptember 24.',
     '2025-09-24T18:00:00Z',

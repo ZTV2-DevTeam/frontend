@@ -4,6 +4,7 @@
 export { EnhancedLoading } from './enhanced-loading'
 export { SimpleLoading, SkeletonLoader, LoadingOverlay } from './simple-loading'  
 export { LoadingPage } from './loading-page'
+export { ForgatásokLoading, ForgatásokSkeleton } from './forgatasok-loading'
 
 // Re-export for convenience
 export { LazyWrapper, LazyCard, SimpleLazy, createLazyComponentNamed } from './lazy-loading'
