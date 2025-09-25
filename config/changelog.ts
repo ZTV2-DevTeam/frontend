@@ -3,6 +3,18 @@ import { createChangelogEntry, createChange, sortChangelogEntries } from '@/lib/
 
 const rawChangelogData: ChangelogEntry[] = [
   createChangelogEntry(
+    'v1.2.0-beta',
+    '2025. szeptember 25.',
+    '2025-09-25T22:00:00Z',
+    [
+      createChange(
+        'bugfix',
+        'Stáb - Osztályfőnök csoportosítás javítása',
+        'Az osztályfőnökök a rendszerben tévesen diák címkével jelentek meg. Ezt javítottuk.'
+      ),
+    ]
+  ),
+  createChangelogEntry(
     'v1.1.7-beta',
     '2025. szeptember 25.',
     '2025-09-25T10:00:00Z',

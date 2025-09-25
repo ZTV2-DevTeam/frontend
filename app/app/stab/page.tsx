@@ -273,7 +273,7 @@ function UserCard({ user, onEdit, onDelete, hasAdminPermissions = false }: {
   hasAdminPermissions?: boolean
 }) {
   const getRoleInfo = (user: any) => {
-    // Check admin_type (simplified for basic user data with dark mode support)
+    // Check admin_type (for admin roles with dark mode support)
     if (user.admin_type === 'system_admin') return { 
       name: 'Rendszergazda', 
       icon: '👑', 
@@ -290,8 +290,16 @@ function UserCard({ user, onEdit, onDelete, hasAdminPermissions = false }: {
       color: 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400' 
     };
     
-    // For UserProfileSchema, we don't have detailed special role info
-    // Default to student for anyone without admin privileges
+    // Check is_class_teacher (for class teachers)
+    if (user.is_class_teacher === true) {
+      return { 
+        name: 'Osztályfőnök', 
+        icon: '👩‍🏫', 
+        color: 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400' 
+      };
+    }
+    
+    // Default to student for anyone without admin privileges or class teacher role
     return { 
       name: 'Diák', 
       icon: '🎓', 
@@ -571,7 +579,8 @@ export default function StabPage() {
         user.osztaly_name === selectedClass
       
       const matchesRole = selectedRole === "all" ||
-        user.admin_type === selectedRole
+        user.admin_type === selectedRole ||
+        (selectedRole === "class_teacher" && user.is_class_teacher === true)
       
       return matchesSearch && matchesClass && matchesRole
     })
@@ -637,13 +646,15 @@ export default function StabPage() {
     return a.localeCompare(b, 'hu')
   })
 
-  // Separate into categories for legacy views (simplified for basic user data)
+  // Separate into categories for legacy views (updated to check admin_type and is_class_teacher)
   const students = filteredUsers.filter((user: any) => 
-    user?.admin_type === 'none' || !user?.admin_type ||
-    !['system_admin', 'developer', 'teacher'].includes(user?.admin_type)
+    (user?.admin_type === 'none' || !user?.admin_type || 
+     !['system_admin', 'developer', 'teacher'].includes(user?.admin_type)) &&
+    user?.is_class_teacher !== true
   )
   const staff = filteredUsers.filter((user: any) => 
-    user?.admin_type && ['system_admin', 'developer', 'teacher'].includes(user.admin_type)
+    (user?.admin_type && ['system_admin', 'developer', 'teacher'].includes(user.admin_type)) ||
+    user?.is_class_teacher === true
   )
 
   const availableClasses = [...new Set(normalizedUsers
@@ -651,10 +662,14 @@ export default function StabPage() {
     .map((user: any) => user.osztaly_name)
   )].sort()
 
-  const availableRoles = [...new Set(normalizedUsers
-    .filter((user: any) => user?.admin_type)
-    .map((user: any) => user.admin_type)
-  )].sort()
+  const availableRoles = [...new Set([
+    ...normalizedUsers
+      .filter((user: any) => user?.admin_type)
+      .map((user: any) => user.admin_type),
+    ...normalizedUsers
+      .filter((user: any) => user?.is_class_teacher === true)
+      .map(() => "class_teacher")
+  ])].sort()
 
   const handleRefresh = () => {
     window.location.reload()
@@ -670,15 +685,19 @@ export default function StabPage() {
     console.log('Delete user:', user)
   }
 
-  // Helper function to get role info (simplified for basic user data)
+  // Helper function to get role info (updated to check admin_type and is_class_teacher)
   const getRoleInfo = (user: any) => {
-    // Check admin_type from UserProfileSchema
+    // Check admin_type first (for admin roles)
     if (user.admin_type === 'system_admin') return { name: 'Rendszergazda', icon: '👑', color: 'bg-red-100 text-red-800' };
     if (user.admin_type === 'developer') return { name: 'Fejlesztő', icon: '💻', color: 'bg-gray-100 text-gray-800' };
     if (user.admin_type === 'teacher') return { name: 'Médiatanár', icon: '👨‍🏫', color: 'bg-green-100 text-green-800' };
     
-    // For UserProfileSchema, we don't have detailed special_role info
-    // So we'll default to student for anyone without admin_type
+    // Check is_class_teacher (for class teachers)
+    if (user.is_class_teacher === true) {
+      return { name: 'Osztályfőnök', icon: '👩‍🏫', color: 'bg-purple-100 text-purple-800' };
+    }
+    
+    // For users without admin_type or class teacher role, default to student
     if (user.admin_type === 'none' || !user.admin_type) {
       return { name: 'Diák', icon: '🎓', color: 'bg-blue-100 text-blue-800' };
     }
@@ -886,7 +905,10 @@ export default function StabPage() {
                           {availableRoles.map((role: string) => (
                             <SelectItem key={role} value={role}>
                               {role === 'student' ? 'Diák' :
-                               role === 'teacher' ? 'Tanár' :
+                               role === 'teacher' ? 'Médiatanár' :
+                               role === 'class_teacher' ? 'Osztályfőnök' :
+                               role === 'system_admin' ? 'Rendszergazda' :
+                               role === 'developer' ? 'Fejlesztő' :
                                role === 'staff' ? 'Alkalmazott' :
                                role === 'admin' ? 'Admin' :
                                role === 'dev' ? 'Fejlesztő' : role}
@@ -933,26 +955,28 @@ export default function StabPage() {
                     let roleGroups: any[] = []
                     
                     if (isOsztalyNelkul) {
-                      // For "Osztály nélkül", separate by roles (simplified for basic user data)
+                      // For "Osztály nélkül", separate by roles (updated to check admin_type and is_class_teacher)
                       const adminUsers = classUsers.filter((user: any) => user.admin_type === 'system_admin')
                       const developerUsers = classUsers.filter((user: any) => user.admin_type === 'developer')
                       const teacherUsers = classUsers.filter((user: any) => user.admin_type === 'teacher')
+                      const classTeacherUsers = classUsers.filter((user: any) => user.is_class_teacher === true)
                       
-                      // For basic UserProfileSchema, we don't have detailed special role info
-                      // So we'll just group remaining users as "Egyéb"
-                      const otherRoleUsers = classUsers.filter((user: any) => {
+                      // Group remaining users as "Diákok" (those without admin_type or class teacher role)
+                      const studentUsers = classUsers.filter((user: any) => {
                         const isAdmin = user.admin_type === 'system_admin'
                         const isDeveloper = user.admin_type === 'developer' 
                         const isTeacher = user.admin_type === 'teacher'
+                        const isClassTeacher = user.is_class_teacher === true
                         
-                        return !isAdmin && !isDeveloper && !isTeacher
+                        return !isAdmin && !isDeveloper && !isTeacher && !isClassTeacher
                       })
                       
                       roleGroups = [
                         { users: adminUsers, name: 'Rendszergazdák', icon: '👑', color: 'bg-red-500/10 text-red-600 border-red-500/30 dark:bg-red-400/10 dark:text-red-300 dark:border-red-400/30' },
                         { users: developerUsers, name: 'Fejlesztők', icon: '💻', color: 'bg-gray-500/10 text-gray-600 border-gray-500/30 dark:bg-gray-400/10 dark:text-gray-300 dark:border-gray-400/30' },
-                        { users: teacherUsers, name: 'Tanárok', icon: '👨‍🏫', color: 'bg-green-500/10 text-green-600 border-green-500/30 dark:bg-green-400/10 dark:text-green-300 dark:border-green-400/30' },
-                        { users: otherRoleUsers, name: 'Egyéb', icon: '👤', color: 'bg-blue-500/10 text-blue-600 border-blue-500/30 dark:bg-blue-400/10 dark:text-blue-300 dark:border-blue-400/30' }
+                        { users: teacherUsers, name: 'Médiatanárok', icon: '👨‍🏫', color: 'bg-green-500/10 text-green-600 border-green-500/30 dark:bg-green-400/10 dark:text-green-300 dark:border-green-400/30' },
+                        { users: classTeacherUsers, name: 'Osztályfőnökök', icon: '👩‍🏫', color: 'bg-purple-500/10 text-purple-600 border-purple-500/30 dark:bg-purple-400/10 dark:text-purple-300 dark:border-purple-400/30' },
+                        { users: studentUsers, name: 'Diákok', icon: '🎓', color: 'bg-blue-500/10 text-blue-600 border-blue-500/30 dark:bg-blue-400/10 dark:text-blue-300 dark:border-blue-400/30' }
                       ].filter(group => group.users.length > 0)
                       
                       hasRoleSeparation = roleGroups.length > 1
@@ -1018,9 +1042,17 @@ export default function StabPage() {
                                 <h2 className="text-xl font-semibold">{className}</h2>
                                 <p className="text-muted-foreground text-sm">
                                   {classUsers.length} személy
-                                  {classUsers.some(u => u.admin_type === 'student') && 
-                                   classUsers.some(u => u.admin_type !== 'student') && 
-                                   ` • ${classUsers.filter(u => u.admin_type === 'student').length} diák, ${classUsers.filter(u => u.admin_type !== 'student').length} oktató/admin`}
+                                  {(() => {
+                                    const studentCount = classUsers.filter(u => 
+                                      (!u.admin_type || u.admin_type === 'none') && 
+                                      u.is_class_teacher !== true
+                                    ).length
+                                    const staffCount = classUsers.filter(u => 
+                                      (u.admin_type && u.admin_type !== 'none') || 
+                                      u.is_class_teacher === true
+                                    ).length
+                                    return studentCount > 0 && staffCount > 0 ? ` • ${studentCount} diák, ${staffCount} oktató/admin` : ''
+                                  })()}
                                 </p>
                               </div>
                             </div>
@@ -1174,7 +1206,7 @@ export default function StabPage() {
 
                     const sortedRoles = Object.keys(usersByRole).sort((a, b) => {
                       // Custom sort: Admins first, then staff roles, then students
-                      const roleOrder = ['Rendszergazda', 'Fejlesztő', 'Médiatanár', 'Gyártásvezető', 'Diák']
+                      const roleOrder = ['Rendszergazda', 'Fejlesztő', 'Médiatanár', 'Osztályfőnök', 'Gyártásvezető', 'Diák']
                       const aIndex = roleOrder.indexOf(a)
                       const bIndex = roleOrder.indexOf(b)
                       if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex
