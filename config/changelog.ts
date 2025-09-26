@@ -43,6 +43,11 @@ const rawChangelogData: ChangelogEntry[] = [
         'Színkódolt események a naptárban',
         'Az események mostantól színkódolva jelennek meg a naptárban, hogy könnyebben megkülönböztethetők legyenek a különböző típusú események.'
       ),
+      createChange(
+        'improvement',
+        'Verziószám - link a változások oldalra',
+        'A verziószám mostantól egy kattintható link, amely a változások oldal adott verziójához navigál.'
+      ),
     ]
   ),
   createChangelogEntry(
