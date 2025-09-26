@@ -16,20 +16,15 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
   import Link from "next/link"
 import { 
   Calendar,
-  Plus,
   ChevronLeft,
   ChevronRight,
   Clock,
   MapPin,
   Users,
   Video,
-  Camera,
-  Star,
   Grid3X3,
   List,
   Loader2,
-  AlertCircle,
-  X,
   ArrowLeft,
   Phone,
   Mail
@@ -38,7 +33,7 @@ import { useApiQuery } from "@/lib/api-helpers"
 import { ForgatSchema } from "@/lib/types"
 import { apiClient } from "@/lib/api"
 import { ApiError } from "@/components/api-error"
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, getDay, startOfWeek, endOfWeek } from "date-fns"
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, startOfWeek, endOfWeek } from "date-fns"
 import { hu } from "date-fns/locale"
 
 export default function CalendarPage() {
@@ -70,7 +65,7 @@ export default function CalendarPage() {
       date: session.date || "",
       time: `${session.time_from || "00:00"} - ${session.time_to || "00:00"}`,
       location: session.location?.name || "Nem megadott",
-      type: "filming",
+      type: session.type || "filming",
       status: "scheduled",
       description: session.description || "",
       organizer: session.contact_person?.name || "Nem megadott",
@@ -119,12 +114,24 @@ export default function CalendarPage() {
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
   }, [filmingSessions, today])
 
-  const getEventIcon = (type: string) => {
+  const getEventIcon = () => {
     return <Video className="h-4 w-4" />
   }
 
   const getEventBadgeColor = (type: string) => {
-    return 'bg-blue-100 text-blue-800 border-blue-200'
+    switch (type?.toLowerCase()) {
+      case 'kacsa':
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200'
+      case 'rendezveny':
+      case 'rendezvény':
+        return 'bg-purple-100 text-purple-800 border-purple-200'
+      case 'egyeb':
+      case 'egyéb':
+        return 'bg-gray-100 text-gray-800 border-gray-200'
+      default:
+        // Default to blue for "forgatás" and other types
+        return 'bg-blue-100 text-blue-800 border-blue-200'
+    }
   }
 
   // SessionDetails component for dialog
@@ -254,7 +261,7 @@ export default function CalendarPage() {
     }
   }
 
-  const weekDays = ['H', 'K', 'Sze', 'Cs', 'P', 'Szo', 'V']
+
 
   if (filmingLoading) {
     return (
@@ -413,24 +420,33 @@ export default function CalendarPage() {
                             <div className="sm:hidden">
                               {dayEvents.length > 0 && (
                                 <div className="flex gap-0.5 flex-wrap">
-                                  {dayEvents.slice(0, 4).map((event) => (
-                                    <div
-                                      key={event.id}
-                                      className={`
-                                        w-1.5 h-1.5 rounded-full cursor-pointer
-                                        ${event.type === 'kacsa' 
-                                          ? 'bg-yellow-500' 
-                                          : event.type === 'rendezveny'
-                                          ? 'bg-purple-500'
-                                          : 'bg-blue-500'
-                                        }
-                                      `}
-                                      onClick={(e) => {
-                                        e.stopPropagation()
-                                        setSelectedSession(event.rawData)
-                                      }}
-                                    />
-                                  ))}
+                                  {dayEvents.slice(0, 4).map((event) => {
+                                    const getEventDotColor = (type: string) => {
+                                      switch (type?.toLowerCase()) {
+                                        case 'kacsa':
+                                          return 'bg-yellow-500'
+                                        case 'rendezveny':
+                                        case 'rendezvény':
+                                          return 'bg-purple-500'
+                                        case 'egyeb':
+                                        case 'egyéb':
+                                          return 'bg-gray-500'
+                                        default:
+                                          return 'bg-blue-500'
+                                      }
+                                    }
+                                    
+                                    return (
+                                      <div
+                                        key={event.id}
+                                        className={`w-1.5 h-1.5 rounded-full cursor-pointer ${getEventDotColor(event.type)}`}
+                                        onClick={(e) => {
+                                          e.stopPropagation()
+                                          setSelectedSession(event.rawData)
+                                        }}
+                                      />
+                                    )
+                                  })}
                                   {dayEvents.length > 4 && (
                                     <span className="text-xs text-muted-foreground ml-1">+</span>
                                   )}
@@ -440,37 +456,49 @@ export default function CalendarPage() {
                             
                             {/* Desktop: Show event cards */}
                             <div className="hidden sm:block">
-                              {dayEvents.slice(0, 3).map((event, eventIndex) => (
-                                <div
-                                  key={event.id}
-                                  className={`
-                                    text-xs px-2 py-1 rounded-sm cursor-pointer transition-colors
-                                    ${event.type === 'kacsa' 
-                                      ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-300 dark:hover:bg-yellow-900/70 dark:bg-yellow-900/40 dark:text-yellow-300'
-                                      : event.type === 'rendezveny'
-                                      ? 'bg-purple-100 text-purple-800 hover:bg-purple-300 dark:hover:bg-purple-900/70 dark:bg-purple-900/40 dark:text-purple-300'
-                                      : 'bg-blue-100 text-blue-800 hover:bg-blue-300 dark:hover:bg-blue-900/70 dark:bg-blue-900/40 dark:text-blue-300'
-                                    }
-                                    ${eventIndex >= 2 ? 'opacity-75' : ''}
-                                  `}
-                                  title={`${event.title} - ${event.time}`}
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    setSelectedSession(event.rawData)
-                                  }}
-                                >
-                                  <div className="truncate font-medium">
-                                    {event.title}
+                              {dayEvents.slice(0, 3).map((event, eventIndex) => {
+                                const getEventCardColor = (type: string) => {
+                                  switch (type?.toLowerCase()) {
+                                    case 'kacsa':
+                                      return 'bg-yellow-100 text-yellow-800 hover:bg-yellow-300 dark:hover:bg-yellow-900/70 dark:bg-yellow-900/40 dark:text-yellow-300'
+                                    case 'rendezveny':
+                                    case 'rendezvény':
+                                      return 'bg-purple-100 text-purple-800 hover:bg-purple-300 dark:hover:bg-purple-900/70 dark:bg-purple-900/40 dark:text-purple-300'
+                                    case 'egyeb':
+                                    case 'egyéb':
+                                      return 'bg-gray-100 text-gray-800 hover:bg-gray-300 dark:hover:bg-gray-900/70 dark:bg-gray-900/40 dark:text-gray-300'
+                                    default:
+                                      return 'bg-blue-100 text-blue-800 hover:bg-blue-300 dark:hover:bg-blue-900/70 dark:bg-blue-900/40 dark:text-blue-300'
+                                  }
+                                }
+                                
+                                return (
+                                  <div
+                                    key={event.id}
+                                    className={`
+                                      text-xs px-2 py-1 rounded-sm cursor-pointer transition-colors
+                                      ${getEventCardColor(event.type)}
+                                      ${eventIndex >= 2 ? 'opacity-75' : ''}
+                                    `}
+                                    title={`${event.title} - ${event.time}`}
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      setSelectedSession(event.rawData)
+                                    }}
+                                  >
+                                    <div className="truncate font-medium">
+                                      {event.title}
+                                    </div>
+                                    <div className="truncate text-xs opacity-75">
+                                      {(() => {
+                                        const [from, to] = event.time.split(' - ')
+                                        const formatShort = (t: string) => t ? t.slice(0, 5) : ''
+                                        return `${formatShort(from)} - ${formatShort(to)}`
+                                      })()}
+                                    </div>
                                   </div>
-                                  <div className="truncate text-xs opacity-75">
-                                    {(() => {
-                                      const [from, to] = event.time.split(' - ')
-                                      const formatShort = (t: string) => t ? t.slice(0, 5) : ''
-                                      return `${formatShort(from)} - ${formatShort(to)}`
-                                    })()}
-                                  </div>
-                                </div>
-                              ))}
+                                )
+                              })}
                               {dayEvents.length > 3 && (
                                 <div 
                                   className="text-xs text-muted-foreground cursor-pointer hover:text-foreground"
@@ -514,7 +542,7 @@ export default function CalendarPage() {
                           <div className="flex items-start justify-between mb-2">
                             <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
                               <div className="p-1 sm:p-2 bg-primary/10 rounded flex-shrink-0">
-                                {getEventIcon(event.type)}
+                                {getEventIcon()}
                               </div>
                               <div className="flex-1 min-w-0">
                                 <div className="font-medium text-sm sm:text-base truncate">{event.title}</div>
@@ -525,7 +553,7 @@ export default function CalendarPage() {
                               </div>
                             </div>
                             <div className="flex flex-col gap-1 items-end flex-shrink-0 ml-2">
-                              <Badge className="text-xs bg-blue-100 text-blue-800 border-blue-200">
+                              <Badge className={`text-xs ${getEventBadgeColor(event.type)}`}>
                                 {event.typeDisplay}
                               </Badge>
                               <Badge variant="outline" className="text-xs">
@@ -582,7 +610,7 @@ export default function CalendarPage() {
                           <div className="flex items-start justify-between mb-2">
                             <div className="flex items-center gap-2">
                               <div className="p-1 bg-primary/10 rounded">
-                                {getEventIcon(event.type)}
+                                {getEventIcon()}
                               </div>
                               <div className="font-medium text-sm">{event.title}</div>
                             </div>

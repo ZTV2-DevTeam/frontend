@@ -38,6 +38,11 @@ const rawChangelogData: ChangelogEntry[] = [
         'Beállítások menü elrendezése',
         'Több módosítást hajtottunk végre a Beállítások menü elrendezésén, hogy az felhasználóbarátabb és könnyebben navigálható legyen.'
       ),
+      createChange(
+        'improvement',
+        'Színkódolt események a naptárban',
+        'Az események mostantól színkódolva jelennek meg a naptárban, hogy könnyebben megkülönböztethetők legyenek a különböző típusú események.'
+      ),
     ]
   ),
   createChangelogEntry(
