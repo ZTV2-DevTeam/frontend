@@ -185,15 +185,6 @@ export default function ChangelogPage() {
                   <div className="flex items-start gap-2">
                     <Plus className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
                     <div className="min-w-0">
-                      <p className="font-medium text-sm break-words">Beosztáskezelés</p>
-                      <p className="text-xs text-muted-foreground break-words">
-                        Forgatások beosztásainak kezelése, távollét és ütközés áttekintése
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <Plus className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
-                    <div className="min-w-0">
                       <p className="font-medium text-sm break-words">Rádiózás</p>
                       <p className="text-xs text-muted-foreground break-words">
                         Rádiós Stábok kezelése, rádiós összejátszások követése és kezelése
@@ -223,10 +214,6 @@ export default function ChangelogPage() {
                   <div className="flex items-start gap-2">
                     <Zap className="w-3 h-3 text-purple-600 mt-0.5 flex-shrink-0" />
                     <span className="text-xs break-words">Partner-, eszköz- és felhasználókezelés</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <Zap className="w-3 h-3 text-purple-600 mt-0.5 flex-shrink-0" />
-                    <span className="text-xs break-words">Igazolások megtekintése diákoknak</span>
                   </div>
                   <div className="flex items-start gap-2">
                     <Zap className="w-3 h-3 text-purple-600 mt-0.5 flex-shrink-0" />
