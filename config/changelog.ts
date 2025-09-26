@@ -28,11 +28,11 @@ const rawChangelogData: ChangelogEntry[] = [
         'Távollét Típusok',
         'Mostantól a felhasználók különböző típusú távolléteket rögzíthetnek, mint például Betegség, Személyes okok, vagy Egyéb. Ez segít a távollétek pontosabb nyilvántartásában és automatikus kezelésében.'
       ),
-      // createChange(
-      //   'feature',
-      //   'Telefonszám módosításának lehetősége a beállításokban',
-      //   'A felhasználók mostantól módosíthatják telefonszámukat a Beállítások menüben, egy újonnan hozzáadott szerkesztési funkció segítségével.'
-      // ),
+      createChange(
+        'feature',
+        'Telefonszám módosításának lehetősége a beállításokban',
+        'A felhasználók mostantól módosíthatják telefonszámukat a Beállítások menüben, egy újonnan hozzáadott szerkesztési funkció segítségével.'
+      ),
       createChange(
         'improvement',
         'Beállítások menü elrendezése',

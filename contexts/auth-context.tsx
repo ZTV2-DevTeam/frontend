@@ -11,6 +11,7 @@ interface User {
   first_name: string
   last_name: string
   email: string
+  telefonszam?: string
 }
 
 interface AuthContextType {
@@ -20,6 +21,7 @@ interface AuthContextType {
   login: (credentials: LoginRequest) => Promise<void>
   logout: () => Promise<void>
   refreshToken: () => Promise<void>
+  updateUserProfile: (updates: Partial<User>) => void
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -55,13 +57,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             ])
             
             // Only set user if profile fetch succeeds (token is actually valid)
-            setUser({
+            const baseUser = {
               user_id: profile.user_id,
               username: profile.username,
               first_name: profile.first_name,
               last_name: profile.last_name,
               email: profile.email,
-            })
+            }
+
+            // Try to get full user profile including phone number
+            try {
+              const fullProfile = await apiClient.getUserDetails(profile.user_id)
+              setUser({
+                ...baseUser,
+                telefonszam: fullProfile.telefonszam,
+              })
+            } catch (profileDetailError) {
+              // If getting full profile fails, just use the basic profile
+              console.warn('Failed to get full user profile, using basic profile:', profileDetailError)
+              setUser(baseUser)
+            }
             
             if (DEBUG_CONFIG.LOG_API_CALLS) {
               console.log('✅ Auth initialized successfully:', {
@@ -132,13 +147,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (credentials: LoginRequest) => {
     try {
       const response = await apiClient.login(credentials)
-      setUser({
+      const baseUser = {
         user_id: response.user_id,
         username: response.username,
         first_name: response.first_name,
         last_name: response.last_name,
         email: response.email,
-      })
+      }
+
+      // Try to get full user profile including phone number
+      try {
+        const fullProfile = await apiClient.getUserDetails(response.user_id)
+        setUser({
+          ...baseUser,
+          telefonszam: fullProfile.telefonszam,
+        })
+      } catch (profileDetailError) {
+        // If getting full profile fails, just use the basic profile
+        console.warn('Failed to get full user profile during login, using basic profile:', profileDetailError)
+        setUser(baseUser)
+      }
     } catch (error) {
       console.error('Login failed:', error)
       
@@ -179,13 +207,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await apiClient.refreshToken()
       // Optionally refresh user profile after token refresh
       const profile = await apiClient.getProfile()
-      setUser({
+      const baseUser = {
         user_id: profile.user_id,
         username: profile.username,
         first_name: profile.first_name,
         last_name: profile.last_name,
         email: profile.email,
-      })
+      }
+
+      // Try to get full user profile including phone number
+      try {
+        const fullProfile = await apiClient.getUserDetails(profile.user_id)
+        setUser({
+          ...baseUser,
+          telefonszam: fullProfile.telefonszam,
+        })
+      } catch (profileDetailError) {
+        // If getting full profile fails, just use the basic profile
+        console.warn('Failed to get full user profile during refresh, using basic profile:', profileDetailError)
+        setUser(baseUser)
+      }
     } catch (error) {
       console.error('Token refresh failed:', error)
       setUser(null)
@@ -201,6 +242,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  const updateUserProfile = (updates: Partial<User>) => {
+    if (user) {
+      setUser({ ...user, ...updates })
+    }
+  }
+
   const value: AuthContextType = {
     user,
     isLoading,
@@ -208,6 +255,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     login,
     logout,
     refreshToken,
+    updateUserProfile,
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

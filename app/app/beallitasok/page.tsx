@@ -1,9 +1,11 @@
 "use client"
 
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { AppSidebar } from "@/components/app-sidebar"
 import { SiteHeader } from "@/components/site-header"
 import { ThemeSelector } from "@/components/theme-selector"
+import { PhoneNumberEditModal } from "@/components/phone-number-edit-modal"
 import { useAuth } from "@/contexts/auth-context"
 import { useUserRole } from "@/contexts/user-role-context"
 import {
@@ -11,45 +13,35 @@ import {
   SidebarProvider,
 } from "@/components/ui/sidebar"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { UserAvatar } from "@/components/user-avatar"
-import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Separator } from "@/components/ui/separator"
 import {
   Settings,
-  Shield,
-  AlertTriangle,
-  Database,
-  Globe,
   Save,
   User,
   Mail,
   AtSign,
   Palette,
-  Bell,
   Lock,
   Edit,
   Calendar,
   Clock,
-  ChevronRight,
-  HelpCircle,
   LogOut,
   Sparkles,
   Activity,
+  Phone,
 } from "lucide-react"
 
 export default function SettingsPage() {
-  const { user, logout } = useAuth()
+  const { user, logout, updateUserProfile } = useAuth()
   const { currentRole } = useUserRole()
   const router = useRouter()
+  const [isPhoneModalOpen, setIsPhoneModalOpen] = useState(false)
 
   if (!user) return null
 
   const userDisplayName = `${user.last_name} ${user.first_name}`.trim() || user.username
-  const isAdmin = currentRole === 'admin'
 
   const getUserInitials = () => {
     if (!user) return '?'
@@ -66,22 +58,11 @@ export default function SettingsPage() {
     }
   }
 
-  const settingSections = [
-    {
-      id: 'account',
-      label: 'Fiók beállítások',
-      icon: User,
-      description: 'Profil és személyes adatok kezelése',
-      disabled: true
-    },
-    {
-      id: 'notifications',
-      label: 'Értesítések',
-      icon: Bell,
-      description: 'Email és push értesítési preferenciák',
-      disabled: true
-    },
-  ]
+  const handlePhoneNumberUpdate = (newPhoneNumber?: string) => {
+    updateUserProfile({ telefonszam: newPhoneNumber })
+  }
+
+
 
   return (
     <SidebarProvider>
@@ -206,56 +187,65 @@ export default function SettingsPage() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="lastName" className="text-xs sm:text-sm font-medium flex items-center gap-2">
+                      <Label className="text-xs sm:text-sm font-medium flex items-center gap-2">
                         <User className="w-3 h-3 sm:w-4 sm:h-4" />
                         Vezetéknév
                       </Label>
-                      <Input
-                        id="lastName"
-                        value={user.last_name}
-                        disabled
-                        className="h-10 sm:h-11 disabled:opacity-60 disabled:bg-muted/50"
-                      />
+                      <div className="h-10 sm:h-11 px-3 py-2 bg-muted/30 border border-border/50 rounded-md flex items-center text-sm">
+                        {user.last_name || 'Nincs megadva'}
+                      </div>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="firstName" className="text-xs sm:text-sm font-medium flex items-center gap-2">
+                      <Label className="text-xs sm:text-sm font-medium flex items-center gap-2">
                         <User className="w-3 h-3 sm:w-4 sm:h-4" />
                         Keresztnév
                       </Label>
-                      <Input
-                        id="firstName"
-                        value={user.first_name}
-                        disabled
-                        className="h-10 sm:h-11 disabled:opacity-60 disabled:bg-muted/50"
-                      />
+                      <div className="h-10 sm:h-11 px-3 py-2 bg-muted/30 border border-border/50 rounded-md flex items-center text-sm">
+                        {user.first_name || 'Nincs megadva'}
+                      </div>
                     </div>
                   </div>
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="email" className="text-xs sm:text-sm font-medium flex items-center gap-2">
+                      <Label className="text-xs sm:text-sm font-medium flex items-center gap-2">
                         <Mail className="w-3 h-3 sm:w-4 sm:h-4" />
                         Email cím
                       </Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        value={user.email}
-                        disabled
-                        className="h-10 sm:h-11 disabled:opacity-60 disabled:bg-muted/50 text-xs sm:text-sm"
-                      />
+                      <div className="h-10 sm:h-11 px-3 py-2 bg-muted/30 border border-border/50 rounded-md flex items-center text-xs sm:text-sm">
+                        {user.email || 'Nincs megadva'}
+                      </div>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="username" className="text-xs sm:text-sm font-medium flex items-center gap-2">
+                      <Label className="text-xs sm:text-sm font-medium flex items-center gap-2">
                         <AtSign className="w-3 h-3 sm:w-4 sm:h-4" />
                         Felhasználónév
                       </Label>
-                      <Input
-                        id="username"
-                        value={user.username}
-                        disabled
-                        className="h-10 sm:h-11 disabled:opacity-60 disabled:bg-muted/50"
-                      />
+                      <div className="h-10 sm:h-11 px-3 py-2 bg-muted/30 border border-border/50 rounded-md flex items-center text-sm">
+                        {user.username || 'Nincs megadva'}
+                      </div>
                     </div>
+                  </div>
+                </div>
+
+                {/* Phone Number Field */}
+                <div className="space-y-2 pt-4 border-t">
+                  <Label className="text-xs sm:text-sm font-medium flex items-center gap-2">
+                    <Phone className="w-3 h-3 sm:w-4 sm:h-4" />
+                    Telefonszám
+                  </Label>
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 h-10 sm:h-11 px-3 py-2 bg-muted/30 border border-border/50 rounded-md flex items-center text-sm">
+                      {user.telefonszam || 'Nincs megadva'}
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => setIsPhoneModalOpen(true)}
+                      className="h-10 sm:h-11 px-3"
+                    >
+                      <Edit className="w-4 h-4 mr-1" />
+                      Szerkesztés
+                    </Button>
                   </div>
                 </div>
 
@@ -326,6 +316,14 @@ export default function SettingsPage() {
           </div>
         </div>
       </SidebarInset>
+
+      {/* Phone Number Edit Modal */}
+      <PhoneNumberEditModal
+        isOpen={isPhoneModalOpen}
+        onOpenChange={setIsPhoneModalOpen}
+        currentPhoneNumber={user.telefonszam}
+        onPhoneNumberUpdate={handlePhoneNumberUpdate}
+      />
     </SidebarProvider>
   )
 }
