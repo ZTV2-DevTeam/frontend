@@ -3,7 +3,6 @@
 
 import * as React from "react"
 import {
-  IconChartBar,
   IconDashboard,
   IconHelp,
   IconSettings,
@@ -22,18 +21,16 @@ import {
   Mail,
   TicketCheck,
   TreePalm,
-  Bird,
   Database,
-  FileText,
   UserCheck,
-  ExternalLink,
   Wrench,
   Settings,
   Tag,
   Phone,
   Calendar,
   User,
-  Network
+  Network,
+  Radio
 } from 'lucide-react';
 
 // Icon mapping for database admin items
@@ -61,6 +58,7 @@ const getIconComponent = (iconName: string) => {
 };
 
 import { NavCategory } from "@/components/nav-category"
+import { NavCategoryCollapsible } from "@/components/nav-category-collapsible"
 import { NavMain } from "@/components/nav-main"
 import { NavSecondary } from "@/components/nav-secondary"
 import { TeamSwitcher } from "@/components/team-switcher"
@@ -215,16 +213,26 @@ const data = {
   shootings: {
     admin: [
       {
-        name: "Forgatások",
-        url: "/app/forgatasok",
+        name: "Kiírások",
         icon: BellDot,
+        subItems: [
+          {
+            name: "Forgatások",
+            url: "/app/forgatasok",
+            icon: BellDot,
+          },
+          {
+            name: "KaCsa",
+            url: "/app/kacsa",
+            icon: Radio,
+          },
+          {
+            name: "Események",
+            url: "/app/esemenyek",
+            icon: Calendar,
+          },
+        ],
       },
-      // KaCsa funkciót ideiglenesen kikapcsolta a fejlesztő
-      // {
-      //   name: "KaCsa",
-      //   url: "/app/kacsa",
-      //   icon: Bird,
-      // },
       // Beosztás removed - now managed within forgatások
       {
         name: "Távollét",
@@ -235,16 +243,26 @@ const data = {
     'class-teacher': [],
     student: [
       {
-        name: "Forgatások",
-        url: "/app/forgatasok",
+        name: "Kiírások",
         icon: BellDot,
+        subItems: [
+          {
+            name: "Forgatások",
+            url: "/app/forgatasok",
+            icon: BellDot,
+          },
+          {
+            name: "KaCsa",
+            url: "/app/kacsa",
+            icon: Radio,
+          },
+          {
+            name: "Események",
+            url: "/app/esemenyek",
+            icon: Calendar,
+          },
+        ],
       },
-      // KaCsa funkciót ideiglenesen kikapcsolta a fejlesztő
-      // {
-      //   name: "KaCsa",
-      //   url: "/app/kacsa",
-      //   icon: Bird,
-      // },
       {
         name: "Távollét",
         url: "/app/tavollet",
@@ -361,7 +379,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   }
 
   const getFilteredShootings = () => {
-    return data.shootings[currentRole].filter(item => canAccessPage(item.url))
+    return data.shootings[currentRole].filter(item => {
+      if (item.url) {
+        return canAccessPage(item.url)
+      }
+      // For items with subItems, check if any subitem is accessible
+      if (item.subItems) {
+        return item.subItems.some(subItem => canAccessPage(subItem.url))
+      }
+      return true
+    })
   }
 
   const getFilteredUtils = () => {
@@ -419,7 +446,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent>
         <NavMain items={filteredNavMain} />
         {filteredShootings.length > 0 && (
-          <NavCategory category="Tevékenység" items={filteredShootings} />
+          <NavCategoryCollapsible category="Tevékenység" items={filteredShootings} />
         )}
         {filteredUtils.length > 0 && (
           <NavCategory category="Eszközök" items={filteredUtils} />

@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import { useAuth } from '@/contexts/auth-context'
 import { usePermissions } from '@/contexts/permissions-context'
 import { apiClient, TavolletSchema, TavolletCreateSchema, TavolletUpdateSchema } from '@/lib/api'
@@ -16,6 +16,8 @@ import { DataTable } from '@/components/ui/enhanced-data-table'
 import { AbsenceStats, StatusBadge } from '@/components/absence-stats'
 import { type AbsenceFilters } from '@/components/absence-filters'
 import { BulkActions, SelectionCheckbox } from '@/components/bulk-actions'
+import { AbsenceTypeSelector } from '@/components/absence-type-selector'
+import { AbsenceTypeBadge } from '@/components/absence-type-badge'
 import {
   Select,
   SelectContent,
@@ -44,10 +46,8 @@ import {
   RefreshCw,
   Filter
 } from 'lucide-react'
-import { format, parseISO, isValid } from 'date-fns'
-import { hu } from 'date-fns/locale'
 import { toast } from 'sonner'
-import { validateDateRange, formatDateTimeForDisplay, formatDateTimeForDisplaySplit, getTodayDateTimeISOString, getEndOfDayISOString, formatDateTimeForApi, parseDateTimeFromInput } from '@/lib/absence-utils'
+import { validateDateRange, formatDateTimeForDisplay, formatDateTimeForDisplaySplit, getTodayDateTimeISOString, getEndOfDayISOString, formatDateTimeForApi } from '@/lib/absence-utils'
 
 const columnHelper = createColumnHelper<TavolletSchema>()
 
@@ -92,17 +92,19 @@ export function AbsenceManagement() {
   const [createForm, setCreateForm] = useState<TavolletCreateSchema>({
     start_date: getTodayDateTimeISOString(),
     end_date: getEndOfDayISOString(),
-    reason: ''
+    reason: '',
+    tipus_id: undefined
   })
   
   const [editForm, setEditForm] = useState<TavolletUpdateSchema>({
     start_date: '',
     end_date: '',
-    reason: ''
+    reason: '',
+    tipus_id: undefined
   })
 
   // Fetch absences
-  const fetchAbsences = async () => {
+  const fetchAbsences = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
@@ -112,7 +114,17 @@ export function AbsenceManagement() {
         ? await apiClient.getAbsences()
         : await apiClient.getAbsences(undefined, undefined, undefined, true)
       
-      setAbsences(data)
+      // For students: only filter out denied absences
+      // Students should see their own submitted absences (pending, approved, or processed)
+      if (!isAdmin && currentRole === 'student') {
+        const filteredData = data.filter(absence => {
+          // Don't show denied absences to students
+          return !absence.denied
+        })
+        setAbsences(filteredData)
+      } else {
+        setAbsences(data)
+      }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Hiba történt a távollét adatok betöltésekor'
       setError(message)
@@ -120,11 +132,11 @@ export function AbsenceManagement() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [isAdmin, currentRole])
 
   useEffect(() => {
     fetchAbsences()
-  }, [isAdmin])
+  }, [fetchAbsences])
 
   // Apply filters whenever absences or filters change
   useEffect(() => {
@@ -229,7 +241,7 @@ export function AbsenceManagement() {
       toast.success('Távollét sikeresen módosítva')
       setShowEditDialog(false)
       setSelectedAbsence(null)
-      setEditForm({ start_date: '', end_date: '', reason: '' })
+      setEditForm({ start_date: '', end_date: '', reason: '', tipus_id: undefined })
       fetchAbsences()
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Hiba történt a távollét módosításakor'
@@ -350,7 +362,7 @@ export function AbsenceManagement() {
       ...(isAdmin ? [
         columnHelper.display({
           id: 'select',
-          header: ({ table }) => (
+          header: () => (
             <SelectionCheckbox
               checked={selectedIds.length === filteredAbsences.length && filteredAbsences.length > 0}
               onCheckedChange={(checked) => {
@@ -456,13 +468,50 @@ export function AbsenceManagement() {
         size: 140,
       }),
       
+      columnHelper.accessor('tipus', {
+        header: 'Típus',
+        cell: ({ getValue }) => {
+          const tipus = getValue()
+          return (
+            <div>
+              <AbsenceTypeBadge 
+                tipus={tipus} 
+                size="sm" 
+                showTooltip={isAdmin || currentRole !== 'student'} 
+              />
+            </div>
+          )
+        },
+        size: 110,
+      }),
+      
       columnHelper.accessor('status', {
         header: 'Státusz',
         cell: ({ row }) => {
-          const { status, denied, approved } = row.original
+          const absence = row.original
+          
+          // For students, use privacy-aware status display
+          if (!isAdmin && currentRole === 'student') {
+            const isProcessed = absence.status === 'igazolt' || absence.status === 'igazolatlan'
+            return (
+              <div>
+                <Badge 
+                  variant={isProcessed ? "default" : "secondary"}
+                  className={isProcessed 
+                    ? "bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30 dark:hover:bg-emerald-950/50 dark:text-emerald-400 dark:border-emerald-800 transition-colors duration-200 font-medium"
+                    : "bg-amber-50 hover:bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-950/30 dark:hover:bg-amber-950/50 dark:text-amber-400 dark:border-amber-800 transition-colors duration-200 font-medium"
+                  }
+                >
+                  {isProcessed ? '✓ Feldolgozott' : '⏳ Feldolgozás alatt'}
+                </Badge>
+              </div>
+            )
+          }
+          
+          // For admins and teachers, show full status with approval info
           return (
             <div>
-              <StatusBadge status={status} denied={denied} approved={approved} />
+              <StatusBadge status={absence.status} denied={absence.denied} approved={absence.approved} />
             </div>
           )
         },
@@ -502,6 +551,7 @@ export function AbsenceManagement() {
                       start_date: absence.start_date,
                       end_date: absence.end_date,
                       reason: absence.reason || '',
+                      tipus_id: absence.tipus?.id || undefined,
                     })
                     setShowEditDialog(true)
                   }}
@@ -575,7 +625,7 @@ export function AbsenceManagement() {
     ]
     
     return baseColumns
-  }, [isAdmin, user?.user_id, deleteLoading, selectedIds, filteredAbsences])
+  }, [isAdmin, user?.user_id, deleteLoading, selectedIds, filteredAbsences, currentRole])
 
   const table = useReactTable({
     data: filteredAbsences,
@@ -765,41 +815,72 @@ export function AbsenceManagement() {
             ) : filteredAbsences.length > 0 ? (
               <div className="space-y-3 p-4">
                 {filteredAbsences.map((absence) => (
-                  <div key={absence.id} className="border border-border rounded-xl p-4 bg-card shadow-sm hover:shadow-md transition-shadow">
+                  <div key={absence.id} className="border border-border/50 rounded-xl p-4 bg-card/50 backdrop-blur-sm shadow-sm hover:shadow-md hover:border-border transition-all duration-200">
                     <div className="flex items-center justify-between gap-3">
                       <div className="flex-1 min-w-0 space-y-2">
                         {isAdmin && (
-                          <div className="text-sm font-semibold mb-2 truncate text-foreground">
+                          <div className="text-sm font-semibold mb-2 truncate text-foreground flex items-center gap-2">
+                            <div className="w-1.5 h-1.5 rounded-full bg-primary/60"></div>
                             {absence.user.full_name || `${absence.user.last_name} ${absence.user.first_name}`}
                           </div>
                         )}
-                        <div className="grid grid-cols-2 gap-2 mb-2 text-xs">
-                          <div>
-                            <span className="text-muted-foreground">Kezdés:</span>
-                            <div className="font-semibold break-words">
+                        <div className="grid grid-cols-2 gap-3 mb-3">
+                          <div className="space-y-1">
+                            <span className="text-xs text-muted-foreground font-medium">Kezdés</span>
+                            <div className="text-sm font-semibold text-foreground break-words bg-muted/30 px-2 py-1 rounded-md border border-border/30">
                               {formatDateTimeForDisplay(absence.start_date)}
                             </div>
                           </div>
-                          <div>
-                            <span className="text-muted-foreground">Befejezés:</span>
-                            <div className="font-semibold break-words">
+                          <div className="space-y-1">
+                            <span className="text-xs text-muted-foreground font-medium">Befejezés</span>
+                            <div className="text-sm font-semibold text-foreground break-words bg-muted/30 px-2 py-1 rounded-md border border-border/30">
                               {formatDateTimeForDisplay(absence.end_date)}
                             </div>
                           </div>
                         </div>
-                        <div className="flex items-center justify-start mb-2">
-                          <Badge variant="outline" className="text-xs px-2 py-1 font-medium">
-                            {absence.duration_days} nap
+                        <div className="flex items-center justify-start mb-3">
+                          <Badge variant="outline" className="text-xs px-2.5 py-1 font-medium bg-slate-50 dark:bg-slate-950/30 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700">
+                            📅 {absence.duration_days} nap
                           </Badge>
                         </div>
                         {absence.reason && (
-                          <div className="text-xs text-muted-foreground truncate mb-2 bg-muted/50 p-2 rounded-md" title={absence.reason}>
-                            {absence.reason}
+                          <div className="space-y-1 mb-3">
+                            <span className="text-xs text-muted-foreground font-medium">Indoklás</span>
+                            <div className="text-xs text-foreground bg-muted/50 dark:bg-muted/30 p-2 rounded-md border border-border/30 leading-relaxed" title={absence.reason}>
+                              {absence.reason}
+                            </div>
                           </div>
                         )}
-                        <StatusBadge status={absence.status} denied={absence.denied} approved={absence.approved} />
+                        
+                        <div className="flex items-center gap-2 mb-3">
+                          <AbsenceTypeBadge 
+                            tipus={absence.tipus} 
+                            size="sm" 
+                            showTooltip={isAdmin || currentRole !== 'student'} 
+                          />
+                        </div>
+                        
+                        {/* Privacy-aware status display for students */}
+                        {!isAdmin && currentRole === 'student' ? (
+                          (() => {
+                            const isProcessed = absence.status === 'igazolt' || absence.status === 'igazolatlan'
+                            return (
+                              <Badge 
+                                variant={isProcessed ? "default" : "secondary"}
+                                className={isProcessed 
+                                  ? "bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30 dark:hover:bg-emerald-950/50 dark:text-emerald-400 dark:border-emerald-800 transition-colors duration-200 font-medium"
+                                  : "bg-amber-50 hover:bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-950/30 dark:hover:bg-amber-950/50 dark:text-amber-400 dark:border-amber-800 transition-colors duration-200 font-medium"
+                                }
+                              >
+                                {isProcessed ? '✓ Feldolgozott' : '⏳ Feldolgozás alatt'}
+                              </Badge>
+                            )
+                          })()
+                        ) : (
+                          <StatusBadge status={absence.status} denied={absence.denied} approved={absence.approved} />
+                        )}
                       </div>
-                      <div className="flex items-center gap-2 flex-shrink-0">
+                      <div className="flex items-center gap-1 flex-shrink-0">
                         <Button
                           variant="ghost"
                           size="sm"
@@ -807,7 +888,7 @@ export function AbsenceManagement() {
                             setSelectedAbsence(absence)
                             setShowViewDialog(true)
                           }}
-                          className="h-8 w-8 p-0 hover:bg-blue-50 hover:text-blue-600"
+                          className="h-8 w-8 p-0 hover:bg-blue-50 dark:hover:bg-blue-950/30 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
@@ -821,10 +902,11 @@ export function AbsenceManagement() {
                                 start_date: absence.start_date,
                                 end_date: absence.end_date,
                                 reason: absence.reason || '',
+                                tipus_id: absence.tipus?.id || undefined,
                               })
                               setShowEditDialog(true)
                             }}
-                            className="h-8 w-8 p-0 hover:bg-orange-50 hover:text-orange-600"
+                            className="h-8 w-8 p-0 hover:bg-orange-50 dark:hover:bg-orange-950/30 hover:text-orange-600 dark:hover:text-orange-400 transition-colors"
                           >
                             <Edit className="h-4 w-4" />
                           </Button>
@@ -835,14 +917,19 @@ export function AbsenceManagement() {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-12 text-muted-foreground">
-                <div className="space-y-3">
-                  <div className="mx-auto w-16 h-16 bg-muted rounded-full flex items-center justify-center">
-                    <TreePalm className="h-8 w-8" />
+              <div className="text-center py-16 px-4">
+                <div className="space-y-4">
+                  <div className="mx-auto w-20 h-20 bg-gradient-to-br from-primary/10 to-primary/5 rounded-full flex items-center justify-center border border-primary/10">
+                    <TreePalm className="h-10 w-10 text-primary/60" />
                   </div>
-                  <div>
-                    <p className="text-lg font-medium">Nincsenek távollét adatok</p>
-                    <p className="text-sm">Még nem adott fel távollétet</p>
+                  <div className="space-y-2">
+                    <h3 className="text-lg font-semibold text-foreground">Nincsenek távollét adatok</h3>
+                    <p className="text-sm text-muted-foreground max-w-sm mx-auto leading-relaxed">
+                      {isAdmin 
+                        ? 'Még nem található távollét benyújtás a rendszerben.'
+                        : 'Még nem adott fel távollétet. Új távollét létrehozásához használja a fenti gombot.'
+                      }
+                    </p>
                   </div>
                 </div>
               </div>
@@ -882,7 +969,8 @@ export function AbsenceManagement() {
           setCreateForm({ 
             start_date: getTodayDateTimeISOString(), 
             end_date: getEndOfDayISOString(), 
-            reason: '' 
+            reason: '',
+            tipus_id: undefined
           })
         }}
         isLoading={createLoading}
@@ -924,6 +1012,15 @@ export function AbsenceManagement() {
           </div>
           
           <div>
+            <AbsenceTypeSelector
+              value={createForm.tipus_id || null}
+              onValueChange={(typeId) => setCreateForm({ ...createForm, tipus_id: typeId || undefined })}
+              label="Távolléti típus"
+              placeholder="Válassz típust (opcionális)"
+            />
+          </div>
+          
+          <div>
             <Label htmlFor="reason">Indoklás</Label>
             <Textarea
               id="reason"
@@ -947,7 +1044,7 @@ export function AbsenceManagement() {
         onCancel={() => {
           setShowEditDialog(false)
           setSelectedAbsence(null)
-          setEditForm({ start_date: '', end_date: '', reason: '' })
+          setEditForm({ start_date: '', end_date: '', reason: '', tipus_id: undefined })
         }}
         isLoading={updateLoading}
         submitLabel="Mentés"
@@ -984,6 +1081,15 @@ export function AbsenceManagement() {
               placeholder="Válassz záró időpontot"
               timeStep={15}
               className="mt-1"
+            />
+          </div>
+          
+          <div>
+            <AbsenceTypeSelector
+              value={editForm.tipus_id || null}
+              onValueChange={(typeId) => setEditForm({ ...editForm, tipus_id: typeId || undefined })}
+              label="Távolléti típus"
+              placeholder="Válassz típust (opcionális)"
             />
           </div>
           
@@ -1052,6 +1158,16 @@ export function AbsenceManagement() {
             <div>
               <Label>Időtartam</Label>
               <div className="text-sm">{selectedAbsence.duration_days} nap</div>
+            </div>
+            
+            <div>
+              <Label>Távolléti típus</Label>
+              <div className="mt-1">
+                <AbsenceTypeBadge 
+                  tipus={selectedAbsence.tipus} 
+                  showTooltip={isAdmin || currentRole !== 'student'} 
+                />
+              </div>
             </div>
             
             <div>

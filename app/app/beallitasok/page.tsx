@@ -143,9 +143,7 @@ export default function SettingsPage() {
                           {currentRole === 'admin' ? 'Rendszer adminisztrátor' : 
                            currentRole === 'class-teacher' ? 'Osztályfőnök' : 'Diák'}
                         </div>
-                        <div className="px-2 sm:px-3 py-1 bg-muted rounded-full text-xs sm:text-sm">
-                          ID: #{user.user_id}
-                        </div>
+
                       </div>
                     </div>
                   </div>
@@ -282,13 +280,7 @@ export default function SettingsPage() {
                         <div className="font-mono text-xs">2024</div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 p-3 bg-muted/30 rounded-lg sm:col-span-2 lg:col-span-1">
-                      <User className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                      <div className="min-w-0 flex-1">
-                        <span className="text-muted-foreground block">Felhasználó ID:</span>
-                        <div className="font-mono text-xs">#{user.user_id}</div>
-                      </div>
-                    </div>
+
                   </div>
                 </div>
 
@@ -307,61 +299,6 @@ export default function SettingsPage() {
                     <span className="hidden sm:inline">Jelszó </span>változtatása
                   </Button>
                 </div>
-              </CardContent>
-            </Card>
-
-            {/* Additional Settings */}
-            <Card className="border-2 shadow-lg">
-              <CardHeader className="p-4 sm:p-6">
-                <div className="flex items-center gap-3 sm:gap-4">
-                  <div className="p-2 sm:p-3 bg-emerald-500/10 rounded-xl flex-shrink-0">
-                    <Settings className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600 dark:text-emerald-400" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <CardTitle className="text-lg sm:text-xl break-words">További beállítások</CardTitle>
-                    <CardDescription className="text-sm sm:text-base">
-                      Hamarosan elérhető funkciók és speciális opciók
-                    </CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="p-4 sm:p-6 space-y-3">
-                {settingSections.map((section) => {
-                  const IconComponent = section.icon
-                  return (
-                    <Button
-                      key={section.id}
-                      variant="ghost"
-                      className="w-full justify-between h-auto p-3 sm:p-4 text-left border border-transparent hover:border-border/50"
-                      disabled={section.disabled}
-                    >
-                      <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
-                        <div className={`p-2 sm:p-3 rounded-xl flex-shrink-0 ${
-                          section.disabled 
-                            ? 'bg-muted/50 text-muted-foreground/50' 
-                            : 'bg-primary/10 text-primary'
-                        }`}>
-                          <IconComponent className="w-4 h-4 sm:w-5 sm:h-5" />
-                        </div>
-                        <div className="space-y-1 min-w-0 flex-1">
-                          <div className={`font-semibold text-sm sm:text-base break-words ${
-                            section.disabled ? 'text-muted-foreground/70' : ''
-                          }`}>
-                            {section.label}
-                          </div>
-                          <div className={`text-xs sm:text-sm break-words ${
-                            section.disabled ? 'text-muted-foreground/50' : 'text-muted-foreground'
-                          }`}>
-                            {section.description}
-                          </div>
-                        </div>
-                      </div>
-                      <ChevronRight className={`w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0 ${
-                        section.disabled ? 'text-muted-foreground/30' : 'text-muted-foreground'
-                      }`} />
-                    </Button>
-                  )
-                })}
               </CardContent>
             </Card>
 

@@ -924,12 +924,7 @@ function NevjegyWidget() {
           </div>
         </div>
 
-        <div className="pt-2 border-t border-border/30">
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">Felhasználó azonosító:</span>
-            <span className="font-mono text-xs bg-muted px-2 py-1 rounded">{user.user_id}</span>
-          </div>
-        </div>
+
       </CardContent>
     </Card>
   )

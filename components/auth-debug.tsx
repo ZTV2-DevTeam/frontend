@@ -70,7 +70,7 @@ export function AuthDebug() {
           <p><strong>Auth Context:</strong></p>
           <p>Loading: {String(isLoading)}</p>
           <p>Authenticated: {String(isAuthenticated)}</p>
-          <p>User: {user ? `${user.username} (${user.user_id})` : 'null'}</p>
+          <p>User: {user ? `${user.username}` : 'null'}</p>
         </div>
       </CardContent>
     </Card>

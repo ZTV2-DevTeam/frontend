@@ -254,11 +254,6 @@ export function SettingsMenu({ onClose }: SettingsMenuProps) {
               <span className="text-muted-foreground">Regisztráció:</span>
               <span className="font-mono">2024</span>
             </div>
-            <div className="flex items-center gap-2">
-              <User className="w-4 h-4 text-muted-foreground" />
-              <span className="text-muted-foreground">Felhasználó ID:</span>
-              <span className="font-mono">#{user?.user_id}</span>
-            </div>
           </div>
         </CardContent>
       </Card>

@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Combobox } from "@/components/ui/combobox"
 import { Badge } from "@/components/ui/badge"
-import { Camera, MapPin, Clock, FileText, ArrowLeft, Save, Star, Music, LinkIcon, AlertTriangle, RefreshCw } from "lucide-react"
+import { Camera, MapPin, Clock, FileText, ArrowLeft, Save, Star, CalendarDays, LinkIcon, AlertTriangle, RefreshCw } from "lucide-react"
 import { useUserRole } from "@/contexts/user-role-context"
 import { useAuth } from "@/contexts/auth-context"
 import { usePermissions } from "@/contexts/permissions-context"
@@ -641,7 +641,7 @@ export default function NewShooting() {
                     {selectedType && (
                       <div className="flex items-center gap-2 mt-2">
                         {selectedType.value === "kacsa" && <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />}
-                        {selectedType.value === "rendezveny" && <Music className="h-4 w-4 text-purple-400" />}
+                        {selectedType.value === "rendezveny" && <CalendarDays className="h-4 w-4 text-purple-400" />}
                         {selectedType.value === "rendes" && <Camera className="h-4 w-4 text-blue-400" />}
                         <Badge variant="outline" className="text-xs">
                           {(selectedType as any).description || selectedType.label}

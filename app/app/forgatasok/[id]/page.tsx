@@ -32,7 +32,7 @@ import {
   User,
   Star,
   ArrowLeft,
-  Music,
+  CalendarDays,
   FileText,
   AlertCircle,
   Loader2,
@@ -199,7 +199,7 @@ export default function FilmingSessionDetail({ params }: PageProps) {
       case "kacsa":
         return Star
       case "rendezveny":
-        return Music
+        return CalendarDays
       default:
         return Camera
     }
@@ -404,7 +404,7 @@ export default function FilmingSessionDetail({ params }: PageProps) {
                     {session.type === "rendezveny" && (
                       <div className="p-3 rounded-lg bg-purple-500/10 border border-purple-500/30">
                         <div className="flex items-center gap-2">
-                          <Music className="h-4 w-4 text-purple-400" />
+                          <CalendarDays className="h-4 w-4 text-purple-400" />
                           <span className="font-medium text-purple-400">Esemény forgatás</span>
                         </div>
                       </div>

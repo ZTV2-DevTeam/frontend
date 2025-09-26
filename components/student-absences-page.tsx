@@ -10,9 +10,10 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { 
-  getAbsenceStatusColor, 
-  getAbsenceStatusText, 
+  getStudentAbsenceStatusColor, 
+  getStudentAbsenceStatusText, 
   getAffectedClassesText,
+  getMyAbsences,
   type Absence
 } from '@/lib/config/absences'
 import { format, parseISO } from 'date-fns'
@@ -31,88 +32,9 @@ export function StudentAbsencesPage() {
     setError(null)
     
     try {
-      // For students, this page has been converted to an informational page
-      // about automatic absence handling - no longer showing demo data
-      
-      // Demo absence data for students
-      const demoAbsences: Absence[] = [
-        {
-          id: 1,
-          diak: {
-            id: user?.user_id || 1,
-            username: user?.username || 'student',
-            first_name: user?.first_name || 'Demo',
-            last_name: user?.last_name || 'Student',
-            full_name: `${user?.last_name || 'Student'} ${user?.first_name || 'Demo'}`
-          },
-          forgatas: {
-            id: 1,
-            name: 'Karácsonyi műsor felvétel',
-            date: '2024-12-20',
-            time_from: '08:00',
-            time_to: '11:30',
-            type: 'rendes'
-          },
-          date: '2024-12-20',
-          time_from: '08:00',
-          time_to: '11:30',
-          excused: true,
-          unexcused: false,
-          status: 'igazolt',
-          affected_classes: [1, 2, 3],
-          affected_classes_with_student_time: [1, 2, 3],
-          student_extra_time_before: 0,
-          student_extra_time_after: 0,
-          student_edited: false,
-          effective_time_from: '08:00',
-          effective_time_to: '11:30',
-          osztaly: {
-            id: 1,
-            name: 'NYF',
-            szekcio: 'NYF',
-            start_year: 2024
-          }
-        },
-        {
-          id: 2,
-          diak: {
-            id: user?.user_id || 1,
-            username: user?.username || 'student',
-            first_name: user?.first_name || 'Demo',
-            last_name: user?.last_name || 'Student',
-            full_name: `${user?.last_name || 'Student'} ${user?.first_name || 'Demo'}`
-          },
-          forgatas: {
-            id: 2,
-            name: 'Interjú készítése',
-            date: '2024-12-18',
-            time_from: '13:00',
-            time_to: '15:30',
-            type: 'rendes'
-          },
-          date: '2024-12-18',
-          time_from: '13:00',
-          time_to: '15:30',
-          excused: false,
-          unexcused: false,
-          status: 'nincs_dontes',
-          affected_classes: [6, 7],
-          affected_classes_with_student_time: [6, 7],
-          student_extra_time_before: 0,
-          student_extra_time_after: 0,
-          student_edited: false,
-          effective_time_from: '13:00',
-          effective_time_to: '15:30',
-          osztaly: {
-            id: 1,
-            name: 'NYF',
-            szekcio: 'NYF',
-            start_year: 2024
-          }
-        }
-      ]
-      
-      setAbsences(demoAbsences)
+      // Fetch actual student absences using the dedicated API endpoint
+      const studentAbsences = await getMyAbsences()
+      setAbsences(studentAbsences)
 
     } catch (err) {
       console.error('Error loading absence data:', err)
@@ -120,7 +42,7 @@ export function StudentAbsencesPage() {
     } finally {
       setLoading(false)
     }
-  }, [user])
+  }, [])
 
   // Load data on component mount
   useEffect(() => {
@@ -173,13 +95,7 @@ export function StudentAbsencesPage() {
   return (
     <StandardizedLayout>
       <div className="p-6 space-y-6">
-        {/* Info about demo data */}
-        <Alert className="mb-6">
-          <AlertDescription>
-            <strong>Figyelem:</strong> Ez egy demo nézet. A diák specifikus API végpontok még fejlesztés alatt állnak.
-            Itt láthatók a mintaadatok, hogy tesztelhessük a felület működését.
-          </AlertDescription>
-        </Alert>
+
 
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -314,12 +230,10 @@ export function StudentAbsencesPage() {
                         </div>
 
                         <div className="flex flex-col items-end gap-2">
-                          <Badge className={getAbsenceStatusColor(absence)}>
-                            {getAbsenceStatusText(absence)}
+                          <Badge className={getStudentAbsenceStatusColor(absence)}>
+                            {getStudentAbsenceStatusText(absence)}
                           </Badge>
-                          <div className="text-xs text-muted-foreground">
-                            #{absence.id}
-                          </div>
+                          {/* Hide absence ID from students for privacy */}
                         </div>
                       </div>
                     ))}

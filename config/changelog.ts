@@ -1,7 +1,45 @@
 import { ChangelogEntry } from '@/types/changelog';
 import { createChangelogEntry, createChange, sortChangelogEntries } from '@/lib/changelog-utils';
+import { create } from 'domain';
 
 const rawChangelogData: ChangelogEntry[] = [
+  createChangelogEntry(
+    'v1.2.1-beta',
+    '2025. szeptember 26.',
+    '2025-09-26T12:00:00Z',
+    [
+      createChange(
+        'improvement',
+        'Forgatások - Összejátszások - Események szeparálása',
+        'Különválasztottuk a forgatások, az összejátszások és az események kezelését, mostantól különálló menüpontokban érhetők el a felhasználók számára.'
+      ),
+      createChange(
+        'improvement',
+        'Naptár - Egyértelműbb szövegezés',
+        'A naptárban található szövegezéseket egyértelműbbé és érthetőbbé tettük a felhasználók számára.'
+      ),
+      createChange(
+        'improvement',
+        'Események - Új ikon',
+        'Az események mostantól egy új, egyedi ikonnal jelennek meg a naptárban, megkülönböztetve őket a forgatásoktól és összejátszásoktól.'
+      ),
+      createChange(
+        'feature',
+        'Távollét Típusok',
+        'Mostantól a felhasználók különböző típusú távolléteket rögzíthetnek, mint például Betegség, Személyes okok, vagy Egyéb. Ez segít a távollétek pontosabb nyilvántartásában és automatikus kezelésében.'
+      ),
+      // createChange(
+      //   'feature',
+      //   'Telefonszám módosításának lehetősége a beállításokban',
+      //   'A felhasználók mostantól módosíthatják telefonszámukat a Beállítások menüben, egy újonnan hozzáadott szerkesztési funkció segítségével.'
+      // ),
+      createChange(
+        'improvement',
+        'Beállítások menü elrendezése',
+        'Több módosítást hajtottunk végre a Beállítások menü elrendezésén, hogy az felhasználóbarátabb és könnyebben navigálható legyen.'
+      ),
+    ]
+  ),
   createChangelogEntry(
     'v1.2.0-beta',
     '2025. szeptember 25.',
@@ -11,6 +49,11 @@ const rawChangelogData: ChangelogEntry[] = [
         'bugfix',
         'Stáb - Osztályfőnök csoportosítás javítása',
         'Az osztályfőnökök a rendszerben tévesen diák címkével jelentek meg. Ezt javítottuk.'
+      ),
+      createChange(
+        'bugfix',
+        'Beosztás szerkesztési jogosultságok javítása',
+        'Egy jogosultsági hiba miatt, csupán a rendszergazdák tudták szerkeszteni a beosztásokat. Ezt a hibát javítottuk, mostantól a médiatanárok is szerkeszthetik a beosztásokat.'
       ),
     ]
   ),

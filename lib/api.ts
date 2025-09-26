@@ -383,11 +383,6 @@ export interface ForgatUpdateSchema {
   equipment_ids?: number[]
 }
 
-export interface ForgatoTipusSchema {
-  value: string
-  label: string
-}
-
 // === COMMUNICATIONS ===
 export interface AnnouncementSchema {
   id: number
@@ -669,6 +664,34 @@ export interface LegacyBeosztasCreateSchema {
   role: string
 }
 
+// === ABSENCE TYPES ===
+export interface TavolletTipusBasicSchema {
+  id: number
+  name: string
+  ignored_counts_as: string
+}
+
+export interface TavolletTipusSchema {
+  id: number
+  name: string
+  explanation?: string
+  ignored_counts_as: string
+  ignored_counts_as_display: string
+  usage_count: number
+}
+
+export interface TavolletTipusCreateSchema {
+  name: string
+  explanation?: string
+  ignored_counts_as: string  // 'approved' or 'denied'
+}
+
+export interface TavolletTipusUpdateSchema {
+  name?: string
+  explanation?: string
+  ignored_counts_as?: string
+}
+
 // === ABSENCE ===
 export interface TavolletSchema {
   id: number
@@ -680,6 +703,7 @@ export interface TavolletSchema {
   approved: boolean
   duration_days: number
   status: string
+  tipus?: TavolletTipusBasicSchema
 }
 
 export interface TavolletCreateSchema {
@@ -687,6 +711,7 @@ export interface TavolletCreateSchema {
   start_date: string
   end_date: string
   reason?: string
+  tipus_id?: number
 }
 
 export interface TavolletUpdateSchema {
@@ -695,6 +720,7 @@ export interface TavolletUpdateSchema {
   reason?: string
   denied?: boolean
   approved?: boolean
+  tipus_id?: number
 }
 
 // === CONFIGURATION ===
@@ -1753,6 +1779,29 @@ class ApiClient {
     ])
   }
 
+  async getUpcomingFilmingSessionsWithRoles(type?: string): Promise<ForgatSchema[]> {
+    const params = new URLSearchParams()
+    if (type) params.append('type', type)
+    const query = params.toString() ? `?${params.toString()}` : ''
+    return this.request<ForgatSchema[]>(`/api/production/filming-sessions/upcoming-with-roles${query}`)
+  }
+
+  async getUnassignedFilmingSessions(type?: string): Promise<ForgatSchema[]> {
+    const params = new URLSearchParams()
+    if (type) params.append('type', type)
+    const query = params.toString() ? `?${params.toString()}` : ''
+    return this.request<ForgatSchema[]>(`/api/production/filming-sessions/unassigned${query}`)
+  }
+
+  async getFilmingSessionsWithRoles(startDate?: string, endDate?: string, type?: string): Promise<ForgatSchema[]> {
+    const params = new URLSearchParams()
+    if (startDate) params.append('start_date', startDate)
+    if (endDate) params.append('end_date', endDate)
+    if (type) params.append('type', type)
+    const query = params.toString() ? `?${params.toString()}` : ''
+    return this.request<ForgatSchema[]>(`/api/production/filming-sessions/sessions-with-roles${query}`)
+  }
+
   // === STUDENTS/REPORTERS ===
   async getStudents(params?: {
     section?: string
@@ -2152,6 +2201,35 @@ class ApiClient {
       end_date: endDate,
     })
     return this.request<Record<string, any>>(`/api/absences/user/${userId}/conflicts?${params.toString()}`)
+  }
+
+  // === ABSENCE TYPES ===
+  async getAbsenceTypes(): Promise<TavolletTipusSchema[]> {
+    return this.request<TavolletTipusSchema[]>('/api/absence-types')
+  }
+
+  async getAbsenceTypeDetails(typeId: number): Promise<TavolletTipusSchema> {
+    return this.request<TavolletTipusSchema>(`/api/absence-types/${typeId}`)
+  }
+
+  async createAbsenceType(data: TavolletTipusCreateSchema): Promise<TavolletTipusSchema> {
+    return this.request<TavolletTipusSchema>('/api/absence-types', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async updateAbsenceType(typeId: number, data: TavolletTipusUpdateSchema): Promise<TavolletTipusSchema> {
+    return this.request<TavolletTipusSchema>(`/api/absence-types/${typeId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async deleteAbsenceType(typeId: number): Promise<Record<string, any>> {
+    return this.request<Record<string, any>>(`/api/absence-types/${typeId}`, {
+      method: 'DELETE',
+    })
   }
 
   // === CONFIGURATION ===

@@ -141,7 +141,7 @@ export function AuthDebugHelper() {
               )}
               {tokenInfo.profileData && (
                 <div className="text-green-600 dark:text-green-400">
-                  Profile: {tokenInfo.profileData.username} ({tokenInfo.profileData.user_id})
+                  Profile: {tokenInfo.profileData.username}
                 </div>
               )}
             </div>

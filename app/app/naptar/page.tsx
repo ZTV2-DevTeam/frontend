@@ -25,7 +25,6 @@ import {
   Video,
   Camera,
   Star,
-  Music,
   Grid3X3,
   List,
   Loader2,
@@ -305,7 +304,7 @@ export default function CalendarPage() {
                 <Calendar className="h-6 w-6 text-primary-foreground" />
               </div>
               <div className="space-y-1">
-                <h1 className="text-3xl font-bold text-black dark:text-white tracking-tight">Forgatási Naptár</h1>
+                <h1 className="text-3xl font-bold text-black dark:text-white tracking-tight">Naptár</h1>
                 <p className="text-base text-muted-foreground">
                   Forgások és események kezelése • {filmingSessions.length} összesen
                 </p>
@@ -494,16 +493,16 @@ export default function CalendarPage() {
             ) : (
               <Card>
                 <CardHeader>
-                  <CardTitle>Közelgő forgatások</CardTitle>
+                  <CardTitle>Közelgő események</CardTitle>
                   <CardDescription>
-                    A következő forgatások időrendi sorrendben
+                    A következő események időrendi sorrendben
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
                     {upcomingEvents.length === 0 ? (
                       <div className="text-center py-8 text-muted-foreground">
-                        Nincsenek közelgő forgatások.
+                        Nincsenek közelgő események.
                       </div>
                     ) : (
                       upcomingEvents.map((event) => (

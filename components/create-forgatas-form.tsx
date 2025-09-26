@@ -5,13 +5,7 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { CalendarIcon, Clock, MapPin, Users, Camera, AlertCircle } from "lucide-react"
@@ -23,7 +17,8 @@ import { ApiErrorBoundary } from "@/components/api-error-boundary"
 import { apiClient } from "@/lib/api"
 import { use24HourFormat } from "@/lib/24hour-format-enforcer"
 import { useConfetti } from "@/components/confetti"
-import type { ForgatCreateSchema, PartnerSchema, ContactPersonSchema, ForgatoTipusSchema } from "@/lib/api"
+import type { ForgatCreateSchema, PartnerSchema, ContactPersonSchema } from "@/lib/api"
+import { FilmingSessionTypeSelector } from "@/components/filming-session-type-selector"
 
 export function CreateForgatásForm() {
   const [formData, setFormData] = useState<ForgatCreateSchema>({
@@ -61,11 +56,7 @@ export function CreateForgatásForm() {
     () => apiClient.getContactPersons()
   )
   
-  // Fetch filming types for filter
-  const { data: filmingTypes, loading: typesLoading, error: typesError } = useApiQuery(
-    () => apiClient.getFilmingTypes(),
-    []
-  )
+
 
   // Create mutation
   const createForgatás = useApiMutation(
@@ -73,7 +64,7 @@ export function CreateForgatásForm() {
   )
 
   // Handle API errors
-  if (partnersError || contactPersonsError || typesError) {
+  if (partnersError || contactPersonsError) {
     return (
       <Card className="w-full max-w-2xl mx-auto">
         <CardContent className="p-6">
@@ -81,7 +72,7 @@ export function CreateForgatásForm() {
             <AlertCircle className="h-12 w-12 mx-auto text-destructive mb-4" />
             <p className="text-lg font-medium text-destructive">Hiba történt az adatok betöltésekor</p>
             <p className="text-sm text-muted-foreground mt-2">
-              {partnersError || contactPersonsError || typesError}
+              {partnersError || contactPersonsError}
             </p>
             <Button 
               onClick={() => window.location.reload()} 
@@ -314,28 +305,14 @@ export function CreateForgatásForm() {
           {/* Type and Location */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label>Forgatás típusa *</Label>
-              <Select 
-                value={formData.type} 
-                onValueChange={(value) => updateFormData('type', value)}
-              >
-                <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="Válassz típust" />
-                </SelectTrigger>
-                <SelectContent>
-                  {typesLoading ? (
-                    <SelectItem value="loading" disabled>Betöltés...</SelectItem>
-                  ) : filmingTypes && filmingTypes.length > 0 ? (
-                    filmingTypes?.map((type: ForgatoTipusSchema) => (
-                      <SelectItem key={type.value} value={type.value}>
-                        {type.label}
-                      </SelectItem>
-                    ))
-                  ) : (
-                    <SelectItem value="rendes">Rendes forgatás</SelectItem>
-                  )}
-                </SelectContent>
-              </Select>
+              <FilmingSessionTypeSelector
+                value={formData.type}
+                onValueChange={(value) => updateFormData('type', value || '')}
+                label="Forgatás típusa *"
+                placeholder="Válassz típust"
+                required={true}
+                showAllOption={false}
+              />
             </div>
 
             <div>

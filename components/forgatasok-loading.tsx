@@ -13,6 +13,9 @@ interface ForgatásokLoadingProps {
   assignmentCount?: number
   userCount?: number
   variant?: 'minimal' | 'detailed'
+  title?: string
+  description?: string
+  icon?: React.ComponentType<{ className?: string }>
 }
 
 export function ForgatásokLoading({
@@ -22,18 +25,21 @@ export function ForgatásokLoading({
   sessionCount = 0,
   assignmentCount = 0,
   userCount = 0,
-  variant = 'detailed'
+  variant = 'detailed',
+  title = 'Forgatások betöltése',
+  description = 'Adatok összegyűjtése és feldolgozása...',
+  icon: IconComponent = Camera
 }: ForgatásokLoadingProps) {
   const [progress, setProgress] = useState(0)
   const [currentStage, setCurrentStage] = useState(0)
 
   const stages = useMemo(() => [
     {
-      name: 'Forgatások betöltése',
-      icon: Camera,
+      name: title,
+      icon: IconComponent,
       loading: sessionsLoading,
       count: sessionCount,
-      description: 'Forgatási munkamenet adatok'
+      description: 'Munkamenet adatok betöltése'
     },
     {
       name: 'Beosztások betöltése',
@@ -49,7 +55,7 @@ export function ForgatásokLoading({
       count: userCount,
       description: 'Részletes stáb információk'
     }
-  ], [sessionsLoading, assignmentsLoading, usersLoading, sessionCount, assignmentCount, userCount])
+  ], [sessionsLoading, assignmentsLoading, usersLoading, sessionCount, assignmentCount, userCount, title, IconComponent])
 
   useEffect(() => {
     // Calculate progress based on loading stages
@@ -89,7 +95,7 @@ export function ForgatásokLoading({
             <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
           </div>
           <div className="space-y-2">
-            <p className="text-sm font-medium">Forgatások betöltése</p>
+            <p className="text-sm font-medium">{title}</p>
             <Progress value={progress} className="w-full h-2" />
             <p className="text-xs text-muted-foreground">
               {Math.round(progress)}% kész
@@ -108,13 +114,13 @@ export function ForgatásokLoading({
           <div className="text-center space-y-2">
             <div className="relative inline-flex items-center justify-center">
               <div className="p-3 bg-primary rounded-xl shadow-sm">
-                <Camera className="h-6 w-6 text-primary-foreground" />
+                <IconComponent className="h-6 w-6 text-primary-foreground" />
               </div>
             </div>
             <div>
-              <h3 className="font-semibold text-lg">Forgatások betöltése</h3>
+              <h3 className="font-semibold text-lg">{title}</h3>
               <p className="text-sm text-muted-foreground">
-                Adatok összegyűjtése és feldolgozása...
+                {description}
               </p>
             </div>
           </div>

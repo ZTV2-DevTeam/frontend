@@ -20,8 +20,8 @@ import {
 import { useUserRole } from "@/contexts/user-role-context"
 import {
   getMyAbsences,
-  getAbsenceStatusColor,
-  getAbsenceStatusText,
+  getStudentAbsenceStatusColor,
+  getStudentAbsenceStatusText,
   type Absence
 } from "@/lib/config/absences"
 import { StudentAbsenceEditModal } from "./student-absence-edit-modal"
@@ -379,8 +379,8 @@ export function StudentAbsenceManagement() {
                       {/* Státusz és akciók */}
                       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                         <div className="flex flex-col sm:flex-row gap-2">
-                          <Badge className={getAbsenceStatusColor(absence)}>
-                            {getAbsenceStatusText(absence)}
+                          <Badge className={getStudentAbsenceStatusColor(absence)}>
+                            {getStudentAbsenceStatusText(absence)}
                           </Badge>
                           
                           {absence.student_edited && (

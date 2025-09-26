@@ -19,6 +19,7 @@ import {
   Filter, 
   Grid3X3, 
   List, 
+  CalendarDays, 
   Camera, 
   Eye, 
   AlertCircle, 
@@ -27,8 +28,7 @@ import {
   ChevronDown,
   ChevronUp,
   Type,
-  Calendar as CalendarSort,
-  CalendarDays
+  Calendar as CalendarSort
 } from "lucide-react"
 import {
   DropdownMenu,
@@ -58,35 +58,40 @@ const formatSessionDate = (dateStr: string) => {
 
 
 
-type SortOption = 'type' | 'date' | 'name' | 'relevance'
+type SortOption = 'date' | 'name' | 'relevance'
 
-export default function FilmingSessionsPage() {
+export default function EsemenyekPage() {
   // State hooks
   const [showUserOnly, setShowUserOnly] = useState(false)
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [sortBy, setSortBy] = useState<SortOption>('relevance')
   const [showPastEvents, setShowPastEvents] = useState(false)
-
   
   // Context hooks
   const { user, isAuthenticated } = useAuth()
   const { hasPermission } = usePermissions()
   
-  // API queries - fetch only regular filming sessions for this page
+  // API queries - fetch only events and other session types
   const filmingQuery = useApiQuery(
     () => {
       if (!isAuthenticated) return Promise.resolve([])
       
-      // Fetch only rendes (regular filming) sessions for this page
-      // KaCsa collaborations have their own separate menu
-      return apiClient.getFilmingSessions(undefined, undefined, 'rendes')
+      // Fetch both rendezveny (events) and egyeb (other) sessions for this page
+      // These are independent events not related to regular KaCsa production
+      return Promise.all([
+        apiClient.getFilmingSessions(undefined, undefined, 'rendezveny'),
+        apiClient.getFilmingSessions(undefined, undefined, 'egyeb')
+      ]).then(([eventSessions, otherSessions]) => [
+        ...eventSessions,
+        ...otherSessions
+      ])
     },
     [isAuthenticated]
   )
 
   const { data: filmingData = [], loading: sessionsLoading, error } = filmingQuery
 
-  // Computed values
+  // Computed values - data is already filtered by API
   const sessions = useMemo(() => Array.isArray(filmingData) ? filmingData : [], [filmingData])
 
   // Fetch assignments for each filming session individually
@@ -280,28 +285,21 @@ export default function FilmingSessionsPage() {
             const dateB = new Date(b.date)
             return isPastA ? dateB.getTime() - dateA.getTime() : dateA.getTime() - dateB.getTime()
           })
-        case 'type':
         default:
-          // Keep original type grouping - no sorting needed here
           return sessions
       }
     }
   }, [isUserInvolvedInSession, isEventPast])
 
-  // Filter sessions by user involvement (only rendes type fetched by API)
+  // Filter sessions by user involvement only (type filtering is done by API)
   const filteredSessions = useMemo(() => {
-    // Start with sessions (already filtered to rendes only by API)
-    let filtered = sessions
-    
-    // Filter by user involvement if needed
-    if (showUserOnly) {
-      filtered = filtered.filter(session => isUserInvolvedInSession(session.id))
-    }
+    // Filter by user involvement if needed (sessions are already filtered by type via API)
+    let filtered = showUserOnly 
+      ? sessions.filter(session => isUserInvolvedInSession(session.id))
+      : sessions
     
     // Apply sorting
-    if (sortBy !== 'type') {
-      filtered = sortSessions(filtered, sortBy)
-    }
+    filtered = sortSessions(filtered, sortBy)
     
     return filtered
   }, [sessions, showUserOnly, sortBy, sortSessions, isUserInvolvedInSession])
@@ -327,15 +325,18 @@ export default function FilmingSessionsPage() {
   }, [filteredSessions, sortBy, isEventPast])
 
   // Group sessions by type (only used when sortBy === 'type')
-  const kacsaSessions = useMemo(() => {
-    const filtered = filteredSessions.filter((s: ForgatSchema) => s.type === "kacsa")
-    return sortBy === 'type' ? filtered : sortSessions(filtered, sortBy)
+  
+  const eventSessions = useMemo(() => {
+    const filtered = filteredSessions.filter((s: ForgatSchema) => s.type === "rendezveny")
+    return sortSessions(filtered, sortBy)
   }, [filteredSessions, sortBy, sortSessions])
   
-  const normalSessions = useMemo(() => {
-    const filtered = filteredSessions.filter((s: ForgatSchema) => s.type === "rendes")
-    return sortBy === 'type' ? filtered : sortSessions(filtered, sortBy)
+  const egyebSessions = useMemo(() => {
+    const filtered = filteredSessions.filter((s: ForgatSchema) => s.type === "egyeb")
+    return sortSessions(filtered, sortBy)
   }, [filteredSessions, sortBy, sortSessions])
+
+
 
   const getTypeIcon = (type: string) => {
     switch (type) {
@@ -347,11 +348,6 @@ export default function FilmingSessionsPage() {
         return Camera
     }
   }
-
-
-
-
-
 
   const ShootingGridCard = ({ session }: { session: ForgatSchema }) => {
     const TypeIcon = getTypeIcon(session.type)
@@ -490,18 +486,16 @@ export default function FilmingSessionsPage() {
         >
           <CardContent className="p-4">
             <div className="flex items-start gap-4">
-              {/* Type Icon */}
-              <div className="flex-shrink-0 mt-0.5">
-                <TypeIcon
-                  className={`h-5 w-5 flex-shrink-0 ${
-                    session.type === "kacsa"
-                      ? "text-yellow-400 fill-yellow-400"
-                      : session.type === "rendezveny"
-                        ? "text-purple-400"
-                        : "text-blue-400"
-                  }`}
-                />
-              </div>
+              {/* Icon */}
+              <TypeIcon
+                className={`h-5 w-5 flex-shrink-0 mt-1 ${
+                  session.type === "kacsa"
+                    ? "text-yellow-400 fill-yellow-400"
+                    : session.type === "rendezveny"
+                      ? "text-purple-400"
+                      : "text-blue-400"
+                }`}
+              />
 
               {/* Content */}
               <div className="flex-1 min-w-0 space-y-3">
@@ -606,6 +600,9 @@ export default function FilmingSessionsPage() {
           assignmentCount={assignmentsData?.length || 0}
           userCount={userDetailsList?.length || 0}
           variant="detailed"
+          title="Események betöltése"
+          description="Speciális események és egyéb programok betöltése..."
+          icon={Calendar}
         />
       </StandardizedLayout>
     )
@@ -617,7 +614,7 @@ export default function FilmingSessionsPage() {
       <StandardizedLayout>
         <div className="flex items-center justify-center py-12 text-destructive">
           <AlertCircle className="h-6 w-6 mr-2" />
-          Hiba a forgatások betöltésekor: {error}
+          Hiba az események betöltésekor: {error}
         </div>
       </StandardizedLayout>
     )
@@ -630,13 +627,13 @@ export default function FilmingSessionsPage() {
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-primary rounded-xl shadow-sm">
-                <Camera className="h-6 w-6 text-primary-foreground" />
+              <div className="p-3 bg-purple-500 rounded-xl shadow-sm">
+                <Calendar className="h-6 w-6 text-white" />
               </div>
               <div className="space-y-1">
-                <h1 className="text-3xl font-bold text-black dark:text-white tracking-tight">Forgatások</h1>
+                <h1 className="text-3xl font-bold text-black dark:text-white tracking-tight">Események</h1>
                 <p className="text-base text-muted-foreground">
-                  {filteredSessions.length} forgatás • KaCsa: {kacsaSessions.length} • Rendes: {normalSessions.length} • Fő produkciós folyamat
+                  {filteredSessions.length} esemény • Események: {eventSessions.length} • Egyéb: {egyebSessions.length} • Független programok
                 </p>
               </div>
             </div>
@@ -663,13 +660,7 @@ export default function FilmingSessionsPage() {
                 <DropdownMenuContent align="end">
                   <DropdownMenuLabel>Rendezés módja</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem 
-                    onClick={() => setSortBy('type')}
-                    className={sortBy === 'type' ? 'bg-accent' : ''}
-                  >
-                    <Type className="h-4 w-4 mr-2" />
-                    Típus szerint
-                  </DropdownMenuItem>
+
                   <DropdownMenuItem 
                     onClick={() => setSortBy('date')}
                     className={sortBy === 'date' ? 'bg-accent' : ''}
@@ -724,30 +715,30 @@ export default function FilmingSessionsPage() {
                 <Filter className="h-4 w-4" />
                 <span className="hidden sm:inline">{showUserOnly ? "Összes" : "Saját"}</span>
               </Button>
-              
-
             </div>
           </div>
 
-            {!showUserOnly && sortBy === 'type' && (
+            {!showUserOnly && (
               <>
-                {/* KaCsa Összejátszások */}
-                {kacsaSessions.length > 0 && (
+
+
+                {/* Esemény Forgatások */}
+                {eventSessions.length > 0 && (
                   <div className="space-y-4">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <Star className="h-5 w-5 text-yellow-400 fill-yellow-400" />
-                      <h2 className="text-lg sm:text-xl font-semibold">KaCsa Összejátszások</h2>
+                      <CalendarDays className="h-5 w-5 text-purple-400" />
+                      <h2 className="text-lg sm:text-xl font-semibold">Események</h2>
                       <Badge variant="secondary" className="text-xs">
-                        {kacsaSessions.length}
+                        {eventSessions.length}
                       </Badge>
                       <Badge variant="outline" className="text-xs hidden sm:inline-flex">
-                        Minden második csütörtök
+                        Független események
                       </Badge>
                     </div>
 
                     {viewMode === "grid" ? (
                       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                        {kacsaSessions.map((session, index) => (
+                        {eventSessions.map((session, index) => (
                           <div
                             key={session.id}
                             className="animate-in slide-in-from-bottom-4 duration-500"
@@ -759,7 +750,7 @@ export default function FilmingSessionsPage() {
                       </div>
                     ) : (
                       <div className="space-y-3">
-                        {kacsaSessions.map((session, index) => (
+                        {eventSessions.map((session, index) => (
                           <div
                             key={session.id}
                             className="animate-in slide-in-from-bottom-4 duration-500"
@@ -775,20 +766,20 @@ export default function FilmingSessionsPage() {
 
 
 
-                {/* Rendes Forgatások */}
-                {normalSessions.length > 0 && (
+                {/* Egyéb Forgatások */}
+                {egyebSessions.length > 0 && (
                   <div className="space-y-4">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <Camera className="h-5 w-5 text-blue-400" />
-                      <h2 className="text-lg sm:text-xl font-semibold">KaCsa-hoz Kapcsolódó</h2>
+                      <Camera className="h-5 w-5 text-slate-400" />
+                      <h2 className="text-lg sm:text-xl font-semibold">Egyéb Programok</h2>
                       <Badge variant="secondary" className="text-xs">
-                        {normalSessions.length}
+                        {egyebSessions.length}
                       </Badge>
                     </div>
 
                     {viewMode === "grid" ? (
                       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                        {normalSessions.map((session, index) => (
+                        {egyebSessions.map((session, index) => (
                           <div
                             key={session.id}
                             className="animate-in slide-in-from-bottom-4 duration-500"
@@ -800,7 +791,7 @@ export default function FilmingSessionsPage() {
                       </div>
                     ) : (
                       <div className="space-y-3">
-                        {normalSessions.map((session, index) => (
+                        {egyebSessions.map((session, index) => (
                           <div
                             key={session.id}
                             className="animate-in slide-in-from-bottom-4 duration-500"
@@ -813,13 +804,11 @@ export default function FilmingSessionsPage() {
                     )}
                   </div>
                 )}
-
-
               </>
             )}
 
             {/* Non-Type Sorted View */}
-            {!showUserOnly && sortBy !== 'type' && sortBy !== 'relevance' && (
+            {!showUserOnly && sortBy !== 'relevance' && (
               <div className="space-y-4">
                 <div className="flex items-center gap-2 flex-wrap">
                   <ArrowUpDown className="h-5 w-5 text-blue-400" />
@@ -970,8 +959,7 @@ export default function FilmingSessionsPage() {
                 <div className="flex items-center gap-2">
                   <Star className="h-5 w-5 text-yellow-400 fill-yellow-400" />
                   <h2 className="text-lg sm:text-xl font-semibold">
-                    Saját Forgatások - {
-                      sortBy === 'type' ? 'Típus szerint' :
+                    Saját Események - {
                       sortBy === 'date' ? 'Dátum szerint' :
                       sortBy === 'name' ? 'Név szerint' :
                       'Rendezve'

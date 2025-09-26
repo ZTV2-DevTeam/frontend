@@ -224,7 +224,8 @@ export function PermissionsProvider({ children }: { children: React.ReactNode })
         return perms.is_developer_admin || perms.is_system_admin
 
       case '/app/beallitasok':
-        return perms.can_access_admin_panel || perms.is_admin || isSystemAdmin || isTeacherAdmin || isGeneralAdmin
+        // Settings page should be accessible to all authenticated users (students, class-teachers, and admins)
+        return true
 
       // Teacher/Admin pages
       case '/app/forgatasok':

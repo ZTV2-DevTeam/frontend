@@ -166,7 +166,7 @@ export function AbsenceStats({ absences, isAdmin }: AbsenceStatsProps) {
   )
 }
 
-// Status badge component
+// Status badge component with improved design and theme support
 export function StatusBadge({ 
   status, 
   denied, 
@@ -178,18 +178,18 @@ export function StatusBadge({
 }) {
   if (denied) {
     return (
-      <Badge variant="destructive" className="flex items-center gap-1">
-        <XCircle className="h-3 w-3" />
-        Elutasítva
+      <Badge className="flex items-center gap-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border-rose-200 dark:bg-rose-950/30 dark:hover:bg-rose-950/50 dark:text-rose-400 dark:border-rose-800 transition-colors duration-200">
+        <XCircle className="h-3 w-3 flex-shrink-0" />
+        <span>Elutasítva</span>
       </Badge>
     )
   }
 
   if (approved) {
     return (
-      <Badge variant="default" className="flex items-center gap-1 bg-green-600 hover:bg-green-700">
-        <CheckCircle className="h-3 w-3" />
-        Jóváhagyva
+      <Badge className="flex items-center gap-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30 dark:hover:bg-emerald-950/50 dark:text-emerald-400 dark:border-emerald-800 transition-colors duration-200">
+        <CheckCircle className="h-3 w-3 flex-shrink-0" />
+        <span>Jóváhagyva</span>
       </Badge>
     )
   }
@@ -197,36 +197,36 @@ export function StatusBadge({
   switch (status) {
     case 'függőben':
       return (
-        <Badge variant="secondary" className="flex items-center gap-1">
-          <AlertTriangle className="h-3 w-3" />
-          Függőben
+        <Badge className="flex items-center gap-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-950/30 dark:hover:bg-amber-950/50 dark:text-amber-400 dark:border-amber-800 transition-colors duration-200">
+          <AlertTriangle className="h-3 w-3 flex-shrink-0" />
+          <span>Függőben</span>
         </Badge>
       )
     case 'jövőbeli':
       return (
-        <Badge variant="secondary" className="flex items-center gap-1">
-          <Calendar className="h-3 w-3" />
-          Jövőbeli
+        <Badge className="flex items-center gap-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-950/30 dark:hover:bg-blue-950/50 dark:text-blue-400 dark:border-blue-800 transition-colors duration-200">
+          <Calendar className="h-3 w-3 flex-shrink-0" />
+          <span>Jövőbeli</span>
         </Badge>
       )
     case 'folyamatban':
       return (
-        <Badge variant="default" className="flex items-center gap-1">
-          <Clock className="h-3 w-3" />
-          Folyamatban
+        <Badge className="flex items-center gap-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border-indigo-200 dark:bg-indigo-950/30 dark:hover:bg-indigo-950/50 dark:text-indigo-400 dark:border-indigo-800 transition-colors duration-200">
+          <Clock className="h-3 w-3 flex-shrink-0" />
+          <span>Folyamatban</span>
         </Badge>
       )
     case 'lezárt':
       return (
-        <Badge variant="outline" className="flex items-center gap-1">
-          <CheckCircle className="h-3 w-3" />
-          Lezárt
+        <Badge className="flex items-center gap-1.5 bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-900/30 dark:hover:bg-slate-900/50 dark:text-slate-400 dark:border-slate-700 transition-colors duration-200">
+          <CheckCircle className="h-3 w-3 flex-shrink-0" />
+          <span>Lezárt</span>
         </Badge>
       )
     default:
       return (
-        <Badge variant="secondary">
-          {status}
+        <Badge className="flex items-center gap-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-900/30 dark:hover:bg-slate-900/50 dark:text-slate-400 dark:border-slate-700 transition-colors duration-200">
+          <span>{status}</span>
         </Badge>
       )
   }
