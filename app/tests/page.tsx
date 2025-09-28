@@ -7,7 +7,6 @@ import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Separator } from "@/components/ui/separator"
 import { AuthDebugHelper } from "@/components/auth-debug-helper"
-import { EnhancedLoading } from "@/components/enhanced-loading"
 import { ProfessionalLoading } from "@/components/professional-loading"
 import { useErrorToast } from "@/contexts/error-toast-context"
 import { ConnectionIndicator } from "@/components/connection-indicator"
@@ -264,29 +263,29 @@ export default function TestsPage() {
                   
                   {loadingStates.enhanced && (
                     <div className="border rounded-lg p-4 bg-muted/50">
-                      <EnhancedLoading
-                        isLoading={true}
-                        error={null}
-                        stage="auth"
-                        loadingText="Testing enhanced loading component..."
-                        timeout={10000}
+                      <ProfessionalLoading
+                        variant="detailed"
+                        title="Testing Professional Loading"
+                        subtitle="Testing the professional loading component..."
                       />
                     </div>
                   )}
 
                   {loadingStates.enhancedWithError && (
                     <div className="border rounded-lg p-4 bg-muted/50">
-                      <EnhancedLoading
-                        isLoading={false}
-                        error="Test error message for demonstration"
-                        stage="data"
-                        loadingText="Testing error state..."
-                        timeout={10000}
-                        onRetry={() => {
-                          console.log('Retry clicked')
-                          setLoadingStates(prev => ({ ...prev, enhancedWithError: false }))
-                        }}
-                      />
+                      <div className="text-center space-y-4 py-8">
+                        <div className="text-destructive text-lg font-semibold">Error State Test</div>
+                        <p className="text-muted-foreground">Test error message for demonstration</p>
+                        <button 
+                          onClick={() => {
+                            console.log('Retry clicked')
+                            setLoadingStates(prev => ({ ...prev, enhancedWithError: false }))
+                          }}
+                          className="px-4 py-2 bg-primary text-primary-foreground rounded-md"
+                        >
+                          Retry
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>

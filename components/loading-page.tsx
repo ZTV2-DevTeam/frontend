@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { EnhancedLoading } from '@/components/enhanced-loading'
+import { ProfessionalLoading } from '@/components/professional-loading'
 import { Card, CardContent } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Loader2, Shield, Server } from 'lucide-react'
@@ -51,11 +51,14 @@ export function LoadingPage({
 
   if (variant === 'enhanced') {
     return (
-      <EnhancedLoading
-        isLoading={true}
-        error={null}
-        loadingText={title}
-        stage="data"
+      <ProfessionalLoading
+        variant="detailed"
+        title={title}
+        subtitle={subtitle}
+        progress={progress}
+        steps={steps}
+        currentStep={currentStep}
+        showProgress={progress !== undefined}
       />
     )
   }

@@ -10,6 +10,7 @@ import { usePermissions } from "@/contexts/permissions-context"
 import { AppSidebar } from "@/components/app-sidebar"
 import { SiteHeader } from "@/components/site-header"
 import { ProtectedRoute } from "@/components/protected-route"
+import { ProfessionalLoading } from "@/components/professional-loading"
 import {
   SidebarInset,
   SidebarProvider,
@@ -169,28 +170,18 @@ const generatePDF = async (users: any[]) => {
   }
 }
 
-// Enhanced Loading Component
+// Professional Loading Component with Layout
 function LoadingSpinner({ message = "Betöltés..." }) {
   return (
     <SidebarProvider>
       <AppSidebar variant="inset" />
       <SidebarInset>
         <SiteHeader />
-        <div className="flex-1 space-y-4 p-4 md:p-6">
-          <div className="flex items-center justify-center min-h-[60vh]">
-            <div className="text-center space-y-4">
-              <div className="relative">
-                <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto" />
-                <div className="absolute inset-0 rounded-full border-2 border-primary/20 animate-pulse" />
-              </div>
-              <div className="space-y-2">
-                <p className="text-lg font-medium">{message}</p>
-                <p className="text-sm text-muted-foreground">
-                  Kérjük várjon, az adatok betöltése folyamatban...
-                </p>
-              </div>
-            </div>
-          </div>
+        <div className="flex-1">
+          <ProfessionalLoading
+            variant="simple"
+            title={message}
+          />
         </div>
       </SidebarInset>
     </SidebarProvider>

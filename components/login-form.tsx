@@ -16,7 +16,7 @@ import { Label } from "@/components/ui/label"
 import { useAuth } from "@/contexts/auth-context"
 import { usePermissions } from "@/contexts/permissions-context"
 import { ConnectionIndicator } from "@/components/connection-indicator"
-import { EnhancedLoading } from "@/components/enhanced-loading"
+import { ProfessionalLoading } from "@/components/professional-loading"
 
 export function LoginForm({
   className,
@@ -78,15 +78,13 @@ export function LoginForm({
     }
   }
 
-  // Show enhanced loading screen when navigating after successful login
+  // Show professional loading screen when navigating after successful login
   if (isNavigating) {
     return (
-      <EnhancedLoading
-        isLoading={true}
-        error={null}
-        stage="auth"
-        loadingText="Bejelentkezés sikeres, jogosultságok betöltése..."
-        timeout={15000}
+      <ProfessionalLoading
+        variant="detailed"
+        title="Bejelentkezés sikeres"
+        subtitle="Jogosultságok betöltése és átirányítás..."
       />
     )
   }

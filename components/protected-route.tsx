@@ -5,7 +5,7 @@ import { useEffect, ReactNode } from 'react'
 import { usePermissions } from '@/contexts/permissions-context'
 import { useAuth } from '@/contexts/auth-context'
 import { useConnectionStatus } from '@/hooks/use-connection'
-import { EnhancedLoading } from '@/components/enhanced-loading'
+import { ProfessionalLoading } from '@/components/professional-loading'
 import { Card, CardContent } from '@/components/ui/card'
 import { AlertCircle, Shield } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -84,27 +84,36 @@ export function ProtectedRoute({
     }
   }
 
-  // Loading state with enhanced loading component - show immediately if any loading
+  // Loading state with professional loading component - show immediately if any loading
   if (authLoading || (permissionsLoading && !permissions)) {
     return (
-      <EnhancedLoading
-        isLoading={true}
-        error={null}
-        stage={authLoading ? "auth" : "permissions"}
-        onRetry={handleRetry}
-        timeout={authLoading ? 15000 : 30000}
+      <ProfessionalLoading
+        variant="detailed"
+        title={authLoading ? "Bejelentkezés ellenőrzése" : "Jogosultságok betöltése"}
+        subtitle="Kérjük, várjon..."
       />
     )
   }
 
-  // Handle permissions error
+  // Handle permissions error - show custom error state with ProfessionalLoading fallback
   if (permissionsError && !permissions) {
     return (
-      <EnhancedLoading
-        isLoading={false}
-        error={permissionsError}
-        onRetry={handleRetry}
-      />
+      <div className="flex items-center justify-center min-h-screen">
+        <Card className="max-w-md w-full">
+          <CardContent className="p-8 text-center space-y-6">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-destructive/10">
+              <AlertCircle className="h-8 w-8 text-destructive" />
+            </div>
+            <div>
+              <h3 className="text-xl font-semibold mb-2">Hiba történt</h3>
+              <p className="text-muted-foreground">{permissionsError}</p>
+            </div>
+            <Button onClick={handleRetry} className="w-full">
+              Újrapróbálás
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
     )
   }
 

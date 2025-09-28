@@ -1,7 +1,7 @@
 // Loading Components Index
 // Export all loading-related components for easy imports
 
-export { EnhancedLoading } from './enhanced-loading'
+export { ProfessionalLoading } from './professional-loading'
 export { SimpleLoading, SkeletonLoader, LoadingOverlay } from './simple-loading'  
 export { LoadingPage } from './loading-page'
 export { ForgatásokLoading, ForgatásokSkeleton } from './forgatasok-loading'
