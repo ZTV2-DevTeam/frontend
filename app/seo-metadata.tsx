@@ -86,7 +86,7 @@ const homepageStructuredData = [
       "Felhasználói jogosultság rendszer",
     ],
     screenshot: `${SEO_CONFIG.site.url}/app-screenshot.png`,
-    softwareVersion: "2.0.0-beta",
+    softwareVersion: "2.0.0",
     releaseNotes: "Új felhasználói felület, bővített funkciók, jobb teljesítmény",
   },
   

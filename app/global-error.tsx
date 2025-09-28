@@ -28,9 +28,6 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
                 <div className="flex flex-col">
                   <div className="flex items-center gap-2">
                     <span>FTV</span>
-                    <span className="px-2 py-0.5 text-xs font-semibold bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200 rounded-full border border-orange-200 dark:border-orange-700">
-                      BETA
-                    </span>
                   </div>
                   <span className="text-xs text-gray-600 dark:text-gray-400 font-normal leading-none">
                     Hiányzás Áttekintő Platform

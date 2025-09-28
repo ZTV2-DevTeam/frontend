@@ -129,36 +129,9 @@ export default function PrivacyPolicyPage() {
             </Card>
           </div>
 
-          {/* GDPR Exemption Card */}
-          <div className="mt-8">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Shield className="w-5 h-5" />
-                  GDPR alkalmazhatóság
-                </CardTitle>
-                <CardDescription>Információ az adatvédelmi szabályozás alkalmazásáról</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <p className="text-sm">
-                    Ez az alkalmazás nem a GDPR (Általános Adatvédelmi Rendelet) hatálya alá tartozik, mivel közfeladatot ellátó intézmény belső működéséhez elengedhetetlen szoftver. Az alkalmazás kizárólag a szervezet belső folyamatait támogatja, nem kezel külső felhasználók személyes adatait.
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Jogalap: A Gimnáziummal kapcsolatos jogviszony 
-                  </p>
-                  <div className="p-2 mt-3 text-xs rounded text-amber-800 bg-amber-50 dark:bg-amber-950/20 dark:text-amber-200">
-                    <AlertCircle className="inline w-4 h-4 mr-1" />
-                    További kérdések esetén forduljon a fejlesztői kapcsolattartóhoz
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
           <div className="p-4 mt-8 text-center rounded-lg bg-muted">
             <p className="text-sm text-muted-foreground">
-              Ez az adatvédelmi szabályzat 2025. augusztus 1-jén lépett hatályba.
+              Ez az adatvédelmi szabályzat 2025. szeptember 28-án lépett hatályba.
             </p>
           </div>
         </div>

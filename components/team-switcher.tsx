@@ -166,9 +166,7 @@ export function TeamSwitcher({
                     ELŐNÉZET
                   </span>
                 )}
-                <span className="px-1 py-0.5 text-[9px] font-semibold bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200 rounded border border-orange-200 dark:border-orange-700">
-                  BETA
-                </span>
+
               </div>
               <span className="truncate text-xs">
                 {activeTeam.isPreview ? `${getTeamDisplayName(activeTeam)} (Előnézet)` : getTeamDisplayName(activeTeam)}
@@ -204,9 +202,7 @@ export function TeamSwitcher({
                       ELŐNÉZET
                     </span>
                   )}
-                  <span className="px-1 py-0.5 text-[9px] font-semibold bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200 rounded border border-orange-200 dark:border-orange-700">
-                    BETA
-                  </span>
+
                 </div>
                 <span className="truncate text-xs">
                   {activeTeam.isPreview ? `${getTeamDisplayName(activeTeam)} (Előnézet)` : getTeamDisplayName(activeTeam)}

@@ -4,6 +4,18 @@ import { create } from 'domain';
 
 const rawChangelogData: ChangelogEntry[] = [
   createChangelogEntry(
+    'v1.2.2',
+    '2025. szeptember 28.',
+    '2025-09-28T15:00:00Z',
+    [
+      createChange(
+        'improvement',
+        'Élesítés befejezve',
+        'A platform élesítése sikeresen befejeződött, a felhasználók mostantól teljes funkcionalitással használhatják az alkalmazást.'
+      )
+    ]
+  ),
+  createChangelogEntry(
     'v1.2.1-beta',
     '2025. szeptember 26.',
     '2025-09-26T12:00:00Z',

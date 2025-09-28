@@ -42,9 +42,6 @@ export default function LandingPage() {
           <div className="flex flex-col">
             <div className="flex items-center gap-2">
               <span>FTV</span>
-              <span className="px-2 py-0.5 text-xs font-semibold bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200 rounded-full border border-orange-200 dark:border-orange-700" aria-label="Beta verzió">
-                BETA
-              </span>
             </div>
             <span className="text-xs text-muted-foreground font-normal leading-none">Hiányzás Áttekintő Platform</span>
           </div>
@@ -73,20 +70,6 @@ export default function LandingPage() {
           </Link>
         </div>
       </header>
-
-      {/* Beta Disclaimer Banner */}
-      <aside role="complementary" aria-label="Beta verzió figyelmeztetés" className="w-full bg-orange-50/80 dark:bg-orange-950/80 border-b border-orange-200 dark:border-orange-800">
-        <div className="container px-4 py-3 mx-auto sm:px-6 lg:px-8">
-          <div className="flex items-center justify-center gap-3 text-center">
-            <div className="px-2 py-1 text-xs font-semibold bg-orange-200 text-orange-900 dark:bg-orange-800 dark:text-orange-100 rounded-full border border-orange-300 dark:border-orange-700">
-              EARLY ACCESS BETA
-            </div>
-            <p className="text-sm text-orange-800 dark:text-orange-200 font-medium">
-              Ez a platform jelenleg Early Access BETA verzióban érhető el. Előfordulhatnak hibák és hiányos funkciók.
-            </p>
-          </div>
-        </div>
-      </aside>
 
       <main role="main" className="flex flex-col items-center justify-center px-4 text-center py-16 md:py-24 lg:py-32 relative">
         <div className="absolute inset-0 bg-muted/30 -z-10" aria-hidden="true" />

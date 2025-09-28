@@ -10,7 +10,7 @@ import { changelogData } from '@/config/changelog'
 export function getAppVersion(): string {
   // Get the first entry from the sorted changelog (newest first)
   const latestEntry = changelogData[0]
-  return latestEntry?.id || "v1.0.0-beta.1"
+  return latestEntry?.id || "v1.0.0"
 }
 
 /**

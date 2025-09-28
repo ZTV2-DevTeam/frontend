@@ -107,9 +107,7 @@ export function SiteHeader() {
             </button>
             <div className="flex items-center gap-2">
               <h1 className="text-lg md:text-base font-semibold tracking-tight">{currentPageName}</h1>
-              <span className="px-1.5 py-0.5 text-[10px] font-semibold bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200 rounded border border-orange-200 dark:border-orange-700">
-                BETA
-              </span>
+
               {isPreviewMode && (
                 <span 
                   className="px-1.5 py-0.5 text-[10px] font-semibold bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded border border-blue-200 dark:border-blue-700"

@@ -17,9 +17,6 @@ export default function NotFound() {
           <div className="flex flex-col">
             <div className="flex items-center gap-2">
               <span>FTV</span>
-              <span className="px-2 py-0.5 text-xs font-semibold bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200 rounded-full border border-orange-200 dark:border-orange-700" aria-label="Beta verzió">
-                BETA
-              </span>
             </div>
             <span className="text-xs text-muted-foreground font-normal leading-none">Hiányzás Áttekintő Platform</span>
           </div>
