@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeProvider as ColorThemeProvider } from "@/contexts/theme-context";
 import { UserRoleProvider } from "@/contexts/user-role-context";
 import { AuthProvider } from "@/contexts/auth-context";
@@ -97,12 +96,6 @@ export default function RootLayout({
             <ConsoleDebugger />
             <AccessibilityProvider>
               <KeyboardNavigationEnhancer />
-              <ThemeProvider 
-                attribute="class" 
-                defaultTheme="system" 
-                enableSystem
-                disableTransitionOnChange
-              >
                 <ColorThemeProvider>
                   <AuthProvider>
                     <PermissionsProvider>
@@ -127,7 +120,6 @@ export default function RootLayout({
                     </PermissionsProvider>
                   </AuthProvider>
                 </ColorThemeProvider>
-              </ThemeProvider>
             </AccessibilityProvider>
           </ErrorToastProvider>
         </GlobalErrorBoundary>

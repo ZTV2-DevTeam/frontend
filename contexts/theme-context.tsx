@@ -76,21 +76,29 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     
     // Apply the theme mode immediately
     if (typeof window !== 'undefined') {
+      let isDarkMode: boolean
       if (mode === 'light') {
         document.documentElement.classList.remove('dark')
+        isDarkMode = false
       } else if (mode === 'dark') {
         document.documentElement.classList.add('dark')
+        isDarkMode = true
       } else {
         // System mode - check system preference
         const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches
         if (systemDark) {
           document.documentElement.classList.add('dark')
+          isDarkMode = true
         } else {
           document.documentElement.classList.remove('dark')
+          isDarkMode = false
         }
       }
+      
+      // Apply theme variables immediately to avoid mismatch
+      applyThemeVariables(state.themeColor, isDarkMode, true)
     }
-  }, [])
+  }, [state.themeColor])
 
   // Initialize theme from localStorage
   useEffect(() => {
@@ -107,8 +115,27 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
           ? savedMode
           : 'system'
 
-        const isDarkMode = document.documentElement.classList.contains('dark')
+        // Calculate isDark based on stored theme preference, not current DOM state
+        let isDarkMode: boolean
+        if (validMode === 'light') {
+          isDarkMode = false
+        } else if (validMode === 'dark') {
+          isDarkMode = true
+        } else {
+          // System mode - check system preference
+          isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+        }
         
+        // Apply the dark class to DOM immediately based on calculated theme
+        if (isDarkMode) {
+          document.documentElement.classList.add('dark')
+        } else {
+          document.documentElement.classList.remove('dark')
+        }
+
+        // Apply theme variables immediately to avoid mismatch with dark class
+        applyThemeVariables(validTheme, isDarkMode, true)
+
         dispatch({ 
           type: 'INITIALIZE', 
           themeColor: validTheme,
@@ -117,6 +144,10 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
         })
       } catch (error) {
         console.warn('Failed to load theme from localStorage:', error)
+        // Remove dark class for system default (light mode)
+        document.documentElement.classList.remove('dark')
+        // Apply default theme variables immediately
+        applyThemeVariables('blue', false, true)
         dispatch({ 
           type: 'INITIALIZE', 
           themeColor: 'blue',
@@ -145,7 +176,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
       console.warn('Failed to save theme to localStorage:', error)
     }
     
-    applyThemeVariables(state.themeColor, state.isDark)
+    applyThemeVariables(state.themeColor, state.isDark, true)
   }, [state.themeColor, state.themeMode, state.isDark, state.isInitialized])
 
   // Watch for dark mode changes with debouncing
@@ -189,8 +220,10 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
       if (state.themeMode === 'system') {
         if (e.matches) {
           document.documentElement.classList.add('dark')
+          applyThemeVariables(state.themeColor, true, true)
         } else {
           document.documentElement.classList.remove('dark')
+          applyThemeVariables(state.themeColor, false, true)
         }
       }
     }
@@ -200,7 +233,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     return () => {
       mediaQuery.removeEventListener('change', handleChange)
     }
-  }, [state.themeMode, state.isInitialized])
+  }, [state.themeMode, state.isInitialized, state.themeColor])
 
   return (
     <ThemeContext.Provider value={{ 
@@ -214,7 +247,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   )
 }
 
-function applyThemeVariables(color: ThemeColor, isDark: boolean) {
+function applyThemeVariables(color: ThemeColor, isDark: boolean, immediate: boolean = false) {
   // Prevent applying variables during SSR
   if (typeof window === 'undefined') return
   
@@ -223,16 +256,23 @@ function applyThemeVariables(color: ThemeColor, isDark: boolean) {
   
   const themeVariables = getThemeVariables(color, isDark)
   
-  // Use requestAnimationFrame to avoid blocking the main thread
-  requestAnimationFrame(() => {
+  const applyVariables = () => {
     try {
       Object.entries(themeVariables).forEach(([property, value]) => {
-        root.style.setProperty(property, value)
+        root.style.setProperty(property, value, 'important')
       })
     } catch (error) {
       console.error('Error applying theme variables:', error)
     }
-  })
+  }
+  
+  if (immediate) {
+    // Apply immediately for initialization to prevent timing issues
+    applyVariables()
+  } else {
+    // Use requestAnimationFrame for regular updates to avoid blocking the main thread
+    requestAnimationFrame(applyVariables)
+  }
 }
 
 function getThemeVariables(color: ThemeColor, isDark: boolean) {
@@ -245,6 +285,7 @@ function getThemeVariables(color: ThemeColor, isDark: boolean) {
         '--sidebar-primary': 'oklch(0.62 0.28 27)',
         '--sidebar-ring': 'oklch(0.62 0.28 27)',
         '--background': 'oklch(0.995 0.01 27)',
+        '--foreground': 'oklch(0.129 0.042 264.695)',
         '--card': 'oklch(0.99 0.015 27)',
         '--popover': 'oklch(0.99 0.015 27)',
         '--secondary': 'oklch(0.96 0.02 27)',
@@ -263,6 +304,7 @@ function getThemeVariables(color: ThemeColor, isDark: boolean) {
         '--sidebar-primary': 'oklch(0.52 0.22 27)',
         '--sidebar-ring': 'oklch(0.52 0.22 27)',
         '--background': 'oklch(0.15 0.015 27)',
+        '--foreground': 'oklch(0.984 0.003 247.858)',
         '--card': 'oklch(0.22 0.02 27)',
         '--popover': 'oklch(0.22 0.02 27)',
         '--secondary': 'oklch(0.28 0.025 27)',
@@ -280,6 +322,7 @@ function getThemeVariables(color: ThemeColor, isDark: boolean) {
         '--sidebar-primary': 'oklch(0.689 0.184 61.116)',
         '--sidebar-ring': 'oklch(0.689 0.184 61.116)',
         '--background': 'oklch(0.995 0.01 61.116)',
+        '--foreground': 'oklch(0.129 0.042 264.695)',
         '--card': 'oklch(0.99 0.015 61.116)',
         '--popover': 'oklch(0.99 0.015 61.116)',
         '--secondary': 'oklch(0.96 0.02 61.116)',
@@ -298,6 +341,7 @@ function getThemeVariables(color: ThemeColor, isDark: boolean) {
         '--sidebar-primary': 'oklch(0.689 0.184 61.116)',
         '--sidebar-ring': 'oklch(0.646 0.222 61.116)',
         '--background': 'oklch(0.15 0.015 61.116)',
+        '--foreground': 'oklch(0.984 0.003 247.858)',
         '--card': 'oklch(0.22 0.02 61.116)',
         '--popover': 'oklch(0.22 0.02 61.116)',
         '--secondary': 'oklch(0.28 0.025 61.116)',
@@ -315,6 +359,7 @@ function getThemeVariables(color: ThemeColor, isDark: boolean) {
         '--sidebar-primary': 'oklch(0.795 0.184 86.047)',
         '--sidebar-ring': 'oklch(0.795 0.184 86.047)',
         '--background': 'oklch(0.995 0.01 86.047)',
+        '--foreground': 'oklch(0.129 0.042 264.695)',
         '--card': 'oklch(0.99 0.015 86.047)',
         '--popover': 'oklch(0.99 0.015 86.047)',
         '--secondary': 'oklch(0.96 0.02 86.047)',
@@ -333,6 +378,7 @@ function getThemeVariables(color: ThemeColor, isDark: boolean) {
         '--sidebar-primary': 'oklch(0.795 0.184 86.047)',
         '--sidebar-ring': 'oklch(0.554 0.135 66.442)',
         '--background': 'oklch(0.15 0.015 86.047)',
+        '--foreground': 'oklch(0.984 0.003 247.858)',
         '--card': 'oklch(0.22 0.02 86.047)',
         '--popover': 'oklch(0.22 0.02 86.047)',
         '--secondary': 'oklch(0.28 0.025 86.047)',
@@ -350,6 +396,7 @@ function getThemeVariables(color: ThemeColor, isDark: boolean) {
         '--sidebar-primary': 'oklch(0.696 0.17 195.293)',
         '--sidebar-ring': 'oklch(0.696 0.17 195.293)',
         '--background': 'oklch(0.995 0.01 195.293)',
+        '--foreground': 'oklch(0.129 0.042 264.695)',
         '--card': 'oklch(0.99 0.015 195.293)',
         '--popover': 'oklch(0.99 0.015 195.293)',
         '--secondary': 'oklch(0.96 0.02 195.293)',
@@ -368,6 +415,7 @@ function getThemeVariables(color: ThemeColor, isDark: boolean) {
         '--sidebar-primary': 'oklch(0.696 0.17 195.293)',
         '--sidebar-ring': 'oklch(0.6 0.118 184.704)',
         '--background': 'oklch(0.15 0.015 195.293)',
+        '--foreground': 'oklch(0.984 0.003 247.858)',
         '--card': 'oklch(0.22 0.02 195.293)',
         '--popover': 'oklch(0.22 0.02 195.293)',
         '--secondary': 'oklch(0.28 0.025 195.293)',
@@ -385,6 +433,7 @@ function getThemeVariables(color: ThemeColor, isDark: boolean) {
         '--sidebar-primary': 'oklch(0.696 0.17 162.48)',
         '--sidebar-ring': 'oklch(0.696 0.17 162.48)',
         '--background': 'oklch(0.995 0.01 162.48)',
+        '--foreground': 'oklch(0.129 0.042 264.695)',
         '--card': 'oklch(0.99 0.015 162.48)',
         '--popover': 'oklch(0.99 0.015 162.48)',
         '--secondary': 'oklch(0.96 0.02 162.48)',
@@ -403,6 +452,7 @@ function getThemeVariables(color: ThemeColor, isDark: boolean) {
         '--sidebar-primary': 'oklch(0.696 0.17 162.48)',
         '--sidebar-ring': 'oklch(0.6 0.118 162.48)',
         '--background': 'oklch(0.15 0.015 162.48)',
+        '--foreground': 'oklch(0.984 0.003 247.858)',
         '--card': 'oklch(0.22 0.02 162.48)',
         '--popover': 'oklch(0.22 0.02 162.48)',
         '--secondary': 'oklch(0.28 0.025 162.48)',
@@ -420,6 +470,7 @@ function getThemeVariables(color: ThemeColor, isDark: boolean) {
         '--sidebar-primary': 'oklch(0.488 0.243 264.376)',
         '--sidebar-ring': 'oklch(0.488 0.243 264.376)',
         '--background': 'oklch(0.995 0.01 264.376)',
+        '--foreground': 'oklch(0.129 0.042 264.695)',
         '--card': 'oklch(0.99 0.015 264.376)',
         '--popover': 'oklch(0.99 0.015 264.376)',
         '--secondary': 'oklch(0.96 0.02 264.376)',
@@ -438,6 +489,7 @@ function getThemeVariables(color: ThemeColor, isDark: boolean) {
         '--sidebar-primary': 'oklch(0.488 0.243 264.376)',
         '--sidebar-ring': 'oklch(0.551 0.027 264.364)',
         '--background': 'oklch(0.15 0.015 264.376)',
+        '--foreground': 'oklch(0.984 0.003 247.858)',
         '--card': 'oklch(0.22 0.02 264.376)',
         '--popover': 'oklch(0.22 0.02 264.376)',
         '--secondary': 'oklch(0.28 0.025 264.376)',
@@ -455,6 +507,7 @@ function getThemeVariables(color: ThemeColor, isDark: boolean) {
         '--sidebar-primary': 'oklch(0.627 0.265 303.9)',
         '--sidebar-ring': 'oklch(0.627 0.265 303.9)',
         '--background': 'oklch(0.995 0.01 303.9)',
+        '--foreground': 'oklch(0.129 0.042 264.695)',
         '--card': 'oklch(0.99 0.015 303.9)',
         '--popover': 'oklch(0.99 0.015 303.9)',
         '--secondary': 'oklch(0.96 0.02 303.9)',
@@ -473,6 +526,7 @@ function getThemeVariables(color: ThemeColor, isDark: boolean) {
         '--sidebar-primary': 'oklch(0.627 0.265 303.9)',
         '--sidebar-ring': 'oklch(0.627 0.265 303.9)',
         '--background': 'oklch(0.15 0.015 303.9)',
+        '--foreground': 'oklch(0.984 0.003 247.858)',
         '--card': 'oklch(0.22 0.02 303.9)',
         '--popover': 'oklch(0.22 0.02 303.9)',
         '--secondary': 'oklch(0.28 0.025 303.9)',
@@ -490,6 +544,7 @@ function getThemeVariables(color: ThemeColor, isDark: boolean) {
         '--sidebar-primary': 'oklch(0.645 0.265 330)',
         '--sidebar-ring': 'oklch(0.645 0.265 330)',
         '--background': 'oklch(0.995 0.01 330)',
+        '--foreground': 'oklch(0.129 0.042 264.695)',
         '--card': 'oklch(0.99 0.015 330)',
         '--popover': 'oklch(0.99 0.015 330)',
         '--secondary': 'oklch(0.96 0.02 330)',
@@ -508,6 +563,7 @@ function getThemeVariables(color: ThemeColor, isDark: boolean) {
         '--sidebar-primary': 'oklch(0.645 0.265 330)',
         '--sidebar-ring': 'oklch(0.645 0.265 330)',
         '--background': 'oklch(0.15 0.015 330)',
+        '--foreground': 'oklch(0.984 0.003 247.858)',
         '--card': 'oklch(0.22 0.02 330)',
         '--popover': 'oklch(0.22 0.02 330)',
         '--secondary': 'oklch(0.28 0.025 330)',
@@ -525,6 +581,7 @@ function getThemeVariables(color: ThemeColor, isDark: boolean) {
         '--sidebar-primary': 'oklch(0.6 0.243 244.376)',
         '--sidebar-ring': 'oklch(0.6 0.243 244.376)',
         '--background': 'oklch(0.995 0.01 244.376)',
+        '--foreground': 'oklch(0.129 0.042 264.695)',
         '--card': 'oklch(0.99 0.015 244.376)',
         '--popover': 'oklch(0.99 0.015 244.376)',
         '--secondary': 'oklch(0.96 0.02 244.376)',
@@ -543,6 +600,7 @@ function getThemeVariables(color: ThemeColor, isDark: boolean) {
         '--sidebar-primary': 'oklch(0.6 0.243 244.376)',
         '--sidebar-ring': 'oklch(0.551 0.227 244.364)',
         '--background': 'oklch(0.15 0.015 244.376)',
+        '--foreground': 'oklch(0.984 0.003 247.858)',
         '--card': 'oklch(0.22 0.02 244.376)',
         '--popover': 'oklch(0.22 0.02 244.376)',
         '--secondary': 'oklch(0.28 0.025 244.376)',
@@ -560,6 +618,7 @@ function getThemeVariables(color: ThemeColor, isDark: boolean) {
         '--sidebar-primary': 'oklch(0.46 0.08 215)',
         '--sidebar-ring': 'oklch(0.46 0.08 215)',
         '--background': 'oklch(0.995 0.01 215)',
+        '--foreground': 'oklch(0.129 0.042 264.695)',
         '--card': 'oklch(0.99 0.015 215)',
         '--popover': 'oklch(0.99 0.015 215)',
         '--secondary': 'oklch(0.96 0.02 215)',
@@ -578,6 +637,7 @@ function getThemeVariables(color: ThemeColor, isDark: boolean) {
         '--sidebar-primary': 'oklch(0.46 0.08 215)',
         '--sidebar-ring': 'oklch(0.55 0.03 215)',
         '--background': 'oklch(0.15 0.015 215)',
+        '--foreground': 'oklch(0.984 0.003 247.858)',
         '--card': 'oklch(0.22 0.02 215)',
         '--popover': 'oklch(0.22 0.02 215)',
         '--secondary': 'oklch(0.28 0.025 215)',

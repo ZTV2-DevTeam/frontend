@@ -4,6 +4,18 @@ import { create } from 'domain';
 
 const rawChangelogData: ChangelogEntry[] = [
   createChangelogEntry(
+    'v1.2.3',
+    '2025. szeptember 30.',
+    '2025-09-30T13:00:00Z',
+    [
+      createChange(
+        'bugfix',
+        'Témaszínek világos és sötét mód helytelen betöltésének javítása',
+        'Javítottuk a hibát, mely miatt a témaszínek helytelenül töltődtek be. Amennyiben a felhasználó nem azt a témát választotta ki, amelyik a rendszerén be van állítva, az oldal újratöltése után az alkalmazás továbbra is a rendszer beállításait követte.'
+      ),
+    ]
+  ),
+  createChangelogEntry(
     'v1.2.2',
     '2025. szeptember 28.',
     '2025-09-28T15:00:00Z',
