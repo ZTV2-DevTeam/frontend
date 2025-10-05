@@ -27,7 +27,12 @@ const rawChangelogData: ChangelogEntry[] = [
         'improvement',
         'Egységes E-mail dizájn',
         'Az összes rendszer által küldött e-mail mostantól egységes dizájnnal rendelkezik, beleértve a fejlécet, láblécet és a színvilágot, hogy professzionálisabb megjelenést biztosítson.'
-      )
+      ),
+      createChange(
+        'bugfix',
+        'Események: Relevancia szerinti rendezés javítása',
+        'Javítottuk a hibát, mely miatt az események "Összes - Elmúlt" elrendezésben jelentek meg, helyette mostantól "Releváns - Elmúlt" elrendezésben jelennek meg.'
+      ),
     ]
   ),
   createChangelogEntry(

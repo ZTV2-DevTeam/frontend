@@ -5,7 +5,7 @@ import { StandardizedLayout } from "@/components/standardized-layout"
 import { useApiQuery } from "@/lib/api-helpers"
 import { apiClient } from "@/lib/api"
 import { useAuth } from "@/contexts/auth-context"
-import type { ForgatSchema, BeosztasSchema } from "@/lib/types"
+import type { ForgatSchema, BeosztasSchema, SzerepkorRelacioSchema } from "@/lib/types"
 import { ApiErrorBoundary } from "@/components/api-error-boundary"
 import { ApiErrorFallback } from "@/components/api-error-fallback"
 import { Card, CardContent } from "@/components/ui/card"
@@ -125,7 +125,7 @@ export default function EsemenyekPage() {
       const userIds = new Set<number>()
       assignmentsData.forEach((assignment: BeosztasSchema | null) => {
         if (assignment?.szerepkor_relaciok) {
-          assignment.szerepkor_relaciok.forEach((relation: any) => {
+          assignment.szerepkor_relaciok.forEach((relation: SzerepkorRelacioSchema) => {
             userIds.add(relation.user.id)
           })
         }
@@ -218,7 +218,7 @@ export default function EsemenyekPage() {
       assignmentStab: assignment.stab,
       crewMembers: assignment.szerepkor_relaciok.map(relation => {
         // Find detailed user information
-        const userDetails = userDetailsList?.find((user: any) => user?.id === relation.user.id)
+        const userDetails = userDetailsList?.find((user) => user?.id === relation.user.id)
         
         // Extract class from username as fallback if detailed info not available
         const extractClassFromUsername = (username: string) => {
@@ -304,12 +304,8 @@ export default function EsemenyekPage() {
     return filtered
   }, [sessions, showUserOnly, sortBy, sortSessions, isUserInvolvedInSession])
 
-  // Separate current and past events for relevance view
+  // Separate current and past events for all views (not just relevance)
   const { currentSessions, pastSessions } = useMemo(() => {
-    if (sortBy !== 'relevance') {
-      return { currentSessions: filteredSessions, pastSessions: [] }
-    }
-    
     const current: ForgatSchema[] = []
     const past: ForgatSchema[] = []
     
@@ -322,19 +318,46 @@ export default function EsemenyekPage() {
     })
     
     return { currentSessions: current, pastSessions: past }
-  }, [filteredSessions, sortBy, isEventPast])
+  }, [filteredSessions, isEventPast])
 
-  // Group sessions by type (only used when sortBy === 'type')
-  
-  const eventSessions = useMemo(() => {
+  // Group sessions by type with current/past separation
+  const { currentEventSessions, pastEventSessions } = useMemo(() => {
+    const currentEvents: ForgatSchema[] = []
+    const pastEvents: ForgatSchema[] = []
+    
     const filtered = filteredSessions.filter((s: ForgatSchema) => s.type === "rendezveny")
-    return sortSessions(filtered, sortBy)
-  }, [filteredSessions, sortBy, sortSessions])
+    const sorted = sortSessions(filtered, sortBy)
+    
+    sorted.forEach(session => {
+      if (isEventPast(session.date)) {
+        pastEvents.push(session)
+      } else {
+        currentEvents.push(session)
+      }
+    })
+    
+    return { currentEventSessions: currentEvents, pastEventSessions: pastEvents }
+  }, [filteredSessions, sortBy, sortSessions, isEventPast])
   
-  const egyebSessions = useMemo(() => {
+  const { currentEgyebSessions, pastEgyebSessions } = useMemo(() => {
+    const currentEgyeb: ForgatSchema[] = []
+    const pastEgyeb: ForgatSchema[] = []
+    
     const filtered = filteredSessions.filter((s: ForgatSchema) => s.type === "egyeb")
-    return sortSessions(filtered, sortBy)
-  }, [filteredSessions, sortBy, sortSessions])
+    const sorted = sortSessions(filtered, sortBy)
+    
+    sorted.forEach(session => {
+      if (isEventPast(session.date)) {
+        pastEgyeb.push(session)
+      } else {
+        currentEgyeb.push(session)
+      }
+    })
+    
+    return { currentEgyebSessions: currentEgyeb, pastEgyebSessions: pastEgyeb }
+  }, [filteredSessions, sortBy, sortSessions, isEventPast])
+
+
 
 
 
@@ -633,7 +656,7 @@ export default function EsemenyekPage() {
               <div className="space-y-1">
                 <h1 className="text-3xl font-bold text-black dark:text-white tracking-tight">Események</h1>
                 <p className="text-base text-muted-foreground">
-                  {filteredSessions.length} esemény • Események: {eventSessions.length} • Egyéb: {egyebSessions.length} • Független programok
+                  {currentEventSessions.length + currentEgyebSessions.length} aktuális esemény • {pastEventSessions.length + pastEgyebSessions.length} elmúlt esemény • Független programok
                 </p>
               </div>
             </div>
@@ -718,27 +741,25 @@ export default function EsemenyekPage() {
             </div>
           </div>
 
-            {!showUserOnly && (
-              <>
-
-
-                {/* Esemény Forgatások */}
-                {eventSessions.length > 0 && (
+            {!showUserOnly && sortBy !== 'relevance' && (
+              <div className="space-y-6">
+                {/* Current Eventi*/}
+                {currentEventSessions.length > 0 && (
                   <div className="space-y-4">
                     <div className="flex items-center gap-2 flex-wrap">
                       <CalendarDays className="h-5 w-5 text-purple-400" />
-                      <h2 className="text-lg sm:text-xl font-semibold">Események</h2>
+                      <h2 className="text-lg sm:text-xl font-semibold">Aktuális & Jövőbeli Események</h2>
                       <Badge variant="secondary" className="text-xs">
-                        {eventSessions.length}
+                        {currentEventSessions.length}
                       </Badge>
-                      <Badge variant="outline" className="text-xs hidden sm:inline-flex">
+                      <Badge variant="outline" className="text-xs bg-green-500/10 text-green-400 border-green-500/30">
                         Független események
                       </Badge>
                     </div>
 
                     {viewMode === "grid" ? (
                       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                        {eventSessions.map((session, index) => (
+                        {currentEventSessions.map((session, index) => (
                           <div
                             key={session.id}
                             className="animate-in slide-in-from-bottom-4 duration-500"
@@ -750,7 +771,7 @@ export default function EsemenyekPage() {
                       </div>
                     ) : (
                       <div className="space-y-3">
-                        {eventSessions.map((session, index) => (
+                        {currentEventSessions.map((session, index) => (
                           <div
                             key={session.id}
                             className="animate-in slide-in-from-bottom-4 duration-500"
@@ -764,22 +785,20 @@ export default function EsemenyekPage() {
                   </div>
                 )}
 
-
-
-                {/* Egyéb Forgatások */}
-                {egyebSessions.length > 0 && (
+                {/* Current Egyéb Programs */}
+                {currentEgyebSessions.length > 0 && (
                   <div className="space-y-4">
                     <div className="flex items-center gap-2 flex-wrap">
                       <Camera className="h-5 w-5 text-slate-400" />
-                      <h2 className="text-lg sm:text-xl font-semibold">Egyéb Programok</h2>
+                      <h2 className="text-lg sm:text-xl font-semibold">Aktuális & Jövőbeli Egyéb Programok</h2>
                       <Badge variant="secondary" className="text-xs">
-                        {egyebSessions.length}
+                        {currentEgyebSessions.length}
                       </Badge>
                     </div>
 
                     {viewMode === "grid" ? (
                       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                        {egyebSessions.map((session, index) => (
+                        {currentEgyebSessions.map((session, index) => (
                           <div
                             key={session.id}
                             className="animate-in slide-in-from-bottom-4 duration-500"
@@ -791,7 +810,7 @@ export default function EsemenyekPage() {
                       </div>
                     ) : (
                       <div className="space-y-3">
-                        {egyebSessions.map((session, index) => (
+                        {currentEgyebSessions.map((session, index) => (
                           <div
                             key={session.id}
                             className="animate-in slide-in-from-bottom-4 duration-500"
@@ -804,53 +823,116 @@ export default function EsemenyekPage() {
                     )}
                   </div>
                 )}
-              </>
-            )}
 
-            {/* Non-Type Sorted View */}
-            {!showUserOnly && sortBy !== 'relevance' && (
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <ArrowUpDown className="h-5 w-5 text-blue-400" />
-                  <h2 className="text-lg sm:text-xl font-semibold">
-                    Forgatások - {
-                      sortBy === 'date' ? 'Dátum szerint' :
-                      sortBy === 'name' ? 'Név szerint' :
-                      'Rendezve'
-                    }
-                  </h2>
-                  <Badge variant="secondary" className="text-xs">
-                    {filteredSessions.length}
-                  </Badge>
-                </div>
+                {/* Past Events - Collapsible */}
+                {(pastEventSessions.length > 0 || pastEgyebSessions.length > 0) && (
+                  <div className="space-y-4">
+                    <Button
+                      variant="ghost"
+                      onClick={() => setShowPastEvents(!showPastEvents)}
+                      className="flex items-center gap-2 h-auto p-3 w-full justify-start bg-muted/30 hover:bg-muted/50 border border-border/50 rounded-lg"
+                    >
+                      <div className="flex items-center gap-2">
+                        {showPastEvents ? (
+                          <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                        ) : (
+                          <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                        )}
+                        <Calendar className="h-5 w-5 text-muted-foreground" />
+                        <h2 className="text-lg sm:text-xl font-semibold">Elmúlt Események</h2>
+                        <Badge variant="secondary" className="text-xs">
+                          {pastEventSessions.length + pastEgyebSessions.length}
+                        </Badge>
+                      </div>
+                    </Button>
 
-                {viewMode === "grid" ? (
-                  <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                    {filteredSessions.map((session, index) => (
-                      <div
-                        key={session.id}
-                        className="animate-in slide-in-from-bottom-4 duration-500"
-                        style={{ animationDelay: `${index * 100}ms` }}
-                      >
-                        <ShootingGridCard session={session} />
+                    {showPastEvents && (
+                      <div className="animate-in slide-in-from-top-2 duration-300 space-y-6 opacity-70">
+                        {/* Past Eventi */}
+                        {pastEventSessions.length > 0 && (
+                          <div className="space-y-4">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <CalendarDays className="h-5 w-5 text-purple-400/70" />
+                              <h3 className="text-base sm:text-lg font-medium">Elmúlt Események</h3>
+                              <Badge variant="secondary" className="text-xs">
+                                {pastEventSessions.length}
+                              </Badge>
+                            </div>
+
+                            {viewMode === "grid" ? (
+                              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                                {pastEventSessions.map((session, index) => (
+                                  <div
+                                    key={session.id}
+                                    className="animate-in slide-in-from-bottom-4 duration-500"
+                                    style={{ animationDelay: `${index * 50}ms` }}
+                                  >
+                                    <ShootingGridCard session={session} />
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <div className="space-y-3">
+                                {pastEventSessions.map((session, index) => (
+                                  <div
+                                    key={session.id}
+                                    className="animate-in slide-in-from-bottom-4 duration-500"
+                                    style={{ animationDelay: `${index * 50}ms` }}
+                                  >
+                                    <ShootingListItem session={session} />
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Past Egyéb Programs */}
+                        {pastEgyebSessions.length > 0 && (
+                          <div className="space-y-4">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <Camera className="h-5 w-5 text-slate-400/70" />
+                              <h3 className="text-base sm:text-lg font-medium">Elmúlt Egyéb Programok</h3>
+                              <Badge variant="secondary" className="text-xs">
+                                {pastEgyebSessions.length}
+                              </Badge>
+                            </div>
+
+                            {viewMode === "grid" ? (
+                              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                                {pastEgyebSessions.map((session, index) => (
+                                  <div
+                                    key={session.id}
+                                    className="animate-in slide-in-from-bottom-4 duration-500"
+                                    style={{ animationDelay: `${index * 50}ms` }}
+                                  >
+                                    <ShootingGridCard session={session} />
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <div className="space-y-3">
+                                {pastEgyebSessions.map((session, index) => (
+                                  <div
+                                    key={session.id}
+                                    className="animate-in slide-in-from-bottom-4 duration-500"
+                                    style={{ animationDelay: `${index * 50}ms` }}
+                                  >
+                                    <ShootingListItem session={session} />
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {filteredSessions.map((session, index) => (
-                      <div
-                        key={session.id}
-                        className="animate-in slide-in-from-bottom-4 duration-500"
-                        style={{ animationDelay: `${index * 100}ms` }}
-                      >
-                        <ShootingListItem session={session} />
-                      </div>
-                    ))}
+                    )}
                   </div>
                 )}
               </div>
             )}
+
+
 
             {/* Relevance View with Past Events Separation */}
             {!showUserOnly && sortBy === 'relevance' && (
@@ -860,7 +942,7 @@ export default function EsemenyekPage() {
                   <div className="space-y-4">
                     <div className="flex items-center gap-2 flex-wrap">
                       <Star className="h-5 w-5 text-green-400 fill-green-400" />
-                      <h2 className="text-lg sm:text-xl font-semibold">Aktuális & Jövőbeli Forgatások</h2>
+                      <h2 className="text-lg sm:text-xl font-semibold">Aktuális & Jövőbeli Események</h2>
                       <Badge variant="secondary" className="text-xs">
                         {currentSessions.length}
                       </Badge>
@@ -912,7 +994,7 @@ export default function EsemenyekPage() {
                           <ChevronDown className="h-4 w-4 text-muted-foreground" />
                         )}
                         <Calendar className="h-5 w-5 text-muted-foreground" />
-                        <h2 className="text-lg sm:text-xl font-semibold">Elmúlt Forgatások</h2>
+                        <h2 className="text-lg sm:text-xl font-semibold">Elmúlt Események</h2>
                         <Badge variant="secondary" className="text-xs">
                           {pastSessions.length}
                         </Badge>
@@ -953,46 +1035,105 @@ export default function EsemenyekPage() {
               </div>
             )}
 
-            {/* Filtered View */}
+            {/* Filtered View with Current/Past Separation */}
             {showUserOnly && sortBy !== 'relevance' && (
-              <div className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <Star className="h-5 w-5 text-yellow-400 fill-yellow-400" />
-                  <h2 className="text-lg sm:text-xl font-semibold">
-                    Saját Események - {
-                      sortBy === 'date' ? 'Dátum szerint' :
-                      sortBy === 'name' ? 'Név szerint' :
-                      'Rendezve'
-                    }
-                  </h2>
-                  <Badge variant="secondary" className="text-xs">
-                    {filteredSessions.length}
-                  </Badge>
-                </div>
+              <div className="space-y-6">
+                {/* Current Personal Events */}
+                {currentSessions.length > 0 && (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Star className="h-5 w-5 text-yellow-400 fill-yellow-400" />
+                      <h2 className="text-lg sm:text-xl font-semibold">
+                        Saját Aktuális Események - {
+                          sortBy === 'date' ? 'Dátum szerint' :
+                          sortBy === 'name' ? 'Név szerint' :
+                          'Rendezve'
+                        }
+                      </h2>
+                      <Badge variant="secondary" className="text-xs">
+                        {currentSessions.length}
+                      </Badge>
+                    </div>
 
-                {viewMode === "grid" ? (
-                  <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                    {filteredSessions.map((session, index) => (
-                      <div
-                        key={session.id}
-                        className="animate-in slide-in-from-bottom-4 duration-500"
-                        style={{ animationDelay: `${index * 100}ms` }}
-                      >
-                        <ShootingGridCard session={session} />
+                    {viewMode === "grid" ? (
+                      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                        {currentSessions.map((session, index) => (
+                          <div
+                            key={session.id}
+                            className="animate-in slide-in-from-bottom-4 duration-500"
+                            style={{ animationDelay: `${index * 100}ms` }}
+                          >
+                            <ShootingGridCard session={session} />
+                          </div>
+                        ))}
                       </div>
-                    ))}
+                    ) : (
+                      <div className="space-y-3">
+                        {currentSessions.map((session, index) => (
+                          <div
+                            key={session.id}
+                            className="animate-in slide-in-from-bottom-4 duration-500"
+                            style={{ animationDelay: `${index * 100}ms` }}
+                          >
+                            <ShootingListItem session={session} />
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                ) : (
-                  <div className="space-y-3">
-                    {filteredSessions.map((session, index) => (
-                      <div
-                        key={session.id}
-                        className="animate-in slide-in-from-bottom-4 duration-500"
-                        style={{ animationDelay: `${index * 100}ms` }}
-                      >
-                        <ShootingListItem session={session} />
+                )}
+
+                {/* Past Personal Events - Collapsible */}
+                {pastSessions.length > 0 && (
+                  <div className="space-y-4">
+                    <Button
+                      variant="ghost"
+                      onClick={() => setShowPastEvents(!showPastEvents)}
+                      className="flex items-center gap-2 h-auto p-3 w-full justify-start bg-muted/30 hover:bg-muted/50 border border-border/50 rounded-lg"
+                    >
+                      <div className="flex items-center gap-2">
+                        {showPastEvents ? (
+                          <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                        ) : (
+                          <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                        )}
+                        <Calendar className="h-5 w-5 text-muted-foreground" />
+                        <h2 className="text-lg sm:text-xl font-semibold">Saját Elmúlt Események</h2>
+                        <Badge variant="secondary" className="text-xs">
+                          {pastSessions.length}
+                        </Badge>
                       </div>
-                    ))}
+                    </Button>
+
+                    {showPastEvents && (
+                      <div className="animate-in slide-in-from-top-2 duration-300">
+                        {viewMode === "grid" ? (
+                          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 opacity-70">
+                            {pastSessions.map((session, index) => (
+                              <div
+                                key={session.id}
+                                className="animate-in slide-in-from-bottom-4 duration-500"
+                                style={{ animationDelay: `${index * 50}ms` }}
+                              >
+                                <ShootingGridCard session={session} />
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="space-y-3 opacity-70">
+                            {pastSessions.map((session, index) => (
+                              <div
+                                key={session.id}
+                                className="animate-in slide-in-from-bottom-4 duration-500"
+                                style={{ animationDelay: `${index * 50}ms` }}
+                              >
+                                <ShootingListItem session={session} />
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -1006,7 +1147,7 @@ export default function EsemenyekPage() {
                   <div className="space-y-4">
                     <div className="flex items-center gap-2 flex-wrap">
                       <Star className="h-5 w-5 text-yellow-400 fill-yellow-400" />
-                      <h2 className="text-lg sm:text-xl font-semibold">Saját Aktuális Forgatások</h2>
+                      <h2 className="text-lg sm:text-xl font-semibold">Saját Aktuális Események</h2>
                       <Badge variant="secondary" className="text-xs">
                         {currentSessions.length}
                       </Badge>
@@ -1058,7 +1199,7 @@ export default function EsemenyekPage() {
                           <ChevronDown className="h-4 w-4 text-muted-foreground" />
                         )}
                         <Calendar className="h-5 w-5 text-muted-foreground" />
-                        <h2 className="text-lg sm:text-xl font-semibold">Saját Elmúlt Forgatások</h2>
+                        <h2 className="text-lg sm:text-xl font-semibold">Saját Elmúlt Események</h2>
                         <Badge variant="secondary" className="text-xs">
                           {pastSessions.length}
                         </Badge>
