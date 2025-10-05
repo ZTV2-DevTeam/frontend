@@ -279,7 +279,7 @@ export default function AdminGuidePage() {
                       Django admin felület elérése közvetlen adatbázis kezeléshez.
                     </p>
                     <p className="text-xs text-emerald-600">
-                      Útvonal: /app/database-admin
+                      Elérhető: Irányítópult fejlécén lévő gombbal
                     </p>
                   </div>
 
@@ -528,11 +528,16 @@ export default function AdminGuidePage() {
                     Irányítópult
                   </a>
                 </Button>
-                <Button variant="outline" className="justify-start" asChild>
-                  <a href="/app/database-admin" className="cursor-pointer">
-                    <Database className="h-4 w-4 mr-2" />
-                    Django Admin
-                  </a>
+                <Button 
+                  variant="outline" 
+                  className="justify-start"
+                  onClick={() => {
+                    const adminUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL || 'https://ftvapi.szlg.info'}/admin/`;
+                    window.open(adminUrl, '_blank');
+                  }}
+                >
+                  <Database className="h-4 w-4 mr-2" />
+                  Django Admin
                 </Button>
                 <Button variant="outline" className="justify-start" asChild>
                   <Link href="/app/forgatasok" className="cursor-pointer">

@@ -235,7 +235,7 @@ export default function AdminGuidePage() {
                       Django adminisztrációs felület elérése közvetlen adatbázis-kezelési műveletekhez.
                     </p>
                     <p className="text-xs text-emerald-600">
-                      Navigációs útvonal: /app/database-admin
+                      Elérhető: Irányítópult fejlécén lévő "Django - Adatbázis Adminisztráció" gombbal
                     </p>
                   </div>
 
@@ -288,11 +288,17 @@ export default function AdminGuidePage() {
                   Az adatbázis közvetlen szerkesztése, tömeges importálás és exportálás a Django Admin felületen érhető el.
                 </p>
                 <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm" asChild className="border-blue-300 text-blue-700 hover:bg-blue-100">
-                    <a href="/app/database-admin" target="_blank" className="cursor-pointer">
-                      <ExternalLink className="h-3 w-3 mr-1" />
-                      Django Admin megnyitása
-                    </a>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="border-blue-300 text-blue-700 hover:bg-blue-100"
+                    onClick={() => {
+                      const adminUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL || 'https://ftvapi.szlg.info'}/admin/`;
+                      window.open(adminUrl, '_blank');
+                    }}
+                  >
+                    <ExternalLink className="h-3 w-3 mr-1" />
+                    Django Admin megnyitása
                   </Button>
                 </div>
               </div>
@@ -596,11 +602,16 @@ export default function AdminGuidePage() {
                     Irányítópult
                   </Link>
                 </Button>
-                <Button variant="outline" className="justify-start" asChild>
-                  <Link href="/app/database-admin" className="cursor-pointer">
-                    <Database className="h-4 w-4 mr-2" />
-                    Django Admin
-                  </Link>
+                <Button 
+                  variant="outline" 
+                  className="justify-start"
+                  onClick={() => {
+                    const adminUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL || 'https://ftvapi.szlg.info'}/admin/`;
+                    window.open(adminUrl, '_blank');
+                  }}
+                >
+                  <Database className="h-4 w-4 mr-2" />
+                  Django Admin
                 </Button>
                 <Button variant="outline" className="justify-start" asChild>
                   <Link href="/app/forgatasok" className="cursor-pointer">

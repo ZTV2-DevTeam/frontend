@@ -220,9 +220,6 @@ export function PermissionsProvider({ children }: { children: React.ReactNode })
         }
         return true // Everyone else can access staff contact info
       
-      case '/app/database-admin':
-        return perms.is_developer_admin || perms.is_system_admin
-
       case '/app/beallitasok':
         // Settings page should be accessible to all authenticated users (students, class-teachers, and admins)
         return true

@@ -14,48 +14,13 @@ import {
   Shield, 
   Users, 
   GraduationCap, 
-  Handshake, 
-  Video, 
-  TableProperties, 
   BellDot, 
   Mail,
   TicketCheck,
   TreePalm,
-  Database,
-  UserCheck,
-  Wrench,
-  Settings,
-  Tag,
-  Phone,
   Calendar,
-  User,
-  Network,
   Radio
 } from 'lucide-react';
-
-// Icon mapping for database admin items
-const iconMap = {
-  Video,
-  TableProperties,
-  UserCheck,
-  Users,
-  Wrench,
-  Settings,
-  Tag,
-  Phone,
-  GraduationCap,
-  Calendar,
-  User,
-  BellDot,
-  Shield,
-  Network,
-  Handshake,
-};
-
-// Helper function to get icon component by name
-const getIconComponent = (iconName: string) => {
-  return iconMap[iconName as keyof typeof iconMap] || Database;
-};
 
 import { NavCategory } from "@/components/nav-category"
 import { NavCategoryCollapsible } from "@/components/nav-category-collapsible"
@@ -75,17 +40,7 @@ import { useUserRole, type UserRole } from "@/contexts/user-role-context"
 import { usePermissions } from "@/contexts/permissions-context"
 import { useAuth } from "@/contexts/auth-context"
 import { useRouter } from "next/navigation"
-import { 
-  DATABASE_MODELS, 
-  getDatabaseAdminUrl, 
-  getDatabaseAdminMenuItemsByRole,
-  type DatabaseAdminMenuItem 
-} from "@/lib/database-models"
-import { BACKEND_CONFIG } from "@/lib/config"
 import { LogOut } from "lucide-react"
-
-// Backend URL configuration
-const BACKEND_URL = BACKEND_CONFIG.BASE_URL
 
 const data = {
   teams: [
@@ -172,12 +127,6 @@ const data = {
         title: "Beállítások",
         url: "/app/beallitasok",
         icon: IconSettings,
-      },
-      // Database Admin
-      {
-        title: "Adatbázis Admin",
-        url: "/app/database-admin",
-        icon: Database,
       },
       {
         title: "Segítség",
@@ -326,21 +275,11 @@ const data = {
       },
     ],
   },
-  databaseAdmin: {
-    admin: getDatabaseAdminMenuItemsByRole('admin').map((item: DatabaseAdminMenuItem) => ({
-      name: item.name,
-      url: getDatabaseAdminUrl(item.modelPath),
-      icon: getIconComponent(item.icon),
-      external: true,
-    })),
-    'class-teacher': [],
-    student: [],
-  },
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { currentRole } = useUserRole()
-  const { permissions, canAccessPage, hasPermission } = usePermissions()
+  const { permissions, canAccessPage } = usePermissions()
   const { logout } = useAuth()
   const router = useRouter()
   

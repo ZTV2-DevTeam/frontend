@@ -579,6 +579,16 @@ function QuickActionsWidget() {
       color: "green"
     },
     { 
+      name: "Django Admin", 
+      description: "Adatbázis adminisztráció",
+      icon: Server, 
+      action: () => {
+        const adminUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL || 'https://ftvapi.szlg.info'}/admin/`;
+        window.open(adminUrl, '_blank');
+      },
+      color: "red"
+    },
+    { 
       name: "Naptár", 
       description: "Események megnyitása",
       icon: CalendarDays, 
@@ -612,6 +622,14 @@ function QuickActionsWidget() {
           text: 'text-green-500',
           icon: 'text-green-500',
           shadow: 'shadow-green-500'
+        }
+      case 'red':
+        return {
+          border: 'border-red-500',
+          bg: 'bg-red-500',
+          text: 'text-red-500',
+          icon: 'text-red-500',
+          shadow: 'shadow-red-500'
         }
       case 'purple':
         return {
@@ -657,7 +675,7 @@ function QuickActionsWidget() {
 
   return (
     <>
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-0 sm:gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-4">
         {quickActions.map((action) => {
           const colorClasses = getColorClasses(action.color)
           return (

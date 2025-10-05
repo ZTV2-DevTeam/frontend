@@ -839,10 +839,13 @@ export default function HelpPage() {
                         variant="outline" 
                         size="sm" 
                         className="w-full justify-start"
-                        onClick={() => window.open('/app/database-admin', '_blank')}
+                        onClick={() => {
+                          const adminUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL || 'https://ftvapi.szlg.info'}/admin/`;
+                          window.open(adminUrl, '_blank');
+                        }}
                       >
                         <Database className="w-4 h-4 mr-2" />
-                        Adatbázis adminisztráció
+                        Django - Adatbázis adminisztráció
                       </Button>
                     )}
                     <Button 
