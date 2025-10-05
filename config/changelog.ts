@@ -4,6 +4,28 @@ import { create } from 'domain';
 
 const rawChangelogData: ChangelogEntry[] = [
   createChangelogEntry(
+    'v1.2.4',
+    '2025. október 06.',
+    '2025-10-06T01:00:00Z',
+    [
+      createChange(
+        'removed',
+        'Adatbázis Admin menü eltávolítva',
+        'Az adatbázis adminisztrációs menü eltávolításra került.'
+      ),
+      createChange(
+        'improvement',
+        'Telefonszámok keresése a Stáb menüben',
+        'Mostantól a Stáb menü keresőmezőjében a felhasználók telefonszámokra is kereshetnek.'
+      ),
+      createChange(
+        'improvement',
+        'Stáb: Keresés automatikusan megjeleníti az osztály nélküli felhasználókat',
+        'Mostantól, ha a keresőmezőben bármilyen szöveget beírnak, a rendszer automatikusan megjeleníti az osztály nélküli felhasználókat is.'
+      ),
+    ]
+  ),
+  createChangelogEntry(
     'v1.2.3',
     '2025. szeptember 30.',
     '2025-09-30T13:00:00Z',

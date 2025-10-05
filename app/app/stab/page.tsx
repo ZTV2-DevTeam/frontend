@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import * as React from "react"
 import { useAuth } from "@/contexts/auth-context"
 import { usePermissions } from "@/contexts/permissions-context"
@@ -475,6 +475,13 @@ export default function StabPage() {
   const [isOsztalyNelkulOpen, setIsOsztalyNelkulOpen] = useState<boolean>(false) // Collapsible state
   const [selectedUser, setSelectedUser] = useState<any>(null) // Add state for modal
   
+  // Auto-expand "Osztály nélkül" section when searching
+  useEffect(() => {
+    if (searchTerm.trim() !== "") {
+      setIsOsztalyNelkulOpen(true)
+    }
+  }, [searchTerm])
+  
   // Check if user has permission to access detailed user data
   // Staff contact information should be accessible to all users
   const canAccessUserData = true // Allow all authenticated users to view staff contact info
@@ -564,7 +571,8 @@ export default function StabPage() {
       const matchesSearch = searchTerm === "" || 
         user.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.email?.toLowerCase().includes(searchTerm.toLowerCase())
+        user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.telefonszam?.toLowerCase().includes(searchTerm.toLowerCase())
       
       const matchesClass = selectedClass === "all" || 
         user.osztaly_name === selectedClass
@@ -843,7 +851,7 @@ export default function StabPage() {
                         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                         <Input
                           id="search"
-                          placeholder="Név, felhasználónév vagy email..."
+                          placeholder="Név, felhasználónév, email vagy telefonszám..."
                           value={searchTerm}
                           onChange={(e) => setSearchTerm(e.target.value)}
                           className="pl-9"
