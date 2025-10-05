@@ -23,6 +23,11 @@ const rawChangelogData: ChangelogEntry[] = [
         'Stáb: Keresés automatikusan megjeleníti az osztály nélküli felhasználókat',
         'Mostantól, ha a keresőmezőben bármilyen szöveget beírnak, a rendszer automatikusan megjeleníti az osztály nélküli felhasználókat is.'
       ),
+      createChange(
+        'improvement',
+        'Egységes E-mail dizájn',
+        'Az összes rendszer által küldött e-mail mostantól egységes dizájnnal rendelkezik, beleértve a fejlécet, láblécet és a színvilágot, hogy professzionálisabb megjelenést biztosítson.'
+      )
     ]
   ),
   createChangelogEntry(
