@@ -4,6 +4,23 @@ import { create } from 'domain';
 
 const rawChangelogData: ChangelogEntry[] = [
   createChangelogEntry(
+    'v1.2.5',
+    '2025. október 06.',
+    '2025-10-06T09:00:00Z',
+    [
+      createChange(
+        'bugfix',
+        'Assignment - szerkesztő validation hiba javítása',
+        'Javítottuk a hibát, mely hibásan azt jelenítette meg, hogy egy adott forgatáshoz nem létezik beosztás, amikor szerkesztő lett a forgatáshoz rendelve.'
+      ),
+      createChange(
+        'feature',
+        'Forgatások részletei - Szerkesztő megjelenítése',
+        'Mostantól a forgatások részleteinél megjelenik a szerkesztő.'
+      ),
+    ]
+  ),
+  createChangelogEntry(
     'v1.2.4',
     '2025. október 06.',
     '2025-10-06T01:00:00Z',

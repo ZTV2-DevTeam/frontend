@@ -37,6 +37,7 @@ import {
   AlertCircle,
   Loader2,
   Settings,
+  Pin,
 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
@@ -135,8 +136,20 @@ export default function FilmingSessionDetail({ params }: PageProps) {
     [isAuthenticated, assignment]
   )
 
+  // Szerkesztő user details query
+  const szerkesztoQuery = useApiQuery(
+    () => {
+      if (!isAuthenticated || !assignment?.forgatas || !(assignment.forgatas as any).szerkeszto) {
+        return Promise.resolve(null)
+      }
+      return apiClient.getUserDetails((assignment.forgatas as any).szerkeszto.id)
+    },
+    [isAuthenticated, assignment]
+  )
+
   const { data: equipmentList = [], loading: equipmentLoading } = equipmentQueries
   const { data: userDetailsList = [], loading: usersLoading } = userQueries
+  const { data: szerkesztoDetails = null, loading: szerkesztoLoading } = szerkesztoQuery
 
   // Computed values - get crew from assignment with detailed user info
   const crew: CrewMember[] = useMemo(() => {
@@ -620,6 +633,61 @@ export default function FilmingSessionDetail({ params }: PageProps) {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
+                      {/* Show szerkesztő if available */}
+                      {assignment?.forgatas && (assignment.forgatas as any).szerkeszto && (
+                        <button
+                          onClick={() => {
+                            const szerkeszto = (assignment.forgatas as any).szerkeszto
+                            const szerkesztoMember = {
+                              id: szerkeszto.id,
+                              name: szerkeszto.full_name,
+                              role: 'Szerkesztő',
+                              class: szerkesztoDetails?.osztaly_name || 'N/A',
+                              stab: szerkesztoDetails?.stab_name || 'N/A',
+                              phone: szerkesztoDetails?.telefonszam || '',
+                              email: szerkesztoDetails?.email || '',
+                              team: szerkeszto.username?.includes('A') ? 'A' : 'B',
+                              firstName: szerkeszto.first_name || szerkesztoDetails?.first_name || '',
+                              lastName: szerkeszto.last_name || szerkesztoDetails?.last_name || '',
+                              username: szerkeszto.username || szerkesztoDetails?.username || ''
+                            }
+                            setSelectedCrewMember(szerkesztoMember)
+                          }}
+                          className="w-full p-3 rounded-lg bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/30 hover:from-cyan-500/15 hover:to-blue-500/15 hover:border-cyan-500/40 transition-all text-left"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="relative">
+                              <UserAvatar
+                                email={szerkesztoDetails?.email || ''}
+                                firstName={(assignment.forgatas as any).szerkeszto.first_name || szerkesztoDetails?.first_name || ''}
+                                lastName={(assignment.forgatas as any).szerkeszto.last_name || szerkesztoDetails?.last_name || ''}
+                                username={(assignment.forgatas as any).szerkeszto.username || szerkesztoDetails?.username || ''}
+                                customSize={40}
+                                className="border border-cyan-500/50"
+                                fallbackClassName="bg-gradient-to-br from-cyan-500/20 to-blue-500/20 text-sm font-semibold"
+                              />
+                              <div className="absolute -top-1 -right-1 bg-red-500 rounded-full p-1">
+                                <Pin className="h-3 w-3 text-white rotate-45 stroke-3" />
+                              </div>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="font-medium text-sm flex items-center gap-2">
+                                {(assignment.forgatas as any).szerkeszto.full_name}
+                                <Badge variant="secondary" className="bg-cyan-500/20 text-cyan-400 border-cyan-500/30 text-xs">
+                                  Szerkesztő
+                                </Badge>
+                                {szerkesztoDetails?.stab_name && (
+                                  <UserStabBadge stabName={szerkesztoDetails.stab_name} size="sm" />
+                                )}
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                {szerkesztoDetails?.osztaly_name ? `${szerkesztoDetails.osztaly_name} • Szerkesztő` : 'Szerkesztő'}
+                              </div>
+                            </div>
+                          </div>
+                        </button>
+                      )}
+                      
                       {crew.length === 0 ? (
                         <div className="text-center py-4 text-muted-foreground text-sm">
                           Nincs stáb hozzárendelve
