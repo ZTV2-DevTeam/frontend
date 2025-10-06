@@ -4,6 +4,23 @@ import { create } from 'domain';
 
 const rawChangelogData: ChangelogEntry[] = [
   createChangelogEntry(
+    'v1.2.9',
+    '2025. október 06.',
+    '2025-10-06T20:00:00Z',
+    [
+      createChange(
+        'improvement',
+        'Rádiós stábok kártyaszíneinek egyeztetése a stábok színeivel',
+        'A rádiós stábok kártyaszínei mostantól megegyeznek a stábok színeivel, így könnyebben azonosíthatók.'
+      ),
+      createChange(
+        'removed',
+        'Aktuális és jövőbeli fejlesztések felsorolása eltávolítva',
+        'Az "Aktuális és jövőbeli fejlesztések" szekció eltávolításra került a változások oldalról, valamint a Segítség menüből.'
+      ),
+    ]
+  ),
+  createChangelogEntry(
     'v1.2.8',
     '2025. október 06.',
     '2025-10-06T16:00:00Z',
