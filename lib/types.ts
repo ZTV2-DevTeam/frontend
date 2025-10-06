@@ -82,6 +82,7 @@ export interface UserProfileSchema {
   radio_stab_name?: string
   osztaly_name?: string
   is_second_year_radio: boolean
+  gyv?: boolean
 }
 
 export interface UserDetailSchema {
@@ -104,6 +105,7 @@ export interface UserDetailSchema {
   date_joined: string
   last_login?: string
   absences?: TavolletSchema[] // Optional absences property
+  gyv?: boolean
 }
 
 export interface UserCreateSchema {

@@ -23,6 +23,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
+import { Toggle } from "@/components/ui/toggle"
 import { 
   Users, 
   Mail, 
@@ -290,7 +291,16 @@ function UserCard({ user, onEdit, onDelete, hasAdminPermissions = false }: {
       };
     }
     
-    // Default to student for anyone without admin privileges or class teacher role
+    // Check gyv (for production managers/gyártásvezetők)
+    if (user.gyv === true) {
+      return { 
+        name: 'Gyártásvezető', 
+        icon: '🎬', 
+        color: 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400' 
+      };
+    }
+    
+    // Default to student for anyone without admin privileges or special roles
     return { 
       name: 'Diák', 
       icon: '🎓', 
@@ -474,6 +484,7 @@ export default function StabPage() {
   const [sortBy, setSortBy] = useState<string>("name")
   const [isOsztalyNelkulOpen, setIsOsztalyNelkulOpen] = useState<boolean>(false) // Collapsible state
   const [selectedUser, setSelectedUser] = useState<any>(null) // Add state for modal
+  const [filterGyartasvezetok, setFilterGyartasvezetok] = useState<boolean>(false) // Add Gyártásvezető filter
   
   // Auto-expand "Osztály nélkül" section when searching
   useEffect(() => {
@@ -579,9 +590,12 @@ export default function StabPage() {
       
       const matchesRole = selectedRole === "all" ||
         user.admin_type === selectedRole ||
-        (selectedRole === "class_teacher" && user.is_class_teacher === true)
+        (selectedRole === "class_teacher" && user.is_class_teacher === true) ||
+        (selectedRole === "gyartasvezeto" && user.gyv === true)
       
-      return matchesSearch && matchesClass && matchesRole
+      const matchesGyartasvezetoFilter = !filterGyartasvezetok || user.gyv === true
+      
+      return matchesSearch && matchesClass && matchesRole && matchesGyartasvezetoFilter
     })
 
     // Sort users
@@ -667,7 +681,10 @@ export default function StabPage() {
       .map((user: any) => user.admin_type),
     ...normalizedUsers
       .filter((user: any) => user?.is_class_teacher === true)
-      .map(() => "class_teacher")
+      .map(() => "class_teacher"),
+    ...normalizedUsers
+      .filter((user: any) => user?.gyv === true)
+      .map(() => "gyartasvezeto")
   ])].sort()
 
   const handleRefresh = () => {
@@ -696,7 +713,12 @@ export default function StabPage() {
       return { name: 'Osztályfőnök', icon: '👩‍🏫', color: 'bg-purple-100 text-purple-800' };
     }
     
-    // For users without admin_type or class teacher role, default to student
+    // Check gyv (for production managers/gyártásvezetők)
+    if (user.gyv === true) {
+      return { name: 'Gyártásvezető', icon: '🎬', color: 'bg-orange-100 text-orange-800' };
+    }
+    
+    // For users without admin_type or special roles, default to student
     if (user.admin_type === 'none' || !user.admin_type) {
       return { name: 'Diák', icon: '🎓', color: 'bg-blue-100 text-blue-800' };
     }
@@ -843,9 +865,9 @@ export default function StabPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-6">
+                  <div className="grid gap-x-4 gap-y-2 md:grid-cols-2 lg:grid-cols-6">
                     {/* Search */}
-                    <div className="lg:col-span-2">
+                    <div className="lg:col-span-2 flex flex-col gap-2">
                       <Label htmlFor="search">Keresés</Label>
                       <div className="relative">
                         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -860,7 +882,7 @@ export default function StabPage() {
                     </div>
 
                     {/* Group By */}
-                    <div>
+                    <div className="flex flex-col gap-2">
                       <Label>Csoportosítás</Label>
                       <Select value={groupBy} onValueChange={(value: "class" | "role" | "none") => setGroupBy(value)}>
                         <SelectTrigger>
@@ -875,7 +897,7 @@ export default function StabPage() {
                     </div>
 
                     {/* Class Filter */}
-                    <div>
+                    <div className="flex flex-col gap-2">
                       <Label>Osztály</Label>
                       <Select value={selectedClass} onValueChange={setSelectedClass}>
                         <SelectTrigger>
@@ -893,7 +915,7 @@ export default function StabPage() {
                     </div>
 
                     {/* Role Filter */}
-                    <div>
+                    <div className="flex flex-col gap-2">
                       <Label>Szerepkör</Label>
                       <Select value={selectedRole} onValueChange={setSelectedRole}>
                         <SelectTrigger>
@@ -906,6 +928,7 @@ export default function StabPage() {
                               {role === 'student' ? 'Diák' :
                                role === 'teacher' ? 'Médiatanár' :
                                role === 'class_teacher' ? 'Osztályfőnök' :
+                               role === 'gyartasvezeto' ? 'Gyártásvezető' :
                                role === 'system_admin' ? 'Rendszergazda' :
                                role === 'developer' ? 'Fejlesztő' :
                                role === 'staff' ? 'Alkalmazott' :
@@ -918,7 +941,7 @@ export default function StabPage() {
                     </div>
 
                     {/* Sort */}
-                    <div>
+                    <div className="flex flex-col gap-2">
                       <Label>Rendezés</Label>
                       <Select value={sortBy} onValueChange={setSortBy}>
                         <SelectTrigger>
@@ -930,6 +953,25 @@ export default function StabPage() {
                           <SelectItem value="class">Osztály szerint</SelectItem>
                         </SelectContent>
                       </Select>
+                    </div>
+                  </div>
+                  
+                  {/* Additional Filters Row */}
+                  <div className="flex items-center gap-4 pt-2 border-t border-border/50">
+                    <div className="flex items-center space-x-2">
+                      <Toggle
+                        pressed={filterGyartasvezetok}
+                        onPressedChange={setFilterGyartasvezetok}
+                        aria-label="Filter Gyártásvezetők"
+                        variant="outline"
+                        size="sm"
+                      >
+                        <Filter className="h-4 w-4 mr-2" />
+                        Filter Gyártásvezetők
+                      </Toggle>
+                      <span className="text-xs text-muted-foreground">
+                        {filterGyartasvezetok ? 'Csak gyártásvezetők' : 'Minden felhasználó'}
+                      </span>
                     </div>
                   </div>
                 </CardContent>
@@ -959,15 +1001,17 @@ export default function StabPage() {
                       const developerUsers = classUsers.filter((user: any) => user.admin_type === 'developer')
                       const teacherUsers = classUsers.filter((user: any) => user.admin_type === 'teacher')
                       const classTeacherUsers = classUsers.filter((user: any) => user.is_class_teacher === true)
+                      const gyartasvezetoUsers = classUsers.filter((user: any) => user.gyv === true)
                       
-                      // Group remaining users as "Diákok" (those without admin_type or class teacher role)
+                      // Group remaining users as "Diákok" (those without admin_type, class teacher role, or gyv)
                       const studentUsers = classUsers.filter((user: any) => {
                         const isAdmin = user.admin_type === 'system_admin'
                         const isDeveloper = user.admin_type === 'developer' 
                         const isTeacher = user.admin_type === 'teacher'
                         const isClassTeacher = user.is_class_teacher === true
+                        const isGyartasvezeto = user.gyv === true
                         
-                        return !isAdmin && !isDeveloper && !isTeacher && !isClassTeacher
+                        return !isAdmin && !isDeveloper && !isTeacher && !isClassTeacher && !isGyartasvezeto
                       })
                       
                       roleGroups = [
@@ -975,6 +1019,7 @@ export default function StabPage() {
                         { users: developerUsers, name: 'Fejlesztők', icon: '💻', color: 'bg-gray-500/10 text-gray-600 border-gray-500/30 dark:bg-gray-400/10 dark:text-gray-300 dark:border-gray-400/30' },
                         { users: teacherUsers, name: 'Médiatanárok', icon: '👨‍🏫', color: 'bg-green-500/10 text-green-600 border-green-500/30 dark:bg-green-400/10 dark:text-green-300 dark:border-green-400/30' },
                         { users: classTeacherUsers, name: 'Osztályfőnökök', icon: '👩‍🏫', color: 'bg-purple-500/10 text-purple-600 border-purple-500/30 dark:bg-purple-400/10 dark:text-purple-300 dark:border-purple-400/30' },
+                        { users: gyartasvezetoUsers, name: 'Gyártásvezetők', icon: '🎬', color: 'bg-orange-500/10 text-orange-600 border-orange-500/30 dark:bg-orange-400/10 dark:text-orange-300 dark:border-orange-400/30' },
                         { users: studentUsers, name: 'Diákok', icon: '🎓', color: 'bg-blue-500/10 text-blue-600 border-blue-500/30 dark:bg-blue-400/10 dark:text-blue-300 dark:border-blue-400/30' }
                       ].filter(group => group.users.length > 0)
                       
@@ -1299,6 +1344,7 @@ export default function StabPage() {
                       setSearchTerm("")
                       setSelectedClass("all")
                       setSelectedRole("all")
+                      setFilterGyartasvezetok(false)
                       setGroupBy("class") // Reset to default class grouping
                     }} variant="outline">
                       Szűrők törlése

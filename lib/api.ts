@@ -130,6 +130,7 @@ export interface UserProfileSchema {
   radio_stab_name?: string
   osztaly_name?: string
   is_second_year_radio: boolean
+  gyv?: boolean
 }
 
 export interface UserDetailSchema {
@@ -151,6 +152,7 @@ export interface UserDetailSchema {
   first_login_token_sent: boolean
   date_joined: string
   last_login?: string
+  gyv?: boolean
 }
 
 export interface UserCreateSchema {

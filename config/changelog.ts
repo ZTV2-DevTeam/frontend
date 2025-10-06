@@ -4,6 +4,18 @@ import { create } from 'domain';
 
 const rawChangelogData: ChangelogEntry[] = [
   createChangelogEntry(
+    'v1.2.6',
+    '2025. október 06.',
+    '2025-10-06T12:00:00Z',
+    [
+      createChange(
+        'improvement',
+        'Stáb: Gyártásvezetők megjelenítése és szűrésének lehetősége',
+        'Mostantól a Stáb menüben megjelennek a gyártásvezetők is, és lehetőség van rájuk szűrni.'
+      ),
+    ]
+  ),
+  createChangelogEntry(
     'v1.2.5',
     '2025. október 06.',
     '2025-10-06T09:00:00Z',
