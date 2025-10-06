@@ -153,79 +153,7 @@ export default function ChangelogPage() {
             </p>
           </div>
 
-          {/* Current and Future Developments Card */}
-          <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4 sm:p-6 shadow-sm overflow-hidden">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
-              <div className="flex items-center justify-center w-10 h-10 bg-blue-600 text-white rounded-full flex-shrink-0">
-                <Zap className="w-5 h-5" />
-              </div>
-              <div className="min-w-0">
-                <h2 className="text-xl sm:text-2xl font-semibold text-blue-900 dark:text-blue-100 break-words">
-                  Jelenlegi és jövőbeli fejlesztések
-                </h2>
-                <p className="text-blue-700 dark:text-blue-300 text-sm break-words">
-                  Miken dolgozunk jelenleg és mit tervezünk a jövőben
-                </p>
-              </div>
-            </div>
 
-            <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
-              {/* Current Development */}
-              <div className="bg-white dark:bg-gray-900 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                  <h3 className="font-semibold text-green-800 dark:text-green-200">
-                    Folyamatban
-                  </h3>
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-start gap-2">
-                    <Plus className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
-                    <div className="min-w-0">
-                      <p className="font-medium text-sm break-words">Rádiózás</p>
-                      <p className="text-xs text-muted-foreground break-words">
-                        Rádiós Stábok kezelése, rádiós összejátszások követése és kezelése
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Future Development */}
-              <div className="bg-white dark:bg-gray-900 rounded-lg p-4 border border-purple-200 dark:border-purple-800">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
-                  <h3 className="font-semibold text-purple-800 dark:text-purple-200">
-                    Tervezett funkciók
-                  </h3>
-                </div>
-                <div className="space-y-1.5">
-                  <div className="flex items-start gap-2">
-                    <Zap className="w-3 h-3 text-purple-600 mt-0.5 flex-shrink-0" />
-                    <span className="text-xs break-words">Google Fiók authentikáció</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <Zap className="w-3 h-3 text-purple-600 mt-0.5 flex-shrink-0" />
-                    <span className="text-xs break-words">Dinamikus e-mail értesítések</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <Zap className="w-3 h-3 text-purple-600 mt-0.5 flex-shrink-0" />
-                    <span className="text-xs break-words">Partner-, eszköz- és felhasználókezelés</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <Zap className="w-3 h-3 text-purple-600 mt-0.5 flex-shrink-0" />
-                    <span className="text-xs break-words">Forgatástörténet és statisztikák</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-4 text-center">
-              <p className="text-xs text-blue-600 dark:text-blue-400 break-words">
-                💡 További részletekért látogasd meg a <span className="font-medium">Segítség &gt; Erőforrások</span> oldalt
-              </p>
-            </div>
-          </div>
 
           <div className="space-y-6 sm:space-y-8">
             {changelogData.map((entry, index) => (

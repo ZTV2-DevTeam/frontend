@@ -22,34 +22,19 @@ import { useAuth } from "@/contexts/auth-context"
 import { CONTACT_CONFIG } from "@/lib/config"
 import { 
   BookOpen, 
-  Users, 
-  Shield, 
+  Shield,
   HelpCircle, 
   Mail, 
-  Phone, 
-  AlertTriangle,
   User,
   UserCheck,
   Crown,
-  FileText,
-  Settings,
-  Calendar,
-  Database,
-  Activity,
   ExternalLink,
   MessageSquare,
   Bug,
   Lightbulb,
   AlertOctagon,
   CheckCircle,
-  GraduationCap,
-  MailPlus,
-  TicketCheck,
-  MessageCircleQuestionIcon,
-  Calendar1,
-  CalendarRange,
-  ShieldBan,
-  Radio
+  GraduationCap
 } from "lucide-react"
 
 export default function HelpPage() {
@@ -235,10 +220,6 @@ export default function HelpPage() {
   ]
 
   const roleContent = getCurrentRoleContent()
-
-  const elkeszultBadge = <Badge className="ml-2 text-xs px-2 py-1 bg-green-500 text-green-50 dark:bg-green-900 dark:text-green-300">
-    Elkészült
-  </Badge>
   return (
     <SidebarProvider>
       <AppSidebar variant="inset" />
@@ -291,11 +272,6 @@ export default function HelpPage() {
                   <MessageSquare className="w-3 h-3 sm:w-4 sm:h-4" />
                   <span className="hidden sm:inline">Visszajelzés</span>
                   <span className="sm:hidden">Feedback</span>
-                </TabsTrigger>
-                <TabsTrigger value="resources" className="flex items-center gap-1 px-2 py-2 text-xs sm:gap-2 sm:px-3 sm:text-sm">
-                  <FileText className="w-3 h-3 sm:w-4 sm:h-4" />
-                  <span className="hidden sm:inline">Erőforrások</span>
-                  <span className="sm:hidden">Extra</span>
                 </TabsTrigger>
               </TabsList>
             </div>
@@ -676,218 +652,7 @@ export default function HelpPage() {
               </Card>
             </TabsContent>
 
-            {/* Resources Tab */}
-            <TabsContent value="resources" className="space-y-4">
-              {/* Future Development Plans */}
-              <Card className="border-purple-200 bg-purple-50 dark:border-purple-800 dark:bg-purple-950">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-purple-800 dark:text-purple-200">
-                    <Lightbulb className="h-5 w-5" />
-                    Mik várhatóak a jövőben?
-                  </CardTitle>
-                  <CardDescription className="text-purple-700 dark:text-purple-300">
-                    Tervezett funkciók és fejlesztések a rendszerben (nem prioritási sorrendben)
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="text-purple-700 dark:text-purple-300">
-                  <div className="space-y-4">
-                    <div>
-                      <h4 className="font-medium mb-2 flex items-center gap-2">
-                        <Database className="w-4 h-4" />
-                        Minden adat kezelése ezen a modern felületen
-                      </h4>
-                      <p className="text-sm mb-3 text-muted-foreground">
-                        Jelenleg vannak olyan információk, melyek csak közvetlenül a backend (ftvapi) felületen kezelhetőek, 
-                        ezek szerkesztésére a jövőben új felületeket hozunk létre ezen az oldalon:
-                      </p>
-                      <ul className="text-sm space-y-1 pl-4">
-                        <li>• <strong>Partnerkezelő felület</strong> - Minden partner áttekintése és kezelése</li>
-                        <li>• <strong>Eszközkezelő felület</strong> - Minden eszköz áttekintése és kezelése</li>
-                        <li>• <strong>Felhasználókezelő felület</strong> - Minden felhasználó áttekintése és kezelése (szerepkörök, stábok, rádiós stábok)</li>
-                      </ul>
-                    </div>
 
-                    <div>
-                      <h4 className="font-medium mb-2 flex items-center gap-2">
-                        <MailPlus className="w-4 h-4" />
-                        BetterEmails - Dinamikus e-mail értesítés minden helyzetben
-                      </h4>
-                      <p className="text-sm text-muted-foreground">
-                        A rendszer által küldött e-mailek korlátozottak és csak bár kritikus esetben kerülnek kiküldésre, többnyire technikai okok miatt. Minél előbb igyekszünk ezeket orvosolni és minden lehetséges helyzetben egy informatív értesítést küldeni, melyek testreszabhatóak lennének a felhasználók számára.
-                      </p>
-                    </div>
-                    
-                    <div>
-                      <h4 className="font-medium mb-2 flex items-center gap-2">
-                        <ShieldBan className="w-4 h-4" />
-                        Google Fiók alapú authentikáció
-                      </h4>
-                      <p className="text-sm text-muted-foreground">
-                        A Google Fiók alapú authentikáció lehetővé teszi a felhasználók számára, hogy a Google fiókjukkal jelentkezzenek be a rendszerbe. Ez egyszerűsíti a bejelentkezési folyamatot, és növeli a biztonságot. E funkció bevezetésével megszűnnek a fiókokhoz tartozó jelszavak és az intézményi fiókokkal lehet majd belépni. Ez lehetővé teszi jelszavak helyett, Azonosítókulcsok használatát is.
-                        <br />
-                        Frissítés: Az applikációt bejegyeztük a Google-nél, jelenleg a hitelesítésre várunk
-                      </p>
-                    </div>
-
-                    <div>
-                      <h4 className="font-medium mb-2 flex items-center gap-2">
-                        <MessageSquare className="w-4 h-4" />
-                        Reakciók az üzenőfalon
-                      </h4>
-                      <p className="text-sm text-muted-foreground">
-                        Emoji alapú reakciók, valamint kommentek bekapcsolásának lehetősége adminisztrátorok számára
-                      </p>
-                    </div>
-
-                    <div>
-                      <h4 className="font-medium mb-2 flex items-center gap-2">
-                        <Activity className="w-4 h-4" />
-                        Forgatástörténet, statisztika
-                      </h4>
-                      <p className="text-sm text-muted-foreground">
-                        Minden múltbeli forgatás adatainak és abból készített statisztikák áttekintése
-                      </p>
-                    </div>
-                    
-                    <div>
-                      <h4 className="font-medium mb-2 flex items-center gap-2">
-                        <Radio className="w-4 h-4" />
-                        Rádiós stábok és össjátszások kezelés, megtekintése
-                      </h4>
-                      <p className="text-sm text-muted-foreground">
-                        Rádiós stábok létrehozása, kezelése és össjátszások ütemezése a felhasználói felületen.
-                      </p>
-                    </div>
-
-                    <Separator />
-
-                    <div>
-                      <h4 className="font-medium mb-2 flex items-center gap-2">
-                        <Settings className="w-4 h-4" />
-                        Technikai módosítások
-                      </h4>
-                      <ul className="text-sm space-y-2">
-                        <li>
-                          <strong>Gyorsabb felület</strong><br />
-                          <span className="text-muted-foreground">
-                            Felhasználói felület betöltési idejének csökkentése, a biztonsági protokollok megtartásával
-                          </span>
-                        </li>
-                        <li>
-                          <strong>Docker konténerek a backenden</strong><br />
-                          <span className="text-muted-foreground">
-                            Úgynevezett "Docker konténerek" használata a backend szerver üzemeltetése során sok időt, energiát és számítási kapacitást takarít meg, ezáltal a rendszer stabilabb és gyorsabb lesz.
-                          </span>
-                        </li>
-                      </ul>
-                    </div>
-
-                    <div className="mt-4 p-3 rounded-lg bg-white dark:bg-gray-900 border border-purple-200 dark:border-purple-800">
-                      <p className="text-sm font-medium text-center text-purple-800 dark:text-purple-200">
-                        💡 Hiányolsz valamit? Jelezd a fejleszőknek!
-                      </p>
-                      <p className="text-xs text-center text-muted-foreground mt-1">
-                        Használd a visszajelzési űrlapunkat új funkciók javaslására
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <div className="grid gap-4 md:grid-cols-2">
-                {/* System Status */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Activity className="h-5 w-5" />
-                      Rendszer állapot
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">API szerver:</span>
-                      <Badge variant="outline" className="text-green-600">
-                        Online
-                      </Badge>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Adatbázis:</span>
-                      <Badge variant="outline" className="text-green-600">
-                        Működik
-                      </Badge>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Django Admin:</span>
-                      <Badge variant="outline" className="text-green-600">
-                        Elérhető
-                      </Badge>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* External Links */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <ExternalLink className="h-5 w-5" />
-                      Hasznos linkek
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    {currentRole === 'admin' && (
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="w-full justify-start"
-                        onClick={() => {
-                          const adminUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL || 'https://ftvapi.szlg.info'}/admin/`;
-                          window.open(adminUrl, '_blank');
-                        }}
-                      >
-                        <Database className="w-4 h-4 mr-2" />
-                        Django - Adatbázis adminisztráció
-                      </Button>
-                    )}
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="w-full justify-start"
-                      onClick={() => window.open(CONTACT_CONFIG.WEBSITE_URL, '_blank')}
-                    >
-                      <ExternalLink className="w-4 h-4 mr-2" />
-                      {CONTACT_CONFIG.ORG_NAME} weboldal
-                    </Button>
-                  </CardContent>
-                </Card>
-
-                {/* Emergency Contact */}
-                <Card className="md:col-span-2 border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-red-800 dark:text-red-200">
-                      <AlertTriangle className="h-5 w-5" />
-                      Sürgős esetekben
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="text-red-700 dark:text-red-300">
-                    <p className="mb-2">
-                      Kritikus rendszerhiba vagy sürgős technikai probléma esetén:
-                    </p>
-                    <div className="flex items-center gap-2">
-                      <Mail className="w-4 h-4" />
-                      <a 
-                        href={`mailto:${CONTACT_CONFIG.EMERGENCY_CONTACT}?subject=SÜRGŐS - Kritikus rendszerhiba&body=Probléma leírása:%0A%0AFelhasználó: ${user?.username || 'N/A'}%0ASzerepkör: ${currentRole}%0AIdőpont: ${new Date().toLocaleString('hu-HU')}`}
-                        className="underline hover:text-red-800 dark:hover:text-red-200"
-                      >
-                        {CONTACT_CONFIG.EMERGENCY_CONTACT}
-                      </a>
-                    </div>
-                    <p className="text-sm mt-2">
-                      Sürgős esetben a tárgy sorában jelöld meg: &quot;SÜRGŐS&quot;
-                    </p>
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
           </Tabs>
         </div>
       </SidebarInset>
