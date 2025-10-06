@@ -13,6 +13,11 @@ const rawChangelogData: ChangelogEntry[] = [
         'Stáb: Gyártásvezetők megjelenítése és szűrésének lehetősége',
         'Mostantól a Stáb menüben megjelennek a gyártásvezetők is, és lehetőség van rájuk szűrni.'
       ),
+      createChange(
+        'removed',
+        'Utoljára aktív információ eltávolítva',
+        'Az utoljára aktív információ eltávolításra került a Stáb menüből, mivel ez az adat nem releváns a felhasználók számára.'
+      ),
     ]
   ),
   createChangelogEntry(
