@@ -18,6 +18,9 @@ import { usePermissions } from "@/contexts/permissions-context"
 import { useApiQuery } from "@/lib/api-helpers"
 import { apiClient } from "@/lib/api"
 import type { UserRole } from "@/contexts/user-role-context"
+import type { PendingFilmingSessionsSchema, PendingFilmingSessionItemSchema } from "@/lib/api"
+import { format } from "date-fns"
+import { hu } from "date-fns/locale"
 import { 
   Users, 
   Clock, 
@@ -584,6 +587,16 @@ function SystemOverviewWidget() {
   )
 }
 
+// Date helper for formatting filming session dates
+const formatSessionDate = (dateStr: string) => {
+  try {
+    const date = new Date(dateStr)
+    return format(date, 'MM. dd. (EEE)', { locale: hu })
+  } catch {
+    return dateStr
+  }
+}
+
 // Student Widget Components
 function FuggoForgatasokWidget() {
   const router = useRouter()
@@ -594,7 +607,7 @@ function FuggoForgatasokWidget() {
   const canAccessData = hasPermission('is_admin') || hasPermission('is_system_admin') || hasPermission('is_teacher_admin')
   
   const { data: fuggoForgatosokData, loading, error } = useApiQuery(
-    () => isAuthenticated && canAccessData ? apiClient.get('users/fuggo-forgatasok') : Promise.resolve(null),
+    () => isAuthenticated && canAccessData ? apiClient.getPendingFilmingSessions() : Promise.resolve(null),
     [isAuthenticated, canAccessData]
   )
 
@@ -650,19 +663,18 @@ function FuggoForgatasokWidget() {
     )
   }
 
-  const no_szerepkor_relations = (fuggoForgatosokData as any)?.no_szerepkor_relations || []
-  const has_szerepkor_relations = (fuggoForgatosokData as any)?.has_szerepkor_relations || []
+  const no_szerepkor_relations = fuggoForgatosokData?.no_szerepkor_relations || []
+  const has_szerepkor_relations = fuggoForgatosokData?.has_szerepkor_relations || []
   const totalPending = no_szerepkor_relations.length + has_szerepkor_relations.length
 
-  // Sort function to order by date (assuming there's a date field in the forgatas data)
-  const sortByDate = (forgatasList: any[]) => {
+  // Sort function to order by date 
+  const sortByDate = (forgatasList: PendingFilmingSessionItemSchema[]) => {
     return [...forgatasList].sort((a, b) => {
-      // If there's a date field, use it for sorting
+      // Sort by date field first
       if (a.date && b.date) {
         return new Date(a.date).getTime() - new Date(b.date).getTime()
       }
-      // If no date field, try to extract date from time field or name
-      // For now, sort by id as fallback to maintain consistent order
+      // Fallback to ID for consistent ordering
       return a.id - b.id
     })
   }
@@ -677,6 +689,7 @@ function FuggoForgatasokWidget() {
   }
 
   return (
+    
     <Card className="min-h-[400px] flex flex-col">
       <CardHeader className="pb-4">
         <div className="flex items-center gap-3">
@@ -690,6 +703,19 @@ function FuggoForgatasokWidget() {
         </div>
       </CardHeader>
       <CardContent className="space-y-4 flex-1 overflow-y-auto">
+        {/* Summary Stats */}
+        <div className="pt-3 border-t border-border/30">
+          <div className="grid grid-cols-2 gap-3 text-center">
+            <div className="p-3 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800">
+              <div className="text-xl font-bold text-red-700 dark:text-red-300">{no_szerepkor_relations.length}</div>
+              <div className="text-xs text-red-600 dark:text-red-400">Sürgős</div>
+            </div>
+            <div className="p-3 rounded-lg bg-yellow-50 dark:bg-yellow-950/30 border border-yellow-200 dark:border-yellow-800">
+              <div className="text-xl font-bold text-yellow-700 dark:text-yellow-300">{has_szerepkor_relations.length}</div>
+              <div className="text-xs text-yellow-600 dark:text-yellow-400">Véglegesítendő</div>
+            </div>
+          </div>
+        </div>
         {totalPending === 0 ? (
           <div className="text-center py-8">
             <div className="w-20 h-20 bg-green-100 dark:bg-green-950/30 rounded-full flex items-center justify-center mx-auto mb-4 border border-green-200 dark:border-green-800">
@@ -713,26 +739,28 @@ function FuggoForgatasokWidget() {
                   </Badge>
                 </div>
                 <div className="space-y-2">
-                  {sortedNoRoleRelations.map((forgatas: any) => (
+                  {sortedNoRoleRelations.map((forgatas: PendingFilmingSessionItemSchema) => (
                     <div key={forgatas.id} className="p-3 border border-red-200 rounded-lg bg-red-50 dark:bg-red-950/20 dark:border-red-800">
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1">
-                          <div className="font-medium text-sm text-red-900 dark:text-red-100">{forgatas.name}</div>
-                          <div className="flex items-center gap-3 text-xs text-red-700 dark:text-red-300 mt-1">
-                            <div className="flex items-center gap-1">
-                              <Clock className="h-3 w-3" />
-                              <span>{forgatas.time}</span>
-                            </div>
-                            {forgatas.location && (
-                              <div className="flex items-center gap-1">
-                                <Globe className="h-3 w-3" />
-                                <span>{forgatas.location}</span>
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="font-medium text-sm text-red-900 dark:text-red-100 truncate">{forgatas.name}</div>
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 text-xs text-red-700 dark:text-red-300 mt-1">
+                            {forgatas.date && (
+                              <div className="flex items-center gap-1 shrink-0">
+                                <Calendar className="h-3 w-3" />
+                                <span>{formatSessionDate(forgatas.date)}</span>
                               </div>
                             )}
-                            {forgatas.szerkeszto && (
-                              <div className="flex items-center gap-1">
-                                <User className="h-3 w-3" />
-                                <span>{forgatas.szerkeszto}</span>
+                            {forgatas.time && (
+                              <div className="flex items-center gap-1 shrink-0">
+                                <Clock className="h-3 w-3" />
+                                <span>{forgatas.time}</span>
+                              </div>
+                            )}
+                            {forgatas.location && (
+                              <div className="flex items-center gap-1 min-w-0">
+                                <Globe className="h-3 w-3 shrink-0" />
+                                <span className="truncate">{forgatas.location}</span>
                               </div>
                             )}
                           </div>
@@ -740,11 +768,11 @@ function FuggoForgatasokWidget() {
                         <Button 
                           size="sm" 
                           variant="outline" 
-                          className="border-red-300 text-red-700 hover:bg-red-100"
+                          className="border-red-300 text-red-700 hover:bg-red-100 shrink-0"
                           onClick={() => handleNavigateToAssignment(forgatas.id)}
                         >
-                          <Users className="h-4 w-4 mr-1" />
-                          Beosztás
+                          <Users className="h-4 w-4 sm:mr-1" />
+                          <span className="inline">Beosztás</span>
                         </Button>
                       </div>
                     </div>
@@ -764,26 +792,28 @@ function FuggoForgatasokWidget() {
                   </Badge>
                 </div>
                 <div className="space-y-2">
-                  {sortedHasRoleRelations.map((forgatas: any) => (
+                  {sortedHasRoleRelations.map((forgatas: PendingFilmingSessionItemSchema) => (
                     <div key={forgatas.id} className="p-3 border border-yellow-200 rounded-lg bg-yellow-50 dark:bg-yellow-950/20 dark:border-yellow-800">
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1">
-                          <div className="font-medium text-sm text-yellow-900 dark:text-yellow-100">{forgatas.name}</div>
-                          <div className="flex items-center gap-3 text-xs text-yellow-700 dark:text-yellow-300 mt-1">
-                            <div className="flex items-center gap-1">
-                              <Clock className="h-3 w-3" />
-                              <span>{forgatas.time}</span>
-                            </div>
-                            {forgatas.location && (
-                              <div className="flex items-center gap-1">
-                                <Globe className="h-3 w-3" />
-                                <span>{forgatas.location}</span>
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="font-medium text-sm text-yellow-900 dark:text-yellow-100 truncate">{forgatas.name}</div>
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 text-xs text-yellow-700 dark:text-yellow-300 mt-1">
+                            {forgatas.date && (
+                              <div className="flex items-center gap-1 shrink-0">
+                                <Calendar className="h-3 w-3" />
+                                <span>{formatSessionDate(forgatas.date)}</span>
                               </div>
                             )}
-                            {forgatas.szerkeszto && (
-                              <div className="flex items-center gap-1">
-                                <User className="h-3 w-3" />
-                                <span>{forgatas.szerkeszto}</span>
+                            {forgatas.time && (
+                              <div className="flex items-center gap-1 shrink-0">
+                                <Clock className="h-3 w-3" />
+                                <span>{forgatas.time}</span>
+                              </div>
+                            )}
+                            {forgatas.location && (
+                              <div className="flex items-center gap-1 min-w-0">
+                                <Globe className="h-3 w-3 shrink-0" />
+                                <span className="truncate">{forgatas.location}</span>
                               </div>
                             )}
                           </div>
@@ -791,11 +821,11 @@ function FuggoForgatasokWidget() {
                         <Button 
                           size="sm" 
                           variant="outline" 
-                          className="border-yellow-300 text-yellow-700 hover:bg-yellow-100"
+                          className="border-yellow-300 text-yellow-700 hover:bg-yellow-100 shrink-0"
                           onClick={() => handleNavigateToAssignment(forgatas.id)}
                         >
-                          <Settings className="h-4 w-4 mr-1" />
-                          Véglegesítés
+                          <Settings className="h-4 w-4 sm:mr-1" />
+                          <span className="inline">Véglegesítés</span>
                         </Button>
                       </div>
                     </div>
@@ -803,20 +833,6 @@ function FuggoForgatasokWidget() {
                 </div>
               </div>
             )}
-
-            {/* Summary Stats */}
-            <div className="pt-3 border-t border-border/30">
-              <div className="grid grid-cols-2 gap-3 text-center">
-                <div className="p-3 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800">
-                  <div className="text-xl font-bold text-red-700 dark:text-red-300">{no_szerepkor_relations.length}</div>
-                  <div className="text-xs text-red-600 dark:text-red-400">Sürgős</div>
-                </div>
-                <div className="p-3 rounded-lg bg-yellow-50 dark:bg-yellow-950/30 border border-yellow-200 dark:border-yellow-800">
-                  <div className="text-xl font-bold text-yellow-700 dark:text-yellow-300">{has_szerepkor_relations.length}</div>
-                  <div className="text-xs text-yellow-600 dark:text-yellow-400">Véglegesítendő</div>
-                </div>
-              </div>
-            </div>
           </>
         )}
       </CardContent>

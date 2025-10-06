@@ -4,6 +4,40 @@ import { create } from 'domain';
 
 const rawChangelogData: ChangelogEntry[] = [
   createChangelogEntry(
+    'v1.2.8',
+    '2025. október 06.',
+    '2025-10-06T16:00:00Z',
+    [
+      createChange(
+        'improvement',
+        'Függő forgatások dátum megjelenítés javítása',
+        'A Függő forgatások widgetben mostantól megfelelően megjelennek a forgatások dátumai a magyar formátumban (hónap. nap. nap rövidítése).'
+      ),
+      createChange(
+        'improvement',
+        'TypeScript típusok javítása a függő forgatások API-ban',
+        'Javítottuk a TypeScript típusokat a függő forgatások API végpont esetében, mostantól megfelelő típusokkal rendelkezik a PendingFilmingSessionsSchema.'
+      ),
+    ]
+  ),
+  createChangelogEntry(
+    'v1.2.7',
+    '2025. október 06.',
+    '2025-10-06T15:00:00Z',
+    [
+      createChange(
+        'feature',
+        'E-mailes értesítés médiatanároknak új forgatás létrehozásakor',
+        'Mostantól a médiatanárok e-mailes értesítést kapnak, amikor új forgatást hoznak létre.'
+      ),
+      createChange(
+        'improvement',
+        'Függő Forgatások widget fejlesztése',
+        'A Függő forgatások widgetben mostantól megjelennek a dátumok, azok relevancia szerint vannak sorba rendezve.'
+      ),
+    ]
+  ),
+  createChangelogEntry(
     'v1.2.6',
     '2025. október 06.',
     '2025-10-06T12:00:00Z',

@@ -838,6 +838,21 @@ export interface SchoolYearForDateSchema {
   date_in_range: boolean
 }
 
+// === PENDING FILMING SESSIONS SCHEMA ===
+export interface PendingFilmingSessionItemSchema {
+  id: number
+  name: string
+  date: string
+  location: string
+  time: string
+  szerkeszto: string | null
+}
+
+export interface PendingFilmingSessionsSchema {
+  no_szerepkor_relations: PendingFilmingSessionItemSchema[]
+  has_szerepkor_relations: PendingFilmingSessionItemSchema[]
+}
+
 // API Client class
 class ApiClient {
   private baseUrl: string
@@ -1804,6 +1819,10 @@ class ApiClient {
     return this.request<ForgatSchema[]>(`/api/production/filming-sessions/sessions-with-roles${query}`)
   }
 
+  async getPendingFilmingSessions(): Promise<PendingFilmingSessionsSchema> {
+    return this.request<PendingFilmingSessionsSchema>('/api/users/fuggo-forgatasok')
+
+  }
   // === STUDENTS/REPORTERS ===
   async getStudents(params?: {
     section?: string
