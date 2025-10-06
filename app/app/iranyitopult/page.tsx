@@ -136,271 +136,6 @@ function getRoleDisplayName(role: UserRole | null): string {
   }
 }
 
-// Admin Widget Components - Professional Design
-function ActiveUsersWidget() {
-  const { isAuthenticated } = useAuth()
-  const { hasPermission } = usePermissions()
-  
-  // Only fetch users if user has admin permissions
-  const canAccessUserData = hasPermission('is_admin') || hasPermission('is_system_admin') || hasPermission('is_teacher_admin')
-  
-  // Always call the hook, but conditionally fetch data
-  const { data: usersData, loading, error } = useApiQuery(
-    () => isAuthenticated && canAccessUserData ? apiClient.getAllUsersDetailed() : Promise.resolve([]),
-    [isAuthenticated, canAccessUserData]
-  )
-  
-  // Don't render the widget if user doesn't have permission
-  if (!canAccessUserData) {
-    return null
-  }
-
-  if (loading) {
-    return (
-      <Card className="min-h-[400px]">
-        <CardHeader className="pb-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-emerald-500 rounded-lg">
-              <Users className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <CardTitle className="text-lg">Legutóbbi Aktivitás</CardTitle>
-              <CardDescription>Utolsó bejelentkezések betöltése...</CardDescription>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="flex items-center justify-center py-12">
-          <div className="flex flex-col items-center space-y-4">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <p className="text-sm text-muted-foreground">Felhasználók betöltése...</p>
-          </div>
-        </CardContent>
-      </Card>
-    )
-  }
-
-  if (error) {
-    return (
-      <Card className="min-h-[400px]">
-        <CardContent className="flex flex-col items-center justify-center py-12 space-y-4">
-          <AlertCircle className="h-8 w-8 text-destructive" />
-          <div className="text-center">
-            <p className="text-destructive font-medium">
-              Hiba az aktív felhasználók betöltésekor
-            </p>
-            <p className="text-sm text-muted-foreground mt-1">
-              {error}
-            </p>
-            {error?.includes('Bejelentkezés szükséges') && (
-              <Button 
-                onClick={() => window.location.href = '/login'}
-                variant="outline"
-                size="sm"
-                className="mt-2"
-              >
-                Bejelentkezés
-              </Button>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-    )
-  }
-
-  const users = usersData || []
-  
-  // Get current date for activity calculations
-  const now = new Date()
-  const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000)
-  const last24Hours = new Date(now.getTime() - 24 * 60 * 60 * 1000)
-  
-  // Get most recently active users (last 5 users who logged in)
-  // Sort all users by last_login (most recent first), filter out users without login, and take last 5
-  const mostRecentUsers = users
-    .filter((user: any) => user.last_login) // Only users who have logged in
-    .sort((a: any, b: any) => {
-      return new Date(b.last_login).getTime() - new Date(a.last_login).getTime()
-    })
-    .slice(0, 5) // Get most recent 5
-
-  // Count users active in different time periods
-  const activeNowCount = users.filter((user: any) => {
-    if (!user.last_login) return false
-    const lastLogin = new Date(user.last_login)
-    return lastLogin >= fiveMinutesAgo
-  }).length
-
-  const activeTodayCount = users.filter((user: any) => {
-    if (!user.last_login) return false
-    const lastLogin = new Date(user.last_login)
-    return lastLogin >= last24Hours
-  }).length
-
-  // Format last login time with better error handling
-  const formatLastLogin = (lastLogin: string) => {
-    try {
-      const loginDate = new Date(lastLogin)
-      if (isNaN(loginDate.getTime())) {
-        return 'ismeretlen'
-      }
-      
-      const diffMs = now.getTime() - loginDate.getTime()
-      const diffMinutes = Math.floor(diffMs / (1000 * 60))
-      const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
-      const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
-
-      if (diffMinutes < 1) return 'most'
-      if (diffMinutes < 60) return `${diffMinutes} perce`
-      if (diffHours < 24) return `${diffHours} órája`
-      if (diffDays === 1) return 'tegnap'
-      if (diffDays > 365) return 'több mint egy éve'
-      return `${diffDays} napja`
-    } catch (error) {
-      console.error('Error formatting last login:', error)
-      return 'ismeretlen'
-    }
-  }
-
-  // Get user role display - using the same logic as in stab page
-  const getUserRoleDisplay = (user: any) => {
-    // Check admin_type first
-    if (user.admin_type === 'developer') return 'Fejlesztő'
-    if (user.admin_type === 'teacher') return 'Médiatanár'
-    if (user.admin_type === 'system_admin' || user.admin_type === 'admin') return 'Rendszergazda'
-    
-    // Check special_role
-    if (user.special_role === 'class_teacher') return 'Osztályfőnök'
-    if (user.special_role === 'production_leader') return 'Gyártásvezető'
-    
-    // If admin_type is 'none' or not set, and no special role, it's a student
-    if ((user.admin_type === 'none' || !user.admin_type) && 
-        (user.special_role === 'none' || !user.special_role)) {
-      return 'Diák'
-    }
-    
-    // Default to unknown for safety if we can't determine the role
-    return 'Ismeretlen'
-  }
-
-  // Check if user is currently active (last login within 5 minutes)
-  const isCurrentlyActive = (user: any) => {
-    if (!user.last_login) return false
-    const lastLogin = new Date(user.last_login)
-    return lastLogin >= fiveMinutesAgo
-  }
-
-  // Get activity status with more precise timing
-  const getActivityStatus = (user: any) => {
-    if (!user.last_login) return { status: 'offline', color: 'text-gray-500', bgColor: 'bg-gray-500' }
-    
-    const lastLogin = new Date(user.last_login)
-    const diffMs = now.getTime() - lastLogin.getTime()
-    const diffMinutes = diffMs / (1000 * 60)
-    const diffHours = diffMs / (1000 * 60 * 60)
-    
-    if (diffMinutes <= 5) return { status: 'online', color: 'text-green-500', bgColor: 'bg-green-500' }
-    if (diffHours < 1) return { status: 'recent', color: 'text-blue-500', bgColor: 'bg-blue-500' }
-    if (diffHours < 24) return { status: 'today', color: 'text-yellow-500', bgColor: 'bg-yellow-500' }
-    return { status: 'offline', color: 'text-gray-500', bgColor: 'bg-gray-500' }
-  }
-
-  return (
-    <Card className="min-h-[400px] flex flex-col" role="region" aria-labelledby="recent-users-title">
-      <CardHeader className="pb-3">
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-emerald-500 rounded-lg" aria-hidden="true">
-            <Users className="h-5 w-5 text-white" />
-          </div>
-          <div>
-            <CardTitle id="recent-users-title" className="text-lg">Legutóbbi Aktivitás</CardTitle>
-            <CardDescription>Utolsó {mostRecentUsers.length} felhasználó</CardDescription>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-3 flex-1 overflow-y-auto">
-        {mostRecentUsers.length > 0 ? (
-          <>
-            <div className="space-y-1">
-              {mostRecentUsers.slice(0, 3).map((user: any, index: number) => {
-                const activity = getActivityStatus(user)
-                const isActive = isCurrentlyActive(user)
-                
-                return (
-                  <div 
-                    key={user.id} 
-                    className="group flex items-center justify-between p-2 rounded-lg border border-border/30 hover:border-primary/30 hover:bg-accent/50 cursor-pointer transition-all duration-200"
-                    role="button"
-                    tabIndex={0}
-                    aria-label={`${user.full_name || `${user.last_name} ${user.first_name}`} - ${getUserRoleDisplay(user)} - ${formatLastLogin(user.last_login)}`}
-                  >
-                    <div className="flex items-center gap-2">
-                      <div className="relative">
-                        <UserAvatar
-                          email={user.email}
-                          firstName={user.first_name}
-                          lastName={user.last_name}
-                          username={user.username}
-                          size="md"
-                          className="border border-background group-hover:border-primary/20 transition-colors"
-                          fallbackClassName="bg-primary/20 text-xs font-semibold"
-                        />
-                        <div className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border border-background ${activity.bgColor} flex items-center justify-center`}>
-                          {isActive && (
-                            <div className="w-1 h-1 bg-white rounded-full animate-pulse" />
-                          )}
-                        </div>
-                      </div>
-                      
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-1 mb-0.5">
-                          <span className="font-medium text-xs truncate">
-                            {user.full_name || `${user.last_name || 'Felhasználó'} ${user.first_name || 'Ismeretlen'}`}
-                          </span>
-                          {isActive && (
-                            <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
-                          )}
-                        </div>
-                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                          <Badge variant="secondary" className="text-xs px-1.5 py-0 text-xs">
-                            {getUserRoleDisplay(user)}
-                          </Badge>
-                          <span>•</span>
-                          <span>{formatLastLogin(user.last_login)}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-            
-            {/* Compact Statistics */}
-            <div className="pt-3 border-t border-border/30">
-              <div className="grid grid-cols-2 gap-3 text-center">
-                <div className="p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800">
-                  <div className="text-xl font-bold text-emerald-700 dark:text-emerald-300">{activeNowCount}</div>
-                  <div className="text-xs text-emerald-600 dark:text-emerald-400">Aktív most</div>
-                </div>
-                <div className="p-3 rounded-lg bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800">
-                  <div className="text-xl font-bold text-blue-700 dark:text-blue-300">{activeTodayCount}</div>
-                  <div className="text-xs text-blue-600 dark:text-blue-400">Ma aktív</div>
-                </div>
-              </div>
-            </div>
-          </>
-        ) : (
-          <div className="text-center py-6">
-            <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center mx-auto mb-3">
-              <Users className="h-6 w-6 text-muted-foreground" />
-            </div>
-            <h3 className="font-semibold text-sm mb-1">Nincs aktív felhasználó</h3>
-            <p className="text-xs text-muted-foreground">Még senki sem jelentkezett be</p>
-          </div>
-        )}
-      </CardContent>
-    </Card>
-  )
-}
 
 function PendingForgatásokWidget() {
   return (
@@ -444,7 +179,6 @@ function PendingForgatásokWidget() {
   )
 }
 
-// Temporarily disabled Quick Actions widget
 // function QuickActionsWidget() {
 //   const router = useRouter()
   
@@ -847,6 +581,246 @@ function SystemOverviewWidget() {
         </CardContent>
       </Card>
     </TooltipProvider>
+  )
+}
+
+// Student Widget Components
+function FuggoForgatasokWidget() {
+  const router = useRouter()
+  const { isAuthenticated } = useAuth()
+  const { hasPermission } = usePermissions()
+  
+  // Only fetch data if user has admin permissions
+  const canAccessData = hasPermission('is_admin') || hasPermission('is_system_admin') || hasPermission('is_teacher_admin')
+  
+  const { data: fuggoForgatosokData, loading, error } = useApiQuery(
+    () => isAuthenticated && canAccessData ? apiClient.get('users/fuggo-forgatasok') : Promise.resolve(null),
+    [isAuthenticated, canAccessData]
+  )
+
+  if (!canAccessData) {
+    return null
+  }
+
+  if (loading) {
+    return (
+      <Card className="min-h-[400px] flex flex-col">
+        <CardHeader className="pb-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-orange-500 rounded-lg">
+              <AlertCircle className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <CardTitle className="text-lg">Függő Forgatások</CardTitle>
+              <CardDescription>Befejezetlen beosztások betöltése...</CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="flex items-center justify-center flex-1">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </CardContent>
+      </Card>
+    )
+  }
+
+  if (error || !fuggoForgatosokData) {
+    return (
+      <Card className="min-h-[400px]">
+        <CardHeader className="pb-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-red-500 rounded-lg">
+              <AlertCircle className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <CardTitle className="text-lg">Függő Forgatások</CardTitle>
+              <CardDescription>Hiba történt az adatok betöltése során</CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-6">
+            <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3">
+              <AlertCircle className="h-6 w-6 text-red-600" />
+            </div>
+            <h3 className="font-semibold text-sm mb-1">Hiba történt</h3>
+            <p className="text-xs text-muted-foreground">Nem sikerült betölteni a függő forgatásokat</p>
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  const no_szerepkor_relations = (fuggoForgatosokData as any)?.no_szerepkor_relations || []
+  const has_szerepkor_relations = (fuggoForgatosokData as any)?.has_szerepkor_relations || []
+  const totalPending = no_szerepkor_relations.length + has_szerepkor_relations.length
+
+  // Sort function to order by date (assuming there's a date field in the forgatas data)
+  const sortByDate = (forgatasList: any[]) => {
+    return [...forgatasList].sort((a, b) => {
+      // If there's a date field, use it for sorting
+      if (a.date && b.date) {
+        return new Date(a.date).getTime() - new Date(b.date).getTime()
+      }
+      // If no date field, try to extract date from time field or name
+      // For now, sort by id as fallback to maintain consistent order
+      return a.id - b.id
+    })
+  }
+
+  // Sort both arrays by date
+  const sortedNoRoleRelations = sortByDate(no_szerepkor_relations)
+  const sortedHasRoleRelations = sortByDate(has_szerepkor_relations)
+
+  // Handler to navigate to assignment page for a specific filming session
+  const handleNavigateToAssignment = (forgatásId: number) => {
+    router.push(`/app/forgatasok/${forgatásId}/beosztas`)
+  }
+
+  return (
+    <Card className="min-h-[400px] flex flex-col">
+      <CardHeader className="pb-4">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-orange-500 rounded-lg">
+            <AlertCircle className="h-5 w-5 text-white" />
+          </div>
+          <div>
+            <CardTitle className="text-lg">Függő Forgatások</CardTitle>
+            <CardDescription>Befejezetlen beosztások ({totalPending} összesen)</CardDescription>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-4 flex-1 overflow-y-auto">
+        {totalPending === 0 ? (
+          <div className="text-center py-8">
+            <div className="w-20 h-20 bg-green-100 dark:bg-green-950/30 rounded-full flex items-center justify-center mx-auto mb-4 border border-green-200 dark:border-green-800">
+              <CheckCircle2 className="h-10 w-10 text-green-600 dark:text-green-400" />
+            </div>
+            <h3 className="font-semibold text-lg mb-2">Nincs függő forgatás!</h3>
+            <p className="text-sm text-muted-foreground">
+              Minden beosztás véglegesítve vagy nincs várakozó forgatás.
+            </p>
+          </div>
+        ) : (
+          <>
+            {/* No szerepkör relations - Higher priority */}
+            {sortedNoRoleRelations.length > 0 && (
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <XCircle className="h-5 w-5 text-red-500" />
+                  <h4 className="font-semibold text-sm">Nincs beosztva ({sortedNoRoleRelations.length})</h4>
+                  <Badge variant="destructive" className="text-xs">
+                    Sürgős
+                  </Badge>
+                </div>
+                <div className="space-y-2">
+                  {sortedNoRoleRelations.map((forgatas: any) => (
+                    <div key={forgatas.id} className="p-3 border border-red-200 rounded-lg bg-red-50 dark:bg-red-950/20 dark:border-red-800">
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <div className="font-medium text-sm text-red-900 dark:text-red-100">{forgatas.name}</div>
+                          <div className="flex items-center gap-3 text-xs text-red-700 dark:text-red-300 mt-1">
+                            <div className="flex items-center gap-1">
+                              <Clock className="h-3 w-3" />
+                              <span>{forgatas.time}</span>
+                            </div>
+                            {forgatas.location && (
+                              <div className="flex items-center gap-1">
+                                <Globe className="h-3 w-3" />
+                                <span>{forgatas.location}</span>
+                              </div>
+                            )}
+                            {forgatas.szerkeszto && (
+                              <div className="flex items-center gap-1">
+                                <User className="h-3 w-3" />
+                                <span>{forgatas.szerkeszto}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          className="border-red-300 text-red-700 hover:bg-red-100"
+                          onClick={() => handleNavigateToAssignment(forgatas.id)}
+                        >
+                          <Users className="h-4 w-4 mr-1" />
+                          Beosztás
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Has szerepkör relations - Lower priority */}
+            {sortedHasRoleRelations.length > 0 && (
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <AlertTriangle className="h-5 w-5 text-yellow-500" />
+                  <h4 className="font-semibold text-sm">Részben kész ({sortedHasRoleRelations.length})</h4>
+                  <Badge variant="secondary" className="text-xs bg-yellow-100 text-yellow-800">
+                    Véglegesítendő
+                  </Badge>
+                </div>
+                <div className="space-y-2">
+                  {sortedHasRoleRelations.map((forgatas: any) => (
+                    <div key={forgatas.id} className="p-3 border border-yellow-200 rounded-lg bg-yellow-50 dark:bg-yellow-950/20 dark:border-yellow-800">
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <div className="font-medium text-sm text-yellow-900 dark:text-yellow-100">{forgatas.name}</div>
+                          <div className="flex items-center gap-3 text-xs text-yellow-700 dark:text-yellow-300 mt-1">
+                            <div className="flex items-center gap-1">
+                              <Clock className="h-3 w-3" />
+                              <span>{forgatas.time}</span>
+                            </div>
+                            {forgatas.location && (
+                              <div className="flex items-center gap-1">
+                                <Globe className="h-3 w-3" />
+                                <span>{forgatas.location}</span>
+                              </div>
+                            )}
+                            {forgatas.szerkeszto && (
+                              <div className="flex items-center gap-1">
+                                <User className="h-3 w-3" />
+                                <span>{forgatas.szerkeszto}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          className="border-yellow-300 text-yellow-700 hover:bg-yellow-100"
+                          onClick={() => handleNavigateToAssignment(forgatas.id)}
+                        >
+                          <Settings className="h-4 w-4 mr-1" />
+                          Véglegesítés
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Summary Stats */}
+            <div className="pt-3 border-t border-border/30">
+              <div className="grid grid-cols-2 gap-3 text-center">
+                <div className="p-3 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800">
+                  <div className="text-xl font-bold text-red-700 dark:text-red-300">{no_szerepkor_relations.length}</div>
+                  <div className="text-xs text-red-600 dark:text-red-400">Sürgős</div>
+                </div>
+                <div className="p-3 rounded-lg bg-yellow-50 dark:bg-yellow-950/30 border border-yellow-200 dark:border-yellow-800">
+                  <div className="text-xl font-bold text-yellow-700 dark:text-yellow-300">{has_szerepkor_relations.length}</div>
+                  <div className="text-xs text-yellow-600 dark:text-yellow-400">Véglegesítendő</div>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+      </CardContent>
+    </Card>
   )
 }
 
@@ -1316,16 +1290,20 @@ export default function Page() {
               <QuickActionsWidget />
             </div>
             
-            {/* Main Widgets - Flexible Grid */}
-            <div className="grid gap-4 sm:gap-6 grid-cols-1 xl:grid-cols-3 auto-rows-fr">
-              <div className="xl:col-span-1">
-                <ActiveUsersWidget />
+            {/* Teendők Section */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-orange-500 rounded-lg">
+                  <AlertCircle className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-semibold">Teendők</h2>
+                  <p className="text-sm text-muted-foreground">Véglegesítendő feladatok és függő folyamatok</p>
+                </div>
               </div>
-              <div className="xl:col-span-1">
-                <SystemOverviewWidget />
-              </div>
-              <div className="xl:col-span-1">
-                <PendingForgatásokWidget />
+              
+              <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-1">
+                <FuggoForgatasokWidget />
               </div>
             </div>
           </div>

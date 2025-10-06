@@ -18,6 +18,16 @@ const rawChangelogData: ChangelogEntry[] = [
         'Utoljára aktív információ eltávolítva',
         'Az utoljára aktív információ eltávolításra került a Stáb menüből, mivel ez az adat nem releváns a felhasználók számára.'
       ),
+      createChange(
+        'removed',
+        'Admin irányítópult widgetek eltávolítva',
+        'Az admin irányítópultról eltávolításra kerültek a következő widgetek: "Legutóbbi felhasználók", "Rendszer áttekintés" és "Függő forgatások". Ezek a widgetek felhasználói kérés alapján kerültek eltávolításra.'
+      ),
+      createChange(
+        'feature',
+        'Teendők szekció hozzáadva az admin irányítópulthoz',
+        'Új "Teendők" szekció került hozzáadásra az admin irányítópulthoz, amely tartalmazza a "Függő Forgatások" widgetet. Ez a widget megjeleníti a befejezetlen beosztásokat két kategóriában: sürgős (nincs beosztva) és befejezendő (részben kész).'
+      ),
     ]
   ),
   createChangelogEntry(
