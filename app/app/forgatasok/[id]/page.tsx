@@ -440,6 +440,21 @@ export default function FilmingSessionDetail({ params }: PageProps) {
                   </Card>
                 )}
 
+                {/* Notes */}
+                {session.notes && (
+                  <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <FileText className="h-5 w-5 text-amber-400" />
+                        Megjegyzések
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-muted-foreground leading-relaxed">{session.notes}</p>
+                    </CardContent>
+                  </Card>
+                )}
+
                 {/* Contact Person */}
                 {session.contact_person && (
                   <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
