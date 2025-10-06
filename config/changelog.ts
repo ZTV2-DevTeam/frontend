@@ -18,6 +18,11 @@ const rawChangelogData: ChangelogEntry[] = [
         'TypeScript típusok javítása a függő forgatások API-ban',
         'Javítottuk a TypeScript típusokat a függő forgatások API végpont esetében, mostantól megfelelő típusokkal rendelkezik a PendingFilmingSessionsSchema.'
       ),
+      createChange(
+        'improvement',
+        'Forgatások részletei: megjegyzések',
+        'Mostantól a forgatások részleteinél megjelennek a hozzáadott megjegyzések, ha vannak ilyenek.'
+      ),
     ]
   ),
   createChangelogEntry(
