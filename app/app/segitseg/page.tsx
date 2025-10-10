@@ -216,6 +216,10 @@ export default function HelpPage() {
     {
       question: "Miért nem látom az összes menüpontot?",
       answer: "A menüpontok láthatósága a felhasználói szerepkörödhöz igazodik. Csak azokat a funkciókat látod, amelyekhez jogosultságod van."
+    },
+    {
+      question: "A nem médiás diákok miért nem rögzíthetik a hiányzásaikat?",
+      answer: "A nem médiás diákok (akár informatika, akár más tagozat) nem rögzíthetik a hiányzásaikat, mivel akármilyen hasonlónak tűnhet ez a funkció a jelenlegi rendszerhez, az FTV folyamatai, logikái és adatbázis struktúrája teljes mértékben eltérő ezen funkció kifejlesztéséhez. Az ezzel kapcsolatos fejlesztések jelenleg nincsenek folyamatban és nem szerepelnek a fejlesztési tervben sem."
     }
   ]
 

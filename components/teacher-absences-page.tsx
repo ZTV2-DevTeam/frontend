@@ -20,8 +20,11 @@ import {
   RefreshCw,
   Edit2,
   AlertTriangle,
+  Camera,
+  Star,
+  CalendarDays,
 } from "lucide-react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 // import { useAuth } from "@/contexts/auth-context" // Unused for now
 import { usePermissions } from "@/contexts/permissions-context"
 import { useUserRole } from "@/contexts/user-role-context"
@@ -52,7 +55,7 @@ const isEighthPeriodAffected = (absence: ExtendedAbsence): boolean => {
 
 // Helper function to check if a student has DSE (Student Sports Association) during 8th period
 // This is a placeholder implementation - in real use, this should check against a schedule or database
-const hasDSETraining = (_studentId: string, _date: string): boolean => {
+const hasDSETraining = (/* _studentId: string, _date: string */): boolean => {
   // TODO: This should be replaced with actual DSE schedule check from database
   // For now, we'll return false as a safe default
   // In a real implementation, this would query the student's schedule or DSE enrollment
@@ -66,7 +69,7 @@ const shouldAutoExcuseEighthPeriod = (absence: ExtendedAbsence): boolean => {
   }
   
   // If student has no regular 8th period class and no DSE training, auto-excuse
-  return !hasDSETraining(absence.studentId, absence.date)
+  return !hasDSETraining(/* absence.studentId, absence.date */)
 }
 
 // Extended absence type for UI display
@@ -337,6 +340,7 @@ export function TeacherAbsencesPage() {
   const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "excused" | "unexcused">("all")
   const [selectedStudent, setSelectedStudent] = useState<string>("all")
   const [groupBy, setGroupBy] = useState<"shooting" | "student">("shooting")
+  const [forgatTypeFilter, setForgatTypeFilter] = useState<"all" | "rendes" | "kacsa" | "event">("all")
 
   // Check if user can access real absence data
   const canAccessAbsenceData = hasPermission('is_osztaly_fonok') || 
@@ -367,7 +371,7 @@ export function TeacherAbsencesPage() {
   }, [currentRole, isPreviewMode, actualUserRole, canAccessAbsenceData, shouldUseMockData, permissions, hasPermission])
 
   // Load absences from API or use mock data
-  const loadAbsences = async () => {
+  const loadAbsences = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
@@ -417,12 +421,12 @@ export function TeacherAbsencesPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [shouldUseMockData, canAccessAbsenceData, isPreviewMode, actualUserRole])
 
   // Load data on mount
   useEffect(() => {
     loadAbsences()
-  }, [])
+  }, [loadAbsences])
 
   const filteredAbsences = allAbsences.filter((absence) => {
     const matchesSearch =
@@ -438,8 +442,48 @@ export function TeacherAbsencesPage() {
 
     const matchesStudent = selectedStudent === "all" || absence.studentId === selectedStudent
 
-    return matchesSearch && matchesStatus && matchesStudent
+    const matchesForgatType = 
+      forgatTypeFilter === "all" ||
+      (forgatTypeFilter === "rendes" && absence.forgatas.type === "rendes") ||
+      (forgatTypeFilter === "kacsa" && absence.forgatas.type === "kacsa") ||
+      (forgatTypeFilter === "event" && (absence.forgatas.type === "rendezveny" || absence.forgatas.type === "egyeb"))
+
+    return matchesSearch && matchesStatus && matchesStudent && matchesForgatType
   })
+
+  // Helper function to get forgatás type priority for ordering
+  const getForgatTypePriority = (type: string): number => {
+    switch (type) {
+      case "rendes": return 1 // Highest priority
+      case "kacsa": return 2  // Medium priority  
+      case "rendezveny":
+      case "egyeb":
+      default: return 3       // Lowest priority
+    }
+  }
+
+  // Helper function to sort forgatások by relevance (type priority then oldest first)
+  const sortAbsencesByRelevance = (absences: ExtendedAbsence[]): ExtendedAbsence[] => {
+    return [...absences].sort((a, b) => {
+      // First, sort by type priority (rendes > kacsa > event/other)
+      const typePriorityA = getForgatTypePriority(a.forgatas.type)
+      const typePriorityB = getForgatTypePriority(b.forgatas.type)
+      
+      if (typePriorityA !== typePriorityB) {
+        return typePriorityA - typePriorityB
+      }
+      
+      // If same type priority, sort by date (oldest first - ascending order)
+      const dateA = new Date(a.date)
+      const dateB = new Date(b.date)
+      
+      // Oldest date first (ascending order)
+      return dateA.getTime() - dateB.getTime()
+    })
+  }
+
+  // Apply relevance-based sorting to filtered absences
+  const sortedAndFilteredAbsences = sortAbsencesByRelevance(filteredAbsences)
 
   const getStatusIcon = (absence: ExtendedAbsence) => {
     if (absence.excused) return CheckCircle
@@ -467,16 +511,16 @@ export function TeacherAbsencesPage() {
   }
 
   const stats = {
-    total: allAbsences.length,
-    pending: allAbsences.filter((a) => !a.excused && !a.unexcused).length,
-    excused: allAbsences.filter((a) => a.excused).length,
-    unexcused: allAbsences.filter((a) => a.unexcused).length,
+    total: sortedAndFilteredAbsences.length,
+    pending: sortedAndFilteredAbsences.filter((a) => !a.excused && !a.unexcused).length,
+    excused: sortedAndFilteredAbsences.filter((a) => a.excused).length,
+    unexcused: sortedAndFilteredAbsences.filter((a) => a.unexcused).length,
   }
 
-  const uniqueStudents = Array.from(new Set(allAbsences.map((a) => ({ id: a.studentId, name: a.studentName }))))
+  const uniqueStudents = Array.from(new Set(sortedAndFilteredAbsences.map((a) => ({ id: a.studentId, name: a.studentName }))))
 
   // Check if there are any pending 8th period absences
-  const pendingEighthPeriodAbsences = filteredAbsences.filter(absence => 
+  const pendingEighthPeriodAbsences = sortedAndFilteredAbsences.filter(absence => 
     isEighthPeriodAffected(absence) && !absence.excused && !absence.unexcused
   )
   
@@ -643,7 +687,7 @@ export function TeacherAbsencesPage() {
   // Csoportosítás logika
   const groupedAbsences =
     groupBy === "shooting"
-      ? filteredAbsences.reduce(
+      ? sortedAndFilteredAbsences.reduce(
           (groups: Record<string, { shootingTitle: string; date: string; absences: ExtendedAbsence[] }>, absence) => {
             const key = `${absence.shootingId}-${absence.date}`
             if (!groups[key]) {
@@ -658,7 +702,7 @@ export function TeacherAbsencesPage() {
           },
           {},
         )
-      : filteredAbsences.reduce(
+      : sortedAndFilteredAbsences.reduce(
           (groups: Record<string, { studentName: string; studentClass: string; absences: ExtendedAbsence[] }>, absence) => {
             const key = absence.studentId
             if (!groups[key]) {
@@ -698,7 +742,7 @@ export function TeacherAbsencesPage() {
               <h1 className="text-3xl font-bold text-black dark:text-white tracking-tight">Igazolások</h1>
               <div className="flex items-center gap-2">
                 <p className="text-base text-muted-foreground">
-                  {filteredAbsences.length} hiányzás • Elbírálás alatt: {stats.pending} • Igazolt: {stats.excused} • Igazolatlan: {stats.unexcused}
+                  {sortedAndFilteredAbsences.length} hiányzás • Elbírálás alatt: {stats.pending} • Igazolt: {stats.excused} • Igazolatlan: {stats.unexcused}
                 </p>
                 <Badge variant="outline" className="bg-blue-500/10 text-blue-400 border-blue-500/30 text-xs">
                   {shouldUseMockData || isPreviewWithMockData 
@@ -805,9 +849,18 @@ export function TeacherAbsencesPage() {
 
         {/* Filters */}
         <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
-          <CardContent className="p-4">
-            <div className="flex flex-col lg:flex-row gap-4">
-              <div className="flex-1">
+          <CardContent className="p-6">
+            <div className="space-y-4">
+              {/* Header and Info */}
+              <div className="space-y-2">
+                <h3 className="text-lg font-semibold">Szűrők</h3>
+                <p className="text-sm text-muted-foreground">
+                  <span className="font-medium">Újdonság</span> - Mostantól a hiányzások relevancia szerinti sorrendben jelennek meg, illetve fejlesztettük bővítettük a szűrési lehetőségeket.
+                </p>
+              </div>
+
+              {/* Search Bar - Full Width */}
+              <div className="w-full">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
@@ -819,15 +872,117 @@ export function TeacherAbsencesPage() {
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-3">
-                {/* Csoportosítás kapcsoló */}
+              {/* Forgatás Type Filters - First Row */}
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                <span className="text-sm font-medium text-muted-foreground">Forgatás típus:</span>
+                <div className="flex gap-2 flex-wrap">
+                  <Button
+                    variant={forgatTypeFilter === "all" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setForgatTypeFilter("all")}
+                    className="h-9 px-4"
+                  >
+                    Összes típus
+                  </Button>
+                  <Button
+                    variant={forgatTypeFilter === "rendes" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setForgatTypeFilter("rendes")}
+                    className="h-9 px-4"
+                  >
+                    <Camera className="h-4 w-4 mr-2" />
+                    Rendes forgatás
+                  </Button>
+                  <Button
+                    variant={forgatTypeFilter === "kacsa" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setForgatTypeFilter("kacsa")}
+                    className="h-9 px-4"
+                  >
+                    <Star className="h-4 w-4 mr-2" />
+                    KaCsa
+                  </Button>
+                  <Button
+                    variant={forgatTypeFilter === "event" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setForgatTypeFilter("event")}
+                    className="h-9 px-4"
+                  >
+                    <CalendarDays className="h-4 w-4 mr-2" />
+                    Esemény/Egyéb
+                  </Button>
+                </div>
+              </div>
+
+              {/* Status Filters - Second Row */}
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                <span className="text-sm font-medium text-muted-foreground">Hiányzás státusz:</span>
+                <div className="flex gap-2 flex-wrap">
+                  <Button
+                    variant={statusFilter === "all" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setStatusFilter("all")}
+                    className="h-9 px-4"
+                  >
+                    Minden státusz
+                  </Button>
+                  <Button
+                    variant={statusFilter === "pending" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setStatusFilter("pending")}
+                    className="h-9 px-4"
+                  >
+                    <AlertCircle className="h-4 w-4 mr-2" />
+                    Elbírálás alatt
+                  </Button>
+                  <Button
+                    variant={statusFilter === "excused" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setStatusFilter("excused")}
+                    className="h-9 px-4"
+                  >
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    Igazolt
+                  </Button>
+                  <Button
+                    variant={statusFilter === "unexcused" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setStatusFilter("unexcused")}
+                    className="h-9 px-4"
+                  >
+                    <XCircle className="h-4 w-4 mr-2" />
+                    Igazolatlan
+                  </Button>
+                </div>
+              </div>
+
+              {/* Controls - Third Row */}
+              <div className="flex flex-col md:flex-row md:items-center gap-4">
+                {/* Student Filter */}
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                  <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">Diák szűrés:</span>
+                  <select
+                    value={selectedStudent}
+                    onChange={(e) => setSelectedStudent(e.target.value)}
+                    className="px-3 py-2 rounded-md border border-border bg-background/50 text-sm min-w-[160px] h-9"
+                  >
+                    <option value="all">Minden diák</option>
+                    {uniqueStudents.map((student) => (
+                      <option key={student.id} value={student.id}>
+                        {student.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Grouping Toggle */}
                 <div className="flex items-center gap-3 px-4 py-2 rounded-md border border-border bg-background/50">
-                  <span className="text-sm font-medium">Csoportosítás:</span>
+                  <span className="text-sm font-medium whitespace-nowrap">Csoportosítás:</span>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => setGroupBy(groupBy === "shooting" ? "student" : "shooting")}
-                    className="h-8 p-1 hover:bg-transparent"
+                    className="h-6 p-1 hover:bg-transparent"
                   >
                     {groupBy === "shooting" ? (
                       <ToggleLeft className="h-5 w-5 text-blue-400" />
@@ -835,60 +990,9 @@ export function TeacherAbsencesPage() {
                       <ToggleRight className="h-5 w-5 text-blue-400" />
                     )}
                   </Button>
-                  <span className="text-sm font-medium text-blue-400">
-                    {groupBy === "shooting" ? "Forgatás" : "Diák"}
+                  <span className="text-sm font-medium text-blue-400 whitespace-nowrap">
+                    {groupBy === "shooting" ? "Forgatás szerint" : "Diák szerint"}
                   </span>
-                </div>
-
-                <select
-                  value={selectedStudent}
-                  onChange={(e) => setSelectedStudent(e.target.value)}
-                  className="px-3 py-2 rounded-md border border-border bg-background/50 text-sm min-w-[140px]"
-                >
-                  <option value="all">Minden diák</option>
-                  {uniqueStudents.map((student) => (
-                    <option key={student.id} value={student.id}>
-                      {student.name}
-                    </option>
-                  ))}
-                </select>
-
-                <div className="flex gap-2 flex-wrap">
-                  <Button
-                    variant={statusFilter === "all" ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setStatusFilter("all")}
-                    className="bg-transparent"
-                  >
-                    Összes
-                  </Button>
-                  <Button
-                    variant={statusFilter === "pending" ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setStatusFilter("pending")}
-                    className="bg-transparent"
-                  >
-                    <AlertCircle className="h-4 w-4 mr-1" />
-                    Elbírálás alatt
-                  </Button>
-                  <Button
-                    variant={statusFilter === "excused" ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setStatusFilter("excused")}
-                    className="bg-transparent"
-                  >
-                    <CheckCircle className="h-4 w-4 mr-1" />
-                    Igazolt
-                  </Button>
-                  <Button
-                    variant={statusFilter === "unexcused" ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setStatusFilter("unexcused")}
-                    className="bg-transparent"
-                  >
-                    <XCircle className="h-4 w-4 mr-1" />
-                    Igazolatlan
-                  </Button>
                 </div>
               </div>
             </div>
@@ -988,7 +1092,7 @@ export function TeacherAbsencesPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Users className="h-5 w-5 text-blue-400" />
-              Osztály Hiányzások ({filteredAbsences.length})
+              Osztály Hiányzások ({sortedAndFilteredAbsences.length})
               <Badge variant="outline" className="ml-2">
                 {groupBy === "shooting" ? "Forgatás szerint" : "Diák szerint"}
               </Badge>
@@ -1014,17 +1118,17 @@ export function TeacherAbsencesPage() {
                     <div className="flex items-center gap-3 pb-3 border-b border-border/30">
                       <h3 className="font-semibold text-xl">
                         {groupBy === "shooting"
-                          ? `${(group as any).shootingTitle} - ${(group as any).date}`
-                          : `${(group as any).studentName} (${(group as any).studentClass})`}
+                          ? `${(group as { shootingTitle: string; date: string; absences: ExtendedAbsence[] }).shootingTitle} - ${(group as { shootingTitle: string; date: string; absences: ExtendedAbsence[] }).date}`
+                          : `${(group as { studentName: string; studentClass: string; absences: ExtendedAbsence[] }).studentName} (${(group as { studentName: string; studentClass: string; absences: ExtendedAbsence[] }).studentClass})`}
                       </h3>
                       <Badge variant="outline" className="bg-blue-500/10 text-blue-400 border-blue-500/30">
-                        {(group as any).absences.length} hiányzás
+                        {(group as { absences: ExtendedAbsence[] }).absences.length} hiányzás
                       </Badge>
                     </div>
 
                     {/* Csoport elemei */}
                     <div className="space-y-3 ml-6 overflow-visible">
-                      {(group as any).absences.map((absence: ExtendedAbsence, index: number) => {
+                      {(group as { absences: ExtendedAbsence[] }).absences.map((absence: ExtendedAbsence, index: number) => {
                         const StatusIcon = getStatusIcon(absence)
                         const isUpdating = updating.has(absence.id)
 
