@@ -4,6 +4,18 @@ import { create } from 'domain';
 
 const rawChangelogData: ChangelogEntry[] = [
   createChangelogEntry(
+    'v1.2.10',
+    '2025. október 10.',
+    '2025-10-10T23:00:00Z',
+    [
+      createChange(
+        'improvement',
+        'Igazolások - szűrők és relevancia szerinti rendezés',
+        'Az Igazolások menüben mostantól lehetőség van a hiányzások típus szerinti szűrésére (Rendes Forgatás, KaCsa, Esemény/Egyéb), valamint a hiányzások relevancia szerinti rendezésére (következő először.).'
+      ),
+    ]
+  ),
+  createChangelogEntry(
     'v1.2.9',
     '2025. október 06.',
     '2025-10-06T20:00:00Z',
