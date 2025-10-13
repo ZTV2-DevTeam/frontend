@@ -365,6 +365,7 @@ export interface ForgatCreateSchema {
   time_to: string
   location_id?: number
   contact_person_id?: number
+  szerkeszto_id?: number
   notes?: string
   type: string
   related_kacsa_id?: number
@@ -785,7 +786,7 @@ export interface ForgatCreateSchema {
   time_to: string
   location_id?: number
   contact_person_id?: number
-  riporter_id?: number
+  szerkeszto_id?: number
   notes?: string
   type: string
   related_kacsa_id?: number

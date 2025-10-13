@@ -402,7 +402,7 @@ export default function NewShooting() {
         type: formData.type,
         location_id: formData.locationId ? parseInt(formData.locationId) : undefined,
         contact_person_id: formData.contactId ? parseInt(formData.contactId) : undefined,
-        riporter_id: formData.reporterId ? parseInt(formData.reporterId) : undefined, // API still uses 'riporter_id' field name
+        szerkeszto_id: formData.reporterId ? parseInt(formData.reporterId) : undefined,
         notes: formData.notes || "",
         related_kacsa_id: formData.relatedKacsaId ? parseInt(formData.relatedKacsaId) : undefined,
         equipment_ids: []

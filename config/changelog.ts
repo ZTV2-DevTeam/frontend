@@ -4,6 +4,18 @@ import { create } from 'domain';
 
 const rawChangelogData: ChangelogEntry[] = [
   createChangelogEntry(
+    'v1.2.11',
+    '2025. október 13.',
+    '2025-10-13T12:00:00Z',
+    [
+      createChange(
+        'bugfix',
+        'Új Forgatás - Szerkesztő rögzítési hiba javítása',
+        'Javítottuk a hibát, mely miatt az új forgatás létrehozásakor a szerkesztő nem került rögzítésre.'
+      ),
+    ]
+  ),
+  createChangelogEntry(
     'v1.2.10',
     '2025. október 10.',
     '2025-10-10T23:00:00Z',
