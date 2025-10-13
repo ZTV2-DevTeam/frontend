@@ -7,7 +7,7 @@ import { useApiQuery } from "@/lib/api-helpers"
 import { apiClient } from "@/lib/api"
 import { useAuth } from "@/contexts/auth-context"
 import { usePermissions } from "@/contexts/permissions-context"
-import type { ForgatSchema, BeosztasDetailSchema, EquipmentSchema, BeosztasSchema } from "@/lib/types"
+import type { EquipmentSchema, BeosztasSchema } from "@/lib/types"
 import { ApiErrorBoundary } from "@/components/api-error-boundary"
 import { ApiErrorFallback } from "@/components/api-error-fallback"
 import { StabBadge, UserStabBadge } from "@/components/stab-badge"
@@ -149,7 +149,7 @@ export default function FilmingSessionDetail({ params }: PageProps) {
 
   const { data: equipmentList = [], loading: equipmentLoading } = equipmentQueries
   const { data: userDetailsList = [], loading: usersLoading } = userQueries
-  const { data: szerkesztoDetails = null, loading: szerkesztoLoading } = szerkesztoQuery
+  const { data: szerkesztoDetails = null } = szerkesztoQuery
 
   // Computed values - get crew from assignment with detailed user info
   const crew: CrewMember[] = useMemo(() => {
@@ -192,19 +192,6 @@ export default function FilmingSessionDetail({ params }: PageProps) {
 
   if (error || !session) {
     notFound()
-  }
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "Tervezett":
-        return "bg-blue-500/10 text-blue-400 border-blue-500/20"
-      case "Folyamatban":
-        return "bg-green-500/10 text-green-400 border-green-500/20"
-      case "Befejezve":
-        return "bg-gray-500/10 text-gray-400 border-gray-500/20"
-      default:
-        return "bg-blue-500/10 text-blue-400 border-blue-500/20"
-    }
   }
 
   const getTypeIcon = (type: string) => {
@@ -502,11 +489,23 @@ export default function FilmingSessionDetail({ params }: PageProps) {
                 {/* Equipment */}
                 <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
                   <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Camera className="h-5 w-5 text-blue-400" />
-                      Felszerelés
-                    </CardTitle>
-                    <CardDescription>Szükséges eszközök és berendezések</CardDescription>
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1 min-w-0">
+                        <CardTitle className="flex items-center gap-2">
+                          <Camera className="h-5 w-5 text-blue-400" />
+                          Felszerelés
+                        </CardTitle>
+                        <CardDescription>Szükséges eszközök és berendezések</CardDescription>
+                      </div>
+                      {canEditAssignments && (
+                        <Link href={`/app/felszereles?session=${id}&assign=true`} className="ml-3 shrink-0">
+                          <Button variant="ghost" size="sm" className="h-8 px-2 text-xs hover:bg-blue-500/10 hover:text-blue-400 border border-blue-500/20 hover:border-blue-500/30">
+                            <Settings className="h-3 w-3 mr-1" />
+                            Hozzárendelés
+                          </Button>
+                        </Link>
+                      )}
+                    </div>
                   </CardHeader>
                   <CardContent>
                     {equipmentLoading ? (

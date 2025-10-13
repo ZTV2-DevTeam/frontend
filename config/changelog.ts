@@ -18,6 +18,16 @@ const rawChangelogData: ChangelogEntry[] = [
         'Diák Irányítópult - Gyors hozzáférési gombok hibája javítva',
         'Javítottuk a hibát, mely miatt a diák irányítópulton a gyors hozzáférési gombok nem működtek.'
       ),
+      createChange(
+        'feature',
+        'Felszereléskezelő hozzáadva - Tesztelés alatt',
+        'Bevezettük a Felszereléskezelő funkciót, amely lehetővé teszi a felhasználók számára a felszerelések nyilvántartását, állapotuk követését és kezelését. Ez a funkció jelenleg tesztelés alatt áll, és hamarosan teljes körűen elérhetővé válik. Jelenleg előfordulhatnak hibák és hiányzó funkciók.'
+      ),
+      createChange(
+        'improvement',
+        'Forgatások/id - Felszerelések hozzárendelése',
+        'Hozzáadtunk egy gombot a forgatások részleteihez, amely lehetővé teszi a felhasználók számára, hogy gyorsan hozzárendeljék a szükséges felszereléseket a forgatáshoz.'
+      ),
     ]
   ),
   createChangelogEntry(

@@ -19,7 +19,8 @@ import {
   TicketCheck,
   TreePalm,
   Calendar,
-  Radio
+  Radio,
+  Wrench,
 } from 'lucide-react';
 
 import { NavCategory } from "@/components/nav-category"
@@ -220,43 +221,25 @@ const data = {
     ],
   },
   utils: {
-    admin: [] as Array<{
-      name: string
-      url: string  
-      icon: any
-    }>,
-    // Partnerek és Felszerelés funkciókat ideiglenesen kikapcsolta a fejlesztő
-    // {
-    //   name: "Partnerek",
-    //   url: "/app/partnerek",
-    //   icon: Handshake,
-    // },
-    // {
-    //   name: "Felszerelés",
-    //   url: "/app/felszereles",
-    //   icon: Video,
-    // },
+    admin: [
+      {
+        name: "Felszerelés",
+        url: "/app/felszereles",
+        icon: Wrench,
+      },
+    ],
     'class-teacher': [] as Array<{
       name: string
       url: string
       icon: any
     }>,
-    student: [] as Array<{
-      name: string
-      url: string
-      icon: any
-    }>,
-    // Partnerek és Felszerelés funkciókat ideiglenesen kikapcsolta a fejlesztő
-    // {
-    //   name: "Partnerek",
-    //   url: "/app/partnerek",
-    //   icon: Handshake,
-    // },
-    // {
-    //   name: "Felszerelés", 
-    //   url: "/app/felszereles",
-    //   icon: Video,
-    // },
+    student: [
+      {
+        name: "Felszerelés", 
+        url: "/app/felszereles",
+        icon: Wrench,
+      },
+    ],
   },
   myClass: {
     admin: [],
