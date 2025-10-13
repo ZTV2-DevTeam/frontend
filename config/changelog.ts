@@ -13,6 +13,11 @@ const rawChangelogData: ChangelogEntry[] = [
         'Új Forgatás - Szerkesztő rögzítési hiba javítása',
         'Javítottuk a hibát, mely miatt az új forgatás létrehozásakor a szerkesztő nem került rögzítésre.'
       ),
+      createChange(
+        'bugfix',
+        'Diák Irányítópult - Gyors hozzáférési gombok hibája javítva',
+        'Javítottuk a hibát, mely miatt a diák irányítópulton a gyors hozzáférési gombok nem működtek.'
+      ),
     ]
   ),
   createChangelogEntry(

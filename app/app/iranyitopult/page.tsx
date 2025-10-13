@@ -1256,6 +1256,7 @@ export default function Page() {
   const { currentRole, isPreviewMode, actualUserRole } = useUserRole()
   const { user, isAuthenticated } = useAuth()
   const { hasPermission } = usePermissions()
+  const router = useRouter()
   const [welcomeMessage, setWelcomeMessage] = useState('')
   
   // Only fetch detailed user data if user has admin permissions (for admin_type info)
@@ -1350,14 +1351,20 @@ export default function Page() {
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 gap-3">
-                    <button className="p-3 rounded-lg border border-border/50 hover:bg-accent transition-colors text-left">
+                    <button 
+                      onClick={() => router.push("/app/naptar")}
+                      className="p-3 rounded-lg border border-border/50 hover:bg-accent transition-colors text-left cursor-pointer"
+                    >
                       <div className="flex items-center gap-2 mb-1">
                         <Calendar className="h-4 w-4 text-blue-500" />
                         <span className="font-medium text-sm">Naptár</span>
                       </div>
                       <p className="text-xs text-muted-foreground">Események</p>
                     </button>
-                    <button className="p-3 rounded-lg border border-border/50 hover:bg-accent transition-colors text-left">
+                    <button 
+                      onClick={() => router.push("/app/uzenofal")}
+                      className="p-3 rounded-lg border border-border/50 hover:bg-accent transition-colors text-left cursor-pointer"
+                    >
                       <div className="flex items-center gap-2 mb-1">
                         <FileText className="h-4 w-4 text-orange-500" />
                         <span className="font-medium text-sm">Üzenőfal</span>
