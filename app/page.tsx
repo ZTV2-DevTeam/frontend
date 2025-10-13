@@ -75,14 +75,29 @@ export default function LandingPage() {
         <div className="absolute inset-0 bg-muted/30 -z-10" aria-hidden="true" />
         <div className="space-y-6 max-w-4xl mx-auto">
           <h1 className="text-4xl font-extrabold leading-tight tracking-tighter sm:text-5xl md:text-6xl lg:text-7xl">
-            viszlát ztv.
-            <br />
-            <span className="text-primary">
-              Helló FTV!
+            <span
+              className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent text-shadow-3xl shadow-primary animate-slide-in-left"
+              style={{
+              animation: "slideInLeft 1.2s cubic-bezier(0.4,0,0.2,1) both"
+              }}
+            >
+              Modern, gyors, egyszerű.
             </span>
+            <style jsx>{`
+              @keyframes slideInLeft {
+              from { opacity: 0; transform: translateX(-48px); }
+              to { opacity: 1; transform: translateX(0); }
+              }
+            `}</style>
+            <style jsx>{`
+              @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(24px); }
+                to { opacity: 1; transform: translateY(0); }
+              }
+            `}</style>
           </h1>
           <p className="text-lg md:text-xl lg:text-2xl text-muted-foreground leading-relaxed">
-            Az új generációs platform a zökkenőmentes forgatásszervezéshez
+            A zökkenőmentes forgatásszervezés és hiányzáskezelés digitális megoldása a Média Tagozat számára.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
             <Link 
@@ -105,14 +120,14 @@ export default function LandingPage() {
       </main>
 
       <section id="features" aria-labelledby="features-heading">
-        <h2 id="features-heading" className="sr-only">Platform funkciók</h2>
+        <h2 id="features-heading" className="sr-only">Funkciók</h2>
         <FeaturesSection />
       </section>
       
-      <section id="why-better" aria-labelledby="performance-heading">
+      {/* <section id="why-better" aria-labelledby="performance-heading">
         <h2 id="performance-heading" className="sr-only">Teljesítmény összehasonlítás</h2>
         <SpeedComparisonSection />
-      </section>
+      </section> */}
       
       <section id="about" aria-labelledby="about-heading">
         <h2 id="about-heading" className="sr-only">Fejlesztőkről</h2>

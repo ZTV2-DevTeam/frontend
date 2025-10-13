@@ -28,15 +28,11 @@ const generalFeatures: Feature[] = [
     icon: LayoutDashboard,
     title: "Megújult felület",
     description: "A forgatások adatai egy vadiúj, modern és reszponzív felületen.",
-    badge: "Újdonság",
-    improvement: "100% újratervezve"
   },
   {
     icon: Plane,
     title: "Távollét kezelés",
-    description: "Jelezd előre, ha nem leszel elérhető egy ideig (korábban Trello → Google Forms).",
-    badge: "Egyszerűsített",
-    improvement: "Integrálva"
+    description: "Jelezd előre, ha nem leszel elérhető egy ideig.",
   },
   {
     icon: FileCheck,
@@ -64,7 +60,6 @@ const teacherFeatures: Feature[] = [
     icon: CalendarCog,
     title: "Intelligens beosztáskezelő",
     description: "Fejlett felszerelés és stáb kezelés a forgatások beosztásánál.",
-    badge: "Fejlesztés alatt"
   },
 ]
 
@@ -134,7 +129,7 @@ export function FeaturesSection() {
           className="flex flex-col items-center justify-center space-y-4 text-center mb-12"
         >
           <div className="space-y-3">
-            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">Újdonságok</h2>
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">Funkciók</h2>
             <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-lg/relaxed xl:text-xl/relaxed">
               Modern funkciók és megoldások minden felhasználó számára
             </p>

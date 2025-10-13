@@ -27,9 +27,12 @@ export function SecurityBadges() {
               <Eye className="w-6 h-6 text-blue-600 dark:text-blue-400" />
             </div>
             <div className="text-center">
-              <h3 className="font-semibold text-sm mb-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">WCAG 2.2 AAA</h3>
+              <h3 className="font-semibold text-sm mb-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">WCAG 2.2 AAA*</h3>
               <p className="text-xs text-muted-foreground mb-2">Akadálymentesség</p>
               <p className="text-xs text-muted-foreground">W3C/WAI</p>
+                <span className="text-xs text-muted-foreground/70 dark:text-muted-foreground/70">
+                *csak alapértelmezett színben
+                </span>
             </div>
           </a>
 
@@ -39,17 +42,37 @@ export function SecurityBadges() {
               <Lock className="w-6 h-6 text-green-600 dark:text-green-400" />
             </div>
             <div className="text-center">
-              <h3 className="font-semibold text-sm mb-1">SSL Secured</h3>
-              <p className="text-xs text-muted-foreground mb-2">Adatbiztonság, titkosítás</p>
-              <a 
-                href="https://crt.sh/?q=ftv.szlg.info" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-xs text-primary hover:underline"
-                aria-label="SSL tanúsítvány ellenőrzése"
-              >
-                ZeroSSL
-              </a>
+              <h3 className="font-semibold text-sm mb-1">Biztonság</h3>
+              <p className="text-xs text-muted-foreground mb-2">Adatbiztonság, titkosítás, CSRF védelem</p>
+                <div className="flex flex-col gap-1">
+                <a 
+                  href="https://crt.sh/?q=ftv.szlg.info" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-xs text-primary hover:underline"
+                  aria-label="SSL tanúsítvány ellenőrzése"
+                >
+                  ZeroSSL
+                </a>
+                <a
+                  href="https://www.cloudflare.com/ssl/encrypted-sni/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-primary hover:underline"
+                  aria-label="Cloudflare SSL szolgáltatás"
+                >
+                  Cloudflare
+                </a>
+                <a
+                  href="https://owasp.org/www-community/attacks/csrf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-primary hover:underline"
+                  aria-label="CSRF védelem"
+                >
+                  OWASP CSRF
+                </a>
+                </div>
             </div>
           </div>
 
@@ -65,7 +88,7 @@ export function SecurityBadges() {
             <div className="text-center">
               <h3 className="font-semibold text-sm mb-1 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">Privacy</h3>
               <p className="text-xs text-muted-foreground text-center leading-relaxed">
-                Jogviszony-compliant intézményi belső használatra készült zárt rendszer
+                Modern adatvédelmi irányelvek és technikai megfelelőség
               </p>
             </div>
           </Link>
@@ -76,8 +99,8 @@ export function SecurityBadges() {
               <CheckCircle className="w-6 h-6 text-orange-600 dark:text-orange-400" />
             </div>
             <div className="text-center">
-              <h3 className="font-semibold text-sm mb-1">Security</h3>
-              <p className="text-xs text-muted-foreground mb-2">Biztonsági monitoring</p>
+              <h3 className="font-semibold text-sm mb-1">Up-To-Date</h3>
+              <p className="text-xs text-muted-foreground mb-2">Könyvtár biztonsági frissítések</p>
               <div className="flex flex-col gap-1">
                 <a 
                   href="https://github.com/dependabot"

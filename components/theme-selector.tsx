@@ -100,7 +100,7 @@ export function ThemeSelector() {
             className="w-4 h-4 rounded-full border-2 border-primary"
             style={{ backgroundColor: themeColors.find(c => c.value === themeColor)?.color }}
           />
-          <span>Szín téma</span>
+          <span>Témaszín</span>
         </div>
         <div className="grid grid-cols-5 gap-3">
           {themeColors.map((color) => (
