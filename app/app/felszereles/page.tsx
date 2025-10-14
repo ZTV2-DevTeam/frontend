@@ -202,7 +202,7 @@ export default function EquipmentPage() {
                 </h1>
                 <p className="text-base text-muted-foreground">
                   {isAdmin 
-                    ? 'Felszerelések kezelés és állapotuk nyomonkövetése'
+                    ? 'Felszerelések kezelése és állapotuk nyomonkövetése'
                     : 'Felszerelések megtekintése'
                   }
                 </p>
@@ -210,14 +210,14 @@ export default function EquipmentPage() {
             </div>
             
             {isAdmin && (
-              <div className="flex items-center gap-2">
+              <div className="flex justify-between lg:justify-start items-center gap-2 ">
                 <CreateEquipmentTypeDialog onSuccess={handleRefresh}>
                   <Button 
                     variant="outline" 
                     className="whitespace-nowrap shadow-sm"
                   >
                     <Settings className="h-4 w-4 mr-2" />
-                    Típus kezelés
+                    <span className="hidden lg:inline">Típusok kezelése</span> <span className='inline lg:hidden'>Típusok</span>
                   </Button>
                 </CreateEquipmentTypeDialog>
                 <Button 
@@ -226,14 +226,14 @@ export default function EquipmentPage() {
                   onClick={() => handleAssignmentDialogChange(true)}
                 >
                   <Calendar className="h-4 w-4 mr-2" />
-                  Hozzárendelés
+                  <span className="hidden lg:inline">Hozzárendelés</span> <span className='inline lg:hidden'>Hozzárendel</span>
                 </Button>
                 <Button 
                   className="whitespace-nowrap shadow-sm"
                   onClick={() => setShowCreateEquipment(true)}
                 >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Új felszerelés
+                  <Plus className="h-4 w-4 lg:mr-2" />
+                  <span className="hidden lg:inline">Új felszerelés</span> <span className='inline lg:hidden'>Új</span>
                 </Button>
               </div>
             )}
@@ -241,11 +241,24 @@ export default function EquipmentPage() {
 
       {/* Main Content */}
       <Tabs defaultValue="list" className="space-y-6">
-        <TabsList>
-          <TabsTrigger value="list">Felszerelés lista</TabsTrigger>
-          <TabsTrigger value="availability">Elérhetőség ellenőrző</TabsTrigger>
-          {isAdmin && <TabsTrigger value="stats">Statisztikák</TabsTrigger>}
-        </TabsList>
+        <div className="w-full overflow-x-auto pb-2">
+          <TabsList className="inline-flex h-auto w-auto min-w-full flex-wrap gap-1 p-1 sm:flex-nowrap">
+            <TabsTrigger value="list" className="flex items-center gap-1 px-2 py-2 text-xs sm:gap-2 sm:px-3 sm:text-sm">
+              <span className="hidden sm:inline">Felszerelés lista</span>
+              <span className="sm:hidden">Lista</span>
+            </TabsTrigger>
+            <TabsTrigger value="availability" className="flex items-center gap-1 px-2 py-2 text-xs sm:gap-2 sm:px-3 sm:text-sm">
+              <span className="hidden sm:inline">Elérhetőség ellenőrző</span>
+              <span className="sm:hidden">Elérhetőség</span>
+            </TabsTrigger>
+            {isAdmin && (
+              <TabsTrigger value="stats" className="flex items-center gap-1 px-2 py-2 text-xs sm:gap-2 sm:px-3 sm:text-sm">
+                <span className="hidden sm:inline">Statisztikák</span>
+                <span className="sm:hidden">Statisztika</span>
+              </TabsTrigger>
+            )}
+          </TabsList>
+        </div>
 
         <TabsContent value="list" className="space-y-4">
           {/* Filters */}

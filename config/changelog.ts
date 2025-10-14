@@ -4,6 +4,18 @@ import { create } from 'domain';
 
 const rawChangelogData: ChangelogEntry[] = [
   createChangelogEntry(
+    'v1.2.12',
+    '2025. október 14.',
+    '2025-10-14T10:00:00Z',
+    [
+      createChange(
+        'improvement',
+        'Felszereléskezelő - Dizájn javítások',
+        'Javítottuk a Felszereléskezelő felület dizájnját, hogy az felhasználóbarátabb és esztétikusabb legyen.'
+      ),
+    ]
+  ),
+  createChangelogEntry(
     'v1.2.11',
     '2025. október 13.',
     '2025-10-13T12:00:00Z',
