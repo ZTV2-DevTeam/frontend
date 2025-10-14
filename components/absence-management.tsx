@@ -252,7 +252,7 @@ export function AbsenceManagement() {
   }
 
   // Delete absence
-  const handleDelete = async (absence: TavolletSchema) => {
+  const handleDelete = useCallback(async (absence: TavolletSchema) => {
     try {
       setDeleteLoading(true)
       
@@ -266,10 +266,10 @@ export function AbsenceManagement() {
     } finally {
       setDeleteLoading(false)
     }
-  }
+  }, [fetchAbsences])
 
   // Approve/Deny/Reset absence (admin only)
-  const handleApprove = async (absence: TavolletSchema) => {
+  const handleApprove = useCallback(async (absence: TavolletSchema) => {
     try {
       await apiClient.approveAbsence(absence.id)
       toast.success(`${absence.user.full_name || `${absence.user.last_name} ${absence.user.first_name}`} távollétét jóváhagyva`)
@@ -278,9 +278,9 @@ export function AbsenceManagement() {
       const message = err instanceof Error ? err.message : 'Hiba történt a jóváhagyáskor'
       toast.error(message)
     }
-  }
+  }, [fetchAbsences])
 
-  const handleDeny = async (absence: TavolletSchema) => {
+  const handleDeny = useCallback(async (absence: TavolletSchema) => {
     try {
       await apiClient.denyAbsence(absence.id)
       toast.success(`${absence.user.full_name || `${absence.user.last_name} ${absence.user.first_name}`} távollétét elutasítva`)
@@ -289,9 +289,9 @@ export function AbsenceManagement() {
       const message = err instanceof Error ? err.message : 'Hiba történt az elutasításkor'
       toast.error(message)
     }
-  }
+  }, [fetchAbsences])
 
-  const handleReset = async (absence: TavolletSchema) => {
+  const handleReset = useCallback(async (absence: TavolletSchema) => {
     try {
       await apiClient.resetAbsenceStatus(absence.id)
       toast.success(`${absence.user.full_name || `${absence.user.last_name} ${absence.user.first_name}`} távollétének státusza visszaállítva`)
@@ -300,7 +300,7 @@ export function AbsenceManagement() {
       const message = err instanceof Error ? err.message : 'Hiba történt a státusz visszaállításakor'
       toast.error(message)
     }
-  }
+  }, [fetchAbsences])
 
   // Bulk actions (admin only)
   const handleBulkApprove = async (ids: number[]) => {
@@ -396,57 +396,57 @@ export function AbsenceManagement() {
             const user = getValue()
             return (
               <div className="font-medium min-w-0">
-                <div className="truncate text-sm max-w-[100px]" title={user.full_name || `${user.last_name} ${user.first_name}`}>
+                <div className="truncate text-xs max-w-[80px]" title={user.full_name || `${user.last_name} ${user.first_name}`}>
                   {user.full_name || `${user.last_name} ${user.first_name}`}
                 </div>
               </div>
             )
           },
-          size: 120,
+          size: 90,
         }),
       ] : []),
       
       columnHelper.accessor('start_date', {
-        header: 'Kezdő időpont',
+        header: 'Kezdés',
         cell: ({ getValue }) => {
           const { date, time } = formatDateTimeForDisplaySplit(getValue())
           return (
-            <div className="text-sm font-medium leading-tight">
-              <div className="text-xs text-muted-foreground">{date}</div>
+            <div className="text-xs font-medium leading-tight">
+              <div className="text-[10px] text-muted-foreground">{date}</div>
               <div className="font-semibold">{time}</div>
             </div>
           )
         },
-        size: 100,
+        size: 85,
       }),
       
       columnHelper.accessor('end_date', {
-        header: 'Záró időpont',
+        header: 'Befejezés',
         cell: ({ getValue }) => {
           const { date, time } = formatDateTimeForDisplaySplit(getValue())
           return (
-            <div className="text-sm font-medium leading-tight">
-              <div className="text-xs text-muted-foreground">{date}</div>
+            <div className="text-xs font-medium leading-tight">
+              <div className="text-[10px] text-muted-foreground">{date}</div>
               <div className="font-semibold">{time}</div>
             </div>
           )
         },
-        size: 100,
+        size: 85,
       }),
       
       columnHelper.accessor('duration_days', {
-        header: 'Időtartam',
+        header: 'Napok',
         cell: ({ getValue }) => {
           const days = getValue()
           return (
-            <div className="whitespace-nowrap text-sm">
-              <Badge variant="outline" className="font-medium text-xs">
-                {days} nap
+            <div className="whitespace-nowrap text-xs">
+              <Badge variant="outline" className="font-medium text-[10px] px-1.5 py-0">
+                {days}
               </Badge>
             </div>
           )
         },
-        size: 90,
+        size: 60,
       }),
       
       columnHelper.accessor('reason', {
@@ -454,18 +454,18 @@ export function AbsenceManagement() {
         cell: ({ getValue }) => {
           const reason = getValue()
           return (
-            <div className="max-w-[120px]">
+            <div className="max-w-[100px]">
               {reason ? (
-                <div className="text-xs truncate bg-muted/50 px-2 py-1 rounded-md" title={reason}>
+                <div className="text-[10px] truncate bg-muted/50 px-1.5 py-0.5 rounded" title={reason}>
                   {reason}
                 </div>
               ) : (
-                <span className="text-xs text-muted-foreground italic">Nincs indoklás</span>
+                <span className="text-[10px] text-muted-foreground italic">-</span>
               )}
             </div>
           )
         },
-        size: 140,
+        size: 100,
       }),
       
       columnHelper.accessor('tipus', {
@@ -473,7 +473,7 @@ export function AbsenceManagement() {
         cell: ({ getValue }) => {
           const tipus = getValue()
           return (
-            <div>
+            <div className="max-w-[90px]">
               <AbsenceTypeBadge 
                 tipus={tipus} 
                 size="sm" 
@@ -482,7 +482,7 @@ export function AbsenceManagement() {
             </div>
           )
         },
-        size: 110,
+        size: 90,
       }),
       
       columnHelper.accessor('status', {
@@ -494,15 +494,15 @@ export function AbsenceManagement() {
           if (!isAdmin && currentRole === 'student') {
             const isProcessed = absence.status === 'igazolt' || absence.status === 'igazolatlan'
             return (
-              <div>
+              <div className="max-w-[100px]">
                 <Badge 
                   variant={isProcessed ? "default" : "secondary"}
-                  className={isProcessed 
-                    ? "bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30 dark:hover:bg-emerald-950/50 dark:text-emerald-400 dark:border-emerald-800 transition-colors duration-200 font-medium"
-                    : "bg-amber-50 hover:bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-950/30 dark:hover:bg-amber-950/50 dark:text-amber-400 dark:border-amber-800 transition-colors duration-200 font-medium"
-                  }
+                  className={`text-[10px] px-1.5 py-0 ${isProcessed 
+                    ? "bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30 dark:hover:bg-emerald-950/50 dark:text-emerald-400 dark:border-emerald-800"
+                    : "bg-amber-50 hover:bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-950/30 dark:hover:bg-amber-950/50 dark:text-amber-400 dark:border-amber-800"
+                  }`}
                 >
-                  {isProcessed ? '✓ Feldolgozott' : '⏳ Feldolgozás alatt'}
+                  {isProcessed ? '✓ Kész' : '⏳ Folyamatban'}
                 </Badge>
               </div>
             )
@@ -510,7 +510,7 @@ export function AbsenceManagement() {
           
           // For admins and teachers, show full status with approval info
           return (
-            <div>
+            <div className="max-w-[100px]">
               <StatusBadge status={absence.status} denied={absence.denied} approved={absence.approved} />
             </div>
           )
@@ -527,7 +527,7 @@ export function AbsenceManagement() {
           const canDelete = isAdmin || (!absence.denied && absence.user.id === user?.user_id)
           
           return (
-            <div className="flex items-center justify-end gap-1 min-w-[140px]">
+            <div className="flex items-center justify-end gap-0.5 min-w-[120px]">
               <Button
                 variant="ghost"
                 size="sm"
@@ -535,10 +535,10 @@ export function AbsenceManagement() {
                   setSelectedAbsence(absence)
                   setShowViewDialog(true)
                 }}
-                className="h-8 w-8 p-0 hover:bg-blue-50 hover:text-blue-600"
+                className="h-7 w-7 p-0 hover:bg-blue-50 hover:text-blue-600"
                 title="Megtekintés"
               >
-                <Eye className="h-3.5 w-3.5" />
+                <Eye className="h-3 w-3" />
               </Button>
               
               {canEdit && (
@@ -555,10 +555,10 @@ export function AbsenceManagement() {
                     })
                     setShowEditDialog(true)
                   }}
-                  className="h-8 w-8 p-0 hover:bg-orange-50 hover:text-orange-600"
+                  className="h-7 w-7 p-0 hover:bg-orange-50 hover:text-orange-600"
                   title="Szerkesztés"
                 >
-                  <Edit className="h-3.5 w-3.5" />
+                  <Edit className="h-3 w-3" />
                 </Button>
               )}
               
@@ -567,8 +567,8 @@ export function AbsenceManagement() {
                   title="Távollét törlése"
                   description="Biztosan törli ezt a távollétet? Ez a művelet nem vonható vissza."
                   trigger={
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0 hover:bg-red-50 hover:text-red-600" title="Törlés">
-                      <Trash2 className="h-3.5 w-3.5" />
+                    <Button variant="ghost" size="sm" className="h-7 w-7 p-0 hover:bg-red-50 hover:text-red-600" title="Törlés">
+                      <Trash2 className="h-3 w-3" />
                     </Button>
                   }
                   onConfirm={() => handleDelete(absence)}
@@ -579,27 +579,27 @@ export function AbsenceManagement() {
               )}
               
               {isAdmin && (
-                <div className="flex items-center gap-1 ml-1 pl-1 border-l border-border">
+                <div className="flex items-center gap-0.5 ml-0.5 pl-0.5 border-l border-border">
                   {!absence.approved && !absence.denied && (
                     <>
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => handleApprove(absence)}
-                        className="h-8 w-8 p-0 text-green-600 hover:text-green-700 hover:bg-green-50"
+                        className="h-7 w-7 p-0 text-green-600 hover:text-green-700 hover:bg-green-50"
                         title="Jóváhagyás"
                       >
-                        <Check className="h-3.5 w-3.5" />
+                        <Check className="h-3 w-3" />
                       </Button>
                       
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => handleDeny(absence)}
-                        className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                        className="h-7 w-7 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
                         title="Elutasítás"
                       >
-                        <X className="h-3.5 w-3.5" />
+                        <X className="h-3 w-3" />
                       </Button>
                     </>
                   )}
@@ -609,10 +609,10 @@ export function AbsenceManagement() {
                       variant="ghost"
                       size="sm"
                       onClick={() => handleReset(absence)}
-                      className="h-8 w-8 p-0 text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+                      className="h-7 w-7 p-0 text-orange-600 hover:text-orange-700 hover:bg-orange-50"
                       title="Státusz visszaállítása függőben állapotra"
                     >
-                      <AlertTriangle className="h-3.5 w-3.5" />
+                      <AlertTriangle className="h-3 w-3" />
                     </Button>
                   )}
                 </div>
@@ -620,12 +620,12 @@ export function AbsenceManagement() {
             </div>
           )
         },
-        size: 140,
+        size: 120,
       }),
     ]
     
     return baseColumns
-  }, [isAdmin, user?.user_id, deleteLoading, selectedIds, filteredAbsences, currentRole])
+  }, [isAdmin, user?.user_id, deleteLoading, selectedIds, filteredAbsences, currentRole, handleApprove, handleDelete, handleDeny, handleReset])
 
   const table = useReactTable({
     data: filteredAbsences,
@@ -939,18 +939,16 @@ export function AbsenceManagement() {
           {/* Desktop Table View (hidden on mobile) */}
           <div className="hidden sm:block">
             <div className="overflow-x-auto">
-              <div className="min-w-[800px]">
-                <DataTable
-                  table={table}
-                  columns={columns}
-                  data={filteredAbsences}
-                  loading={loading}
-                  searchPlaceholder="Keresés távollétekben..."
-                  showActions={false} // We handle actions in the table
-                  showSearch={false} // We have our own search in the header
-                  showFilters={false} // We have our own filters in the header
-                />
-              </div>
+              <DataTable
+                table={table}
+                columns={columns}
+                data={filteredAbsences}
+                loading={loading}
+                searchPlaceholder="Keresés távollétekben..."
+                showActions={false} // We handle actions in the table
+                showSearch={false} // We have our own search in the header
+                showFilters={false} // We have our own filters in the header
+              />
             </div>
           </div>
         </CardContent>

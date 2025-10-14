@@ -239,14 +239,14 @@ export function DataTable<TData>({
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id} className="border-b hover:bg-transparent">
                   {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id} className="font-semibold text-foreground h-14 px-4 py-4 whitespace-nowrap">
+                    <TableHead key={header.id} className="font-semibold text-foreground h-10 px-2 py-2 whitespace-nowrap text-xs">
                       {header.isPlaceholder
                         ? null
                         : flexRender(header.column.columnDef.header, header.getContext())
                       }
                     </TableHead>
                   ))}
-                  {showActions && <TableHead className="text-right font-semibold text-foreground h-14 px-4 py-4 whitespace-nowrap">Műveletek</TableHead>}
+                  {showActions && <TableHead className="text-right font-semibold text-foreground h-10 px-2 py-2 whitespace-nowrap text-xs">Műveletek</TableHead>}
                 </TableRow>
               ))}
             </TableHeader>
@@ -255,12 +255,12 @@ export function DataTable<TData>({
                 Array.from({ length: 5 }).map((_, index) => (
                   <TableRow key={`loading-${index}`} className="hover:bg-transparent">
                     {columns.map((_, colIndex) => (
-                      <TableCell key={`loading-cell-${colIndex}`} className="h-16 px-4 py-4">
+                      <TableCell key={`loading-cell-${colIndex}`} className="h-12 px-2 py-2">
                         <div className="h-4 animate-pulse rounded-md bg-muted" />
                       </TableCell>
                     ))}
                     {showActions && (
-                      <TableCell className="h-16 px-4 py-4">
+                      <TableCell className="h-12 px-2 py-2">
                         <div className="h-4 w-8 animate-pulse rounded-md bg-muted ml-auto" />
                       </TableCell>
                     )}
@@ -271,10 +271,10 @@ export function DataTable<TData>({
                   <TableRow
                     key={row.id}
                     data-state={row.getIsSelected() && "selected"}
-                    className="hover:bg-muted/40 transition-colors border-b last:border-b-0 h-16"
+                    className="hover:bg-muted/40 transition-colors border-b last:border-b-0 h-12"
                   >
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id} className="px-4 py-4 align-middle">
+                      <TableCell key={cell.id} className="px-2 py-2 align-middle">
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>
                     ))}

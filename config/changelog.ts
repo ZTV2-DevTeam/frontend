@@ -13,6 +13,11 @@ const rawChangelogData: ChangelogEntry[] = [
         'Felszereléskezelő - Dizájn javítások',
         'Javítottuk a Felszereléskezelő felület dizájnját, hogy az felhasználóbarátabb és esztétikusabb legyen.'
       ),
+      createChange(
+        'improvement',
+        'Távollét - Dizájn javítások',
+        'Javítottuk a Távollétkezelő dizájnját, hogy a komponensek ne lógjanak ki a képernyő széléről a nemrég bevezetett távollét szűrők miatt.'
+      ),
     ]
   ),
   createChangelogEntry(
