@@ -174,34 +174,71 @@ export function AnnouncementDialog({
         ? selectedRecipients.map(r => r.id)
         : []
 
+      const submittedTitle = title.trim()
+
       if (mode === 'create') {
         const data: AnnouncementCreateSchema = {
-          title: title.trim(),
+          title: submittedTitle,
           body: body.trim(),
           recipient_ids: recipientIds
         }
-        await apiClient.createAnnouncement(data)
+        
+        // Fire-and-forget: Don't wait for the response as the backend is busy sending emails
+        apiClient.createAnnouncement(data).catch(err => {
+          console.error('Background error creating announcement:', err)
+        })
+        
+        // Wait a short delay for the database to be updated
+        await new Promise(resolve => setTimeout(resolve, 2000))
+        
+        // Verify the announcement was created by fetching the list
+        try {
+          const announcements = await apiClient.getAnnouncements()
+          const wasCreated = announcements.some(a => a.title === submittedTitle)
+          
+          if (wasCreated) {
+            setSuccess(true)
+            
+            // Close dialog and call success callback after showing success message
+            setTimeout(() => {
+              handleClose()
+              onSuccess?.()
+            }, 1000)
+          } else {
+            setError('A közlemény létrehozása sikertelen volt. Kérjük, próbálja újra.')
+            setLoading(false)
+          }
+        } catch (verifyError) {
+          console.error('Error verifying announcement creation:', verifyError)
+          // If we can't verify, assume it worked and proceed
+          setSuccess(true)
+          setTimeout(() => {
+            handleClose()
+            onSuccess?.()
+          }, 1000)
+        }
       } else if (mode === 'edit' && announcement) {
         const data: AnnouncementUpdateSchema = {
-          title: title.trim(),
+          title: submittedTitle,
           body: body.trim(),
           recipient_ids: recipientIds
         }
+        
+        // For edit mode, we still wait for the response since no emails are sent
         await apiClient.updateAnnouncement(announcement.id, data)
+        
+        setSuccess(true)
+        
+        // Close dialog and call success callback after a brief delay
+        setTimeout(() => {
+          handleClose()
+          onSuccess?.()
+        }, 1000)
       }
-
-      setSuccess(true)
-      
-      // Close dialog and call success callback after a brief delay
-      setTimeout(() => {
-        handleClose()
-        onSuccess?.()
-      }, 1000)
 
     } catch (error) {
       console.error('Error saving announcement:', error)
       setError(error instanceof Error ? error.message : 'Hiba történt a közlemény mentésekor')
-    } finally {
       setLoading(false)
     }
   }
@@ -237,7 +274,9 @@ export function AnnouncementDialog({
           {success && (
             <Alert className="border-green-200 bg-green-50 text-green-800">
               <AlertDescription>
-                Közlemény sikeresen {mode === 'create' ? 'létrehozva' : 'frissítve'}!
+                {mode === 'create' 
+                  ? 'Közlemény sikeresen közzétéve! Az értesítő emailek háttérben kerülnek kiküldésre.' 
+                  : 'Közlemény sikeresen frissítve!'}
               </AlertDescription>
             </Alert>
           )}
@@ -317,7 +356,6 @@ export function AnnouncementDialog({
                   onChange={() => setTargetingType('public')}
                   disabled={loading || success}
                   className="w-4 h-4"
-                  defaultChecked
                 />
                 <Globe className="h-4 w-4" />
                 <span>Közérdekű (minden felhasználó)</span>

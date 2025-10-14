@@ -18,6 +18,11 @@ const rawChangelogData: ChangelogEntry[] = [
         'Távollét - Dizájn javítások',
         'Javítottuk a Távollétkezelő dizájnját, hogy a komponensek ne lógjanak ki a képernyő széléről a nemrég bevezetett távollét szűrők miatt.'
       ),
+      createChange(
+        'bugfix',
+        'Új Közlemény - Szerver nem válaszol hiba javítása',
+        'Javítottuk a hibát, mely miatt új közlemény létrehozásakor "A szerver nem válaszol" hibaüzenet jelent meg. Ez azért történt, mert a rendszer a háttérben folyamatosan küldte ki a közleméynnyel kapcsolatos értesítő emaileket, ami időt vett igénybe, ezt az oldal nem várta meg és hibára futott.'
+      ),
     ]
   ),
   createChangelogEntry(
