@@ -6,6 +6,7 @@ import { AppSidebar } from "@/components/app-sidebar"
 import { SiteHeader } from "@/components/site-header"
 import { ThemeSelector } from "@/components/theme-selector"
 import { PhoneNumberEditModal } from "@/components/phone-number-edit-modal"
+import { UserAvatar } from "@/components/user-avatar"
 import { useAuth } from "@/contexts/auth-context"
 import { useUserRole } from "@/contexts/user-role-context"
 import {
@@ -15,7 +16,6 @@ import {
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   Settings,
   Save,
@@ -42,13 +42,6 @@ export default function SettingsPage() {
   if (!user) return null
 
   const userDisplayName = `${user.last_name} ${user.first_name}`.trim() || user.username
-
-  const getUserInitials = () => {
-    if (!user) return '?'
-    const firstInitial = user.first_name?.[0] || user.username[0]
-    const lastInitial = user.last_name?.[0] || user.username[1] || ''
-    return `${firstInitial}${lastInitial}`.toUpperCase()
-  }
 
   const handleLogout = async () => {
     try {
@@ -97,15 +90,15 @@ export default function SettingsPage() {
               <CardHeader className="p-4 sm:p-6 pb-4">
                 <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6">
                   <div className="flex items-center gap-4 sm:gap-6 w-full sm:w-auto">
-                    <Avatar className="w-16 h-16 sm:w-20 sm:h-20 border-4 border-primary/20 shadow-xl flex-shrink-0">
-                      <AvatarImage 
-                        src={`https://api.dicebear.com/7.x/initials/svg?seed=${user?.username}&backgroundColor=transparent`}
-                        alt={userDisplayName}
-                      />
-                      <AvatarFallback className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground font-bold text-lg sm:text-2xl">
-                        {getUserInitials()}
-                      </AvatarFallback>
-                    </Avatar>
+                    <UserAvatar
+                      email={user.email}
+                      firstName={user.first_name}
+                      lastName={user.last_name}
+                      username={user.username}
+                      customSize={80}
+                      className="border-4 border-primary/20 shadow-xl flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20"
+                      fallbackClassName="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground font-bold text-lg sm:text-2xl"
+                    />
                     <div className="space-y-2 min-w-0 flex-1 sm:flex-initial">
                       <h2 className="text-lg sm:text-xl md:text-2xl font-bold break-words">{userDisplayName}</h2>
                       <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 sm:gap-3">
