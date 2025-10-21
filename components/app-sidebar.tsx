@@ -19,9 +19,11 @@ import {
   TicketCheck,
   TreePalm,
   Calendar,
-  Radio,
   Wrench,
+  CameraIcon,
 } from 'lucide-react';
+
+import { DuckIcon } from "@/components/icons/duck-icon"
 
 import { NavCategory } from "@/components/nav-category"
 import { NavCategoryCollapsible } from "@/components/nav-category-collapsible"
@@ -169,12 +171,12 @@ const data = {
           {
             name: "Forgatások",
             url: "/app/forgatasok",
-            icon: BellDot,
+            icon: CameraIcon,
           },
           {
             name: "KaCsa",
             url: "/app/kacsa",
-            icon: Radio,
+            icon: DuckIcon,
           },
           {
             name: "Események",
@@ -199,12 +201,12 @@ const data = {
           {
             name: "Forgatások",
             url: "/app/forgatasok",
-            icon: BellDot,
+            icon: CameraIcon,
           },
           {
             name: "KaCsa",
             url: "/app/kacsa",
-            icon: Radio,
+            icon: DuckIcon,
           },
           {
             name: "Események",

@@ -30,6 +30,7 @@ import {
   Type,
   Calendar as CalendarSort
 } from "lucide-react"
+import { DuckIcon } from "@/components/icons/duck-icon"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -323,7 +324,7 @@ export default function KacsaOsszejatszasokPage() {
   const getTypeIcon = (type: string) => {
     switch (type) {
       case "kacsa":
-        return Star
+        return DuckIcon
       case "rendezveny":
         return CalendarDays
       default:
@@ -583,8 +584,8 @@ export default function KacsaOsszejatszasokPage() {
           userCount={userDetailsList?.length || 0}
           variant="detailed"
           title="KaCsa Összejátszások betöltése"
-          description="Kollaboratív tartalmak és interaktív műsorok betöltése..."
-          icon={Users}
+          description="KaCsa események betöltése..."
+          icon={DuckIcon}
         />
       </StandardizedLayout>
     )
@@ -605,22 +606,20 @@ export default function KacsaOsszejatszasokPage() {
   return (
     <ApiErrorBoundary fallback={ApiErrorFallback}>
       <StandardizedLayout>
-        <div className="space-y-6 animate-in fade-in-50 duration-500">
+          <div className="space-y-6 animate-in fade-in-50 duration-500">
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-orange-500 rounded-xl shadow-sm">
-                <Users className="h-6 w-6 text-white" />
+              <div className="p-3 bg-yellow-600 rounded-xl shadow-sm">
+                <DuckIcon className="h-6 w-6 text-white" fill="white" />
               </div>
               <div className="space-y-1">
                 <h1 className="text-3xl font-bold text-black dark:text-white tracking-tight">KaCsa Összejátszások</h1>
                 <p className="text-base text-muted-foreground">
-                  {filteredSessions.length} KaCsa összejátszás • Kollaboratív kreatív tartalmak és interaktív műsorok • Minden második csütörtök
+                  {filteredSessions.length} KaCsa összejátszás • Minden második csütörtök
                 </p>
               </div>
-            </div>
-
-            <div className="flex items-center gap-2">
+            </div>            <div className="flex items-center gap-2">
               {/* Create New Button */}
               {canCreateForgatás && (
                 <Link href="/app/forgatasok/uj">

@@ -4,6 +4,18 @@ import { create } from 'domain';
 
 const rawChangelogData: ChangelogEntry[] = [
   createChangelogEntry(
+    'v1.2.13',
+    '2025. október 21.',
+    '2025-10-21T10:00:00Z',
+    [
+      createChange(
+        'improvement',
+        'Új Ikon a KaCsa Összejátszások vonatkozásában',
+        'A KaCsa Összejátszások menüpont és egyéb helyeken használt ikon mostantól egy kacsa ikon, amely jobban tükrözi az aranyos kacsát, amit az ikon ábrázol.'
+      ),
+    ]
+  ),
+  createChangelogEntry(
     'v1.2.12',
     '2025. október 14.',
     '2025-10-14T10:00:00Z',

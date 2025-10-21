@@ -630,7 +630,7 @@ export default function FilmingSessionsPage() {
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-primary rounded-xl shadow-sm">
+              <div className="p-3 bg-blue-500 rounded-xl shadow-sm">
                 <Camera className="h-6 w-6 text-primary-foreground" />
               </div>
               <div className="space-y-1">
