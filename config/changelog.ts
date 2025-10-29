@@ -4,6 +4,18 @@ import { create } from 'domain';
 
 const rawChangelogData: ChangelogEntry[] = [
   createChangelogEntry(
+    'v1.2.14',
+    '2025. október 29.',
+    '2025-10-29T22:00:00Z',
+    [
+      createChange(
+        'feature',
+        'FTV Sync',
+        'Hozzáadtuk az FTV Sync munkafolyamatokat a rendszerhez, amely lehetővé teszi az Igazoláskezelő rendszer számára, hogy integrálódjon az FTV rendszerével. Ez azt jelenti, hogy az igazoláskezelő rendszeren keresztül le lehet kérni az FTV rendszer, ezáltal a Médiatanárok által hitelesített igazolásokat.'
+      ),
+    ]
+  ),
+  createChangelogEntry(
     'v1.2.13',
     '2025. október 21.',
     '2025-10-21T10:00:00Z',
