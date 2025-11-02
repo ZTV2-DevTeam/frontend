@@ -2,6 +2,7 @@
 
 import { confetti } from '@tsparticles/confetti'
 import { useState, useCallback } from 'react'
+import { getCurrentSeasonalTheme, getSeasonalThemeConfig } from '@/lib/seasonal-themes'
 
 // Confetti configuration for new forgatas success
 const FORGATAS_SUCCESS_CONFIG = {
@@ -13,9 +14,26 @@ const FORGATAS_SUCCESS_CONFIG = {
 
 function fireForgatasConfetti(particleRatio: number, opts: object) {
   const { count, defaults } = FORGATAS_SUCCESS_CONFIG
+  
+  // Get seasonal theme and particles
+  const currentTheme = getCurrentSeasonalTheme()
+  const themeConfig = getSeasonalThemeConfig(currentTheme)
+  
+  // Use seasonal emojis if available
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const extraConfig: Record<string, any> = {}
+  if (themeConfig?.particles && themeConfig.particles.length > 0) {
+    extraConfig.shapes = themeConfig.particles.map((emoji: string) => ({
+      type: 'text',
+      text: emoji,
+    }))
+    extraConfig.scalar = 2
+  }
+  
   confetti({
     ...defaults,
     ...opts,
+    ...extraConfig,
     particleCount: Math.floor(count * particleRatio),
     zIndex: 30,
   })
@@ -24,27 +42,17 @@ function fireForgatasConfetti(particleRatio: number, opts: object) {
 export const confettiAnimations = {
   // Success confetti when new forgatas is added
   success: () => {
-    // Fire from both bottom corners toward center
+    // Fire from three positions: left, center, and right
+    // Left fountain
     fireForgatasConfetti(0.25, {
       spread: 26,
       startVelocity: 55,
       origin: { x: 0.1, y: 0.8 }
     })
     
-    fireForgatasConfetti(0.25, {
-      spread: 26,
-      startVelocity: 55,
-      origin: { x: 0.9, y: 0.8 }
-    })
-
     fireForgatasConfetti(0.2, {
       spread: 60,
       origin: { x: 0.1, y: 0.8 }
-    })
-    
-    fireForgatasConfetti(0.2, {
-      spread: 60,
-      origin: { x: 0.9, y: 0.8 }
     })
 
     fireForgatasConfetti(0.35, {
@@ -53,13 +61,6 @@ export const confettiAnimations = {
       scalar: 0.8,
       origin: { x: 0.1, y: 0.8 }
     })
-    
-    fireForgatasConfetti(0.35, {
-      spread: 100,
-      decay: 0.91,
-      scalar: 0.8,
-      origin: { x: 0.9, y: 0.8 }
-    })
 
     fireForgatasConfetti(0.1, {
       spread: 120,
@@ -67,14 +68,6 @@ export const confettiAnimations = {
       decay: 0.92,
       scalar: 1.2,
       origin: { x: 0.1, y: 0.8 }
-    })
-    
-    fireForgatasConfetti(0.1, {
-      spread: 120,
-      startVelocity: 25,
-      decay: 0.92,
-      scalar: 1.2,
-      origin: { x: 0.9, y: 0.8 }
     })
 
     fireForgatasConfetti(0.1, {
@@ -82,7 +75,67 @@ export const confettiAnimations = {
       startVelocity: 45,
       origin: { x: 0.1, y: 0.8 }
     })
+
+    // Center fountain
+    fireForgatasConfetti(0.25, {
+      spread: 26,
+      startVelocity: 55,
+      origin: { x: 0.5, y: 0.8 }
+    })
     
+    fireForgatasConfetti(0.2, {
+      spread: 60,
+      origin: { x: 0.5, y: 0.8 }
+    })
+
+    fireForgatasConfetti(0.35, {
+      spread: 100,
+      decay: 0.91,
+      scalar: 0.8,
+      origin: { x: 0.5, y: 0.8 }
+    })
+
+    fireForgatasConfetti(0.1, {
+      spread: 120,
+      startVelocity: 25,
+      decay: 0.92,
+      scalar: 1.2,
+      origin: { x: 0.5, y: 0.8 }
+    })
+
+    fireForgatasConfetti(0.1, {
+      spread: 120,
+      startVelocity: 45,
+      origin: { x: 0.5, y: 0.8 }
+    })
+    
+    // Right fountain
+    fireForgatasConfetti(0.25, {
+      spread: 26,
+      startVelocity: 55,
+      origin: { x: 0.9, y: 0.8 }
+    })
+    
+    fireForgatasConfetti(0.2, {
+      spread: 60,
+      origin: { x: 0.9, y: 0.8 }
+    })
+
+    fireForgatasConfetti(0.35, {
+      spread: 100,
+      decay: 0.91,
+      scalar: 0.8,
+      origin: { x: 0.9, y: 0.8 }
+    })
+
+    fireForgatasConfetti(0.1, {
+      spread: 120,
+      startVelocity: 25,
+      decay: 0.92,
+      scalar: 1.2,
+      origin: { x: 0.9, y: 0.8 }
+    })
+
     fireForgatasConfetti(0.1, {
       spread: 120,
       startVelocity: 45,
@@ -140,6 +193,14 @@ export function useConfetti() {
 
   const triggerSuccess = useCallback(() => {
     console.log('🎉 Triggering success confetti...')
+    
+    // Debug seasonal theme
+    const currentTheme = getCurrentSeasonalTheme()
+    const themeConfig = getSeasonalThemeConfig(currentTheme)
+    console.log('🎨 Current seasonal theme:', currentTheme)
+    console.log('🎨 Theme config:', themeConfig)
+    console.log('🎨 Particles:', themeConfig?.particles)
+    
     setIsActive(true)
     
     // Simple test first

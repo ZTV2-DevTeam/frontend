@@ -1,11 +1,13 @@
 "use client"
 
 import { useTheme } from "@/contexts/theme-context"
-import { Sun, Moon, Monitor, Palette, Check } from "lucide-react"
+import { useSeasonalTheme } from "@/contexts/seasonal-theme-context"
+import { Sun, Moon, Monitor, Palette, Check, Sparkles } from "lucide-react"
 import { useEffect, useState } from "react"
 
 export function ThemeSelector() {
   const { themeColor, themeMode, setThemeColor, setThemeMode } = useTheme()
+  const { isSeasonalAvailable, activeTheme, seasonalName } = useSeasonalTheme()
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
@@ -24,17 +26,34 @@ export function ThemeSelector() {
   }
 
   const themeColors = [
-    { name: "Tűzpiros", value: "red" as const, color: "oklch(0.62 0.28 27)" },
-    { name: "Borostyán", value: "amber" as const, color: "oklch(0.689 0.184 61.116)" },
-    { name: "Banán", value: "yellow" as const, color: "oklch(0.795 0.184 86.047)" },
-    { name: "Friss Fű", value: "green" as const, color: "oklch(0.696 0.17 162.48)" },
-    { name: "Óceán", value: "cyan" as const, color: "oklch(0.696 0.17 195.293)" },
-    { name: "Égbolt", value: "blue" as const, color: "oklch(0.6 0.243 244.376)" },
-    { name: "Éjfél", value: "indigo" as const, color: "oklch(0.488 0.243 264.376)" },
-    { name: "Levendula", value: "purple" as const, color: "oklch(0.627 0.265 303.9)" },
-    { name: "Rózsaköd", value: "pink" as const, color: "oklch(0.645 0.265 330)" },
-    { name: "Palahegy", value: "slate" as const, color: "oklch(0.4313 0.0543 213.13)" },
+    { name: "Tűzpiros", value: "red" as const, color: "oklch(0.62 0.28 27)", seasonal: false },
+    { name: "Borostyán", value: "amber" as const, color: "oklch(0.689 0.184 61.116)", seasonal: false },
+    { name: "Banán", value: "yellow" as const, color: "oklch(0.795 0.184 86.047)", seasonal: false },
+    { name: "Friss Fű", value: "green" as const, color: "oklch(0.696 0.17 162.48)", seasonal: false },
+    { name: "Óceán", value: "cyan" as const, color: "oklch(0.696 0.17 195.293)", seasonal: false },
+    { name: "Égbolt", value: "blue" as const, color: "oklch(0.6 0.243 244.376)", seasonal: false },
+    { name: "Éjfél", value: "indigo" as const, color: "oklch(0.488 0.243 264.376)", seasonal: false },
+    { name: "Levendula", value: "purple" as const, color: "oklch(0.627 0.265 303.9)", seasonal: false },
+    { name: "Rózsaköd", value: "pink" as const, color: "oklch(0.645 0.265 330)", seasonal: false },
+    { name: "Palahegy", value: "slate" as const, color: "oklch(0.4313 0.0543 213.13)", seasonal: false },
   ]
+
+  // Add seasonal theme if available
+  const seasonalThemes = [
+    { name: "🎃 Halloween", value: "halloween" as const, color: "oklch(0.65 0.19 45)", seasonal: true },
+    { name: "💝 Valentin-nap", value: "valentines" as const, color: "oklch(0.55 0.23 5)", seasonal: true },
+    { name: "🎄 Karácsony", value: "christmas" as const, color: "oklch(0.45 0.18 140)", seasonal: true },
+    { name: "🎆 Boldog Új Évet", value: "newyear" as const, color: "oklch(0.75 0.15 85)", seasonal: true },
+  ]
+
+  // Only show the currently active seasonal theme
+  const availableSeasonalTheme = isSeasonalAvailable 
+    ? seasonalThemes.find(t => t.value === activeTheme)
+    : null
+
+  const allThemeColors = availableSeasonalTheme 
+    ? [availableSeasonalTheme, ...themeColors]
+    : themeColors
 
   return (
     <div className="space-y-6">
@@ -98,12 +117,15 @@ export function ThemeSelector() {
         <div className="flex items-center gap-2 text-sm font-medium">
           <div 
             className="w-4 h-4 rounded-full border-2 border-primary"
-            style={{ backgroundColor: themeColors.find(c => c.value === themeColor)?.color }}
+            style={{ backgroundColor: allThemeColors.find(c => c.value === themeColor)?.color }}
           />
           <span>Témaszín</span>
+          {availableSeasonalTheme && (
+            <Sparkles className="w-3 h-3 text-primary animate-pulse" />
+          )}
         </div>
         <div className="grid grid-cols-5 gap-3">
-          {themeColors.map((color) => (
+          {allThemeColors.map((color) => (
             <button
               key={color.value}
               onClick={() => setThemeColor(color.value)}
@@ -111,7 +133,7 @@ export function ThemeSelector() {
                 themeColor === color.value
                   ? "border-foreground shadow-lg scale-105"
                   : "border-border/30 hover:border-border"
-              }`}
+              } ${color.seasonal ? "ring-2 ring-primary/30" : ""}`}
               style={{ backgroundColor: color.color }}
               title={color.name}
             >
@@ -120,11 +142,19 @@ export function ThemeSelector() {
                   <Check className="w-5 h-5 text-white drop-shadow-lg" />
                 </div>
               )}
+              {color.seasonal && themeColor !== color.value && (
+                <div className="absolute -top-1 -right-1">
+                  <Sparkles className="w-3 h-3 text-primary" />
+                </div>
+              )}
             </button>
           ))}
         </div>
         <p className="text-xs text-muted-foreground text-center">
-          Válassz egy színt a téma személyre szabásához
+          {availableSeasonalTheme 
+            ? `🎉 ${availableSeasonalTheme.name} téma elérhető!`
+            : "Válassz egy színt a téma személyre szabásához"
+          }
         </p>
       </div>
     </div>

@@ -67,49 +67,25 @@ import { AnnouncementDialog } from "@/components/announcement-dialog"
 import { VersionInfo } from "@/components/version-info"
 import { SystemMessages } from "@/components/system-messages"
 import { Shadow } from "@tsparticles/engine"
+import { getCurrentSeasonalTheme, getSeasonalThemeConfig } from "@/lib/seasonal-themes"
 
 // Function to get dynamic welcome message based on time of day and season
 function getDynamicWelcomeMessage(firstName: string = 'Felhasználó'): string {
   try {
     const now = new Date()
     const hour = now.getHours()
-    const month = now.getMonth() + 1 // getMonth() returns 0-11
-    const day = now.getDate()
-
-    // Validate date values
-    if (isNaN(hour) || isNaN(month) || isNaN(day)) {
-      return `Üdvözlünk, ${firstName}!`
+    
+    // Check for seasonal theme first
+    const seasonalTheme = getCurrentSeasonalTheme()
+    if (seasonalTheme !== 'none') {
+      const config = getSeasonalThemeConfig(seasonalTheme)
+      if (config && config.greeting) {
+        // The greeting is static, so we just return it as-is
+        return config.greeting
+      }
     }
 
-    // Christmas period (second half of December)
-    if (month === 12 && day >= 15) {
-      const christmasGreetings = [
-        `🎄 Kellemes ünnepeket, ${firstName}!`,
-        `✨ Kellemes ünnepeket, ${firstName}!`,
-        `🎅 Kellemes ünnepeket, ${firstName}!`,
-        `❄️ Kellemes ünnepeket, ${firstName}!`
-      ]
-      return christmasGreetings[Math.floor(Math.random() * christmasGreetings.length)]
-    }
-
-    // New Year period (first week of January)
-    if (month === 1 && day <= 7) {
-      return `🎊 Boldog új évet, ${firstName}!`
-    }
-
-    // Summer greetings (July-August)
-    if (month >= 7 && month <= 8) {
-      const summerGreetings = [
-        `☀️ Jó reggelt, ${firstName}!`,
-        `🌞 Szép napot, ${firstName}!`,
-        `🌅 Kellemes nyarat, ${firstName}!`
-      ]
-      if (hour >= 6 && hour < 12) return summerGreetings[0]
-      if (hour >= 12 && hour < 18) return summerGreetings[1]
-      return summerGreetings[2]
-    }
-
-    // Time-based greetings for regular days
+    // Time-based greetings for regular days (no seasonal theme)
     if (hour >= 5 && hour < 11) {
       return `🌅 Jó reggelt, ${firstName}!`
     } else if (hour >= 11 && hour < 17) {

@@ -1,6 +1,7 @@
 'use client'
 
 import { ProtectedRoute } from "@/components/protected-route"
+import { SeasonalSnowfall } from "@/components/seasonal-snowfall"
 
 export default function AppLayout({
   children,
@@ -9,6 +10,7 @@ export default function AppLayout({
 }) {
   return (
     <ProtectedRoute>
+      <SeasonalSnowfall />
       <style jsx global>{`
         html {
           background: var(--sidebar)!important;

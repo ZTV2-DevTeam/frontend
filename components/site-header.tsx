@@ -2,37 +2,52 @@
 
 import { usePathname } from "next/navigation"
 import { useState, useRef, useEffect } from "react"
-import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Clapperboard } from "lucide-react"
 import { useUserRole } from "@/contexts/user-role-context"
 import { useConfetti } from "@/components/confetti"
+import { getSeasonalIcons } from "@/lib/seasonal-icons"
+import { useTheme } from "@/contexts/theme-context"
 
-// Map of routes to page names based on the sidebar data
-const routeToPageName: Record<string, string> = {
-  "/iranyitopult": "Irányítópult",
-  "/uzenofal": "Üzenőfal",
-  "/stab": "Stáb",
-  "/naptar": "Naptár",
-  "/beallitasok": "Beállítások",
-  "/segitseg": "Segítség",
-  "/forgatasok": "Forgatások",
-  "/beosztas": "Beosztás",
-  "/tavollet": "Távollét",
-  "/partnerek": "Partnerek",
-  "/felszereles": "Felszerelés",
-  "/igazolasok": "Igazolások",
+// Map of routes to page names and default icons
+const routeConfig: Record<string, { name: string; iconKey: keyof ReturnType<typeof getSeasonalIcons> }> = {
+  "/iranyitopult": { name: "Irányítópult", iconKey: "dashboard" },
+  "/uzenofal": { name: "Üzenőfal", iconKey: "mail" },
+  "/stab": { name: "Stáb", iconKey: "users" },
+  "/naptar": { name: "Naptár", iconKey: "calendar" },
+  "/beallitasok": { name: "Beállítások", iconKey: "settings" },
+  "/segitseg": { name: "Segítség", iconKey: "help" },
+  "/forgatasok": { name: "Forgatások", iconKey: "camera" },
+  "/kacsa": { name: "KaCsa", iconKey: "duck" },
+  "/esemenyek": { name: "Események", iconKey: "calendarEvent" },
+  "/beosztas": { name: "Beosztás", iconKey: "camera" },
+  "/tavollet": { name: "Távollét", iconKey: "absence" },
+  "/partnerek": { name: "Partnerek", iconKey: "users" },
+  "/felszereles": { name: "Felszerelés", iconKey: "tools" },
+  "/igazolasok": { name: "Igazolások", iconKey: "tickets" },
 }
 
-function getCurrentPageName(pathname: string): string {
-  return routeToPageName[pathname] || "FTV"
+function getCurrentPageInfo(pathname: string, icons: ReturnType<typeof getSeasonalIcons>) {
+  const config = routeConfig[pathname]
+  if (config) {
+    return {
+      name: config.name,
+      Icon: icons[config.iconKey]
+    }
+  }
+  return {
+    name: "FTV",
+    Icon: Clapperboard
+  }
 }
 
 export function SiteHeader() {
   const pathname = usePathname()
   const { isPreviewMode, currentRole, actualUserRole } = useUserRole()
-  const currentPageName = getCurrentPageName(pathname)
+  const { themeColor } = useTheme()
+  const seasonalIcons = getSeasonalIcons(themeColor)
+  const { name: currentPageName } = getCurrentPageInfo(pathname, seasonalIcons)
   const { triggerValentine } = useConfetti()
   
   // Easter egg state
@@ -74,7 +89,7 @@ export function SiteHeader() {
       clearTimeout(clickTimeoutRef.current)
     }
 
-    // Trigger confetti if 5 clicks reached
+    // Trigger confetti animation on 5 clicks as easter egg
     if (newCount >= 5) {
       triggerValentine()
       setClickCount(0)

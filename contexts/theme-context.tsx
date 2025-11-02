@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useReducer, useCallback } from 'react'
 
-export type ThemeColor = 'red' | 'amber' | 'yellow' | 'cyan' | 'green' | 'indigo' | 'purple' | 'pink' | 'blue' | 'slate'
+export type ThemeColor = 'red' | 'amber' | 'yellow' | 'cyan' | 'green' | 'indigo' | 'purple' | 'pink' | 'blue' | 'slate' | 'halloween' | 'valentines' | 'christmas' | 'newyear'
 export type ThemeMode = 'light' | 'dark' | 'system'
 
 interface ThemeState {
@@ -645,6 +645,166 @@ function getThemeVariables(color: ThemeColor, isDark: boolean) {
         '--accent': 'oklch(0.28 0.025 215)',
         '--sidebar': 'oklch(0.22 0.02 215)',
         '--sidebar-accent': 'oklch(0.28 0.025 215)',
+      }
+    },
+    halloween: {
+      light: {
+        '--primary': 'oklch(0.65 0.19 45)', // Orange
+        '--primary-foreground': 'oklch(0.98 0.003 247.858)',
+        '--ring': 'oklch(0.65 0.19 45)',
+        '--sidebar-primary': 'oklch(0.65 0.19 45)',
+        '--sidebar-ring': 'oklch(0.65 0.19 45)',
+        '--background': 'oklch(0.995 0.01 45)',
+        '--foreground': 'oklch(0.129 0.042 264.695)',
+        '--card': 'oklch(0.98 0.01 45)',
+        '--popover': 'oklch(0.98 0.01 45)',
+        '--secondary': 'oklch(0.96 0.02 45)',
+        '--muted': 'oklch(0.96 0.02 45)',
+        '--accent': 'oklch(0.55 0.15 310)', // Purple accent
+        '--border': 'oklch(0.92 0.05 45)',
+        '--input': 'oklch(0.92 0.05 45)',
+        '--sidebar': 'oklch(0.98 0.012 45)',
+        '--sidebar-accent': 'oklch(0.92 0.05 45)',
+        '--sidebar-border': 'oklch(0.92 0.05 45)',
+      },
+      dark: {
+        '--primary': 'oklch(0.70 0.20 45)', // Bright orange
+        '--primary-foreground': 'oklch(0.15 0.04 310)',
+        '--ring': 'oklch(0.70 0.20 45)',
+        '--sidebar-primary': 'oklch(0.70 0.20 45)',
+        '--sidebar-ring': 'oklch(0.70 0.20 45)',
+        '--background': 'oklch(0.15 0.04 310)',
+        '--foreground': 'oklch(0.98 0.003 247.858)',
+        '--card': 'oklch(0.22 0.05 310)',
+        '--popover': 'oklch(0.22 0.05 310)',
+        '--secondary': 'oklch(0.30 0.06 310)',
+        '--muted': 'oklch(0.30 0.06 310)',
+        '--accent': 'oklch(0.35 0.08 310)', // Purple accent
+        '--border': 'oklch(0.30 0.06 310)',
+        '--input': 'oklch(0.30 0.06 310)',
+        '--sidebar': 'oklch(0.18 0.04 310)',
+        '--sidebar-accent': 'oklch(0.30 0.06 310)',
+        '--sidebar-border': 'oklch(0.30 0.06 310)',
+      }
+    },
+    valentines: {
+      light: {
+        '--primary': 'oklch(0.55 0.23 5)', // Red-Pink
+        '--primary-foreground': 'oklch(0.98 0.003 247.858)',
+        '--ring': 'oklch(0.55 0.23 5)',
+        '--sidebar-primary': 'oklch(0.55 0.23 5)',
+        '--sidebar-ring': 'oklch(0.55 0.23 5)',
+        '--background': 'oklch(0.995 0.01 350)',
+        '--foreground': 'oklch(0.129 0.042 264.695)',
+        '--card': 'oklch(0.98 0.01 350)',
+        '--popover': 'oklch(0.98 0.01 350)',
+        '--secondary': 'oklch(0.96 0.02 350)',
+        '--muted': 'oklch(0.96 0.02 350)',
+        '--accent': 'oklch(0.75 0.15 350)', // Light pink accent
+        '--border': 'oklch(0.92 0.05 350)',
+        '--input': 'oklch(0.92 0.05 350)',
+        '--sidebar': 'oklch(0.98 0.012 350)',
+        '--sidebar-accent': 'oklch(0.95 0.05 350)',
+        '--sidebar-border': 'oklch(0.92 0.05 350)',
+      },
+      dark: {
+        '--primary': 'oklch(0.65 0.25 5)', // Bright pink-red
+        '--primary-foreground': 'oklch(0.98 0.003 247.858)',
+        '--ring': 'oklch(0.65 0.25 5)',
+        '--sidebar-primary': 'oklch(0.65 0.25 5)',
+        '--sidebar-ring': 'oklch(0.65 0.25 5)',
+        '--background': 'oklch(0.15 0.04 350)',
+        '--foreground': 'oklch(0.98 0.003 247.858)',
+        '--card': 'oklch(0.22 0.05 5)',
+        '--popover': 'oklch(0.22 0.05 5)',
+        '--secondary': 'oklch(0.30 0.06 350)',
+        '--muted': 'oklch(0.30 0.06 350)',
+        '--accent': 'oklch(0.35 0.08 350)', // Dark pink accent
+        '--border': 'oklch(0.30 0.06 350)',
+        '--input': 'oklch(0.30 0.06 350)',
+        '--sidebar': 'oklch(0.18 0.04 5)',
+        '--sidebar-accent': 'oklch(0.30 0.06 350)',
+        '--sidebar-border': 'oklch(0.30 0.06 350)',
+      }
+    },
+    christmas: {
+      light: {
+        '--primary': 'oklch(0.45 0.18 140)', // Christmas Green
+        '--primary-foreground': 'oklch(0.98 0.003 247.858)',
+        '--ring': 'oklch(0.45 0.18 140)',
+        '--sidebar-primary': 'oklch(0.45 0.18 140)',
+        '--sidebar-ring': 'oklch(0.45 0.18 140)',
+        '--background': 'oklch(0.995 0.01 140)',
+        '--foreground': 'oklch(0.129 0.042 264.695)',
+        '--card': 'oklch(0.98 0.01 140)',
+        '--popover': 'oklch(0.98 0.01 140)',
+        '--secondary': 'oklch(0.96 0.02 140)',
+        '--muted': 'oklch(0.96 0.02 140)',
+        '--accent': 'oklch(0.55 0.20 25)', // Christmas Red accent
+        '--border': 'oklch(0.90 0.05 140)',
+        '--input': 'oklch(0.90 0.05 140)',
+        '--sidebar': 'oklch(0.98 0.012 140)',
+        '--sidebar-accent': 'oklch(0.92 0.05 140)',
+        '--sidebar-border': 'oklch(0.90 0.05 140)',
+      },
+      dark: {
+        '--primary': 'oklch(0.55 0.20 140)', // Bright green
+        '--primary-foreground': 'oklch(0.98 0.003 247.858)',
+        '--ring': 'oklch(0.55 0.20 140)',
+        '--sidebar-primary': 'oklch(0.55 0.20 140)',
+        '--sidebar-ring': 'oklch(0.55 0.20 140)',
+        '--background': 'oklch(0.12 0.03 140)',
+        '--foreground': 'oklch(0.98 0.003 247.858)',
+        '--card': 'oklch(0.18 0.04 140)',
+        '--popover': 'oklch(0.18 0.04 140)',
+        '--secondary': 'oklch(0.25 0.05 140)',
+        '--muted': 'oklch(0.25 0.05 140)',
+        '--accent': 'oklch(0.60 0.22 25)', // Bright red accent
+        '--border': 'oklch(0.25 0.05 140)',
+        '--input': 'oklch(0.25 0.05 140)',
+        '--sidebar': 'oklch(0.15 0.03 140)',
+        '--sidebar-accent': 'oklch(0.25 0.05 140)',
+        '--sidebar-border': 'oklch(0.25 0.05 140)',
+      }
+    },
+    newyear: {
+      light: {
+        '--primary': 'oklch(0.75 0.15 85)', // Gold
+        '--primary-foreground': 'oklch(0.15 0.04 264.695)',
+        '--ring': 'oklch(0.75 0.15 85)',
+        '--sidebar-primary': 'oklch(0.75 0.15 85)',
+        '--sidebar-ring': 'oklch(0.75 0.15 85)',
+        '--background': 'oklch(0.995 0.01 85)',
+        '--foreground': 'oklch(0.129 0.042 264.695)',
+        '--card': 'oklch(0.98 0.01 85)',
+        '--popover': 'oklch(0.98 0.01 85)',
+        '--secondary': 'oklch(0.96 0.02 85)',
+        '--muted': 'oklch(0.96 0.02 85)',
+        '--accent': 'oklch(0.55 0.18 265)', // Royal Blue accent
+        '--border': 'oklch(0.92 0.05 85)',
+        '--input': 'oklch(0.92 0.05 85)',
+        '--sidebar': 'oklch(0.98 0.012 85)',
+        '--sidebar-accent': 'oklch(0.95 0.05 85)',
+        '--sidebar-border': 'oklch(0.92 0.05 85)',
+      },
+      dark: {
+        '--primary': 'oklch(0.80 0.15 85)', // Bright gold
+        '--primary-foreground': 'oklch(0.12 0.03 265)',
+        '--ring': 'oklch(0.80 0.15 85)',
+        '--sidebar-primary': 'oklch(0.80 0.15 85)',
+        '--sidebar-ring': 'oklch(0.80 0.15 85)',
+        '--background': 'oklch(0.12 0.03 265)',
+        '--foreground': 'oklch(0.98 0.003 247.858)',
+        '--card': 'oklch(0.18 0.04 265)',
+        '--popover': 'oklch(0.18 0.04 265)',
+        '--secondary': 'oklch(0.25 0.05 265)',
+        '--muted': 'oklch(0.25 0.05 265)',
+        '--accent': 'oklch(0.65 0.20 330)', // Pink accent
+        '--border': 'oklch(0.25 0.05 265)',
+        '--input': 'oklch(0.25 0.05 265)',
+        '--sidebar': 'oklch(0.15 0.03 265)',
+        '--sidebar-accent': 'oklch(0.25 0.05 265)',
+        '--sidebar-border': 'oklch(0.25 0.05 265)',
       }
     }
   }

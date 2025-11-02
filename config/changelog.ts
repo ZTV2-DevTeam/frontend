@@ -4,6 +4,18 @@ import { create } from 'domain';
 
 const rawChangelogData: ChangelogEntry[] = [
   createChangelogEntry(
+    'v1.2.15',
+    '2025. november 02.',
+    '2025-11-02T15:00:00Z',
+    [
+      createChange(
+        'feature',
+        'Szezonális témák - Húsvéti tojás',
+        'Hozzáadtunk a rendszerhez egy új húsvéti tojást, mely lehetővé teszi a felhasználók számára, hogy bizonyos, előre meghatározott időszakokban aktiválják a szezonális témákat. Ezek a témák különleges vizuális elemeket és színeket tartalmaznak, amelyek az adott ünnephez kapcsolódnak. Jelenleg a következő szezonális témák érhetők el: Halloweeni téma október 25. és november 5. között, Valentin-napi téma február 10. és 16. között, Karácsonyi téma december 18. és 26. között, valamint Újévi téma december 27. és január 10. között.'
+      ),
+    ]
+  ),
+  createChangelogEntry(
     'v1.2.14',
     '2025. október 29.',
     '2025-10-29T22:00:00Z',

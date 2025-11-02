@@ -6,6 +6,7 @@ import { UserRoleProvider } from "@/contexts/user-role-context";
 import { AuthProvider } from "@/contexts/auth-context";
 import { PermissionsProvider } from "@/contexts/permissions-context";
 import { ErrorToastProvider } from "@/contexts/error-toast-context";
+import { SeasonalThemeProvider } from "@/contexts/seasonal-theme-context";
 import { GlobalErrorHandler } from "@/components/global-error-handler";
 import { ConsoleDebugger } from "@/components/console-debugger";
 import { RoleSynchronizer } from "@/components/role-synchronizer";
@@ -97,28 +98,30 @@ export default function RootLayout({
             <AccessibilityProvider>
               <KeyboardNavigationEnhancer />
                 <ColorThemeProvider>
-                  <AuthProvider>
-                    <PermissionsProvider>
-                      <UserRoleProvider>
-                        <RoleSynchronizer />
-                        <ConnectionStatus showText={false} />
-                        {/* Skip to content link for keyboard navigation */}
-                        <a
-                          href="#main-content"
-                          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-md focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 transition-all duration-200"
-                        >
-                          Ugrás a fő tartalomhoz
-                        </a>
-                        <div className="relative flex min-h-screen flex-col">
-                          <div className="transition-opacity duration-500 ease-in-out opacity-100" id="page-transition">
-                            <main id="main-content" className="flex-1">
-                              {children}
-                            </main>
+                  <SeasonalThemeProvider>
+                    <AuthProvider>
+                      <PermissionsProvider>
+                        <UserRoleProvider>
+                          <RoleSynchronizer />
+                          <ConnectionStatus showText={false} />
+                          {/* Skip to content link for keyboard navigation */}
+                          <a
+                            href="#main-content"
+                            className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-md focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 transition-all duration-200"
+                          >
+                            Ugrás a fő tartalomhoz
+                          </a>
+                          <div className="relative flex min-h-screen flex-col">
+                            <div className="transition-opacity duration-500 ease-in-out opacity-100" id="page-transition">
+                              <main id="main-content" className="flex-1">
+                                {children}
+                              </main>
+                            </div>
                           </div>
-                        </div>
-                      </UserRoleProvider>
-                    </PermissionsProvider>
-                  </AuthProvider>
+                        </UserRoleProvider>
+                      </PermissionsProvider>
+                    </AuthProvider>
+                  </SeasonalThemeProvider>
                 </ColorThemeProvider>
             </AccessibilityProvider>
           </ErrorToastProvider>
