@@ -4,6 +4,18 @@ import { create } from 'domain';
 
 const rawChangelogData: ChangelogEntry[] = [
   createChangelogEntry(
+    'v1.2.16',
+    '2025. november 04.',
+    '2025-11-04T10:00:00Z',
+    [
+      createChange(
+        'improvement',
+        'FTV Sync - Teljesítmény javítása',
+        'Optimalizáltuk az FTV Sync munkafolyamatokat a rendszerben, hogy javítsuk a teljesítményt és csökkentsük a szinkronizációs időt. Ez magában foglalja az adatbázis lekérdezések optimalizálását, a hálózati kérések csökkentését, valamint a háttérfolyamatok hatékonyabb kezelését.'
+      ),
+    ]
+  ),
+  createChangelogEntry(
     'v1.2.15',
     '2025. november 02.',
     '2025-11-02T15:00:00Z',
