@@ -1,8 +1,19 @@
 import { ChangelogEntry } from '@/types/changelog';
 import { createChangelogEntry, createChange, sortChangelogEntries } from '@/lib/changelog-utils';
-import { create } from 'domain';
 
 const rawChangelogData: ChangelogEntry[] = [
+  createChangelogEntry(
+    'v1.2.17',
+    '2025. december 07.',
+    '2025-12-07T20:00:00Z',
+    [
+      createChange(
+        'security',
+        'CVE-2025-66478 - Kritikus biztonsági frissítés',
+        'Javítottuk a CVE-2025-66478 biztonsági rést, amely lehetővé tette távoli kód végrehajtását a rendszerben. Ez a frissítés kritikus fontosságú a rendszer biztonságának megőrzése érdekében.'
+      ),
+    ]
+  ),
   createChangelogEntry(
     'v1.2.16',
     '2025. november 04.',
