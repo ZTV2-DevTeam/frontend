@@ -3,6 +3,18 @@ import { createChangelogEntry, createChange, sortChangelogEntries } from '@/lib/
 
 const rawChangelogData: ChangelogEntry[] = [
   createChangelogEntry(
+    'v1.2.18',
+    '2025. december 10.',
+    '2025-12-10T14:00:00Z',
+    [
+      createChange(
+        'bugfix',
+        'Beosztás véglegesítése - E-mail értesítés hibája javítva',
+        'Javítottuk a hibát, mely miatt a rendszer a beosztás véglegesítésekor nem küldődött ki e-mail értesítést a felhasználóknak.'
+      ),
+    ]
+  ),
+  createChangelogEntry(
     'v1.2.17',
     '2025. december 07.',
     '2025-12-07T20:00:00Z',
