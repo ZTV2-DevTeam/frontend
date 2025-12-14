@@ -5,8 +5,8 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "dev:prod-api": "cross-env NEXT_PUBLIC_API_URL=https://ftvapi.szlg.info NEXT_PUBLIC_BACKEND_URL=https://ftvapi.szlg.info next dev --turbopack",
-    "build": "next build",
-    "build:dev": "cross-env NODE_ENV=production NEXT_PUBLIC_NODE_ENV=development next build",
+    "build": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 next build",
+    "build:dev": "cross-env NODE_ENV=production NEXT_PUBLIC_NODE_ENV=development NODE_TLS_REJECT_UNAUTHORIZED=0 next build",
     "build:staging": "cross-env NODE_ENV=production NEXT_PUBLIC_NODE_ENV=staging next build",
     "build:production": "cross-env NODE_ENV=production NEXT_PUBLIC_NODE_ENV=production next build",
     "start": "next start",
