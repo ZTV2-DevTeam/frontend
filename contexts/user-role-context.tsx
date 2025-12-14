@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
-export type UserRole = 'admin' | 'class-teacher' | 'student'
+export type UserRole = 'admin' | 'student' | 'class-teacher'
 
 export interface Team {
   name: string
@@ -45,12 +45,6 @@ export function UserRoleProvider({ children }: { children: React.ReactNode }) {
       plan: "Adminisztráció, beosztások",
     },
     {
-      name: "Osztályfőnök", 
-      role: 'class-teacher',
-      logo: () => null,
-      plan: "Igazoláskezelés",
-    },
-    {
       name: "Diák",
       role: 'student', 
       logo: () => null,
@@ -60,7 +54,7 @@ export function UserRoleProvider({ children }: { children: React.ReactNode }) {
 
   const isPreviewMode = actualUserRole !== null && 
                         actualUserRole !== currentRole && 
-                        (actualUserRole === 'admin' || actualUserRole === 'class-teacher') // Admins and class-teachers can have preview mode
+                        actualUserRole === 'admin' // Only admins can have preview mode
 
   // Function to set the actual user role based on permissions
   const initializeUserRole = (userRole: UserRole) => {

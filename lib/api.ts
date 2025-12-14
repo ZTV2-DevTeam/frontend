@@ -707,6 +707,7 @@ export interface TavolletSchema {
   duration_days: number
   status: string
   tipus?: TavolletTipusBasicSchema
+  teacher_reason?: string
 }
 
 export interface TavolletCreateSchema {
@@ -717,6 +718,20 @@ export interface TavolletCreateSchema {
   tipus_id?: number
 }
 
+export interface TavolletBulkCreateSchema {
+  user_ids: number[]
+  start_date: string
+  end_date: string
+  reason?: string
+  tipus_id?: number
+}
+
+export interface TavolletBulkCreateResponse {
+  created_count: number
+  absences: TavolletSchema[]
+  errors?: string[]
+}
+
 export interface TavolletUpdateSchema {
   start_date?: string
   end_date?: string
@@ -724,6 +739,7 @@ export interface TavolletUpdateSchema {
   denied?: boolean
   approved?: boolean
   tipus_id?: number
+  teacher_reason?: string
 }
 
 // === CONFIGURATION ===
@@ -2182,6 +2198,13 @@ class ApiClient {
     })
   }
 
+  async createBulkAbsences(data: TavolletBulkCreateSchema): Promise<TavolletBulkCreateResponse> {
+    return this.request<TavolletBulkCreateResponse>('/api/absences/bulk-create', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
   async updateAbsence(absenceId: number, data: TavolletUpdateSchema): Promise<TavolletSchema> {
     return this.request<TavolletSchema>(`/api/absences/${absenceId}`, {
       method: 'PUT',
@@ -2195,21 +2218,30 @@ class ApiClient {
     })
   }
 
-  async approveAbsence(absenceId: number): Promise<TavolletSchema> {
+  async approveAbsence(absenceId: number, teacherReason?: string): Promise<TavolletSchema> {
     return this.request<TavolletSchema>(`/api/absences/${absenceId}/approve`, {
       method: 'PUT',
+      body: teacherReason ? JSON.stringify({ teacher_reason: teacherReason }) : undefined,
     })
   }
 
-  async denyAbsence(absenceId: number): Promise<TavolletSchema> {
+  async denyAbsence(absenceId: number, teacherReason?: string): Promise<TavolletSchema> {
     return this.request<TavolletSchema>(`/api/absences/${absenceId}/deny`, {
       method: 'PUT',
+      body: teacherReason ? JSON.stringify({ teacher_reason: teacherReason }) : undefined,
     })
   }
 
   async resetAbsenceStatus(absenceId: number): Promise<TavolletSchema> {
     return this.request<TavolletSchema>(`/api/absences/${absenceId}/reset`, {
       method: 'PUT',
+    })
+  }
+
+  async updateAbsenceTeacherReason(absenceId: number, teacherReason: string): Promise<TavolletSchema> {
+    return this.request<TavolletSchema>(`/api/absences/${absenceId}/teacher-reason`, {
+      method: 'PUT',
+      body: JSON.stringify({ teacher_reason: teacherReason }),
     })
   }
 

@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import { useAuth } from '@/contexts/auth-context'
 import { usePermissions } from '@/contexts/permissions-context'
-import { apiClient, TavolletSchema, TavolletCreateSchema, TavolletUpdateSchema } from '@/lib/api'
+import { apiClient, TavolletSchema, TavolletCreateSchema, TavolletUpdateSchema, UserProfileSchema } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -18,6 +18,7 @@ import { type AbsenceFilters } from '@/components/absence-filters'
 import { BulkActions, SelectionCheckbox } from '@/components/bulk-actions'
 import { AbsenceTypeSelector } from '@/components/absence-type-selector'
 import { AbsenceTypeBadge } from '@/components/absence-type-badge'
+import { MultiSelect } from '@/components/ui/multi-select'
 import {
   Select,
   SelectContent,
@@ -44,7 +45,8 @@ import {
   TreePalm,
   Search,
   RefreshCw,
-  Filter
+  Filter,
+  MessageSquare
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { validateDateRange, formatDateTimeForDisplay, formatDateTimeForDisplaySplit, getTodayDateTimeISOString, getEndOfDayISOString, formatDateTimeForApi } from '@/lib/absence-utils'
@@ -60,10 +62,14 @@ export function AbsenceManagement() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   
+  // Students list for admin bulk creation
+  const [students, setStudents] = useState<UserProfileSchema[]>([])
+  const [studentsLoading, setStudentsLoading] = useState(false)
+  
   // Filter states
   const [filters, setFilters] = useState<AbsenceFilters>({
     search: '',
-    status: 'all',
+    status: 'pending',
     dateFrom: '',
     dateTo: '',
   })
@@ -72,7 +78,9 @@ export function AbsenceManagement() {
   const [showCreateDialog, setShowCreateDialog] = useState(false)
   const [showEditDialog, setShowEditDialog] = useState(false)
   const [showViewDialog, setShowViewDialog] = useState(false)
+  const [showTeacherReasonDialog, setShowTeacherReasonDialog] = useState(false)
   const [selectedAbsence, setSelectedAbsence] = useState<TavolletSchema | null>(null)
+  const [teacherReasonAction, setTeacherReasonAction] = useState<'approve' | 'deny' | 'update' | null>(null)
   
   // Form states
   const [createLoading, setCreateLoading] = useState(false)
@@ -95,6 +103,12 @@ export function AbsenceManagement() {
     reason: '',
     tipus_id: undefined
   })
+  
+  // For admin bulk creation
+  const [selectedStudentIds, setSelectedStudentIds] = useState<string[]>([])
+  
+  // Teacher reason state
+  const [teacherReason, setTeacherReason] = useState('')
   
   const [editForm, setEditForm] = useState<TavolletUpdateSchema>({
     start_date: '',
@@ -138,6 +152,33 @@ export function AbsenceManagement() {
     fetchAbsences()
   }, [fetchAbsences])
 
+  // Fetch students for admin
+  const fetchStudents = useCallback(async () => {
+    if (!isAdmin) return
+    
+    try {
+      setStudentsLoading(true)
+      const allUsers = await apiClient.getAllUsers()
+      // Filter to only students (users without admin privileges)
+      const studentUsers = allUsers.filter(user => 
+        !user.admin_type || user.admin_type === 'none'
+      )
+      setStudents(studentUsers)
+    } catch (err) {
+      console.error('Failed to fetch students:', err)
+      toast.error('Nem sikerült betölteni a diákokat')
+    } finally {
+      setStudentsLoading(false)
+    }
+  }, [isAdmin])
+
+  // Fetch students when admin opens create dialog
+  useEffect(() => {
+    if (showCreateDialog && isAdmin) {
+      fetchStudents()
+    }
+  }, [showCreateDialog, isAdmin, fetchStudents])
+
   // Apply filters whenever absences or filters change
   useEffect(() => {
     let filtered = [...absences]
@@ -180,7 +221,7 @@ export function AbsenceManagement() {
   const resetFilters = () => {
     setFilters({
       search: '',
-      status: 'all',
+      status: 'pending',
       dateFrom: '',
       dateTo: '',
     })
@@ -190,6 +231,12 @@ export function AbsenceManagement() {
   const handleCreate = async () => {
     if (!createForm.start_date || !createForm.end_date) {
       toast.error('Kérjük, töltse ki a kötelező mezőket')
+      return
+    }
+
+    // Admin validation - at least one student must be selected
+    if (isAdmin && selectedStudentIds.length === 0) {
+      toast.error('Kérjük, válasszon ki legalább egy diákot')
       return
     }
 
@@ -203,15 +250,36 @@ export function AbsenceManagement() {
     try {
       setCreateLoading(true)
       
-      await apiClient.createAbsence(createForm)
+      // Admin creating for multiple students
+      if (isAdmin && selectedStudentIds.length > 0) {
+        const userIds = selectedStudentIds.map(id => parseInt(id))
+        const result = await apiClient.createBulkAbsences({
+          user_ids: userIds,
+          start_date: createForm.start_date,
+          end_date: createForm.end_date,
+          reason: createForm.reason,
+          tipus_id: createForm.tipus_id
+        })
+        
+        toast.success(`${result.created_count} távollét sikeresen létrehozva`)
+        if (result.errors && result.errors.length > 0) {
+          result.errors.forEach(error => toast.error(error))
+        }
+      } 
+      // Student creating for self or admin creating for single user
+      else {
+        await apiClient.createAbsence(createForm)
+        toast.success('Távollét sikeresen létrehozva')
+      }
       
-      toast.success('Távollét sikeresen létrehozva')
       setShowCreateDialog(false)
       setCreateForm({ 
         start_date: getTodayDateTimeISOString(), 
         end_date: getEndOfDayISOString(), 
-        reason: '' 
+        reason: '',
+        tipus_id: undefined
       })
+      setSelectedStudentIds([])
       fetchAbsences()
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Hiba történt a távollét létrehozásakor'
@@ -269,7 +337,15 @@ export function AbsenceManagement() {
   }, [fetchAbsences])
 
   // Approve/Deny/Reset absence (admin only)
-  const handleApprove = useCallback(async (absence: TavolletSchema) => {
+  const handleApprove = useCallback(async (absence: TavolletSchema, withReason: boolean = false) => {
+    if (withReason) {
+      setSelectedAbsence(absence)
+      setTeacherReasonAction('approve')
+      setTeacherReason('')
+      setShowTeacherReasonDialog(true)
+      return
+    }
+    
     try {
       await apiClient.approveAbsence(absence.id)
       toast.success(`${absence.user.full_name || `${absence.user.last_name} ${absence.user.first_name}`} távollétét jóváhagyva`)
@@ -280,7 +356,15 @@ export function AbsenceManagement() {
     }
   }, [fetchAbsences])
 
-  const handleDeny = useCallback(async (absence: TavolletSchema) => {
+  const handleDeny = useCallback(async (absence: TavolletSchema, withReason: boolean = false) => {
+    if (withReason) {
+      setSelectedAbsence(absence)
+      setTeacherReasonAction('deny')
+      setTeacherReason('')
+      setShowTeacherReasonDialog(true)
+      return
+    }
+    
     try {
       await apiClient.denyAbsence(absence.id)
       toast.success(`${absence.user.full_name || `${absence.user.last_name} ${absence.user.first_name}`} távollétét elutasítva`)
@@ -290,6 +374,39 @@ export function AbsenceManagement() {
       toast.error(message)
     }
   }, [fetchAbsences])
+  
+  const handleUpdateTeacherReason = useCallback(async (absence: TavolletSchema) => {
+    setSelectedAbsence(absence)
+    setTeacherReasonAction('update')
+    setTeacherReason(absence.teacher_reason || '')
+    setShowTeacherReasonDialog(true)
+  }, [])
+  
+  const handleSubmitTeacherReason = async () => {
+    if (!selectedAbsence || !teacherReasonAction) return
+    
+    try {
+      if (teacherReasonAction === 'approve') {
+        await apiClient.approveAbsence(selectedAbsence.id, teacherReason)
+        toast.success(`${selectedAbsence.user.full_name || `${selectedAbsence.user.last_name} ${selectedAbsence.user.first_name}`} távollétét jóváhagyva${teacherReason ? ' indoklással' : ''}`)
+      } else if (teacherReasonAction === 'deny') {
+        await apiClient.denyAbsence(selectedAbsence.id, teacherReason)
+        toast.success(`${selectedAbsence.user.full_name || `${selectedAbsence.user.last_name} ${selectedAbsence.user.first_name}`} távollétét elutasítva${teacherReason ? ' indoklással' : ''}`)
+      } else if (teacherReasonAction === 'update') {
+        await apiClient.updateAbsenceTeacherReason(selectedAbsence.id, teacherReason)
+        toast.success('Tanári indoklás frissítve')
+      }
+      
+      setShowTeacherReasonDialog(false)
+      setSelectedAbsence(null)
+      setTeacherReasonAction(null)
+      setTeacherReason('')
+      fetchAbsences()
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Hiba történt a művelet során'
+      toast.error(message)
+    }
+  }
 
   const handleReset = useCallback(async (absence: TavolletSchema) => {
     try {
@@ -485,6 +602,25 @@ export function AbsenceManagement() {
         size: 90,
       }),
       
+      columnHelper.accessor('teacher_reason', {
+        header: 'Tanári indoklás',
+        cell: ({ getValue }) => {
+          const teacherReason = getValue()
+          return (
+            <div className="max-w-[120px]">
+              {teacherReason ? (
+                <div className="text-[10px] truncate bg-blue-50 dark:bg-blue-950/30 px-1.5 py-0.5 rounded border border-blue-200 dark:border-blue-800" title={teacherReason}>
+                  {teacherReason}
+                </div>
+              ) : (
+                <span className="text-[10px] text-muted-foreground italic">-</span>
+              )}
+            </div>
+          )
+        },
+        size: 120,
+      }),
+      
       columnHelper.accessor('status', {
         header: 'Státusz',
         cell: ({ row }) => {
@@ -523,8 +659,8 @@ export function AbsenceManagement() {
         header: 'Műveletek',
         cell: ({ row }) => {
           const absence = row.original
-          const canEdit = isAdmin || (!absence.denied && absence.user.id === user?.user_id)
-          const canDelete = isAdmin || (!absence.denied && absence.user.id === user?.user_id)
+          const canEdit = !isAdmin && (!absence.denied && absence.user.id === user?.user_id)
+          const canDelete = !isAdmin && (!absence.denied && absence.user.id === user?.user_id)
           
           return (
             <div className="flex items-center justify-end gap-0.5 min-w-[120px]">
@@ -582,38 +718,72 @@ export function AbsenceManagement() {
                 <div className="flex items-center gap-0.5 ml-0.5 pl-0.5 border-l border-border">
                   {!absence.approved && !absence.denied && (
                     <>
+                      <div className="flex items-center">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleApprove(absence, false)}
+                          className="h-7 w-7 p-0 text-green-600 hover:text-green-700 hover:bg-green-50 rounded-r-none"
+                          title="Gyors jóváhagyás"
+                        >
+                          <Check className="h-3 w-3" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleApprove(absence, true)}
+                          className="h-7 w-5 p-0 text-green-600 hover:text-green-700 hover:bg-green-50 rounded-l-none border-l"
+                          title="Jóváhagyás indoklással"
+                        >
+                          <MessageSquare className="h-3 w-3" />
+                        </Button>
+                      </div>
+                      
+                      <div className="flex items-center">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeny(absence, false)}
+                          className="h-7 w-7 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-r-none"
+                          title="Gyors elutasítás"
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeny(absence, true)}
+                          className="h-7 w-5 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-l-none border-l"
+                          title="Elutasítás indoklással"
+                        >
+                          <MessageSquare className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </>
+                  )}
+                  
+                  {(absence.approved || absence.denied) && (
+                    <>
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => handleApprove(absence)}
-                        className="h-7 w-7 p-0 text-green-600 hover:text-green-700 hover:bg-green-50"
-                        title="Jóváhagyás"
+                        onClick={() => handleReset(absence)}
+                        className="h-7 w-7 p-0 text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+                        title="Státusz visszaállítása függőben állapotra"
                       >
-                        <Check className="h-3 w-3" />
+                        <AlertTriangle className="h-3 w-3" />
                       </Button>
                       
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => handleDeny(absence)}
-                        className="h-7 w-7 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
-                        title="Elutasítás"
+                        onClick={() => handleUpdateTeacherReason(absence)}
+                        className="h-7 w-7 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                        title="Tanári indoklás szerkesztése"
                       >
-                        <X className="h-3 w-3" />
+                        <MessageSquare className="h-3 w-3" />
                       </Button>
                     </>
-                  )}
-                  
-                  {(absence.approved || absence.denied) && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleReset(absence)}
-                      className="h-7 w-7 p-0 text-orange-600 hover:text-orange-700 hover:bg-orange-50"
-                      title="Státusz visszaállítása függőben állapotra"
-                    >
-                      <AlertTriangle className="h-3 w-3" />
-                    </Button>
                   )}
                 </div>
               )}
@@ -625,7 +795,7 @@ export function AbsenceManagement() {
     ]
     
     return baseColumns
-  }, [isAdmin, user?.user_id, deleteLoading, selectedIds, filteredAbsences, currentRole, handleApprove, handleDelete, handleDeny, handleReset])
+  }, [isAdmin, user?.user_id, deleteLoading, selectedIds, filteredAbsences, currentRole, handleApprove, handleDelete, handleDeny, handleReset, handleUpdateTeacherReason])
 
   const table = useReactTable({
     data: filteredAbsences,
@@ -671,15 +841,17 @@ export function AbsenceManagement() {
           </div>
         </div>
         
-        <Button 
-          onClick={() => setShowCreateDialog(true)}
-          className="whitespace-nowrap shadow-sm"
-          size="lg"
-        >
-          <Plus className="h-4 w-4 sm:mr-2" />
-          <span className="hidden sm:inline">Új távollét</span>
-          <span className="sm:hidden">Új</span>
-        </Button>
+        {!isAdmin && (
+          <Button 
+            onClick={() => setShowCreateDialog(true)}
+            className="whitespace-nowrap shadow-sm"
+            size="lg"
+          >
+            <Plus className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">Új távollét</span>
+            <span className="sm:hidden">Új</span>
+          </Button>
+        )}
       </div>
 
       {/* Stats Cards */}
@@ -956,8 +1128,8 @@ export function AbsenceManagement() {
 
       {/* Create Dialog */}
       <FormDialog
-        title="Új távollét létrehozása"
-        description="Adja meg a távollét részleteit"
+        title={isAdmin ? "Új távollét létrehozása diákoknak" : "Új távollét létrehozása"}
+        description={isAdmin ? "Válasszon diákokat és adja meg a távollét részleteit" : "Adja meg a távollét részleteit"}
         trigger={null}
         open={showCreateDialog}
         onOpenChange={setShowCreateDialog}
@@ -970,11 +1142,34 @@ export function AbsenceManagement() {
             reason: '',
             tipus_id: undefined
           })
+          setSelectedStudentIds([])
         }}
         isLoading={createLoading}
         submitLabel="Létrehozás"
       >
         <div className="space-y-4">
+          {isAdmin && (
+            <div>
+              <Label htmlFor="students">Diákok kiválasztása *</Label>
+              <MultiSelect
+                options={students.map(student => ({
+                  value: student.id.toString(),
+                  label: `${student.last_name} ${student.first_name}`
+                }))}
+                selected={selectedStudentIds}
+                onChange={setSelectedStudentIds}
+                placeholder="Válasszon diákokat..."
+                className="mt-1"
+                disabled={studentsLoading}
+              />
+              {selectedStudentIds.length > 0 && (
+                <p className="text-sm text-muted-foreground mt-1">
+                  {selectedStudentIds.length} diák kiválasztva
+                </p>
+              )}
+            </div>
+          )}
+          
           <div>
             <Label htmlFor="start_date">Kezdő időpont *</Label>
             <SystemDateTimePicker
@@ -1028,6 +1223,15 @@ export function AbsenceManagement() {
               rows={3}
             />
           </div>
+          
+          {isAdmin && (
+            <div className="flex items-center gap-2 p-3 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800">
+              <AlertTriangle className="h-4 w-4 text-blue-500" />
+              <span className="text-sm text-blue-700 dark:text-blue-300">
+                Az adminok által létrehozott távollét automatikusan jóváhagyott állapotban kerül létrehozásra.
+              </span>
+            </div>
+          )}
         </div>
       </FormDialog>
 
@@ -1181,13 +1385,25 @@ export function AbsenceManagement() {
                 {selectedAbsence.reason || 'Nincs indoklás megadva'}
               </div>
             </div>
+            
+            {selectedAbsence.teacher_reason && (
+              <div>
+                <Label>Tanári indoklás</Label>
+                <div className="text-sm bg-blue-50 dark:bg-blue-950/30 p-2 rounded border border-blue-200 dark:border-blue-800">
+                  {selectedAbsence.teacher_reason}
+                </div>
+              </div>
+            )}
 
             {isAdmin && (
               <div className="flex gap-2 pt-4 border-t">
                 {!selectedAbsence.approved && !selectedAbsence.denied ? (
                   <>
                     <Button
-                      onClick={() => handleApprove(selectedAbsence)}
+                      onClick={() => {
+                        setShowViewDialog(false)
+                        handleApprove(selectedAbsence, true)
+                      }}
                       className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
                     >
                       <Check className="h-4 w-4" />
@@ -1196,7 +1412,10 @@ export function AbsenceManagement() {
                     
                     <Button
                       variant="destructive"
-                      onClick={() => handleDeny(selectedAbsence)}
+                      onClick={() => {
+                        setShowViewDialog(false)
+                        handleDeny(selectedAbsence, true)
+                      }}
                       className="flex items-center gap-2"
                     >
                       <X className="h-4 w-4" />
@@ -1204,20 +1423,96 @@ export function AbsenceManagement() {
                     </Button>
                   </>
                 ) : (
-                  <Button
-                    variant="outline"
-                    onClick={() => handleReset(selectedAbsence)}
-                    className="flex items-center gap-2 text-orange-600 border-orange-200 hover:bg-orange-50"
-                  >
-                    <AlertTriangle className="h-4 w-4" />
-                    Státusz visszaállítása
-                  </Button>
+                  <>
+                    <Button
+                      variant="outline"
+                      onClick={() => handleReset(selectedAbsence)}
+                      className="flex items-center gap-2 text-orange-600 border-orange-200 hover:bg-orange-50"
+                    >
+                      <AlertTriangle className="h-4 w-4" />
+                      Státusz visszaállítása
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setShowViewDialog(false)
+                        handleUpdateTeacherReason(selectedAbsence)
+                      }}
+                      className="flex items-center gap-2 text-blue-600 border-blue-200 hover:bg-blue-50"
+                    >
+                      <MessageSquare className="h-4 w-4" />
+                      Indoklás szerkesztése
+                    </Button>
+                  </>
                 )}
               </div>
             )}
           </div>
         </FormDialog>
       )}
+      
+      {/* Teacher Reason Dialog */}
+      <FormDialog
+        title={
+          teacherReasonAction === 'approve' 
+            ? "Jóváhagyás indoklással" 
+            : teacherReasonAction === 'deny'
+            ? "Elutasítás indoklással"
+            : "Tanári indoklás szerkesztése"
+        }
+        description={
+          teacherReasonAction === 'approve' 
+            ? "Adjon meg indoklást a jóváhagyáshoz (opcionális)" 
+            : teacherReasonAction === 'deny'
+            ? "Adjon meg indoklást az elutasításhoz (opcionális)"
+            : "Szerkessze a tanári indoklást"
+        }
+        trigger={null}
+        open={showTeacherReasonDialog}
+        onOpenChange={setShowTeacherReasonDialog}
+        onSubmit={handleSubmitTeacherReason}
+        onCancel={() => {
+          setShowTeacherReasonDialog(false)
+          setSelectedAbsence(null)
+          setTeacherReasonAction(null)
+          setTeacherReason('')
+        }}
+        submitLabel={
+          teacherReasonAction === 'approve' 
+            ? "Jóváhagyás" 
+            : teacherReasonAction === 'deny'
+            ? "Elutasítás"
+            : "Mentés"
+        }
+      >
+        <div className="space-y-4">
+          {selectedAbsence && (
+            <div className="p-3 bg-muted rounded-lg">
+              <div className="text-sm font-medium">
+                {selectedAbsence.user.full_name || `${selectedAbsence.user.last_name} ${selectedAbsence.user.first_name}`}
+              </div>
+              <div className="text-xs text-muted-foreground mt-1">
+                {formatDateTimeForDisplay(selectedAbsence.start_date)} - {formatDateTimeForDisplay(selectedAbsence.end_date)}
+              </div>
+            </div>
+          )}
+          
+          <div>
+            <Label htmlFor="teacher_reason">Tanári indoklás</Label>
+            <Textarea
+              id="teacher_reason"
+              value={teacherReason}
+              onChange={(e) => setTeacherReason(e.target.value)}
+              placeholder="Adja meg az indoklást (opcionális)..."
+              className="mt-1 min-h-[100px]"
+              maxLength={500}
+            />
+            <p className="text-xs text-muted-foreground mt-1">
+              {teacherReason.length}/500 karakter
+            </p>
+          </div>
+        </div>
+      </FormDialog>
     </div>
   )
 }

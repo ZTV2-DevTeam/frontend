@@ -62,12 +62,15 @@ export function NavCategoryCollapsible({
     // Map item names to database models using centralized configuration
     const modelMap: { [key: string]: string } = {
       'Forgatások': DATABASE_MODELS.FORGATAS,
+      'KaCsa forgatások': DATABASE_MODELS.FORGATAS,
+      'KaCsa összejátszások': DATABASE_MODELS.FORGATAS,
       'Összejátszások': DATABASE_MODELS.FORGATAS,
       'Események': DATABASE_MODELS.CONFIG,
       'Beosztás': DATABASE_MODELS.BEOSZTAS,
       'Igazolások': DATABASE_MODELS.ANNOUNCEMENT,
       'Partnerek': DATABASE_MODELS.PARTNER,
       'Felszerelés': DATABASE_MODELS.EQUIPMENT,
+      'Stábtagok': DATABASE_MODELS.STAB,
       'Stáb': DATABASE_MODELS.STAB,
       'Üzenőfal': DATABASE_MODELS.ANNOUNCEMENT,
       'Naptár': DATABASE_MODELS.CONFIG,

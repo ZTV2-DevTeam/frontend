@@ -54,12 +54,6 @@ const data = {
       role: 'admin' as UserRole,
     },
     {
-      name: "Osztályfőnök",
-      logo: Users,
-      plan: "Igazoláskezelés",
-      role: 'class-teacher' as UserRole,
-    },
-    {
       name: "Diák",
       logo: GraduationCap,
       plan: "Diákoknak",
@@ -79,7 +73,29 @@ const data = {
         icon: Mail,
       },
       {
-        title: "Stáb",
+        title: "Stábtagok",
+        url: "/app/stab",
+        icon: IconUsers,
+      },
+      {
+        title: "Naptár",
+        url: "/app/naptar",
+        icon: IconCalendar,
+      },
+    ],
+    student: [
+      {
+        title: "Irányítópult",
+        url: "/app/iranyitopult",
+        icon: IconDashboard,
+      },
+      {
+        title: "Üzenőfal",
+        url: "/app/uzenofal",
+        icon: Mail,
+      },
+      {
+        title: "Stábtagok",
         url: "/app/stab",
         icon: IconUsers,
       },
@@ -96,24 +112,12 @@ const data = {
         icon: IconDashboard,
       },
       {
-        title: "Stáb",
-        url: "/app/stab",
-        icon: IconUsers,
-      },
-    ],
-    student: [
-      {
-        title: "Irányítópult",
-        url: "/app/iranyitopult",
-        icon: IconDashboard,
-      },
-      {
         title: "Üzenőfal",
         url: "/app/uzenofal",
         icon: Mail,
       },
       {
-        title: "Stáb",
+        title: "Stábtagok",
         url: "/app/stab",
         icon: IconUsers,
       },
@@ -137,7 +141,7 @@ const data = {
         icon: IconHelp,
       },
     ],
-    'class-teacher': [
+    student: [
       {
         title: "Beállítások",
         url: "/app/beallitasok",
@@ -149,7 +153,7 @@ const data = {
         icon: IconHelp,
       },
     ],
-    student: [
+    'class-teacher': [
       {
         title: "Beállítások",
         url: "/app/beallitasok",
@@ -165,16 +169,16 @@ const data = {
   shootings: {
     admin: [
       {
-        name: "Kiírások",
+        name: "Forgatások",
         icon: BellDot,
         subItems: [
           {
-            name: "Forgatások",
+            name: "KaCsa forgatások",
             url: "/app/forgatasok",
             icon: CameraIcon,
           },
           {
-            name: "KaCsa",
+            name: "KaCsa összejátszások",
             url: "/app/kacsa",
             icon: DuckIcon,
           },
@@ -192,19 +196,47 @@ const data = {
         icon: TreePalm,
       },
     ],
-    'class-teacher': [],
+
     student: [
       {
-        name: "Kiírások",
+        name: "Forgatások",
         icon: BellDot,
         subItems: [
           {
-            name: "Forgatások",
+            name: "KaCsa forgatások",
             url: "/app/forgatasok",
             icon: CameraIcon,
           },
           {
-            name: "KaCsa",
+            name: "KaCsa összejátszások",
+            url: "/app/kacsa",
+            icon: DuckIcon,
+          },
+          {
+            name: "Események",
+            url: "/app/esemenyek",
+            icon: Calendar,
+          },
+        ],
+      },
+      {
+        name: "Távollét",
+        url: "/app/tavollet",
+        icon: TreePalm,
+      },
+    ],
+    'class-teacher': [
+      {
+        name: "Forgatások",
+        icon: BellDot,
+        subItems: [
+          {
+            name: "KaCsa forgatások",
+            url: "/app/forgatasok",
+            icon: CameraIcon,
+          },
+          {
+            name: "KaCsa összejátszások",
             url: "/app/kacsa",
             icon: DuckIcon,
           },
@@ -230,12 +262,14 @@ const data = {
         icon: Wrench,
       },
     ],
-    'class-teacher': [] as Array<{
-      name: string
-      url: string
-      icon: any
-    }>,
     student: [
+      {
+        name: "Felszerelés", 
+        url: "/app/felszereles",
+        icon: Wrench,
+      },
+    ],
+    'class-teacher': [
       {
         name: "Felszerelés", 
         url: "/app/felszereles",
@@ -245,14 +279,14 @@ const data = {
   },
   myClass: {
     admin: [],
-    'class-teacher': [
+    student: [
       {
         name: "Igazolások",
         url: "/app/igazolasok",
         icon: TicketCheck,
       },
     ],
-    student: [
+    'class-teacher': [
       {
         name: "Igazolások",
         url: "/app/igazolasok",
@@ -280,24 +314,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   
   // Filter navigation items based on permissions
   const getFilteredNavMain = () => {
-    let filteredItems = data.navMain[currentRole].filter(item => canAccessPage(item.url))
+    const filteredItems = data.navMain[currentRole].filter(item => canAccessPage(item.url))
     
-    // Remove "Stáb" menu for pure class-teacher users (osztályfőnök without admin privileges)
-    if (currentRole === 'class-teacher') {
-      const isAnyAdmin = permissions?.permissions?.is_admin || 
-                       permissions?.permissions?.is_system_admin || 
-                       permissions?.permissions?.is_teacher_admin ||
-                       permissions?.permissions?.is_developer_admin ||
-                       permissions?.role_info?.admin_type === 'system_admin' ||
-                       permissions?.role_info?.admin_type === 'teacher' ||
-                       permissions?.role_info?.admin_type === 'dev' ||
-                       permissions?.role_info?.admin_type === 'developer'
-      
-      // If user is class-teacher but NOT an admin, remove Stáb menu access
-      if (!isAnyAdmin) {
-        filteredItems = filteredItems.filter(item => item.url !== '/app/stab')
-      }
-    }
+    // Note: Class teacher (Osztályfőnök) role has been removed from frontend
+    // They now use external Igazoláskezelő interface at igazolas.szlg.info
     
     return filteredItems
   }

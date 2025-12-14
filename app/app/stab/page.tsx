@@ -282,14 +282,8 @@ function UserCard({ user, onEdit, onDelete, hasAdminPermissions = false }: {
       color: 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400' 
     };
     
-    // Check is_class_teacher (for class teachers)
-    if (user.is_class_teacher === true) {
-      return { 
-        name: 'Osztályfőnök', 
-        icon: '👩‍🏫', 
-        color: 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400' 
-      };
-    }
+    // Note: is_class_teacher (Osztályfőnök) role has been disabled and removed from frontend
+    // Class teachers now use the external Igazoláskezelő interface at igazolas.szlg.info
     
     // Check gyv (for production managers/gyártásvezetők)
     if (user.gyv === true) {
@@ -583,7 +577,6 @@ export default function StabPage() {
       
       const matchesRole = selectedRole === "all" ||
         user.admin_type === selectedRole ||
-        (selectedRole === "class_teacher" && user.is_class_teacher === true) ||
         (selectedRole === "gyartasvezeto" && user.gyv === true)
       
       const matchesGyartasvezetoFilter = !filterGyartasvezetok || user.gyv === true
@@ -652,15 +645,13 @@ export default function StabPage() {
     return a.localeCompare(b, 'hu')
   })
 
-  // Separate into categories for legacy views (updated to check admin_type and is_class_teacher)
+  // Separate into categories for legacy views (updated to check admin_type only, class teacher role removed)
   const students = filteredUsers.filter((user: any) => 
     (user?.admin_type === 'none' || !user?.admin_type || 
-     !['system_admin', 'developer', 'teacher'].includes(user?.admin_type)) &&
-    user?.is_class_teacher !== true
+     !['system_admin', 'developer', 'teacher'].includes(user?.admin_type))
   )
   const staff = filteredUsers.filter((user: any) => 
-    (user?.admin_type && ['system_admin', 'developer', 'teacher'].includes(user.admin_type)) ||
-    user?.is_class_teacher === true
+    (user?.admin_type && ['system_admin', 'developer', 'teacher'].includes(user.admin_type))
   )
 
   const availableClasses = [...new Set(normalizedUsers
@@ -672,9 +663,6 @@ export default function StabPage() {
     ...normalizedUsers
       .filter((user: any) => user?.admin_type)
       .map((user: any) => user.admin_type),
-    ...normalizedUsers
-      .filter((user: any) => user?.is_class_teacher === true)
-      .map(() => "class_teacher"),
     ...normalizedUsers
       .filter((user: any) => user?.gyv === true)
       .map(() => "gyartasvezeto")
@@ -694,17 +682,15 @@ export default function StabPage() {
     console.log('Delete user:', user)
   }
 
-  // Helper function to get role info (updated to check admin_type and is_class_teacher)
+  // Helper function to get role info (updated to check admin_type only, class teacher role removed)
   const getRoleInfo = (user: any) => {
     // Check admin_type first (for admin roles)
     if (user.admin_type === 'system_admin') return { name: 'Rendszergazda', icon: '👑', color: 'bg-red-100 text-red-800' };
     if (user.admin_type === 'developer') return { name: 'Fejlesztő', icon: '💻', color: 'bg-gray-100 text-gray-800' };
     if (user.admin_type === 'teacher') return { name: 'Médiatanár', icon: '👨‍🏫', color: 'bg-green-100 text-green-800' };
     
-    // Check is_class_teacher (for class teachers)
-    if (user.is_class_teacher === true) {
-      return { name: 'Osztályfőnök', icon: '👩‍🏫', color: 'bg-purple-100 text-purple-800' };
-    }
+    // Note: is_class_teacher (Osztályfőnök) role has been disabled and removed from frontend
+    // Class teachers now use the external Igazoláskezelő interface at igazolas.szlg.info
     
     // Check gyv (for production managers/gyártásvezetők)
     if (user.gyv === true) {
@@ -920,7 +906,6 @@ export default function StabPage() {
                             <SelectItem key={role} value={role}>
                               {role === 'student' ? 'Diák' :
                                role === 'teacher' ? 'Médiatanár' :
-                               role === 'class_teacher' ? 'Osztályfőnök' :
                                role === 'gyartasvezeto' ? 'Gyártásvezető' :
                                role === 'system_admin' ? 'Rendszergazda' :
                                role === 'developer' ? 'Fejlesztő' :
@@ -989,29 +974,26 @@ export default function StabPage() {
                     let roleGroups: any[] = []
                     
                     if (isOsztalyNelkul) {
-                      // For "Osztály nélkül", separate by roles (updated to check admin_type and is_class_teacher)
+                      // For "Osztály nélkül", separate by roles (class teacher role removed)
                       const adminUsers = classUsers.filter((user: any) => user.admin_type === 'system_admin')
                       const developerUsers = classUsers.filter((user: any) => user.admin_type === 'developer')
                       const teacherUsers = classUsers.filter((user: any) => user.admin_type === 'teacher')
-                      const classTeacherUsers = classUsers.filter((user: any) => user.is_class_teacher === true)
                       const gyartasvezetoUsers = classUsers.filter((user: any) => user.gyv === true)
                       
-                      // Group remaining users as "Diákok" (those without admin_type, class teacher role, or gyv)
+                      // Group remaining users as "Diákok" (those without admin_type or gyv)
                       const studentUsers = classUsers.filter((user: any) => {
                         const isAdmin = user.admin_type === 'system_admin'
                         const isDeveloper = user.admin_type === 'developer' 
                         const isTeacher = user.admin_type === 'teacher'
-                        const isClassTeacher = user.is_class_teacher === true
                         const isGyartasvezeto = user.gyv === true
                         
-                        return !isAdmin && !isDeveloper && !isTeacher && !isClassTeacher && !isGyartasvezeto
+                        return !isAdmin && !isDeveloper && !isTeacher && !isGyartasvezeto
                       })
                       
                       roleGroups = [
                         { users: adminUsers, name: 'Rendszergazdák', icon: '👑', color: 'bg-red-500/10 text-red-600 border-red-500/30 dark:bg-red-400/10 dark:text-red-300 dark:border-red-400/30' },
                         { users: developerUsers, name: 'Fejlesztők', icon: '💻', color: 'bg-gray-500/10 text-gray-600 border-gray-500/30 dark:bg-gray-400/10 dark:text-gray-300 dark:border-gray-400/30' },
                         { users: teacherUsers, name: 'Médiatanárok', icon: '👨‍🏫', color: 'bg-green-500/10 text-green-600 border-green-500/30 dark:bg-green-400/10 dark:text-green-300 dark:border-green-400/30' },
-                        { users: classTeacherUsers, name: 'Osztályfőnökök', icon: '👩‍🏫', color: 'bg-purple-500/10 text-purple-600 border-purple-500/30 dark:bg-purple-400/10 dark:text-purple-300 dark:border-purple-400/30' },
                         { users: gyartasvezetoUsers, name: 'Gyártásvezetők', icon: '🎬', color: 'bg-orange-500/10 text-orange-600 border-orange-500/30 dark:bg-orange-400/10 dark:text-orange-300 dark:border-orange-400/30' },
                         { users: studentUsers, name: 'Diákok', icon: '🎓', color: 'bg-blue-500/10 text-blue-600 border-blue-500/30 dark:bg-blue-400/10 dark:text-blue-300 dark:border-blue-400/30' }
                       ].filter(group => group.users.length > 0)
@@ -1081,12 +1063,10 @@ export default function StabPage() {
                                   {classUsers.length} személy
                                   {(() => {
                                     const studentCount = classUsers.filter(u => 
-                                      (!u.admin_type || u.admin_type === 'none') && 
-                                      u.is_class_teacher !== true
+                                      (!u.admin_type || u.admin_type === 'none')
                                     ).length
                                     const staffCount = classUsers.filter(u => 
-                                      (u.admin_type && u.admin_type !== 'none') || 
-                                      u.is_class_teacher === true
+                                      (u.admin_type && u.admin_type !== 'none')
                                     ).length
                                     return studentCount > 0 && staffCount > 0 ? ` • ${studentCount} diák, ${staffCount} oktató/admin` : ''
                                   })()}

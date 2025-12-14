@@ -266,9 +266,9 @@ export function StudentAbsencesPage() {
           <CardContent>
             <div className="space-y-2 text-sm text-muted-foreground">
               <p>• A hiányzások automatikusan létrejönnek, amikor forgatásra vagy beosztva.</p>
-              <p>• Az osztályfőnököd dönt a hiányzások igazolásáról.</p>
+              <p>• Az osztályfőnökök mostantól a hiányzásaidat az <a href="https://igazolas.szlg.info" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-medium">Igazoláskezelő felületén</a> érik el.</p>
+              <p>• Ezen a felületen adhatod meg továbbra is az FTV-s hiányzások korrekcióját.</p>
               <p>• Az igazolt hiányzások nem számítanak bele a hiányzási statisztikákba.</p>
-              <p>• Kérdés esetén fordulj az osztályfőnöködhöz.</p>
             </div>
           </CardContent>
         </Card>

@@ -217,7 +217,7 @@ export function StudentAbsenceManagement() {
               <p>• Hiányzásaid automatikusan létrejönnek, amikor forgatásra vagy beosztva.</p>
               <p>• Korrigálhatod a hiányzásaidat, ha a rendszerben lévő információ nem pontos.</p>
               <p>• A korrigálás alatt megadhatod, hogy korábban kell távoznod vagy később térsz vissza.</p>
-              <p>• Az osztályfőnököd végül eldönti minden hiányzás igazolásáról.</p>
+              <p>• Az osztályfőnökök mostantól a hiányzásaidat az <a href="https://igazolas.szlg.info" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-medium">Igazoláskezelő felületén</a> érik el.</p>
             </div>
           </CardContent>
         </Card>

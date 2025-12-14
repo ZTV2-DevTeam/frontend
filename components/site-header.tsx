@@ -68,8 +68,6 @@ export function SiteHeader() {
     switch (role) {
       case 'admin':
         return 'adminisztrátor'
-      case 'class-teacher':
-        return 'osztályfőnök'
       case 'student':
         return 'diák'
       default:

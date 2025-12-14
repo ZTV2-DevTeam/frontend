@@ -90,10 +90,11 @@ interface CrewMember {
   username?: string
 }
 
-// Helper component for availability status
-const AvailabilityIndicator = ({ userId, availabilityData }: { 
+// Helper component for availability status with enhanced details
+const AvailabilityIndicator = ({ userId, availabilityData, showInEditMode = false }: { 
   userId: number, 
-  availabilityData: BeosztasWithAvailabilitySchema['user_availability'] | undefined
+  availabilityData: BeosztasWithAvailabilitySchema['user_availability'] | undefined,
+  showInEditMode?: boolean
 }) => {
   if (!availabilityData) return null
 
@@ -102,33 +103,41 @@ const AvailabilityIndicator = ({ userId, availabilityData }: {
   const userOnVacation = availabilityData.users_on_vacation?.find((u) => u.user.id === userId)
   const userWithRadio = availabilityData.users_with_radio_session?.find((u) => u.user.id === userId)
 
+  // Check for conflicts in available users too
+  const conflicts = userOnVacation?.availability?.conflicts || userWithRadio?.availability?.conflicts || userAvailable?.availability?.conflicts || []
+  const hasConflicts = conflicts.length > 0
+
   if (userOnVacation) {
-    const conflicts = userOnVacation.availability?.conflicts || []
     const vacationConflict = conflicts.find((c) => c.type === 'vacation')
+    const tooltipText = vacationConflict && vacationConflict.start_date && vacationConflict.end_date 
+      ? `Távollét: ${vacationConflict.reason}\n${new Date(vacationConflict.start_date).toLocaleDateString('hu-HU')} - ${new Date(vacationConflict.end_date).toLocaleDateString('hu-HU')}` 
+      : 'Szabadság'
     return (
-      <div className="flex items-center gap-1" title={`Távollét: ${vacationConflict?.reason || 'Szabadság'}`}>
+      <div className={`flex items-center gap-1 ${showInEditMode ? 'px-2 py-1 rounded-md bg-orange-500/10 border border-orange-500/20' : ''}`} title={tooltipText}>
         <AlertCircle className="h-4 w-4 text-orange-500" />
-        <span className="text-xs text-orange-600">Távollét</span>
+        <span className="text-xs font-medium text-orange-600">Távollét</span>
       </div>
     )
   }
 
   if (userWithRadio) {
-    const conflicts = userWithRadio.availability?.conflicts || []
     const radioConflict = conflicts.find((c) => c.type === 'radio_session')
+    const tooltipText = radioConflict && radioConflict.date 
+      ? `Rádiós összejátszás: ${radioConflict.radio_stab}\n${radioConflict.date} ${radioConflict.time_from} - ${radioConflict.time_to}` 
+      : 'Rádió'
     return (
-      <div className="flex items-center gap-1" title={`Rádiós összejátszás: ${radioConflict?.radio_stab || 'Rádió'}`}>
+      <div className={`flex items-center gap-1 ${showInEditMode ? 'px-2 py-1 rounded-md bg-blue-500/10 border border-blue-500/20' : ''}`} title={tooltipText}>
         <AlertCircle className="h-4 w-4 text-blue-500" />
-        <span className="text-xs text-blue-600">Rádiós konfliktus</span>
+        <span className="text-xs font-medium text-blue-600">Rádiós</span>
       </div>
     )
   }
 
-  if (userAvailable) {
+  if (userAvailable && !hasConflicts) {
     return (
-      <div className="flex items-center gap-1" title="Elérhető">
+      <div className={`flex items-center gap-1 ${showInEditMode ? 'px-2 py-1 rounded-md bg-green-500/10 border border-green-500/20' : ''}`} title="Elérhető">
         <CheckCircle className="h-4 w-4 text-green-500" />
-        <span className="text-xs text-green-600">Elérhető</span>
+        <span className="text-xs font-medium text-green-600">Elérhető</span>
       </div>
     )
   }
@@ -253,7 +262,7 @@ export default function BeosztasDetailPage({ params }: PageProps) {
     
     try {
       await markAsDraftMutation.execute(assignment.id)
-      toast.success('Beosztás visszaállítva piszkozatba')
+      toast.success('Beosztás visszaállítva módosításra')
       // Refetch the assignment data
       window.location.reload() // Simple refresh for now
     } catch (error) {
@@ -383,11 +392,76 @@ export default function BeosztasDetailPage({ params }: PageProps) {
     setEditedCrew(prev => prev.filter(member => member.id !== memberId))
   }
 
+  // Helper function to check user availability when adding
+  const checkUserAvailabilityForAdd = async (userId: number) => {
+    if (!availabilityData || !assignment?.forgatas) {
+      return { hasConflict: false, message: '' }
+    }
+
+    // Check existing availability data if user is already there
+    const existingOnVacation = availabilityData.users_on_vacation?.find(u => u.user.id === userId)
+    const existingWithRadio = availabilityData.users_with_radio_session?.find(u => u.user.id === userId)
+    
+    if (existingOnVacation) {
+      const conflicts = existingOnVacation.availability?.conflicts || []
+      const vacationConflict = conflicts.find((c) => c.type === 'vacation')
+      return {
+        hasConflict: true,
+        message: vacationConflict && vacationConflict.start_date && vacationConflict.end_date
+          ? `Távollét: ${vacationConflict.reason}\n${new Date(vacationConflict.start_date).toLocaleDateString('hu-HU')} - ${new Date(vacationConflict.end_date).toLocaleDateString('hu-HU')}` 
+          : 'A felhasználó távol lesz'
+      }
+    }
+    
+    if (existingWithRadio) {
+      const conflicts = existingWithRadio.availability?.conflicts || []
+      const radioConflict = conflicts.find((c) => c.type === 'radio_session')
+      return {
+        hasConflict: true,
+        message: radioConflict ?
+          `Rádiós összejátszás: ${radioConflict.radio_stab}\n${radioConflict.date} ${radioConflict.time_from} - ${radioConflict.time_to}` :
+          'A felhasználó rádiós összejátszáson vesz részt'
+      }
+    }
+
+    // For users not in the current availability data, we could call the API to check
+    // but for simplicity, we'll assume no conflict
+    return { hasConflict: false, message: '' }
+  }
+
   const handleSaveChanges = async () => {
     if (!assignment?.id || !isEditMode) return
     
+    // Check for conflicts before saving
+    const membersWithConflicts = editedCrew.filter(member => {
+      const userOnVacation = availabilityData?.users_on_vacation?.find((u) => u.user.id === member.id)
+      const userWithRadio = availabilityData?.users_with_radio_session?.find((u) => u.user.id === member.id)
+      return userOnVacation || userWithRadio
+    })
+    
+    if (membersWithConflicts.length > 0) {
+      const conflictDetails = membersWithConflicts.map(m => {
+        const userOnVacation = availabilityData?.users_on_vacation?.find((u) => u.user.id === m.id)
+        const userWithRadio = availabilityData?.users_with_radio_session?.find((u) => u.user.id === m.id)
+        
+        let conflictType = ''
+        if (userOnVacation) conflictType = 'Távollét'
+        else if (userWithRadio) conflictType = 'Rádiós összejátszás'
+        
+        return `${m.name} - ${conflictType}`
+      }).join('\n')
+      
+      const confirmSave = window.confirm(
+        `Figyelem! A következő stábtagoknak konfliktusuk van:\n\n${conflictDetails}\n\nBiztosan véglegesíted a beosztást ezekkel a konfliktusokkal?`
+      )
+      
+      if (!confirmSave) {
+        return
+      }
+    }
+    
     try {
-      console.log('Saving changes...')
+      console.log('Saving and finalizing assignment...')
       console.log('Original crew:', crew)
       console.log('Edited crew:', editedCrew)
       
@@ -399,12 +473,14 @@ export default function BeosztasDetailPage({ params }: PageProps) {
       
       console.log('Student role pairs to send:', student_role_pairs)
       
+      // Save and mark as done (finalize) in one action
       const result = await updateAssignmentMutation.execute({
-        student_role_pairs
+        student_role_pairs,
+        kesz: true  // Always finalize on save
       })
       
       console.log('Save result:', result)
-      toast.success('Beosztás módosításai sikeresen mentve')
+      toast.success('Beosztás sikeresen véglegesítve!')
       // Refetch the assignment data
       window.location.reload() // Simple refresh for now
     } catch (error) {
@@ -423,6 +499,18 @@ export default function BeosztasDetailPage({ params }: PageProps) {
     const role = availableRoles?.find(r => r.id === roleId)
     
     if (!user || !role) return
+
+    // Check if user has conflicts
+    const userConflicts = await checkUserAvailabilityForAdd(userId)
+    if (userConflicts.hasConflict) {
+      const confirmAdd = window.confirm(
+        `Figyelem! ${user.full_name || user.username} felhasználónak konfliktusa van:\n\n${userConflicts.message}\n\nBiztosan hozzáadod?`
+      )
+      
+      if (!confirmAdd) {
+        return
+      }
+    }
 
     // Get detailed user info
     try {
@@ -565,13 +653,13 @@ export default function BeosztasDetailPage({ params }: PageProps) {
                 <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                   {isEditMode ? (
                     <>
-                      <Button onClick={handleSaveAssignment} disabled={updateAssignmentMutation.loading} className="w-full sm:w-auto">
+                      <Button onClick={handleSaveChanges} disabled={updateAssignmentMutation.loading} className="w-full sm:w-auto">
                         {updateAssignmentMutation.loading ? (
                           <Loader2 className="h-4 w-4 animate-spin mr-2" />
                         ) : (
-                          <Save className="h-4 w-4 mr-2" />
+                          <CheckCircle className="h-4 w-4 mr-2" />
                         )}
-                        Mentés
+                        Mentés és Véglegesítés
                       </Button>
                       <Button variant="outline" onClick={() => {
                         setIsEditMode(false)
@@ -739,7 +827,7 @@ export default function BeosztasDetailPage({ params }: PageProps) {
                                       ) : (
                                         <Square className="h-4 w-4" />
                                       )}
-                                      Piszkozat
+                                      Módosítás
                                     </Button>
                                   ) : (
                                     <Button
@@ -862,7 +950,7 @@ export default function BeosztasDetailPage({ params }: PageProps) {
                           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
                             <Button 
                               size="sm" 
-                              variant="outline"
+                              variant="default"
                               onClick={handleSaveChanges}
                               disabled={updateAssignmentMutation.loading}
                               className="w-full sm:w-auto text-xs sm:text-sm"
@@ -870,9 +958,9 @@ export default function BeosztasDetailPage({ params }: PageProps) {
                               {updateAssignmentMutation.loading ? (
                                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                               ) : (
-                                <Save className="h-4 w-4 mr-2" />
+                                <CheckCircle className="h-4 w-4 mr-2" />
                               )}
-                              Mentés
+                              Mentés és Véglegesítés
                             </Button>
                             <Button 
                               size="sm" 
@@ -939,6 +1027,38 @@ export default function BeosztasDetailPage({ params }: PageProps) {
 
                       <Separator />
 
+                      {/* Conflict Warning Panel in Edit Mode */}
+                      {isEditMode && availabilityData && (
+                        <>
+                          {(availabilityData.users_on_vacation.length > 0 || 
+                            availabilityData.users_with_radio_session.length > 0) && (
+                            <div className="p-4 rounded-lg bg-orange-500/10 border border-orange-500/20">
+                              <div className="flex items-start gap-3">
+                                <AlertCircle className="h-5 w-5 text-orange-500 flex-shrink-0 mt-0.5" />
+                                <div className="flex-1 space-y-2">
+                                  <div className="font-medium text-sm text-orange-600">
+                                    Konfliktusok észlelve
+                                  </div>
+                                  {availabilityData.users_on_vacation.length > 0 && (
+                                    <div className="text-sm text-muted-foreground">
+                                      <span className="font-medium text-orange-600">{availabilityData.users_on_vacation.length}</span> fő távollét miatt
+                                    </div>
+                                  )}
+                                  {availabilityData.users_with_radio_session.length > 0 && (
+                                    <div className="text-sm text-muted-foreground">
+                                      <span className="font-medium text-blue-600">{availabilityData.users_with_radio_session.length}</span> fő rádiós összejátszás miatt
+                                    </div>
+                                  )}
+                                  <p className="text-xs text-muted-foreground">
+                                    A konfliktusokkal rendelkező stábtagok jelölve vannak. A mentéskor megerősítést kérünk.
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </>
+                      )}
+
                       {/* Crew List */}
                       <div className="space-y-3">
                         {filteredCrew.length === 0 ? (
@@ -997,7 +1117,11 @@ export default function BeosztasDetailPage({ params }: PageProps) {
                                       {member.username && (
                                         <span className="font-mono text-xs truncate">@{member.username}</span>
                                       )}
-                                      <AvailabilityIndicator userId={member.id} availabilityData={availabilityData} />
+                                      <AvailabilityIndicator 
+                                        userId={member.id} 
+                                        availabilityData={availabilityData} 
+                                        showInEditMode={isEditMode}
+                                      />
                                     </div>
                                   </div>
                                 </div>

@@ -81,11 +81,11 @@ export function AbsenceTypeSelector({
   const getIgnoredCountsAsDisplay = (ignoredCountsAs: string): { text: string; color: string; variant: "default" | "secondary" | "destructive" | "outline" } => {
     switch (ignoredCountsAs) {
       case 'approved':
-        return { text: 'Elfogadva számít', color: 'text-green-600', variant: 'default' }
+        return { text: 'Elfogadva számít', color: 'dark:text-green-200 dark:bg-green-800 text-green-800 bg-green-200', variant: 'default' }
       case 'denied':
-        return { text: 'Elutasítva számít', color: 'text-red-600', variant: 'destructive' }
+        return { text: 'Elutasítva számít', color: 'dark:text-red-200 dark:bg-red-800 text-red-800 bg-red-200', variant: 'destructive' }
       default:
-        return { text: ignoredCountsAs, color: 'text-muted-foreground', variant: 'secondary' }
+        return { text: ignoredCountsAs, color: 'text-muted-foreground dark:text-muted-foreground bg-muted-background dark:bg-muted-background', variant: 'secondary' }
     }
   }
 

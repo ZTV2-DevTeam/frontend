@@ -3,6 +3,65 @@ import { createChangelogEntry, createChange, sortChangelogEntries } from '@/lib/
 
 const rawChangelogData: ChangelogEntry[] = [
   createChangelogEntry(
+    'v1.3.1',
+    '2025. december 14.',
+    '2025-12-14T15:00:00Z',
+    [
+      createChange(
+        'improvement',
+        'Beosztás kezelés - Egyesített mentés és véglegesítés',
+        'A beosztás szerkesztése mostantól egyszerűbb: elég egyszer belépni szerkesztés módba, hozzárendelni a stábtagokat, majd egy gombbal menteni és véglegesíteni. Megszűnt a dupla szerkesztés/mentés/lezárás folyamat.'
+      ),
+      createChange(
+        'feature',
+        'Beosztás - Valós idejű konfliktus jelzés',
+        'A stábtagok hozzárendelésekor azonnal láthatók MINDEN konfliktus: távollét, rádiós összejátszás, ÉS ha valaki már be van osztva egy másik forgatásra ugyanabban az időpontban. A konfliktussal rendelkező stábtagok kiemelten jelennek meg szerkesztési módban, és a rendszer figyelmeztetést ad mentés előtt.'
+      ),
+      createChange(
+        'improvement',
+        'Stábvezető automatiks hozzárendelése beosztáshoz',
+        'Mostantól amikor egy diák kiír egy forgatást, automatikusan hozzá lesz rendelve a stábvezető is a beosztáshoz.'
+      )
+    ]
+  ),
+  createChangelogEntry(
+    'v1.3.0',
+    '2025. december 14.',
+    '2025-12-14T10:00:00Z',
+    [
+      createChange(
+        'improvement',
+        'Távollétkezelő - Alapértelmezett szűrő',
+        'A Távollétkezelő mostantól alapértelmezetten csak a függőben lévő távolléteket jeleníti meg. A szűrővel továbbra is megtekinthető az összes státuszú távollét.'
+      ),
+      createChange(
+        'improvement',
+        'Menüpontok átnevezése',
+        'Több menüpont átnevezésre került a jobb érthetőség érdekében.'
+      ),
+      createChange(
+        'removed',
+        'Szerkesztés és törlés lehetősége eltávolítva a Távollétkezelőből',
+        'A tanárok mostantól nem szerkeszthetik vagy törölhetik a távolléteket a Távollétkezelőben.'
+      ),
+      createChange(
+        'improvement',
+        'Piszkozat kifejezés eltávolítva',
+        'A "Piszkozat" kifejezés eltávolításra került a rendszerből, helyette a "Módosítás" kifejezést használjuk.'
+      ),
+      createChange(
+        'removed',
+        'Távollétkezelő - Új távollét létrehozásának lehetősége eltávolítva adminisztrátorok számára',
+        'Eltávolításra került az új távollét létrehozásának lehetősége az adminisztrátorok számára a Távollétkezelőben.'
+      ),
+      createChange(
+        'feature',
+        'Távollétkezelő - Tanári indoklás mező hozzáadva',
+        'Mostantól a tanárok megadhatnak egy opcionális indoklást a távollétek jóváhagyásakor vagy elutasításakor. Ez a mező maximum 500 karakter hosszú lehet, és segít a diákoknak megérteni a döntés okát.'
+      ),
+    ]
+  ),
+  createChangelogEntry(
     'v1.2.18',
     '2025. december 10.',
     '2025-12-10T14:00:00Z',

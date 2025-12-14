@@ -12,7 +12,7 @@ export interface UserPermissions {
   role_info: Record<string, any>
 }
 
-export type AvailableRole = 'admin' | 'class-teacher' | 'student'
+export type AvailableRole = 'admin' | 'student' | 'class-teacher'
 
 interface PermissionsContextType {
   permissions: UserPermissions | null
@@ -212,13 +212,9 @@ export function PermissionsProvider({ children }: { children: React.ReactNode })
       case '/app/iranyitopult':
         return true
 
-      // Staff page - accessible by everyone except pure class teachers (osztályfőnökök without admin privileges)
+      // Staff page - accessible by all authenticated users
       case '/app/stab':
-        // Check if user is a class teacher without admin privileges
-        if (isClassTeacher && !isSystemAdmin && !isTeacherAdmin && !isGeneralAdmin) {
-          return false // Pure class teachers cannot access staff page
-        }
-        return true // Everyone else can access staff contact info
+        return true // Everyone can access staff contact info
       
       case '/app/beallitasok':
         // Settings page should be accessible to all authenticated users (students, class-teachers, and admins)
@@ -304,20 +300,16 @@ export function PermissionsProvider({ children }: { children: React.ReactNode })
       roles.push('admin')
     }
     
-    // Class teacher role: Osztályfőnök (can be combined with admin if they are also médiatanár)
-    const isClassTeacher = perms?.is_osztaly_fonok || role_info?.special_role === 'class_teacher' || perms?.can_manage_class_students
-    if (isClassTeacher) {
-      roles.push('class-teacher')
-    }
+    // Note: Osztályfőnök (class-teacher) role has been disabled and removed from the frontend
+    // Class teachers now use the external Igazoláskezelő interface at igazolas.szlg.info
 
-    // Student role: Only add if user has no admin or teacher roles, OR explicitly shown in display properties
+    // Student role: Only add if user has no admin roles, OR explicitly shown in display properties
     const hasAdminRole = roles.includes('admin')
-    const hasClassTeacherRole = roles.includes('class-teacher')
     
     // Add student role if:
     // 1. User has no other roles (pure student)
     // 2. Display properties explicitly show student menu (fallback access)
-    if (!hasAdminRole && !hasClassTeacherRole) {
+    if (!hasAdminRole) {
       roles.push('student')
     } else if (display_properties?.show_student_menu && roles.length === 0) {
       roles.push('student')
@@ -373,22 +365,15 @@ export function PermissionsProvider({ children }: { children: React.ReactNode })
       return 'admin'
     }
     
-    // Priority 5: Pure osztályfőnök (class teacher without admin rights) gets class-teacher role  
-    if (availableRoles.includes('class-teacher') && isClassTeacher && !isTeacherAdmin && !isSystemAdmin && !isDeveloperAdmin && !isGeneralAdmin) {
-      return 'class-teacher'
-    }
+    // Note: Osztályfőnök (class-teacher) role has been removed
+    // Class teachers now use external Igazoláskezelő interface
     
-    // Priority 6: If user has both admin and class-teacher roles (médiatanár + osztályfőnök), default to admin
+    // Priority 5: If user has admin role, use it
     if (availableRoles.includes('admin')) {
       return 'admin'
     }
     
-    // Priority 7: Fallback to class-teacher if available
-    if (availableRoles.includes('class-teacher')) {
-      return 'class-teacher'
-    }
-    
-    // Priority 8: Fallback to student
+    // Priority 6: Fallback to student
     if (availableRoles.includes('student')) {
       return 'student'
     }
