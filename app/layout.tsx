@@ -88,6 +88,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="hu" suppressHydrationWarning>
+      <head>
+        <script defer src="https://node.szlg.info/__szlg/motd.js"></script>
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased font-sans`}
       >
