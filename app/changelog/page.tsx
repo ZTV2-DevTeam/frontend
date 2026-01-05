@@ -153,124 +153,27 @@ export default function ChangelogPage() {
             </p>
           </div>
 
-
-
-          <div className="space-y-6 sm:space-y-8">
-            {changelogData.map((entry, index) => (
-              <div key={entry.id} id={entry.id} className="relative scroll-mt-24">
-                {/* Timeline line */}
-                {index < changelogData.length - 1 && (
-                  <div className="absolute left-4 sm:left-6 top-12 sm:top-16 w-0.5 h-full bg-border -ml-px" />
-                )}
-                
-                <div className="flex gap-3 sm:gap-6">
-                  {/* Date badge */}
-                  <div className="flex-shrink-0">
-                    <div className="flex items-center justify-center w-8 h-8 sm:w-12 sm:h-12 bg-primary text-primary-foreground rounded-full border-2 sm:border-4 border-background shadow-lg">
-                      <Calendar className="w-4 h-4 sm:w-5 sm:h-5" />
-                    </div>
-                  </div>
-
-                  {/* Content */}
-                  <div className="flex-1 min-w-0 pb-6 sm:pb-8">
-                    <div className="bg-card border border-border rounded-lg p-4 sm:p-6 shadow-sm overflow-hidden">
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-0 sm:gap-4 mb-4">
-                        <h2 className="text-lg sm:text-2xl font-semibold break-words">{entry.title}</h2>
-                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-                          <span className="text-xs sm:text-sm text-muted-foreground">
-                            {formatDate(entry.date)}
-                          </span>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleShare(entry.id)}
-                            className="flex items-center gap-1 sm:gap-2 h-7 sm:h-8 px-2 sm:px-3 text-xs"
-                            title="Bejegyzés megosztása"
-                          >
-                            {copiedId === entry.id ? (
-                              <>
-                                <Check className="w-3 h-3" />
-                                <span className="inline sm:inline">Másolva</span>
-                              </>
-                            ) : (
-                              <>
-                                <Share2 className="w-3 h-3" />
-                                <span className="inline sm:inline">Megosztás</span>
-                              </>
-                            )}
-                          </Button>
-                        </div>
-                      </div>
-
-                      <div className="space-y-3 sm:space-y-4">
-                        {entry.changes.map((change) => (
-                          <div key={change.id} className={`border border-border rounded-lg p-3 sm:p-4 overflow-hidden ${
-                            change.type === 'integration' 
-                              ? 'bg-gradient-to-r from-indigo-50/50 to-purple-50/50 dark:from-indigo-950/20 dark:to-purple-950/20 border-indigo-200 dark:border-indigo-800' 
-                              : 'bg-muted/20'
-                          }`}>
-                            <div className="space-y-2 sm:space-y-3">
-                              <div className="flex items-center gap-2 sm:gap-3">
-                                <div className={`flex items-center gap-1 sm:gap-2 px-1.5 sm:px-2 py-1 rounded-full text-xs font-medium border w-fit ${getChangeTypeColor(change.type)}`}>
-                                  {getChangeTypeIcon(change.type)}
-                                  <span className="whitespace-nowrap">{getChangeTypeLabel(change.type)}</span>
-                                </div>
-                                {change.type === 'integration' && change.integrationLogo && (
-                                  <div className="flex items-center gap-2 ml-auto">
-                                    <span className="text-xs text-muted-foreground hidden sm:inline">Szolgáltató:</span>
-                                    <Image 
-                                      src={change.integrationLogo} 
-                                      alt="Integration logo" 
-                                      width={32}
-                                      height={32}
-                                      className="w-6 h-6 sm:w-8 sm:h-8 object-contain rounded border border-border shadow-sm bg-white/50 dark:bg-gray-900/50 p-1"
-                                      onError={(e) => {
-                                        (e.target as HTMLImageElement).style.display = 'none';
-                                      }}
-                                    />
-                                  </div>
-                                )}
-                              </div>
-                              <div>
-                                <h3 className={`font-medium mb-1 break-words text-sm sm:text-base ${
-                                  change.type === 'integration' 
-                                    ? 'text-indigo-900 dark:text-indigo-100' 
-                                    : 'text-foreground'
-                                }`}>
-                                  {change.description}
-                                </h3>
-                                {change.details && (
-                                  <p className={`text-xs sm:text-sm leading-relaxed break-words ${
-                                    change.type === 'integration' 
-                                      ? 'text-indigo-700 dark:text-indigo-300' 
-                                      : 'text-muted-foreground'
-                                  }`}>
-                                    {change.details}
-                                  </p>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {changelogData.length === 0 && (
-            <div className="text-center py-8 sm:py-12">
-              <Calendar className="w-8 h-8 sm:w-12 sm:h-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-base sm:text-lg font-medium text-muted-foreground mb-2">
-                Még nincsenek bejegyzések
-              </h3>
-              <p className="text-sm text-muted-foreground px-4">
-                A változások itt fognak megjelenni, amint frissítések érkeznek.
-              </p>
+          {/* Migration Notice */}
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border-2 border-blue-200 dark:border-blue-800 rounded-lg p-6 text-center space-y-3">
+            <div className="flex items-center justify-center gap-2 text-blue-900 dark:text-blue-100">
+              <AlertTriangle className="w-6 h-6" />
+              <h2 className="text-xl font-semibold">Változásnapló áthelyezve</h2>
             </div>
-          )}
+            <p className="text-blue-800 dark:text-blue-200">
+              A változásnapló már nem érhető el az ftv.szlg.info címen.
+            </p>
+            <p className="text-blue-800 dark:text-blue-200">
+              Az új helye:{" "}
+              <a 
+                href="https://node.szlg.info/valtozasok" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="font-semibold underline hover:no-underline"
+              >
+                node.szlg.info/valtozasok
+              </a>
+            </p>
+          </div>
         </div>
       </main>
 
