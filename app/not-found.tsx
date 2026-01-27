@@ -18,7 +18,7 @@ export default function NotFound() {
             <div className="flex items-center gap-2">
               <span>FTV</span>
             </div>
-            <span className="text-xs text-muted-foreground font-normal leading-none">Hiányzás Áttekintő Platform</span>
+            <span className="text-xs text-muted-foreground font-normal leading-none">Forgatásszervezési Platform</span>
           </div>
         </Link>
         <nav className="flex items-center gap-4">

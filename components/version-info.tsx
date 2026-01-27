@@ -1,6 +1,5 @@
 "use client"
 
-import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { getShortVersionInfo, getAppVersion } from "@/lib/version"
@@ -19,17 +18,17 @@ interface VersionInfoProps {
 export function VersionInfo({ className = "", variant = "default" }: VersionInfoProps) {
   const versionInfo = getShortVersionInfo()
   const currentVersion = getAppVersion()
-  const changelogUrl = `/changelog#${currentVersion}`
+  const changelogUrl = `https://node.szlg.info/valtozasok#${currentVersion}`
 
   if (variant === "minimal") {
     return (
       <div className={`flex justify-center ${className}`}>
-        <Link href={changelogUrl}>
+        <a href={changelogUrl} target="_blank" rel="noopener noreferrer">
           <Badge variant="outline" className="text-xs text-muted-foreground border-muted-foreground/20 bg-background/50 hover:bg-muted/50 hover:text-foreground transition-colors cursor-pointer">
             <Info className="h-3 w-3 mr-1.5" />
             {versionInfo}
           </Badge>
-        </Link>
+        </a>
       </div>
     )
   }
@@ -37,14 +36,14 @@ export function VersionInfo({ className = "", variant = "default" }: VersionInfo
   return (
     <Card className={`border-muted-foreground/10 bg-muted/30 ${className}`}>
       <CardContent className="py-2 px-4">
-        <Link href={changelogUrl}>
+        <a href={changelogUrl} target="_blank" rel="noopener noreferrer">
           <div className="flex items-center justify-center gap-2 hover:text-foreground transition-colors cursor-pointer">
             <Info className="h-3.5 w-3.5 text-muted-foreground" />
             <span className="text-xs text-muted-foreground font-medium">
               {versionInfo}
             </span>
           </div>
-        </Link>
+        </a>
       </CardContent>
     </Card>
   )

@@ -24,7 +24,6 @@ const routeConfig: Record<string, { name: string; iconKey: keyof ReturnType<type
   "/beosztas": { name: "Beosztás", iconKey: "camera" },
   "/tavollet": { name: "Távollét", iconKey: "absence" },
   "/partnerek": { name: "Partnerek", iconKey: "users" },
-  "/felszereles": { name: "Felszerelés", iconKey: "tools" },
   "/igazolasok": { name: "Igazolások", iconKey: "tickets" },
 }
 

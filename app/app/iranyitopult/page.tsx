@@ -25,6 +25,7 @@ import {
   Users, 
   Clock, 
   Calendar,
+  CalendarX,
   Plus, 
   Megaphone, 
   CalendarDays,
@@ -60,7 +61,8 @@ import {
   TrendingDown,
   Percent,
   Clock4,
-  Package
+  Package,
+  TreePalm
 } from "lucide-react"
 import { UserAvatar } from "@/components/user-avatar"
 import { AnnouncementDialog } from "@/components/announcement-dialog"
@@ -267,7 +269,6 @@ function PendingForgatásokWidget() {
 function QuickActionsWidget() {
   const router = useRouter()
   const [createForgatásOpen, setCreateForgatásOpen] = useState(false)
-  const [createAnnouncementOpen, setCreateAnnouncementOpen] = useState(false)
   
   const quickActions = [
     { 
@@ -278,11 +279,11 @@ function QuickActionsWidget() {
       color: "blue"
     },
     { 
-      name: "Új közlemény", 
-      description: "Közlemény létrehozása",
-      icon: Megaphone, 
-      action: () => setCreateAnnouncementOpen(true),
-      color: "orange"
+      name: "Távollétek áttekintése", 
+      description: "Távollét nyilvántartás",
+      icon: TreePalm, 
+      action: () => router.push("/app/tavollet"),
+      color: "pink"
     },
     { 
       name: "Stáb Áttekintése", 
@@ -352,6 +353,14 @@ function QuickActionsWidget() {
           icon: 'text-purple-500',
           shadow: 'shadow-purple-500'
         }
+      case 'pink':
+        return {
+          border: 'border-pink-500',
+          bg: 'bg-pink-500',
+          text: 'text-pink-500',
+          icon: 'text-pink-500',
+          shadow: 'shadow-pink-500'
+        }
       default:
         return {
           border: 'border-gray-500',
@@ -376,11 +385,6 @@ function QuickActionsWidget() {
     // Could add toast notification here
   }
 
-  const handleCreateAnnouncementSuccess = () => {
-    setCreateAnnouncementOpen(false)
-    // Could add toast notification here
-  }
-
   // Function to handle creating new forgatás (same logic as sidebar)
   const handleCreateForgatás = () => {
     router.push("/app/forgatasok/uj")
@@ -397,8 +401,6 @@ function QuickActionsWidget() {
               onClick={() => {
                 if (action.name === "Új forgatás") {
                   handleCreateForgatás()
-                } else if (action.name === "Új közlemény") {
-                  setCreateAnnouncementOpen(true)
                 } else {
                   handleActionClick(action.action, action.name)
                 }
@@ -419,8 +421,6 @@ function QuickActionsWidget() {
                   e.preventDefault()
                   if (action.name === "Új forgatás") {
                     handleCreateForgatás()
-                  } else if (action.name === "Új közlemény") {
-                    setCreateAnnouncementOpen(true)
                   } else {
                     handleActionClick(action.action, action.name)
                   }
@@ -436,15 +436,6 @@ function QuickActionsWidget() {
           )
         })}
       </div>
-
-      {/* Create Announcement Dialog */}
-      {createAnnouncementOpen && (
-        <AnnouncementDialog
-          trigger={null}
-          mode="create"
-          onSuccess={handleCreateAnnouncementSuccess}
-        />
-      )}
     </>
   )
 }

@@ -30,7 +30,7 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
                     <span>FTV</span>
                   </div>
                   <span className="text-xs text-gray-600 dark:text-gray-400 font-normal leading-none">
-                    Hiányzás Áttekintő Platform
+                    Forgatásszervezési Platform
                   </span>
                 </div>
               </div>

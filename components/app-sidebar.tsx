@@ -19,7 +19,6 @@ import {
   TicketCheck,
   TreePalm,
   Calendar,
-  Wrench,
   CameraIcon,
 } from 'lucide-react';
 
@@ -254,29 +253,6 @@ const data = {
       },
     ],
   },
-  utils: {
-    admin: [
-      {
-        name: "Felszerelés",
-        url: "/app/felszereles",
-        icon: Wrench,
-      },
-    ],
-    student: [
-      {
-        name: "Felszerelés", 
-        url: "/app/felszereles",
-        icon: Wrench,
-      },
-    ],
-    'class-teacher': [
-      {
-        name: "Felszerelés", 
-        url: "/app/felszereles",
-        icon: Wrench,
-      },
-    ],
-  },
   myClass: {
     admin: [],
     student: [
@@ -335,10 +311,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     })
   }
 
-  const getFilteredUtils = () => {
-    return data.utils[currentRole].filter(item => canAccessPage(item.url))
-  }
-
   const getFilteredMyClass = () => {
     return data.myClass[currentRole].filter(item => canAccessPage(item.url))
   }
@@ -378,7 +350,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   const filteredNavMain = getFilteredNavMain()
   const filteredShootings = getFilteredShootings()
-  const filteredUtils = getFilteredUtils()
   const filteredMyClass = getFilteredMyClass()
   const filteredNavSecondary = getFilteredNavSecondary()
   
@@ -391,9 +362,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavMain items={filteredNavMain} />
         {filteredShootings.length > 0 && (
           <NavCategoryCollapsible category="Tevékenység" items={filteredShootings} />
-        )}
-        {filteredUtils.length > 0 && (
-          <NavCategory category="Eszközök" items={filteredUtils} />
         )}
         {filteredMyClass.length > 0 && (
           <NavCategory category="Osztályom" items={filteredMyClass} />

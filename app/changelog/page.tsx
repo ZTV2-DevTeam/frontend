@@ -129,7 +129,7 @@ export default function ChangelogPage() {
             <div className="flex items-center gap-1 sm:gap-2">
               <span>FTV</span>
             </div>
-            <span className="text-xs text-muted-foreground font-normal leading-none hidden sm:block">Hiányzás Áttekintő Platform</span>
+            <span className="text-xs text-muted-foreground font-normal leading-none hidden sm:block">Forgatásszervezési Platform</span>
           </div>
         </Link>
         <div className="flex items-center gap-2 sm:gap-4">

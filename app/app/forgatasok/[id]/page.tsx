@@ -251,6 +251,15 @@ export default function FilmingSessionDetail({ params }: PageProps) {
                 </div>
                 <p className="text-muted-foreground">Forgatás részletes információi</p>
               </div>
+              {/* Edit Assignment Button - moved to header */}
+              {canEditAssignments && assignment && (
+                <Link href={`/app/forgatasok/${id}/beosztas?edit=true`}>
+                  <Button variant="outline" size="sm" className="bg-transparent hover:bg-purple-500/10 hover:text-purple-400 border-purple-500/20 hover:border-purple-500/30">
+                    <Settings className="h-4 w-4 mr-2" />
+                    {new Date(session.date) < new Date(new Date().toDateString()) ? "Módosítás" : "Szerkesztés"}
+                  </Button>
+                </Link>
+              )}
             </div>
 
             <div className="grid gap-6 lg:grid-cols-3">
@@ -489,23 +498,11 @@ export default function FilmingSessionDetail({ params }: PageProps) {
                 {/* Equipment */}
                 <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
                   <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1 min-w-0">
-                        <CardTitle className="flex items-center gap-2">
-                          <Camera className="h-5 w-5 text-blue-400" />
-                          Felszerelés
-                        </CardTitle>
-                        <CardDescription>Szükséges eszközök és berendezések</CardDescription>
-                      </div>
-                      {canEditAssignments && (
-                        <Link href={`/app/felszereles?session=${id}&assign=true`} className="ml-3 shrink-0">
-                          <Button variant="ghost" size="sm" className="h-8 px-2 text-xs hover:bg-blue-500/10 hover:text-blue-400 border border-blue-500/20 hover:border-blue-500/30">
-                            <Settings className="h-3 w-3 mr-1" />
-                            Hozzárendelés
-                          </Button>
-                        </Link>
-                      )}
-                    </div>
+                    <CardTitle className="flex items-center gap-2">
+                      <Camera className="h-5 w-5 text-blue-400" />
+                      Felszerelés
+                    </CardTitle>
+                    <CardDescription>Szükséges eszközök és berendezések</CardDescription>
                   </CardHeader>
                   <CardContent>
                     {equipmentLoading ? (
@@ -620,30 +617,18 @@ export default function FilmingSessionDetail({ params }: PageProps) {
                 {/* Crew */}
                 <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
                   <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1 min-w-0">
-                        <CardTitle className="flex items-center gap-2">
-                          <Users className="h-5 w-5 text-purple-400" />
-                          Stáb ({crew.length} fő)
-                        </CardTitle>
-                        <CardDescription>
-                          Forgatásban résztvevő diákok
-                          {assignment && (
-                            <span className="ml-2">
-                              • {assignment.kesz ? 'Végleges beosztás' : 'Tervezet'}
-                            </span>
-                          )}
-                        </CardDescription>
-                      </div>
-                      {canEditAssignments && assignment && (
-                        <Link href={`/app/forgatasok/${id}/beosztas`} className="ml-3 shrink-0">
-                          <Button variant="ghost" size="sm" className="h-8 px-2 text-xs hover:bg-purple-500/10 hover:text-purple-400 border border-purple-500/20 hover:border-purple-500/30">
-                            <Settings className="h-3 w-3 mr-1" />
-                            Szerkesztés
-                          </Button>
-                        </Link>
+                    <CardTitle className="flex items-center gap-2">
+                      <Users className="h-5 w-5 text-purple-400" />
+                      Stáb ({crew.length} fő)
+                    </CardTitle>
+                    <CardDescription>
+                      Forgatásban résztvevő diákok
+                      {assignment && (
+                        <span className="ml-2">
+                          • {assignment.kesz ? 'Végleges beosztás' : 'Tervezet'}
+                        </span>
                       )}
-                    </div>
+                    </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">

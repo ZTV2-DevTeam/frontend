@@ -37,7 +37,7 @@ export function ProfessionalLoading({
 
   if (variant === 'simple') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center space-y-4">
           <div className="relative inline-flex">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -50,7 +50,7 @@ export function ProfessionalLoading({
 
   if (variant === 'splash') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center space-y-8 max-w-sm mx-auto px-4">
           {/* Company Logo Area */}
           <div className="relative">
@@ -110,7 +110,7 @@ export function ProfessionalLoading({
 
   // Detailed variant (default)
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4">
+    <div className="min-h-screen flex items-center justify-center px-4">
       <Card className="w-full max-w-md shadow-sm border border-border">
         <CardContent className="p-6 space-y-6">
           {/* Header */}

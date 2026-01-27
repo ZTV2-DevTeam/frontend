@@ -1,6 +1,9 @@
 // Configuration for your API with environment-specific settings
 // This automatically detects the environment and uses appropriate backend URLs
 
+// Version configuration
+export const APP_VERSION = 'v1.3.3-2026-01-27'
+
 // Environment detection
 const isProduction = process.env.NODE_ENV === 'production'
 const isDevelopment = process.env.NODE_ENV === 'development'

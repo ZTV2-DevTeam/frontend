@@ -173,7 +173,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Provide more user-friendly error messages
       if (error instanceof Error) {
         if (error.message.includes('Network error')) {
-          throw new Error('Nem sikerült csatlakozni a szerverhez. Kérjük, ellenőrizze az internetkapcsolatot és próbálja újra.')
+        throw new Error('Nem sikerült csatlakozni a szerverhez. Kérjük, ellenőrizze az internetkapcsolatot és próbálja újra.')
         } else if (error.message.includes('Unauthorized')) {
           throw new Error('Hibás felhasználónév vagy jelszó.')
         } else if (error.message.includes('HTTP 500')) {

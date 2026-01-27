@@ -102,7 +102,7 @@ export function LoginForm({
               <div className="grid gap-6">
                 {error && (
                   <div 
-                    className="p-3 text-sm text-red-600 border border-red-200 rounded-md bg-red-50"
+                    className="p-3 text-sm text-red-600 border border-red-200 rounded-md bg-red-50 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400"
                     role="alert"
                     aria-live="polite"
                     id="login-error"

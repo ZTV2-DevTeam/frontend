@@ -336,6 +336,23 @@ export interface EquipmentAvailabilitySchema {
   conflicts: Record<string, any>[]
 }
 
+export interface EquipmentOverviewSchema {
+  equipment_id: number
+  equipment_name: string
+  equipment_type: string
+  functional: boolean
+  available_periods: boolean
+  bookings: {
+    forgatas_id: number
+    forgatas_name: string
+    time_from: string
+    time_to: string
+    type: string
+    location: string
+  }[]
+  booking_count: number
+}
+
 // Legacy Equipment types (keeping for backward compatibility)
 export interface Equipment {
   id: number

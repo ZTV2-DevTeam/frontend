@@ -70,6 +70,16 @@ export default function EsemenyekPage() {
   // Context hooks
   const { user, isAuthenticated } = useAuth()
   const { hasPermission } = usePermissions()
+
+  // Format time to remove seconds (HH:MM:SS -> HH:MM)
+  const formatTime = (timeStr: string) => {
+    try {
+      const [hours, minutes] = timeStr.split(':')
+      return `${hours}:${minutes}`
+    } catch {
+      return timeStr
+    }
+  }
   
   // API queries - fetch only events and other session types
   const filmingQuery = useApiQuery(
@@ -275,26 +285,10 @@ export default function EsemenyekPage() {
         const equipment = equipmentDetails?.find((eq: any) => eq?.id === equipmentId)
         if (!equipment) return null
         
-        // Get emoji based on equipment type
-        const getEquipmentEmoji = (typeName: string) => {
-          const type = typeName.toLowerCase()
-          if (type.includes('kamera')) return '📹'
-          if (type.includes('mikrofon') || type.includes('audio')) return '🎤'
-          if (type.includes('fény') || type.includes('light')) return '💡'
-          if (type.includes('állvány') || type.includes('tripod')) return '📐'
-          if (type.includes('objektív') || type.includes('lens')) return '🔍'
-          if (type.includes('elemlámp') || type.includes('flash')) return '🔦'
-          if (type.includes('reflektor')) return '🌟'
-          if (type.includes('akkumulátor') || type.includes('battery')) return '🔋'
-          if (type.includes('memóriakártya') || type.includes('sd')) return '💾'
-          if (type.includes('kábel') || type.includes('cable')) return '🔌'
-          return '🛠️' // default tool emoji
-        }
-        
         return {
           id: equipment.id,
           name: equipment.display_name || equipment.nickname,
-          emoji: getEquipmentEmoji(equipment.equipment_type?.name || ''),
+          emoji: equipment.equipment_type?.emoji || '🛠️',
           type: equipment.equipment_type?.name || 'Nem megadva'
         }
       })
@@ -489,14 +483,10 @@ export default function EsemenyekPage() {
                     {formatSessionDate(session.date)}
                     {session.time_from && session.time_to && (
                       <span className="ml-2 font-medium">
-                        {session.time_from} - {session.time_to}
+                        {formatTime(session.time_from)} - {formatTime(session.time_to)}
                       </span>
                     )}
                   </span>
-                </div>
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <Users className="h-3 w-3 shrink-0" />
-                  <span>{crewData.count} fő stáb ({crewData.count})</span>
                 </div>
                 {/* Assignment Stab Information */}
                 {crewData.assignmentStab && (
@@ -509,7 +499,7 @@ export default function EsemenyekPage() {
               {/* Real Crew Preview - Compact */}
               {crewData.crewMembers.length > 0 && (
                 <div className="space-y-2">
-                  <div className="text-xs font-medium text-muted-foreground">Stáb:</div>
+                  <div className="text-xs font-medium text-muted-foreground">Stáb ({crewData.count} fő):</div>
                   <div className="space-y-1">
                     {crewData.crewMembers.slice(0, 4).map((member) => (
                       <div key={member.id} className="text-xs">
@@ -547,27 +537,24 @@ export default function EsemenyekPage() {
               {(() => {
                 const equipmentData = getSessionEquipmentData(session)
                 return equipmentData.length > 0 && (
-                  <div className="space-y-2">
-                    <div className="text-xs font-medium text-muted-foreground">Felszerelés:</div>
-                    <div className="flex flex-wrap gap-1">
-                      {equipmentData.slice(0, 6).map((equipment: any) => (
-                        <Badge
-                          key={equipment.id}
-                          variant="outline"
-                          className="text-[8px] px-1 py-0 h-4 bg-orange-500/10 text-orange-400 border-orange-500/30"
-                        >
-                          {equipment.emoji} {equipment.name}
-                        </Badge>
-                      ))}
-                      {equipmentData.length > 6 && (
-                        <Badge
-                          variant="outline"
-                          className="text-[8px] px-1 py-0 h-4 bg-gray-500/10 text-gray-400 border-gray-500/30"
-                        >
-                          +{equipmentData.length - 6}
-                        </Badge>
-                      )}
-                    </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {equipmentData.slice(0, 6).map((equipment: any) => (
+                      <Badge
+                        key={equipment.id}
+                        variant="outline"
+                        className="text-xs px-2 py-1 bg-orange-500/10 text-orange-400 border-orange-500/30"
+                      >
+                        {equipment.emoji} {equipment.name}
+                      </Badge>
+                    ))}
+                    {equipmentData.length > 6 && (
+                      <Badge
+                        variant="outline"
+                        className="text-xs px-2 py-1 bg-gray-500/10 text-gray-400 border-gray-500/30"
+                      >
+                        +{equipmentData.length - 6}
+                      </Badge>
+                    )}
                   </div>
                 )
               })()}
@@ -643,14 +630,10 @@ export default function EsemenyekPage() {
                         {formatSessionDate(session.date)}
                         {session.time_from && session.time_to && (
                           <span className="ml-2 font-medium">
-                            {session.time_from} - {session.time_to}
+                            {formatTime(session.time_from)} - {formatTime(session.time_to)}
                           </span>
                         )}
                       </span>
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Users className="h-3 w-3" />
-                      <span>{crewData.count} fő stáb ({crewData.count})</span>
                     </span>
                     {/* Assignment Stab Information */}
                     {crewData.assignmentStab && (
@@ -703,13 +686,12 @@ export default function EsemenyekPage() {
                       const equipmentData = getSessionEquipmentData(session)
                       return equipmentData.length > 0 && (
                         <div className="mt-3">
-                          <div className="text-xs font-medium text-muted-foreground mb-1">Felszerelés:</div>
-                          <div className="flex flex-wrap gap-1">
+                          <div className="flex flex-wrap gap-1.5">
                             {equipmentData.slice(0, 8).map((equipment: any) => (
                               <Badge
                                 key={equipment.id}
                                 variant="outline"
-                                className="text-[8px] px-1 py-0 h-4 bg-orange-500/10 text-orange-400 border-orange-500/30"
+                                className="text-xs px-2 py-1 bg-orange-500/10 text-orange-400 border-orange-500/30"
                               >
                                 {equipment.emoji} {equipment.name}
                               </Badge>
@@ -717,7 +699,7 @@ export default function EsemenyekPage() {
                             {equipmentData.length > 8 && (
                               <Badge
                                 variant="outline"
-                                className="text-[8px] px-1 py-0 h-4 bg-gray-500/10 text-gray-400 border-gray-500/30"
+                                className="text-xs px-2 py-1 bg-gray-500/10 text-gray-400 border-gray-500/30"
                               >
                                 +{equipmentData.length - 8}
                               </Badge>

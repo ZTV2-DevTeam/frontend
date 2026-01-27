@@ -91,7 +91,7 @@ export function AbsenceManagement() {
   const [selectedIds, setSelectedIds] = useState<number[]>([])
   
   // UI states
-  const [showFilters, setShowFilters] = useState(false)
+  const [showFilters, setShowFilters] = useState(true)
   
   const currentRole = getCurrentRole()
   const isAdmin = hasPermission('is_admin') || currentRole === 'admin'
@@ -221,7 +221,7 @@ export function AbsenceManagement() {
   const resetFilters = () => {
     setFilters({
       search: '',
-      status: 'pending',
+      status: 'all',
       dateFrom: '',
       dateTo: '',
     })
@@ -910,7 +910,7 @@ export function AbsenceManagement() {
                   </Button>
                   
                   {/* Clear Filters */}
-                  {(filters.search || (filters.status && filters.status !== 'all') || filters.dateFrom || filters.dateTo) && (
+                  {(filters.search || filters.status || filters.dateFrom || filters.dateTo) && (
                     <Button
                       variant="outline"
                       size="sm"
