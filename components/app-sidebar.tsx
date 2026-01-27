@@ -169,7 +169,7 @@ const data = {
   shootings: {
     admin: [
       {
-        name: "Forgatások",
+        name: "Beosztások",
         icon: BellDot,
         subItems: [
           {
@@ -199,7 +199,7 @@ const data = {
 
     student: [
       {
-        name: "Forgatások",
+        name: "Beosztások",
         icon: BellDot,
         subItems: [
           {
@@ -227,7 +227,7 @@ const data = {
     ],
     'class-teacher': [
       {
-        name: "Forgatások",
+        name: "Beosztások",
         icon: BellDot,
         subItems: [
           {
@@ -355,7 +355,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <TeamSwitcher teams={data.teams} />
         </SidebarHeader>
         <SidebarContent>
-          <div className="p-4 text-center text-sm text-muted-foreground">
+          <div className="p-4 text-sm text-center text-muted-foreground">
             Navigáció betöltése...
           </div>
         </SidebarContent>
@@ -364,7 +364,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarMenuItem>
               <SidebarMenuButton
                 onClick={handleLogout}
-                className="hover:bg-destructive/10 hover:text-destructive transition-colors"
+                className="transition-colors hover:bg-destructive/10 hover:text-destructive"
               >
                 <LogOut className="size-4" />
                 <span>Kijelentkezés</span>
@@ -405,7 +405,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <SidebarMenuButton
               onClick={handleLogout}
-              className="hover:bg-destructive/10 hover:text-destructive transition-colors"
+              className="transition-colors hover:bg-destructive/10 hover:text-destructive"
             >
               <LogOut className="size-4" />
               <span>Kijelentkezés</span>
