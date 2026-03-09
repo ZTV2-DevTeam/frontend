@@ -395,6 +395,8 @@ export interface ForgatSchema {
   equipment_ids: number[]
   equipment_count: number
   tanev?: Record<string, any>
+  equipment_details?: any[] // Added by optimized API
+  assignment?: any // Added by optimized API
 }
 
 export interface ForgatCreateSchema {

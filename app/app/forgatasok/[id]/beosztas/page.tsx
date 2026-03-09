@@ -134,9 +134,9 @@ const AvailabilityIndicator = ({ userId, availabilityData, showInEditMode = fals
       ? `Rádiós összejátszás: ${radioConflict.radio_stab}\n${radioConflict.date} ${radioConflict.time_from} - ${radioConflict.time_to}` 
       : 'Rádió'
     return (
-      <div className={`flex items-center gap-1 ${showInEditMode ? 'px-2 py-1 rounded-md bg-blue-500/10 border border-blue-500/20' : ''}`} title={tooltipText}>
-        <AlertCircle className="h-4 w-4 text-blue-500" />
-        <span className="text-xs font-medium text-blue-600">Rádiós</span>
+      <div className={`flex items-center gap-1 ${showInEditMode ? 'px-2 py-1 rounded-md bg-red-500/10 border border-red-500/30' : ''}`} title={tooltipText}>
+        <AlertCircle className="h-4 w-4 text-red-500" />
+        <span className="text-xs font-medium text-red-600">Rádiós</span>
       </div>
     )
   }
@@ -1000,11 +1000,11 @@ export default function BeosztasDetailPage({ params }: PageProps) {
                             </div>
                           </div>
                         </div>
-                        <div className="flex items-center gap-3 p-3 rounded-lg bg-blue-500/10 border border-blue-500/30 sm:col-span-2 lg:col-span-1">
-                          <AlertCircle className="h-4 w-4 text-blue-400 flex-shrink-0" />
+                        <div className="flex items-center gap-3 p-3 rounded-lg bg-red-500/10 border border-red-500/30 sm:col-span-2 lg:col-span-1">
+                          <AlertCircle className="h-4 w-4 text-red-400 flex-shrink-0" />
                           <div className="min-w-0 flex-1">
                             <div className="text-sm text-muted-foreground">Rádiós konfliktus</div>
-                            <div className="font-medium text-blue-400 text-sm sm:text-base">
+                            <div className="font-medium text-red-400 text-sm sm:text-base">
                               {availabilityData.summary.radio_session_count} diák
                             </div>
                           </div>
@@ -1041,18 +1041,16 @@ export default function BeosztasDetailPage({ params }: PageProps) {
                           {canEditAssignments && assignment && (
                             <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                               {!isEditMode ? (
-                                // Only show edit button if assignment is not marked as done
-                                !assignment.kesz && (
-                                  <Button
-                                    onClick={() => setIsEditMode(true)}
-                                    variant="outline"
-                                    size="sm"
-                                    className="flex items-center gap-1 w-full sm:w-auto text-xs sm:text-sm"
-                                  >
-                                    <Edit className="h-4 w-4" />
-                                    Szerkesztés
-                                  </Button>
-                                )
+                                // Show edit button for all assignments
+                                <Button
+                                  onClick={() => setIsEditMode(true)}
+                                  variant="outline"
+                                  size="sm"
+                                  className="flex items-center gap-1 w-full sm:w-auto text-xs sm:text-sm"
+                                >
+                                  <Edit className="h-4 w-4" />
+                                  Szerkesztés
+                                </Button>
                               ) : (
                                 <Badge variant="outline" className="px-2 py-1 text-xs">
                                   <Edit className="h-3 w-3 mr-1" />
@@ -1309,7 +1307,7 @@ export default function BeosztasDetailPage({ params }: PageProps) {
                                   )}
                                   {availabilityData.users_with_radio_session.length > 0 && (
                                     <div className="text-sm text-muted-foreground">
-                                      <span className="font-medium text-blue-600">{availabilityData.users_with_radio_session.length}</span> fő rádiós összejátszás miatt
+                                      <span className="font-medium text-red-600">{availabilityData.users_with_radio_session.length}</span> fő rádiós összejátszás miatt
                                     </div>
                                   )}
                                   <p className="text-xs text-muted-foreground">

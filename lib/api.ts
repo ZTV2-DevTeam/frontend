@@ -1779,6 +1779,15 @@ class ApiClient {
     return this.request<ForgatSchema[]>(`/api/production/filming-sessions${query}`)
   }
 
+  async getFilmingSessionsOptimized(startDate?: string, endDate?: string, type?: string): Promise<any[]> {
+    const params = new URLSearchParams()
+    if (startDate) params.append('start_date', startDate)
+    if (endDate) params.append('end_date', endDate)
+    if (type) params.append('type', type)
+    const query = params.toString() ? `?${params.toString()}` : ''
+    return this.request<any[]>(`/api/production/filming-sessions-optimized${query}`)
+  }
+
   async getFilmingSession(forgatId: number): Promise<ForgatSchema> {
     return this.request<ForgatSchema>(`/api/production/filming-sessions/${forgatId}`)
   }

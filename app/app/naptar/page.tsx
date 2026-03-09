@@ -13,6 +13,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Calendar as CalendarUI } from "@/components/ui/calendar"
   import Link from "next/link"
 import { 
   Calendar,
@@ -27,10 +30,13 @@ import {
   Loader2,
   ArrowLeft,
   Phone,
-  Mail
+  Mail,
+  Wrench,
+  CheckCircle2,
+  XCircle
 } from "lucide-react"
 import { useApiQuery } from "@/lib/api-helpers"
-import { ForgatSchema } from "@/lib/types"
+import { ForgatSchema, EquipmentSchema, EquipmentOverviewSchema } from "@/lib/types"
 import { apiClient } from "@/lib/api"
 import { ApiError } from "@/components/api-error"
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, startOfWeek, endOfWeek } from "date-fns"
@@ -40,9 +46,25 @@ export default function CalendarPage() {
   const [currentDate, setCurrentDate] = useState(new Date())
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [viewMode, setViewMode] = useState<"month" | "list">("month")
+  const [activeTab, setActiveTab] = useState<"general" | "equipment">("general")
   const [selectedSession, setSelectedSession] = useState<ForgatSchema | null>(null)
   const { isAuthenticated } = useAuth()
-  
+
+  // Fetch equipments
+  const equipmentQuery = useApiQuery(
+    () => isAuthenticated ? apiClient.getEquipment() : Promise.resolve([]),
+    [isAuthenticated]
+  )
+  const equipments = useMemo(() => Array.isArray(equipmentQuery.data) ? equipmentQuery.data : [], [equipmentQuery.data])
+
+  const equipmentOverviewQuery = useApiQuery(
+    () => (isAuthenticated && activeTab === "equipment" && selectedDate) 
+      ? apiClient.getEquipmentOverview(format(selectedDate, 'yyyy-MM-dd')) 
+      : Promise.resolve([]),
+    [isAuthenticated, activeTab, selectedDate ? format(selectedDate, 'yyyy-MM-dd') : null]
+  )
+  const equipmentOverview = useMemo(() => Array.isArray(equipmentOverviewQuery.data) ? equipmentOverviewQuery.data as EquipmentOverviewSchema[] : [], [equipmentOverviewQuery.data])
+
   // Fetch filming sessions data - same approach as forgatasok page
   const filmingQuery = useApiQuery(
     () => isAuthenticated ? apiClient.getFilmingSessions() : Promise.resolve([]),
@@ -75,6 +97,8 @@ export default function CalendarPage() {
     }))
   }, [sessions])
 
+  const filteredSessions = filmingSessions
+
   // Calendar navigation
   const previousMonth = () => setCurrentDate(subMonths(currentDate, 1))
   const nextMonth = () => setCurrentDate(addMonths(currentDate, 1))
@@ -93,11 +117,11 @@ export default function CalendarPage() {
 
   // Get events for a specific day
   const getEventsForDay = (day: Date) => {
-    if (!filmingSessions || filmingSessions.length === 0) {
+    if (!filteredSessions || filteredSessions.length === 0) {
       return []
     }
     const dayString = format(day, 'yyyy-MM-dd')
-    return filmingSessions.filter(event => event.date === dayString)
+    return filteredSessions.filter(event => event.date === dayString)
   }
 
   // Get events for selected day
@@ -106,13 +130,13 @@ export default function CalendarPage() {
   // Get upcoming events for list view
   const today = new Date().toISOString().split('T')[0]
   const upcomingEvents = useMemo(() => {
-    if (!filmingSessions || filmingSessions.length === 0) {
+    if (!filteredSessions || filteredSessions.length === 0) {
       return []
     }
-    return filmingSessions
+    return filteredSessions
       .filter(event => event.date && event.date >= today)
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-  }, [filmingSessions, today])
+  }, [filteredSessions, today])
 
   const getEventIcon = () => {
     return <Video className="h-4 w-4" />
@@ -313,7 +337,7 @@ export default function CalendarPage() {
               <div className="space-y-1">
                 <h1 className="text-3xl font-bold text-black dark:text-white tracking-tight">Naptár</h1>
                 <p className="text-base text-muted-foreground">
-                  Forgások és események kezelése • {filmingSessions.length} összesen
+                  Forgások és események kezelése • {filteredSessions.length} összesen
                 </p>
               </div>
             </div>
@@ -339,7 +363,142 @@ export default function CalendarPage() {
             </div>
           </div>
 
-          {/* Google/Apple Calendar Style Layout */}
+          <Tabs value={activeTab} onValueChange={(v) => {
+            setActiveTab(v as "general" | "equipment")
+            if (v === "equipment" && !selectedDate) setSelectedDate(new Date())
+          }} className="w-full">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <TabsList>
+                <TabsTrigger value="general">Események</TabsTrigger>
+                <TabsTrigger value="equipment">Felszerelés naptár</TabsTrigger>
+              </TabsList>
+            </div>
+          </Tabs>
+
+          {activeTab === "equipment" ? (
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+              <div className="md:col-span-4 xl:col-span-3 space-y-4">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Dátum kiválasztása</CardTitle>
+                  </CardHeader>
+                  <CardContent className="flex justify-center p-2 sm:p-4">
+                    <CalendarUI
+                      mode="single"
+                      selected={selectedDate || new Date()}
+                      onSelect={(date) => {
+                        if (date) setSelectedDate(date)
+                      }}
+                      className="border rounded-md shadow-sm"
+                    />
+                  </CardContent>
+                </Card>
+              </div>
+              <div className="md:col-span-8 xl:col-span-9 space-y-4">
+                <Card className="h-full min-h-[400px]">
+                  <CardHeader>
+                    <CardTitle className="text-xl">
+                      {selectedDate ? format(selectedDate, 'yyyy. MMMM dd.', { locale: hu }) : 'Felszerelések'} - Napi áttekintés
+                    </CardTitle>
+                    <CardDescription>
+                      Minden eszköz napi foglalási állapota.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {equipmentOverviewQuery.loading ? (
+                      <div className="flex items-center justify-center py-12">
+                        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                        <span className="ml-2 text-muted-foreground">Betöltés...</span>
+                      </div>
+                    ) : equipmentOverviewQuery.error ? (
+                      <div className="p-4 text-center text-destructive">
+                        Hiba történt a felszerelések betöltésekor.
+                      </div>
+                    ) : equipmentOverview.length === 0 ? (
+                      <div className="p-12 text-center text-muted-foreground">
+                        Nincsenek felszerelések.
+                      </div>
+                    ) : (
+                      <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2">
+                        {equipmentOverview.map((item) => (
+                          <div 
+                            key={item.equipment_id} 
+                            className={`p-4 border rounded-lg transition-colors ${
+                              !item.functional ? 'bg-destructive/5 border-destructive/20' : 
+                              item.available_periods && item.bookings.length === 0 ? 'bg-emerald-500/5 border-emerald-500/20' : 
+                              'bg-amber-500/5 border-amber-500/20'
+                            }`}
+                          >
+                            <div className="flex items-start justify-between mb-3">
+                              <div className="flex items-center gap-3">
+                                <div className={`p-2 rounded-lg ${
+                                  !item.functional ? 'bg-destructive/10 text-destructive' : 
+                                  item.available_periods && item.bookings.length === 0 ? 'bg-emerald-500/10 text-emerald-600' : 
+                                  'bg-amber-500/10 text-amber-600'
+                                }`}>
+                                  <Wrench className="h-5 w-5" />
+                                </div>
+                                <div>
+                                  <h3 className="font-semibold">{item.equipment_name}</h3>
+                                  <div className="text-xs text-muted-foreground flex items-center gap-1">
+                                    <Badge variant="outline" className="text-[10px] h-4 px-1.5 font-normal">
+                                      {item.equipment_type}
+                                    </Badge>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="flex flex-col items-end">
+                              {!item.functional ? (
+                                <Badge variant="destructive" className="flex items-center gap-1">
+                                  <XCircle className="h-3 w-3" />
+                                  Hibás
+                                </Badge>
+                              ) : item.available_periods && item.bookings.length === 0 ? (
+                                <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 flex items-center gap-1">
+                                  <CheckCircle2 className="h-3 w-3" />
+                                  Egész nap szabad
+                                </Badge>
+                              ) : (
+                                <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/30 dark:text-amber-400">
+                                  Foglalt
+                                </Badge>
+                              )}
+                              </div>
+                            </div>
+
+                            {item.bookings && item.bookings.length > 0 && (
+                              <div className="mt-3 pl-[52px]">
+                                <div className="text-xs font-medium text-muted-foreground mb-2">Foglalások ezen a napon:</div>
+                                <div className="space-y-2">
+                                  {item.bookings.map((booking, idx) => (
+                                    <div key={`${booking.forgatas_id}-${idx}`} className="flex items-center justify-between text-sm p-2 bg-background/50 rounded border">
+                                      <div className="font-medium truncate max-w-[150px] sm:max-w-[200px]">
+                                        {booking.forgatas_name}
+                                      </div>
+                                      <div className="flex items-center gap-3 text-muted-foreground text-xs shrink-0">
+                                        <span className="flex items-center gap-1">
+                                          <MapPin className="h-3 w-3" />
+                                          <span className="truncate max-w-[60px] sm:max-w-[100px]">{booking.location || 'Ismeretlen'}</span>
+                                        </span>
+                                        <span className="flex items-center gap-1 font-mono bg-muted/50 px-1.5 py-0.5 rounded">
+                                          <Clock className="h-3 w-3" />
+                                          {formatTime(booking.time_from)} - {formatTime(booking.time_to)}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          ) : (
           <div className="space-y-4">
             {viewMode === "month" ? (
               <div className="bg-background rounded-lg border shadow-sm overflow-hidden">
@@ -664,6 +823,7 @@ export default function CalendarPage() {
               </DialogContent>
             </Dialog>
           </div>
+          )}
         </div>
       </SidebarInset>
     </SidebarProvider>

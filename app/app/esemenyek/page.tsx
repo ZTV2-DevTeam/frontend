@@ -56,7 +56,13 @@ const formatSessionDate = (dateStr: string) => {
   }
 }
 
-
+type CrewMember = {
+  id: number
+  name: string
+  role: string
+  class: string
+  team?: 'A' | 'B'
+}
 
 type SortOption = 'date' | 'name' | 'relevance'
 
@@ -81,16 +87,15 @@ export default function EsemenyekPage() {
     }
   }
   
-  // API queries - fetch only events and other session types
+  // API queries - fetch optimized data with all relations in one call
   const filmingQuery = useApiQuery(
     () => {
       if (!isAuthenticated) return Promise.resolve([])
       
-      // Fetch both rendezveny (events) and egyeb (other) sessions for this page
-      // These are independent events not related to regular KaCsa production
+      // Fetch both rendezveny (events) and egyeb (other) sessions using optimized endpoint
       return Promise.all([
-        apiClient.getFilmingSessions(undefined, undefined, 'rendezveny'),
-        apiClient.getFilmingSessions(undefined, undefined, 'egyeb')
+        apiClient.getFilmingSessionsOptimized(undefined, undefined, 'rendezveny'),
+        apiClient.getFilmingSessionsOptimized(undefined, undefined, 'egyeb')
       ]).then(([eventSessions, otherSessions]) => [
         ...eventSessions,
         ...otherSessions
@@ -99,105 +104,27 @@ export default function EsemenyekPage() {
     [isAuthenticated]
   )
 
-  const { data: filmingData = [], loading: sessionsLoading, error } = filmingQuery
+  const { data: filmingData = [], loading, error } = filmingQuery
 
-  // Computed values - data is already filtered by API
+  // Computed values - data already includes all related information
   const sessions = useMemo(() => Array.isArray(filmingData) ? filmingData : [], [filmingData])
-
-  // Fetch assignments for each filming session individually
-  const assignmentsQueries = useApiQuery(
-    () => {
-      if (!isAuthenticated || sessions.length === 0) return Promise.resolve([])
-      return Promise.all(
-        sessions.map(async (session: ForgatSchema) => {
-          try {
-            const assignment = await apiClient.getFilmingAssignments(session.id) as BeosztasSchema
-            return assignment
-          } catch (error) {
-            // Some sessions might not have assignments yet
-            console.warn(`No assignment found for session ${session.id}:`, error)
-            return null
-          }
-        })
-      )
-    },
-    [isAuthenticated, sessions]
-  )
-
-  // Fetch equipment details for all sessions
-  const equipmentQueries = useApiQuery(
-    () => {
-      if (!isAuthenticated || sessions.length === 0) return Promise.resolve([])
-      
-      // Collect all unique equipment IDs from all sessions
-      const equipmentIds = new Set<number>()
-      sessions.forEach((session: ForgatSchema) => {
-        if (session.equipment_ids) {
-          session.equipment_ids.forEach(id => equipmentIds.add(id))
-        }
-      })
-      
-      // Fetch detailed info for all equipment
-      return Promise.all(
-        Array.from(equipmentIds).map(equipmentId => 
-          apiClient.getEquipmentDetails(equipmentId).catch(() => null) // Handle errors gracefully
-        )
-      )
-    },
-    [isAuthenticated, sessions]
-  )
-
-  const { data: assignmentsData = [], loading: assignmentsLoading } = assignmentsQueries
-  const { data: equipmentDetails = [], loading: equipmentLoading } = equipmentQueries
-
-  // Fetch detailed user information for all crew members
-  const userDetailsQueries = useApiQuery(
-    () => {
-      if (!isAuthenticated || !assignmentsData || assignmentsData.length === 0) return Promise.resolve([])
-      
-      // Collect all unique user IDs from all assignments
-      const userIds = new Set<number>()
-      assignmentsData.forEach((assignment: BeosztasSchema | null) => {
-        if (assignment?.szerepkor_relaciok) {
-          assignment.szerepkor_relaciok.forEach((relation: SzerepkorRelacioSchema) => {
-            userIds.add(relation.user.id)
-          })
-        }
-      })
-      
-      // Fetch detailed info for all users
-      return Promise.all(
-        Array.from(userIds).map(userId => 
-          apiClient.getUserDetails(userId).catch(() => null) // Handle errors gracefully
-        )
-      )
-    },
-    [isAuthenticated, assignmentsData]
-  )
-
-  const { data: userDetailsList = [], loading: usersLoading } = userDetailsQueries
-
-  // Combined loading state
-  const loading = sessionsLoading || assignmentsLoading || usersLoading || equipmentLoading
 
   // Permission check - use can_create_forgatas permission
   const canCreateForgatás = hasPermission('can_create_forgatas')
 
-  // Create a map of assignments by filming session ID for quick lookup
+  // Create a map of assignments by filming session ID for quick lookup  
   const assignmentMap = useMemo(() => {
-    const map = new Map<number, BeosztasSchema>()
-    if (assignmentsData && Array.isArray(assignmentsData)) {
-      assignmentsData.forEach((assignment: BeosztasSchema | null) => {
-        if (assignment) {
-          map.set(assignment.forgatas.id, assignment)
-        }
-      })
-    }
+    const map = new Map<number, any>()
+    sessions.forEach((session: any) => {
+      if (session.assignment) {
+        map.set(session.id, session.assignment)
+      }
+    })
     return map
-  }, [assignmentsData])
+  }, [sessions])
 
   // Helper functions
-  const getSessionAssignment = useCallback((sessionId: number): BeosztasSchema | undefined => {
+  const getSessionAssignment = useCallback((sessionId: number): any => {
     return assignmentMap.get(sessionId)
   }, [assignmentMap])
 
@@ -206,27 +133,28 @@ export default function EsemenyekPage() {
     const assignment = getSessionAssignment(sessionId)
     if (!assignment) return false
     
-    return assignment.szerepkor_relaciok.some(relation => relation.user.id === user.user_id)
+    return assignment.assigned_users?.some((assignedUser: any) => assignedUser.id === user.user_id) || false
   }, [user, getSessionAssignment])
 
-  const isSessionLive = (sessionId: number): boolean => {
+  const isSessionLive = useCallback((sessionId: number): boolean => {
+    const session = sessions.find((s: any) => s.id === sessionId)
     const assignment = getSessionAssignment(sessionId)
-    if (!assignment) return false
+    if (!assignment || !session) return false
     
     // Only finalized sessions can be live
-    if (!assignment.kesz) return false
+    if (!assignment.finalized) return false
     
     const now = new Date()
-    const sessionDate = new Date(assignment.forgatas.date)
+    const sessionDate = new Date(session.date)
     
     // Check if it's the same date
     const isToday = sessionDate.toDateString() === now.toDateString()
     if (!isToday) return false
     
     // Check if the session is currently happening (between start and end time)
-    if (assignment.forgatas.time_from && assignment.forgatas.time_to) {
-      const [startHour, startMin] = assignment.forgatas.time_from.split(':').map(Number)
-      const [endHour, endMin] = assignment.forgatas.time_to.split(':').map(Number)
+    if (session.time_from && session.time_to) {
+      const [startHour, startMin] = session.time_from.split(':').map(Number)
+      const [endHour, endMin] = session.time_to.split(':').map(Number)
       
       const startTime = new Date(sessionDate)
       startTime.setHours(startHour, startMin, 0, 0)
@@ -240,60 +168,30 @@ export default function EsemenyekPage() {
     
     // If no time specified, consider it live all day if it's today and finalized
     return true
-  }
+  }, [sessions, getSessionAssignment])
 
-  const getSessionCrewData = (sessionId: number) => {
+  const getSessionCrewData = useCallback((sessionId: number) => {
     const assignment = getSessionAssignment(sessionId)
     if (!assignment) return { count: 0, roles: [], crewMembers: [], assignmentStab: null }
     
     return {
-      count: assignment.student_count,
-      roles: assignment.roles_summary,
-      assignmentStab: assignment.stab,
-      crewMembers: assignment.szerepkor_relaciok.map(relation => {
-        // Find detailed user information
-        const userDetails = userDetailsList?.find((user) => user?.id === relation.user.id)
-        
-        // Extract class from username as fallback if detailed info not available
-        const extractClassFromUsername = (username: string) => {
-          const match = username.match(/^(\d{1,2}[a-zA-Z]+)_/)
-          if (match) {
-            return match[1].toUpperCase()
-          }
-          return null
-        }
-
-        const extractedClass = extractClassFromUsername(relation.user.username)
-        
-        return {
-          id: relation.user.id,
-          name: relation.user.full_name || `${relation.user.last_name} ${relation.user.first_name}`,
-          role: relation.szerepkor.name,
-          class: userDetails?.osztaly_name || extractedClass || 'Osztály nincs megadva',
-          team: relation.user.username?.includes('a') ? 'A' : 
-                relation.user.username?.includes('b') ? 'B' : undefined
-        }
-      })
+      count: assignment.student_count || 0,
+      roles: assignment.roles_summary || [],
+      assignmentStab: assignment.stab || null,
+      crewMembers: ((assignment as any).assigned_users || []).map((assignedUser: any) => ({
+        id: assignedUser.id,
+        name: assignedUser.full_name,
+        role: assignedUser.role?.name,
+        class: assignedUser.profile?.osztaly_name || assignedUser.username?.match(/^(\d{1,2}[a-zA-Z]+)_/)?.[1]?.toUpperCase() || 'Osztály nincs megadva',
+        team: assignedUser.username?.includes('a') ? 'A' : assignedUser.username?.includes('b') ? 'B' : undefined
+      }))
     }
-  }
+  }, [getSessionAssignment])
 
-  const getSessionEquipmentData = (session: ForgatSchema) => {
-    if (!session.equipment_ids || session.equipment_ids.length === 0) return []
-    
-    return session.equipment_ids
-      .map(equipmentId => {
-        const equipment = equipmentDetails?.find((eq: any) => eq?.id === equipmentId)
-        if (!equipment) return null
-        
-        return {
-          id: equipment.id,
-          name: equipment.display_name || equipment.nickname,
-          emoji: equipment.equipment_type?.emoji || '🛠️',
-          type: equipment.equipment_type?.name || 'Nem megadva'
-        }
-      })
-      .filter(Boolean) // Remove null values
-  }
+  const getSessionEquipmentData = useCallback((session: any) => {
+    // Equipment details are already included in the optimized response
+    return session.equipment_details || []
+  }, [])
 
   // Helper function to check if an event is in the past
   const isEventPast = useCallback((dateStr: string): boolean => {
@@ -501,7 +399,7 @@ export default function EsemenyekPage() {
                 <div className="space-y-2">
                   <div className="text-xs font-medium text-muted-foreground">Stáb ({crewData.count} fő):</div>
                   <div className="space-y-1">
-                    {crewData.crewMembers.slice(0, 4).map((member) => (
+                    {crewData.crewMembers.slice(0, 4).map((member: CrewMember) => (
                       <div key={member.id} className="text-xs">
                         <div className="font-medium truncate">{member.name}</div>
                         <div className="text-muted-foreground text-[10px] flex items-center gap-1">
@@ -649,7 +547,7 @@ export default function EsemenyekPage() {
                   <div className="space-y-2">
                     <div className="text-xs font-medium text-muted-foreground">Stáb:</div>
                     <div className="text-xs space-y-1">
-                      {crewData.crewMembers.slice(0, 4).map((member, index) => (
+                      {crewData.crewMembers.slice(0, 4).map((member: CrewMember, index: number) => (
                         <span key={member.id} className="inline-block">
                           <span className="font-medium">{member.name}</span>
                           <span className="text-muted-foreground ml-1">
@@ -728,12 +626,7 @@ export default function EsemenyekPage() {
     return (
       <StandardizedLayout>
         <ForgatásokLoading
-          sessionsLoading={sessionsLoading}
-          assignmentsLoading={assignmentsLoading}
-          usersLoading={usersLoading}
           sessionCount={sessions.length}
-          assignmentCount={assignmentsData?.length || 0}
-          userCount={userDetailsList?.length || 0}
           variant="detailed"
           title="Események betöltése"
           description="Speciális események és egyéb programok betöltése..."

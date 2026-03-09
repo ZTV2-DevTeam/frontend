@@ -40,7 +40,6 @@ import {
   Pin,
 } from "lucide-react"
 import Link from "next/link"
-import Image from "next/image"
 import { format } from "date-fns"
 import { hu } from "date-fns/locale"
 import { notFound } from "next/navigation"
@@ -110,18 +109,9 @@ export default function FilmingSessionDetail({ params }: PageProps) {
   const { data: session, loading, error } = sessionQuery
   const { data: assignment = null } = assignmentsQuery
 
-  // Equipment queries - fetch equipment details for the session
-  const equipmentQueries = useApiQuery(
-    () => {
-      if (!isAuthenticated || !session?.equipment_ids) return Promise.resolve([])
-      return Promise.all(
-        session.equipment_ids.map((id: number) => 
-          apiClient.getEquipmentDetails(id)
-        )
-      )
-    },
-    [isAuthenticated, session]
-  )
+  // Use equipment details from session response (already included)
+  const equipmentList = (session as any)?.equipment_details || []
+  const equipmentLoading = loading
 
   // User queries - fetch detailed user info for crew members
   const userQueries = useApiQuery(
@@ -147,7 +137,6 @@ export default function FilmingSessionDetail({ params }: PageProps) {
     [isAuthenticated, assignment]
   )
 
-  const { data: equipmentList = [], loading: equipmentLoading } = equipmentQueries
   const { data: userDetailsList = [], loading: usersLoading } = userQueries
   const { data: szerkesztoDetails = null } = szerkesztoQuery
 
@@ -227,7 +216,7 @@ export default function FilmingSessionDetail({ params }: PageProps) {
           
           <div className="flex-1 space-y-6 p-4 md:p-6 animate-in fade-in-50 duration-500">
             {/* Header */}
-            <div className="flex items-center gap-4">
+            <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
               <Link href="/app/forgatasok">
                 <Button variant="outline" size="sm" className="bg-transparent">
                   <ArrowLeft className="h-4 w-4 mr-2" />
@@ -251,14 +240,25 @@ export default function FilmingSessionDetail({ params }: PageProps) {
                 </div>
                 <p className="text-muted-foreground">Forgatás részletes információi</p>
               </div>
-              {/* Edit Assignment Button - moved to header */}
+              {/* Assignment Buttons */}
               {canEditAssignments && assignment && (
-                <Link href={`/app/forgatasok/${id}/beosztas?edit=true`}>
-                  <Button variant="outline" size="sm" className="bg-transparent hover:bg-purple-500/10 hover:text-purple-400 border-purple-500/20 hover:border-purple-500/30">
-                    <Settings className="h-4 w-4 mr-2" />
-                    {new Date(session.date) < new Date(new Date().toDateString()) ? "Módosítás" : "Szerkesztés"}
-                  </Button>
-                </Link>
+                <div className="flex flex-col items-start md:items-end gap-2">
+                  <p className="text-xs text-muted-foreground font-medium">Beosztás</p>
+                  <div className="flex flex-row gap-2">
+                    <Link href={`/app/forgatasok/${id}/beosztas`}>
+                      <Button variant="outline" size="sm" className="bg-transparent hover:bg-blue-500/10 hover:text-blue-400 border-blue-500/20 hover:border-blue-500/30">
+                        <Users className="h-4 w-4 mr-2" />
+                        Megtekintés
+                      </Button>
+                    </Link>
+                    <Link href={`/app/forgatasok/${id}/beosztas?edit=true`}>
+                      <Button variant="outline" size="sm" className="bg-transparent hover:bg-purple-500/10 hover:text-purple-400 border-purple-500/20 hover:border-purple-500/30">
+                        <Settings className="h-4 w-4 mr-2" />
+                        {new Date(session.date) < new Date(new Date().toDateString()) ? "Módosítás" : "Szerkesztés"}
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
               )}
             </div>
 
@@ -293,13 +293,13 @@ export default function FilmingSessionDetail({ params }: PageProps) {
                               bg-muted/40 hover:bg-muted/60 border border-border text-muted-foreground
                               transition-colors text-sm font-medium w-fit"
                             >
-                              <Image
-                              src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Google_Maps_icon_%282020%29.svg/256px-Google_Maps_icon_%282020%29.svg.png"
-                              alt="Google Maps"
-                              width={16}
-                              height={16}
-                              className="shrink-0"
-                              />
+                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 92.3 132.3" width="16" height="16" className="shrink-0">
+                                <path fill="#1a73e8" d="M60.2 2.2C55.8.8 51 0 46.1 0 32 0 19.3 6.4 10.8 16.5l21.8 18.3L60.2 2.2z"/>
+                                <path fill="#ea4335" d="M10.8 16.5C4.1 24.5 0 34.9 0 46.1c0 8.7 1.7 15.7 4.6 22l28-33.3-21.8-18.3z"/>
+                                <path fill="#4285f4" d="M46.2 28.5c9.8 0 17.7 7.9 17.7 17.7 0 4.3-1.6 8.3-4.2 11.4 0 0 13.9-16.6 27.5-32.7-5.6-10.8-15.3-19-27-22.7L32.6 34.8c3.3-3.8 8.1-6.3 13.6-6.3"/>
+                                <path fill="#fbbc04" d="M46.2 63.8c-9.8 0-17.7-7.9-17.7-17.7 0-4.3 1.5-8.3 4.1-11.3l-28 33.3c4.8 10.6 12.8 19.2 21 29.9l34.1-40.5c-3.3 3.9-8.1 6.3-13.5 6.3"/>
+                                <path fill="#34a853" d="M59.1 109.2c15.4-24.1 33.3-35 33.3-63 0-7.7-1.9-14.9-5.2-21.3L25.6 98c2.6 3.4 5.3 7.3 7.9 11.3 9.4 14.5 6.8 23.1 12.8 23.1s3.4-8.7 12.8-23.2"/>
+                              </svg>
                               Google Maps
                             </a>
                           )}

@@ -48,15 +48,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Only try to authenticate if we have a token
         if (token && token.trim() !== '' && token !== 'null') {
           try {
-            // Use a timeout for profile fetch to avoid infinite loading
+            // Use a shorter timeout for profile fetch to avoid long loading
             const profile = await Promise.race([
               apiClient.getProfile(),
               new Promise<never>((_, reject) => 
-                setTimeout(() => reject(new Error('Profile fetch timeout')), 15000)
+                setTimeout(() => reject(new Error('Profile fetch timeout')), 5000)
               )
             ])
             
-            // Only set user if profile fetch succeeds (token is actually valid)
+            // Set user immediately with basic profile
             const baseUser = {
               user_id: profile.user_id,
               username: profile.username,
@@ -64,19 +64,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               last_name: profile.last_name,
               email: profile.email,
             }
+            setUser(baseUser)
 
-            // Try to get full user profile including phone number
-            try {
-              const fullProfile = await apiClient.getUserDetails(profile.user_id)
-              setUser({
-                ...baseUser,
-                telefonszam: fullProfile.telefonszam,
+            // Fetch full profile in background (non-blocking)
+            apiClient.getUserDetails(profile.user_id)
+              .then(fullProfile => {
+                setUser(prevUser => prevUser ? {
+                  ...prevUser,
+                  telefonszam: fullProfile.telefonszam,
+                } : null)
               })
-            } catch (profileDetailError) {
-              // If getting full profile fails, just use the basic profile
-              console.warn('Failed to get full user profile, using basic profile:', profileDetailError)
-              setUser(baseUser)
-            }
+              .catch(profileDetailError => {
+                console.warn('Failed to get full user profile, using basic profile:', profileDetailError)
+              })
             
             if (DEBUG_CONFIG.LOG_API_CALLS) {
               console.log('✅ Auth initialized successfully:', {
@@ -155,18 +155,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         email: response.email,
       }
 
-      // Try to get full user profile including phone number
-      try {
-        const fullProfile = await apiClient.getUserDetails(response.user_id)
-        setUser({
-          ...baseUser,
-          telefonszam: fullProfile.telefonszam,
+      // Fetch full user profile in parallel (don't block on it)
+      apiClient.getUserDetails(response.user_id)
+        .then(fullProfile => {
+          setUser(prevUser => prevUser ? {
+            ...prevUser,
+            telefonszam: fullProfile.telefonszam,
+          } : null)
         })
-      } catch (profileDetailError) {
-        // If getting full profile fails, just use the basic profile
-        console.warn('Failed to get full user profile during login, using basic profile:', profileDetailError)
-        setUser(baseUser)
-      }
+        .catch(profileDetailError => {
+          console.warn('Failed to get full user profile during login:', profileDetailError)
+        })
+      
+      // Set base user immediately for faster login
+      setUser(baseUser)
     } catch (error) {
       console.error('Login failed:', error)
       
@@ -205,7 +207,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const refreshToken = async () => {
     try {
       await apiClient.refreshToken()
-      // Optionally refresh user profile after token refresh
+      // Fetch basic profile
       const profile = await apiClient.getProfile()
       const baseUser = {
         user_id: profile.user_id,
@@ -214,19 +216,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         last_name: profile.last_name,
         email: profile.email,
       }
+      
+      // Set base user immediately
+      setUser(baseUser)
 
-      // Try to get full user profile including phone number
-      try {
-        const fullProfile = await apiClient.getUserDetails(profile.user_id)
-        setUser({
-          ...baseUser,
-          telefonszam: fullProfile.telefonszam,
+      // Fetch full profile in background (non-blocking)
+      apiClient.getUserDetails(profile.user_id)
+        .then(fullProfile => {
+          setUser(prevUser => prevUser ? {
+            ...prevUser,
+            telefonszam: fullProfile.telefonszam,
+          } : null)
         })
-      } catch (profileDetailError) {
-        // If getting full profile fails, just use the basic profile
-        console.warn('Failed to get full user profile during refresh, using basic profile:', profileDetailError)
-        setUser(baseUser)
-      }
+        .catch(profileDetailError => {
+          console.warn('Failed to get full user profile during refresh:', profileDetailError)
+        })
     } catch (error) {
       console.error('Token refresh failed:', error)
       setUser(null)
