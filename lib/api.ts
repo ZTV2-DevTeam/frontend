@@ -475,6 +475,36 @@ export interface SzerepkorRelacioSchema {
   szerepkor: SzerepkorSchema
 }
 
+export interface ClassMatrixOccurrenceSchema {
+  forgatas_name: string
+  date: string
+  time: string
+}
+
+export interface ClassMatrixCellSchema {
+  szerepkor_id: number
+  count: number
+  occurrences: ClassMatrixOccurrenceSchema[]
+}
+
+export interface ClassMatrixMemberSchema {
+  user_id: number
+  user_name: string
+  roles: ClassMatrixCellSchema[]
+}
+
+export interface ClassMatrixRoleSchema {
+  id: number
+  name: string
+}
+
+export interface ClassMatrixResponseSchema {
+  class_id: number
+  class_name: string
+  roles: ClassMatrixRoleSchema[]
+  members: ClassMatrixMemberSchema[]
+}
+
 export interface SzerepkorRelacioCreateSchema {
   user_id: number
   szerepkor_id: number
@@ -2046,6 +2076,10 @@ class ApiClient {
   }
 
   // === FILMING ASSIGNMENTS ===
+  async getClassMatrix(classId: number): Promise<ClassMatrixResponseSchema> {
+    return this.request<ClassMatrixResponseSchema>(`/api/assignments/class-matrix/${classId}`);
+  }
+
   async getFilmingAssignments(forgatotId?: number, kesz?: boolean, startDate?: string, endDate?: string, stabId?: number): Promise<BeosztasSchema[] | BeosztasSchema> {
     // If forgatotId is provided, use direct endpoint
     if (forgatotId) {

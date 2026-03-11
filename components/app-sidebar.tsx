@@ -8,6 +8,7 @@ import {
   IconSettings,
   IconUsers,
   IconCalendar,
+  IconChartBar,
 } from "@tabler/icons-react"
 
 import { 
@@ -80,6 +81,11 @@ const data = {
         title: "Naptár",
         url: "/app/naptar",
         icon: IconCalendar,
+      },
+      {
+        title: "Csoportstatisztika",
+        url: "/app/csoportstatisztika",
+        icon: IconChartBar,
       },
     ],
     student: [

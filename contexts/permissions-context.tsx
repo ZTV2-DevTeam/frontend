@@ -250,6 +250,9 @@ export function PermissionsProvider({ children }: { children: React.ReactNode })
       case '/app/naptar':
         return display_properties?.navigation_items?.includes('calendar') || display_properties?.show_student_menu || display_properties?.show_teacher_menu
 
+      case '/app/csoportstatisztika':
+        return isSystemAdmin || isTeacherAdmin || isGeneralAdmin || display_properties?.show_teacher_menu
+
       // Absence management
       case '/app/tavollet':
         return display_properties?.show_student_menu || display_properties?.show_teacher_menu || display_properties?.show_class_management

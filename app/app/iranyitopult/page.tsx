@@ -68,6 +68,7 @@ import { UserAvatar } from "@/components/user-avatar"
 import { AnnouncementDialog } from "@/components/announcement-dialog"
 import { VersionInfo } from "@/components/version-info"
 import { SystemMessages } from "@/components/system-messages"
+import { KozelgoEsemenyekWidget } from "@/components/dashboard/kozelgo-esemenyek-widget"
 import { Shadow } from "@tsparticles/engine"
 import { getCurrentSeasonalTheme, getSeasonalThemeConfig } from "@/lib/seasonal-themes"
 
@@ -1295,53 +1296,8 @@ export default function Page() {
 
       case 'student':
         return (
-          <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-12">
-            {/* Personal Info Widget - Left side */}
-            <div className="lg:col-span-5">
-              <NevjegyWidget />
-            </div>
-            
-            {/* Quick Actions and Status - Right side */}
-            <div className="lg:col-span-7 space-y-4 sm:space-y-6">
-              {/* Quick Access */}
-              <Card className="min-h-[150px]">
-                <CardHeader className="pb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-emerald-500 rounded-lg">
-                      <Zap className="h-5 w-5 text-white" />
-                    </div>
-                    <div>
-                      <CardTitle className="text-lg">Gyors hozzáférés</CardTitle>
-                      <CardDescription>Legfontosabb funkciók</CardDescription>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 gap-3">
-                    <button 
-                      onClick={() => router.push("/app/naptar")}
-                      className="p-3 rounded-lg border border-border/50 hover:bg-accent transition-colors text-left cursor-pointer"
-                    >
-                      <div className="flex items-center gap-2 mb-1">
-                        <Calendar className="h-4 w-4 text-blue-500" />
-                        <span className="font-medium text-sm">Naptár</span>
-                      </div>
-                      <p className="text-xs text-muted-foreground">Események</p>
-                    </button>
-                    <button 
-                      onClick={() => router.push("/app/uzenofal")}
-                      className="p-3 rounded-lg border border-border/50 hover:bg-accent transition-colors text-left cursor-pointer"
-                    >
-                      <div className="flex items-center gap-2 mb-1">
-                        <FileText className="h-4 w-4 text-orange-500" />
-                        <span className="font-medium text-sm">Üzenőfal</span>
-                      </div>
-                      <p className="text-xs text-muted-foreground">Hírek</p>
-                    </button>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+          <div className="grid gap-4 sm:gap-6 grid-cols-1">
+            <KozelgoEsemenyekWidget />
           </div>
         )
 
