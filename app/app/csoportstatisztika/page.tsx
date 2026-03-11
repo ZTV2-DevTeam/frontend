@@ -159,9 +159,9 @@ export default function CsoportstatisztikaPage() {
                                   {count}
                                 </div>
                               </TooltipTrigger>
-                              <TooltipContent className="max-w-xs bg-popover text-popover-foreground border shadow-md p-4">
+                              <TooltipContent className="max-w-xs max-h-[80vh] overflow-y-auto bg-popover text-popover-foreground border shadow-md p-4" sideOffset={5}>
                                 <div className="space-y-3">
-                                  <p className="font-semibold text-sm border-b pb-2">{member.user_name} mint {role.name}</p>
+                                  <p className="font-semibold text-sm border-b pb-2 sticky top-0 bg-popover z-10">{member.user_name} mint {role.name}</p>
                                   <ul className="text-xs space-y-2 list-none pl-0 text-left m-0">
                                     {cell?.occurrences.map((occ, idx) => (
                                       <li key={idx} className="flex flex-col gap-0.5 bg-muted/30 p-2 rounded-sm">
@@ -201,9 +201,9 @@ export default function CsoportstatisztikaPage() {
                                    {count}
                                  </div>
                                </TooltipTrigger>
-                               <TooltipContent className="max-w-xs bg-popover text-popover-foreground border shadow-md p-4">
+                               <TooltipContent className="max-w-xs max-h-[80vh] overflow-y-auto bg-popover text-popover-foreground border shadow-md p-4" sideOffset={5}>
                                  <div className="space-y-3">
-                                   <p className="font-semibold text-sm border-b pb-2">{member.user_name} mint {role.name}</p>
+                                   <p className="font-semibold text-sm border-b pb-2 sticky top-0 bg-popover z-10">{member.user_name} mint {role.name}</p>
                                    <ul className="text-xs space-y-2 list-none pl-0 text-left m-0">
                                      {cell?.occurrences.map((occ, idx) => (
                                        <li key={idx} className="flex flex-col gap-0.5 bg-muted/30 p-2 rounded-sm">
