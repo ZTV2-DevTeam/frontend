@@ -83,19 +83,32 @@ export default function CsoportstatisztikaPage() {
   // Admin and Class-Teacher only route (Admin has more rights, both should access group stats usually but prompt says Admin only so let's check)
   const isLoading = loading || !classes.length
 
-  const getHeatmapColor = (count: number) => {
-    if (count === 0) return "transparent"
-    if (count === 1) return "var(--heatmap-1, rgba(59, 130, 246, 0.2))"
-    if (count === 2) return "var(--heatmap-2, rgba(59, 130, 246, 0.4))"
-    if (count === 3) return "var(--heatmap-3, rgba(59, 130, 246, 0.6))"
-    if (count === 4) return "var(--heatmap-4, rgba(59, 130, 246, 0.8))"
-    return "var(--heatmap-5, rgba(37, 99, 235, 1))"
+  const getHeatmapColor = (count: number, maxCount: number) => {
+    if (count === 0 || maxCount === 0) return "transparent"
+    
+    // Calculate intensity as a fraction of the max (0.2 to 1.0)
+    const minIntensity = 0.2
+    const intensity = minIntensity + ((count / maxCount) * (1 - minIntensity))
+    
+    // Use blue color with calculated opacity for light mode
+    // and adjust for dark mode using CSS variables
+    return `rgba(59, 130, 246, ${intensity})`
   }
 
   // Render matrix
   const renderMatrix = () => {
     if (!matrixData) return null
     if (matrixData.members.length === 0) return <div className="p-8 text-center text-muted-foreground">Ebben az osztályban nincsenek diákok.</div>
+
+    // Calculate max count across all cells
+    let maxCount = 0
+    matrixData.members.forEach(member => {
+      member.roles.forEach(role => {
+        if (role.count > maxCount) {
+          maxCount = role.count
+        }
+      })
+    })
 
     return (
       <div className="overflow-x-auto border rounded-md">
@@ -136,7 +149,7 @@ export default function CsoportstatisztikaPage() {
                     {matrixData.members.map((member) => {
                       const cell = member.roles.find(r => r.szerepkor_id === role.id)
                       const count = cell ? cell.count : 0
-                      const bg = getHeatmapColor(count)
+                      const bg = getHeatmapColor(count, maxCount)
                       return (
                         <td key={member.user_id} className="border-b border-l relative" style={{ backgroundColor: bg }}>
                           {count > 0 ? (
@@ -178,7 +191,7 @@ export default function CsoportstatisztikaPage() {
                     {matrixData.roles.map((role) => {
                        const cell = member.roles.find(r => r.szerepkor_id === role.id)
                        const count = cell ? cell.count : 0
-                       const bg = getHeatmapColor(count)
+                       const bg = getHeatmapColor(count, maxCount)
                        return (
                          <td key={role.id} className="border-b border-l relative" style={{ backgroundColor: bg }}>
                            {count > 0 ? (
