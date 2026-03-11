@@ -2076,8 +2076,14 @@ class ApiClient {
   }
 
   // === FILMING ASSIGNMENTS ===
-  async getClassMatrix(classId: number): Promise<ClassMatrixResponseSchema> {
-    return this.request<ClassMatrixResponseSchema>(`/api/assignments/class-matrix/${classId}`);
+  async getClassMatrix(classId: number, includeDrafts: boolean = false): Promise<ClassMatrixResponseSchema> {
+    const params = new URLSearchParams();
+    if (includeDrafts) {
+      params.append('include_drafts', 'true');
+    }
+    const queryString = params.toString();
+    const url = `/api/assignments/class-matrix/${classId}${queryString ? `?${queryString}` : ''}`;
+    return this.request<ClassMatrixResponseSchema>(url);
   }
 
   async getFilmingAssignments(forgatotId?: number, kesz?: boolean, startDate?: string, endDate?: string, stabId?: number): Promise<BeosztasSchema[] | BeosztasSchema> {

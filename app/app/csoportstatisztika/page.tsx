@@ -17,6 +17,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Label } from "@/components/ui/label"
 import { ArrowUpDown, Table as TableIcon } from "lucide-react"
 
 export default function CsoportstatisztikaPage() {
@@ -31,6 +33,7 @@ export default function CsoportstatisztikaPage() {
   const [error, setError] = useState<string | null>(null)
   
   const [flipAxes, setFlipAxes] = useState(false)
+  const [includeDrafts, setIncludeDrafts] = useState(false)
 
   // Fetch available classes for selector
   useEffect(() => {
@@ -52,7 +55,7 @@ export default function CsoportstatisztikaPage() {
     return () => { active = false }
   }, [])
 
-  // Fetch matrix data when a class is selected
+  // Fetch matrix data when a class is selected or includeDrafts changes
   useEffect(() => {
     if (!selectedClassId) return
 
@@ -61,7 +64,7 @@ export default function CsoportstatisztikaPage() {
       setLoading(true)
       setError(null)
       try {
-        const data = await apiClient.getClassMatrix(selectedClassId)
+        const data = await apiClient.getClassMatrix(selectedClassId, includeDrafts)
         if (active) {
           setMatrixData(data)
         }
@@ -78,7 +81,7 @@ export default function CsoportstatisztikaPage() {
 
     fetchMatrix()
     return () => { active = false }
-  }, [selectedClassId])
+  }, [selectedClassId, includeDrafts])
 
   // Admin and Class-Teacher only route (Admin has more rights, both should access group stats usually but prompt says Admin only so let's check)
   const isLoading = loading || !classes.length
@@ -275,6 +278,20 @@ export default function CsoportstatisztikaPage() {
                       ))}
                     </SelectContent>
                   </Select>
+
+                  <div className="flex items-center space-x-2 px-3 py-2 border rounded-md bg-background">
+                    <Checkbox
+                      id="includeDrafts"
+                      checked={includeDrafts}
+                      onCheckedChange={(checked) => setIncludeDrafts(checked as boolean)}
+                    />
+                    <Label
+                      htmlFor="includeDrafts"
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer whitespace-nowrap"
+                    >
+                      {includeDrafts ? "Piszkozatok és végleges" : "Csak végleges"}
+                    </Label>
+                  </div>
 
                   <Button
                     variant="outline"
