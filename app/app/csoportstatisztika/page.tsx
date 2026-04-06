@@ -25,6 +25,7 @@ export default function CsoportstatisztikaPage() {
   
   const [classes, setClasses] = useState<OsztalySchema[]>([])
   const [selectedClassId, setSelectedClassId] = useState<number | null>(null)
+  const [timeFilter, setTimeFilter] = useState<string>("all")
   
   const [matrixData, setMatrixData] = useState<ClassMatrixResponseSchema | null>(null)
   const [loading, setLoading] = useState(false)
@@ -61,7 +62,7 @@ export default function CsoportstatisztikaPage() {
       setLoading(true)
       setError(null)
       try {
-        const data = await apiClient.getClassMatrix(selectedClassId)
+        const data = await apiClient.getClassMatrix(selectedClassId, timeFilter)
         if (active) {
           setMatrixData(data)
         }
@@ -78,7 +79,7 @@ export default function CsoportstatisztikaPage() {
 
     fetchMatrix()
     return () => { active = false }
-  }, [selectedClassId])
+  }, [selectedClassId, timeFilter])
 
   // Admin and Class-Teacher only route (Admin has more rights, both should access group stats usually but prompt says Admin only so let's check)
   const isLoading = loading || !classes.length
@@ -258,7 +259,20 @@ export default function CsoportstatisztikaPage() {
                   <CardTitle className="text-lg">Statisztika nézet</CardTitle>
                   <CardDescription>Válassz osztályt a mátrix megjelenítéséhez</CardDescription>
                 </div>
-                <div className="flex gap-2 items-center w-full sm:w-auto">
+                <div className="flex gap-2 items-center flex-wrap w-full sm:w-auto">
+                  <Select
+                    value={timeFilter}
+                    onValueChange={setTimeFilter}
+                  >
+                    <SelectTrigger className="w-full sm:w-[200px]">
+                      <SelectValue placeholder="Szűrés időszak szerint" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Múltbeli + Közelgő</SelectItem>
+                      <SelectItem value="past">Csak Múltbeli</SelectItem>
+                    </SelectContent>
+                  </Select>
+
                   <Select
                     value={selectedClassId?.toString() || ""}
                     onValueChange={(val) => setSelectedClassId(parseInt(val))}

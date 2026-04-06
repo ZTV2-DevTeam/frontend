@@ -603,7 +603,7 @@ export default function BeosztasDetailPage({ params }: PageProps) {
     return { hasConflict: false, message: '' }
   }
 
-  const handleSaveChanges = async () => {
+  const handleSaveChanges = async (finalize = true) => {
     if (!assignment?.id || !isEditMode) return
     
     // Check for conflicts before saving
@@ -630,7 +630,7 @@ export default function BeosztasDetailPage({ params }: PageProps) {
         setConfirmDialog({
           open: true,
           title: 'Konfliktusok észlelve',
-          description: `A következő stábtagoknak konfliktusuk van:\n\n${conflictDetails}\n\nBiztosan véglegesíted a beosztást ezekkel a konfliktusokkal?`,
+          description: `A következő stábtagoknak konfliktusuk van:\n\n${conflictDetails}\n\nBiztosan ${finalize ? 'véglegesíted' : 'elmented'} a beosztást ezekkel a konfliktusokkal?`,
           onConfirm: () => {
             setConfirmDialog(prev => ({ ...prev, open: false }))
             resolve(true)
@@ -649,7 +649,7 @@ export default function BeosztasDetailPage({ params }: PageProps) {
     
     // Continue with save if confirmed or no conflicts
     try {
-      console.log('Saving and finalizing assignment...')
+      console.log('Saving assignment...')
       console.log('Original crew:', crew)
       console.log('Edited crew:', editedCrew)
       
@@ -664,7 +664,7 @@ export default function BeosztasDetailPage({ params }: PageProps) {
       // Save and mark as done (finalize) in one action
       const result = await updateAssignmentMutation.execute({
         student_role_pairs,
-        kesz: true  // Always finalize on save
+        kesz: finalize
       })
       
       // Also save equipment selection
@@ -675,7 +675,7 @@ export default function BeosztasDetailPage({ params }: PageProps) {
       }
       
       console.log('Save result:', result)
-      toast.success('Beosztás sikeresen véglegesítve!')
+      toast.success(finalize ? 'Beosztás sikeresen véglegesítve!' : 'Beosztás sikeresen mentve!')
       setHasUnsavedCrewChanges(false)
       // Redirect to forgatás detail page
       router.push(`/app/forgatasok/${id}`)
@@ -883,13 +883,17 @@ export default function BeosztasDetailPage({ params }: PageProps) {
                 <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                   {isEditMode ? (
                     <>
-                      <Button onClick={handleSaveChanges} disabled={updateAssignmentMutation.loading} className="w-full sm:w-auto">
+                      <Button onClick={() => handleSaveChanges(true)} disabled={updateAssignmentMutation.loading} className="w-full sm:w-auto">
                         {updateAssignmentMutation.loading ? (
                           <Loader2 className="h-4 w-4 animate-spin mr-2" />
                         ) : (
                           <CheckCircle className="h-4 w-4 mr-2" />
                         )}
                         Mentés és Véglegesítés
+                      </Button>
+                      <Button variant="secondary" onClick={() => handleSaveChanges(false)} disabled={updateAssignmentMutation.loading} className="w-full sm:w-auto">
+                        {updateAssignmentMutation.loading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                        Mentés
                       </Button>
                       <Button variant="outline" onClick={() => {
                         if (hasUnsavedCrewChanges) {
@@ -1197,7 +1201,7 @@ export default function BeosztasDetailPage({ params }: PageProps) {
                             <Button 
                               size="sm" 
                               variant="default"
-                              onClick={handleSaveChanges}
+                              onClick={() => handleSaveChanges(true)}
                               disabled={updateAssignmentMutation.loading}
                               className="w-full sm:w-auto text-xs sm:text-sm"
                             >
@@ -1207,6 +1211,16 @@ export default function BeosztasDetailPage({ params }: PageProps) {
                                 <CheckCircle className="h-4 w-4 mr-2" />
                               )}
                               Mentés és Véglegesítés
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="secondary"
+                              onClick={() => handleSaveChanges(false)}
+                              disabled={updateAssignmentMutation.loading}
+                              className="w-full sm:w-auto text-xs sm:text-sm"
+                            >
+                              {updateAssignmentMutation.loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                              Mentés
                             </Button>
                             <Button 
                               size="sm" 
