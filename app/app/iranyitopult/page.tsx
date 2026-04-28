@@ -69,6 +69,7 @@ import { AnnouncementDialog } from "@/components/announcement-dialog"
 import { VersionInfo } from "@/components/version-info"
 import { SystemMessages } from "@/components/system-messages"
 import { KozelgoEsemenyekWidget } from "@/components/dashboard/kozelgo-esemenyek-widget"
+import { ActiveEquipmentWidget } from "@/components/dashboard/active-equipment-widget"
 import { Shadow } from "@tsparticles/engine"
 import { getCurrentSeasonalTheme, getSeasonalThemeConfig } from "@/lib/seasonal-themes"
 
@@ -1296,8 +1297,13 @@ export default function Page() {
 
       case 'student':
         return (
-          <div className="grid gap-4 sm:gap-6 grid-cols-1">
-            <KozelgoEsemenyekWidget />
+          <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2">
+            <div className="lg:col-span-2">
+              <ActiveEquipmentWidget />
+            </div>
+            <div className="lg:col-span-2">
+              <KozelgoEsemenyekWidget />
+            </div>
           </div>
         )
 
