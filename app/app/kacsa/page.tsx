@@ -130,7 +130,7 @@ export default function KacsaOsszejatszasokPage() {
     
     // Use assigned_users from optimized response
     const assignedUsers = (assignment as any).assigned_users || []
-    return assignedUsers.some((userWithRole: any) => userWithRole.id === user.user_id)
+    return assignedUsers.some((userWithRole: any) => Number(userWithRole.id ?? userWithRole.user_id) === Number(user.user_id))
   }, [user, getSessionAssignment])
 
   const isSessionLive = (sessionId: number): boolean => {

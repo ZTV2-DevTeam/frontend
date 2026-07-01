@@ -44,7 +44,7 @@ export function KozelgoEsemenyekWidget() {
 
   const isUserAssigned = (session: any) => {
     if (!session.assignment || !session.assignment.assigned_users) return false
-    return session.assignment.assigned_users.some((u: any) => u.id === user?.user_id)
+    return session.assignment.assigned_users.some((u: any) => Number(u.id ?? u.user_id) === Number(user?.user_id))
   }
 
   const getStatusInfo = (session: any) => {
