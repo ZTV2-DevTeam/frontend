@@ -59,6 +59,7 @@ import {
 import { useApiQuery } from "@/lib/api-helpers"
 import { UserDetailSchema, UserProfileSchema, OsztalySchema } from "@/lib/types"
 import { apiClient } from "@/lib/api"
+import { useTanev } from "@/contexts/tanev-context"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -463,6 +464,7 @@ function UserCard({ user, onEdit, onDelete, hasAdminPermissions = false }: {
 export default function StabPage() {
   const { isAuthenticated } = useAuth()
   const { hasPermission } = usePermissions()
+  const { activeTanev, activeOsztalyIds } = useTanev()
   const [selectedClass, setSelectedClass] = useState<string>("all")
   const [selectedRole, setSelectedRole] = useState<string>("all")
   const [searchTerm, setSearchTerm] = useState("")
@@ -559,11 +561,32 @@ export default function StabPage() {
     stab_name: user.stab?.name || user.stab_name || null,
   }))
 
+  // Multi-Tanév: only students belonging to the currently-active Tanév's
+  // `osztalyok` should appear in the Stáb menu. Users without an `osztaly`
+  // (staff/teachers) are not gated by class membership. If the backend has
+  // not yet reported the active Tanév's class list, we fall back to showing
+  // everyone (safe default) so the menu doesn't go empty in transition.
+  const hasActiveOsztalyIds = activeOsztalyIds.size > 0
+  const activeTanevUsers = hasActiveOsztalyIds
+    ? normalizedUsers.filter((user: any) => {
+        const osztalyId = user?.osztaly?.id
+        // Students (users with a class): keep only if class is in active Tanév.
+        if (typeof osztalyId === 'number') return activeOsztalyIds.has(osztalyId)
+        // Staff/teachers (no class) always pass through.
+        return true
+      })
+    : normalizedUsers
+
+  // Restrict the class list too, so filters only offer active-Tanév classes.
+  const activeTanevClasses = hasActiveOsztalyIds
+    ? classesArray.filter((cls: any) => cls?.id != null && activeOsztalyIds.has(cls.id))
+    : classesArray
+
   // Filter and sort users - using regular calculation instead of useMemo to avoid React hook errors
   let filteredUsers: any[] = []
   
-  if (normalizedUsers && Array.isArray(normalizedUsers)) {
-    filteredUsers = normalizedUsers.filter((user: any) => {
+  if (activeTanevUsers && Array.isArray(activeTanevUsers)) {
+    filteredUsers = activeTanevUsers.filter((user: any) => {
       if (!user) return false
       
       const matchesSearch = searchTerm === "" || 
@@ -654,16 +677,16 @@ export default function StabPage() {
     (user?.admin_type && ['system_admin', 'developer', 'teacher'].includes(user.admin_type))
   )
 
-  const availableClasses = [...new Set(normalizedUsers
+  const availableClasses = [...new Set(activeTanevUsers
     .filter((user: any) => user?.osztaly_name)
     .map((user: any) => user.osztaly_name)
   )].sort()
 
   const availableRoles = [...new Set([
-    ...normalizedUsers
+    ...activeTanevUsers
       .filter((user: any) => user?.admin_type)
       .map((user: any) => user.admin_type),
-    ...normalizedUsers
+    ...activeTanevUsers
       .filter((user: any) => user?.gyv === true)
       .map(() => "gyartasvezeto")
   ])].sort()
@@ -814,9 +837,14 @@ export default function StabPage() {
                     <h1 className="text-3xl font-bold text-black dark:text-white tracking-tight">Stáb Kezelése</h1>
                     <p className="text-base text-muted-foreground">
                       Diákok és tanárok nyilvántartása • {filteredUsers.length} felhasználó
-                      {normalizedUsers.length !== filteredUsers.length && (
+                      {activeTanevUsers.length !== filteredUsers.length && (
                         <span className="text-sm text-blue-600 ml-2">
-                          ({normalizedUsers.length} összesen, {normalizedUsers.length - filteredUsers.length} szűrve)
+                          ({activeTanevUsers.length} összesen, {activeTanevUsers.length - filteredUsers.length} szűrve)
+                        </span>
+                      )}
+                      {activeTanev?.display_name && (
+                        <span className="ml-2 text-xs text-muted-foreground">
+                          • Aktív tanév: {activeTanev.display_name}
                         </span>
                       )}
                     </p>
@@ -1308,9 +1336,13 @@ export default function StabPage() {
                       <Users className="h-6 w-6 text-muted-foreground" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-semibold">Nincs találat</h3>
+                      <h3 className="text-lg font-semibold">
+                        {hasActiveOsztalyIds ? 'Nincs találat' : 'Nincs aktív tanévhez rendelt diák'}
+                      </h3>
                       <p className="text-muted-foreground">
-                        Próbáljon meg más keresési kritériumokat.
+                        {hasActiveOsztalyIds
+                          ? 'Próbáljon meg más keresési kritériumokat.'
+                          : 'Az aktív tanévhez jelenleg nincsenek osztályok rendelve.'}
                       </p>
                     </div>
                     <Button onClick={() => {
