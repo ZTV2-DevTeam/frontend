@@ -24,10 +24,12 @@ import {
   Star,
   CalendarDays,
 } from "lucide-react"
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useMemo } from "react"
 // import { useAuth } from "@/contexts/auth-context" // Unused for now
 import { usePermissions } from "@/contexts/permissions-context"
 import { useUserRole } from "@/contexts/user-role-context"
+import { useTanev } from "@/contexts/tanev-context"
+import { TanevSection } from "@/components/archived-tanev"
 import {
   getSchoolAbsences,
   updateSchoolAbsence,
@@ -485,6 +487,14 @@ export function TeacherAbsencesPage() {
   // Apply relevance-based sorting to filtered absences
   const sortedAndFilteredAbsences = sortAbsencesByRelevance(filteredAbsences)
 
+  // Split by tanév — current tanév items are shown in the main list,
+  // archived-tanév items get their own read-only sections below.
+  const { groupByTanev } = useTanev()
+  const { currentTanevAbsences, archivedTanevGroups } = useMemo(() => {
+    const grouping = groupByTanev(sortedAndFilteredAbsences, (a) => a.tanev)
+    return { currentTanevAbsences: grouping.active, archivedTanevGroups: grouping.archived }
+  }, [sortedAndFilteredAbsences, groupByTanev])
+
   const getStatusIcon = (absence: ExtendedAbsence) => {
     if (absence.excused) return CheckCircle
     if (absence.unexcused) return XCircle
@@ -684,10 +694,10 @@ export function TeacherAbsencesPage() {
     }
   }
 
-  // Csoportosítás logika
+  // Csoportosítás logika (csak az aktív tanév adataira)
   const groupedAbsences =
     groupBy === "shooting"
-      ? sortedAndFilteredAbsences.reduce(
+      ? currentTanevAbsences.reduce(
           (groups: Record<string, { shootingTitle: string; date: string; absences: ExtendedAbsence[] }>, absence) => {
             const key = `${absence.shootingId}-${absence.date}`
             if (!groups[key]) {
@@ -702,7 +712,7 @@ export function TeacherAbsencesPage() {
           },
           {},
         )
-      : sortedAndFilteredAbsences.reduce(
+      : currentTanevAbsences.reduce(
           (groups: Record<string, { studentName: string; studentClass: string; absences: ExtendedAbsence[] }>, absence) => {
             const key = absence.studentId
             if (!groups[key]) {
@@ -1092,7 +1102,7 @@ export function TeacherAbsencesPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Users className="h-5 w-5 text-blue-400" />
-              Osztály Hiányzások ({sortedAndFilteredAbsences.length})
+              Osztály Hiányzások ({currentTanevAbsences.length})
               <Badge variant="outline" className="ml-2">
                 {groupBy === "shooting" ? "Forgatás szerint" : "Diák szerint"}
               </Badge>
@@ -1281,6 +1291,34 @@ export function TeacherAbsencesPage() {
             )}
           </CardContent>
         </Card>
+
+        {/* Archived Tanév absences (read-only) */}
+        {archivedTanevGroups.length > 0 && (
+          <div className="space-y-4">
+            {archivedTanevGroups.map(({ tanev, items }) => (
+              <TanevSection key={tanev.id} tanev={tanev} count={items.length}>
+                <div className="space-y-2">
+                  {items.map((absence) => (
+                    <div
+                      key={absence.id}
+                      className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-lg bg-background/30 border border-border/30"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <div className="text-sm font-medium truncate">{absence.studentName}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {absence.studentClass} · {absence.shootingTitle} · {absence.date}
+                        </div>
+                      </div>
+                      <Badge className={getAbsenceStatusColor(absence)}>
+                        {getAbsenceStatusText(absence)}
+                      </Badge>
+                    </div>
+                  ))}
+                </div>
+              </TanevSection>
+            ))}
+          </div>
+        )}
       </div>
     </StandardizedLayout>
   )

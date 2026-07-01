@@ -2,6 +2,7 @@
 
 import { ProtectedRoute } from "@/components/protected-route"
 import { SeasonalSnowfall } from "@/components/seasonal-snowfall"
+import { TanevProvider } from "@/contexts/tanev-context"
 
 export default function AppLayout({
   children,
@@ -10,6 +11,7 @@ export default function AppLayout({
 }) {
   return (
     <ProtectedRoute>
+      <TanevProvider>
       <SeasonalSnowfall />
       <style jsx global>{`
         html {
@@ -64,6 +66,7 @@ export default function AppLayout({
               {children}
             </div>
           </div>
+      </TanevProvider>
     </ProtectedRoute>
   )
 }

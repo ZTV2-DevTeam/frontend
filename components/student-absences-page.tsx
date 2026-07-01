@@ -1,8 +1,10 @@
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useUserRole } from '@/contexts/user-role-context'
 import { useAuth } from '@/contexts/auth-context'
+import { useTanev } from '@/contexts/tanev-context'
+import { TanevSection } from '@/components/archived-tanev'
 import { StandardizedLayout } from '@/components/standardized-layout'
 import { CalendarDays, Clock, FileText, RefreshCw, User } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -49,6 +51,13 @@ export function StudentAbsencesPage() {
     loadData()
   }, [loadData])
 
+  // Split absences by tanév: current vs archived (must be called before any early returns)
+  const { groupByTanev } = useTanev()
+  const { currentAbsences, archivedGroups } = useMemo(() => {
+    const grouping = groupByTanev(absences, (a) => a.tanev)
+    return { currentAbsences: grouping.active, archivedGroups: grouping.archived }
+  }, [absences, groupByTanev])
+
   // Check authorization
   if (currentRole !== 'student') {
     return (
@@ -71,8 +80,8 @@ export function StudentAbsencesPage() {
     pending: absences.filter(a => !a.excused && !a.unexcused).length,
   }
 
-  // Group absences by date
-  const groupedAbsences = absences.reduce((groups, absence) => {
+  // Group current-tanév absences by date
+  const groupedAbsences = currentAbsences.reduce((groups, absence) => {
     const date = absence.date
     if (!groups[date]) {
       groups[date] = []
@@ -252,6 +261,39 @@ export function StudentAbsencesPage() {
                 </p>
               </CardContent>
             </Card>
+          )}
+
+          {/* Archived Tanév absences (read-only) */}
+          {archivedGroups.length > 0 && (
+            <div className="space-y-4">
+              {archivedGroups.map(({ tanev, items }) => (
+                <TanevSection key={tanev.id} tanev={tanev} count={items.length}>
+                  <div className="space-y-3">
+                    {items.map((absence) => (
+                      <div
+                        key={absence.id}
+                        className="flex items-center justify-between p-4 border rounded-lg bg-card/50"
+                      >
+                        <div className="flex-1 min-w-0">
+                          <div className="font-medium truncate">{absence.forgatas.name}</div>
+                          <div className="text-xs text-muted-foreground mt-1">
+                            {format(parseISO(absence.date), 'yyyy. MMMM d.', { locale: hu })} · {absence.time_from} - {absence.time_to}
+                          </div>
+                          {absence.osztaly && (
+                            <div className="text-xs text-muted-foreground">
+                              Osztály: {absence.osztaly.name}
+                            </div>
+                          )}
+                        </div>
+                        <Badge className={getStudentAbsenceStatusColor(absence)}>
+                          {getStudentAbsenceStatusText(absence)}
+                        </Badge>
+                      </div>
+                    ))}
+                  </div>
+                </TanevSection>
+              ))}
+            </div>
           )}
         </div>
 

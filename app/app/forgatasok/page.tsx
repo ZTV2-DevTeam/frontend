@@ -45,6 +45,8 @@ import { hu } from "date-fns/locale"
 import { usePermissions } from "@/contexts/permissions-context"
 import { StabBadge } from "@/components/stab-badge"
 import { ForgatásokLoading } from "@/components/forgatasok-loading"
+import { useTanev } from "@/contexts/tanev-context"
+import { TanevSection } from "@/components/archived-tanev"
 
 // Date helper for better formatting
 const formatSessionDate = (dateStr: string) => {
@@ -77,6 +79,7 @@ export default function FilmingSessionsPage() {
   // Context hooks
   const { user, isAuthenticated } = useAuth()
   const { hasPermission } = usePermissions()
+  const { groupByTanev } = useTanev()
 
   // Format time to remove seconds (HH:MM:SS -> HH:MM)
   const formatTime = (timeStr: string) => {
@@ -102,7 +105,17 @@ export default function FilmingSessionsPage() {
   const { data: filmingData = [], loading, error } = filmingQuery
 
   // Computed values - data already includes all related information
-  const sessions = useMemo(() => Array.isArray(filmingData) ? filmingData : [], [filmingData])
+  const allSessions = useMemo(() => Array.isArray(filmingData) ? filmingData : [], [filmingData])
+
+  // Multi-Tanév: split sessions into current-Tanév (or unknown-Tanév, treated
+  // as current by safe default) versus archived-Tanév buckets. The main UI
+  // renders only current sessions unchanged; archived buckets are shown below.
+  const tanevGrouping = useMemo(
+    () => groupByTanev(allSessions, (s: any) => (s?.tanev as any) ?? null),
+    [allSessions, groupByTanev],
+  )
+  const sessions = useMemo(() => tanevGrouping.active, [tanevGrouping])
+  const archivedTanevBuckets = tanevGrouping.archived
 
   // Permission check - use can_create_forgatas permission
   const canCreateForgatás = hasPermission('can_create_forgatas')
@@ -1113,6 +1126,21 @@ export default function FilmingSessionsPage() {
                     )}
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* Archived Tanév sections — legacy data from previous school years */}
+            {archivedTanevBuckets.length > 0 && (
+              <div className="space-y-4">
+                {archivedTanevBuckets.map(({ tanev, items }) => (
+                  <TanevSection key={tanev.id} tanev={tanev} count={items.length}>
+                    <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                      {items.map((session: ForgatSchema) => (
+                        <ShootingGridCard key={session.id} session={session} />
+                      ))}
+                    </div>
+                  </TanevSection>
+                ))}
               </div>
             )}
           </div>

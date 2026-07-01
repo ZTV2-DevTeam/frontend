@@ -14,14 +14,17 @@ import {
   SidebarProvider,
 } from "@/components/ui/sidebar"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { ArrowUpDown, Table as TableIcon } from "lucide-react"
+import { useTanev } from "@/contexts/tanev-context"
+import { ArchivedTanevBanner } from "@/components/archived-tanev"
 
 export default function CsoportstatisztikaPage() {
   const { user } = useAuth()
   const { hasPermission } = usePermissions()
+  const { isActiveTanev, tanevek } = useTanev()
   
   const [classes, setClasses] = useState<OsztalySchema[]>([])
   const [selectedClassId, setSelectedClassId] = useState<number | null>(null)
@@ -282,11 +285,50 @@ export default function CsoportstatisztikaPage() {
                       <SelectValue placeholder="Osztály választása" />
                     </SelectTrigger>
                     <SelectContent>
-                      {classes.map((cls) => (
-                        <SelectItem key={cls.id} value={cls.id.toString()}>
-                           {cls.current_display_name || cls.display_name || `${cls.start_year}-${cls.szekcio}`}
-                        </SelectItem>
-                      ))}
+                      {(() => {
+                        // Group class options by Tanév so historical classes stay accessible
+                        // but are visually separated from the active Tanév's ones.
+                        const active: typeof classes = []
+                        const archivedMap = new Map<number, { label: string; items: typeof classes }>()
+                        for (const cls of classes) {
+                          if (isActiveTanev(cls.tanev ?? null)) {
+                            active.push(cls)
+                          } else {
+                            const id = cls.tanev?.id ?? -1
+                            const bucket = archivedMap.get(id) ?? {
+                              label: cls.tanev?.display_name || 'Ismeretlen tanév',
+                              items: [] as typeof classes,
+                            }
+                            bucket.items.push(cls)
+                            archivedMap.set(id, bucket)
+                          }
+                        }
+                        const archived = [...archivedMap.entries()].sort(([a], [b]) => b - a)
+                        return (
+                          <>
+                            {active.length > 0 && (
+                              <SelectGroup>
+                                <SelectLabel>Aktív tanév</SelectLabel>
+                                {active.map((cls) => (
+                                  <SelectItem key={cls.id} value={cls.id.toString()}>
+                                    {cls.current_display_name || cls.display_name}
+                                  </SelectItem>
+                                ))}
+                              </SelectGroup>
+                            )}
+                            {archived.map(([id, { label, items }]) => (
+                              <SelectGroup key={id}>
+                                <SelectLabel>Archivált tanév – {label}</SelectLabel>
+                                {items.map((cls) => (
+                                  <SelectItem key={cls.id} value={cls.id.toString()}>
+                                    {cls.current_display_name || cls.display_name}
+                                  </SelectItem>
+                                ))}
+                              </SelectGroup>
+                            ))}
+                          </>
+                        )
+                      })()}
                     </SelectContent>
                   </Select>
 
@@ -313,6 +355,20 @@ export default function CsoportstatisztikaPage() {
                     {error}
                   </div>
                 )}
+
+                {(() => {
+                  const selected = classes.find((c) => c.id === selectedClassId)
+                  if (selected && !isActiveTanev(selected.tanev ?? null)) {
+                    return (
+                      <div className="mb-4">
+                        <ArchivedTanevBanner
+                          tanev={{ display_name: selected.tanev?.display_name || 'Ismeretlen tanév' }}
+                        />
+                      </div>
+                    )
+                  }
+                  return null
+                })()}
 
                 {renderMatrix()}
                 

@@ -43,6 +43,13 @@ export interface Absence {
     szekcio: string
     start_year: number
   }
+  tanev?: {
+    id: number
+    display_name?: string
+    start_year?: number
+    end_year?: number
+    is_active?: boolean
+  }
 }
 
 export interface AbsenceUpdateData {
