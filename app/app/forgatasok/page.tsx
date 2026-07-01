@@ -128,7 +128,7 @@ export default function FilmingSessionsPage() {
     const assignment = getSessionAssignment(sessionId)
     if (!assignment) return false
     
-    return assignment.assigned_users?.some((assignedUser: any) => assignedUser.id === user.user_id) || false
+    return assignment.assigned_users?.some((assignedUser: any) => Number(assignedUser.id ?? assignedUser.user_id) === Number(user.user_id)) || false
   }, [user, getSessionAssignment])
 
   const isSessionLive = useCallback((sessionId: number): boolean => {
