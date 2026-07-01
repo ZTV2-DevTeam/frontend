@@ -78,13 +78,13 @@ export function StudentAbsenceManagement() {
     )
   }
 
-  // Calculate statistics
+  // Calculate statistics (current tanév only — archived data is shown separately below)
   const stats = {
-    total: absences.length,
-    excused: absences.filter(a => a.excused && !a.unexcused).length,
-    unexcused: absences.filter(a => !a.excused && a.unexcused).length,
-    pending: absences.filter(a => !a.excused && !a.unexcused).length,
-    edited: absences.filter(a => a.student_edited).length,
+    total: currentAbsences.length,
+    excused: currentAbsences.filter(a => a.excused && !a.unexcused).length,
+    unexcused: currentAbsences.filter(a => !a.excused && a.unexcused).length,
+    pending: currentAbsences.filter(a => !a.excused && !a.unexcused).length,
+    edited: currentAbsences.filter(a => a.student_edited).length,
   }
 
   // Split absences by tanév (current vs archived) — computed above pre-early-return

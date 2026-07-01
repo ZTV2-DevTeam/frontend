@@ -72,12 +72,12 @@ export function StudentAbsencesPage() {
     )
   }
 
-  // Calculate statistics
+  // Calculate statistics (current tanév only — archived data shown separately below)
   const stats = {
-    total: absences.length,
-    excused: absences.filter(a => a.excused && !a.unexcused).length,
-    unexcused: absences.filter(a => a.unexcused && !a.excused).length,
-    pending: absences.filter(a => !a.excused && !a.unexcused).length,
+    total: currentAbsences.length,
+    excused: currentAbsences.filter(a => a.excused && !a.unexcused).length,
+    unexcused: currentAbsences.filter(a => a.unexcused && !a.excused).length,
+    pending: currentAbsences.filter(a => !a.excused && !a.unexcused).length,
   }
 
   // Group current-tanév absences by date
