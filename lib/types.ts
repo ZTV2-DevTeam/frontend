@@ -85,6 +85,7 @@ export interface UserProfileSchema {
   is_second_year_radio: boolean
   gyv?: boolean
   szerkeszto?: boolean
+  can_create_forgatas?: boolean
   elrejtve?: boolean
 }
 

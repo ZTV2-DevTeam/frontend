@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     
     // Extract parameters
-    const title = searchParams.get('title') || 'FTV - Forgatásszervező Platform';
+    const title = searchParams.get('title') || 'FTV';
     const subtitle = searchParams.get('subtitle') || 'Kőbányai Szent László Gimnázium';
     const theme = searchParams.get('theme') || 'light';
     const type = searchParams.get('type') || 'default'; // default, article, profile, etc.

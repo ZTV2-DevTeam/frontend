@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { SEO_CONFIG } from '@/lib/seo/config';
 
 export const metadata: Metadata = {
-  title: "FTV - Forgatásszervező Platform | Kőbányai Szent László Gimnázium",
+  title: "FTV | Kőbányai Szent László Gimnázium",
   description: "Professzionális forgatásszervező rendszer a Kőbányai Szent László Gimnázium Média tagozata számára.",
   keywords: [
     "forgatás menedzsment",
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     "média oktatás"
   ],
   openGraph: {
-    title: "FTV - Forgatásszervező Platform",
+    title: "FTV",
     description: "Professzionális forgatásszervező rendszer a Kőbányai Szent László Gimnázium Média tagozata számára.",
     url: SEO_CONFIG.site.url,
     type: "website",
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
         url: `${SEO_CONFIG.site.url}/og-homepage.png`,
         width: 1200,
         height: 630,
-        alt: "FTV - Forgatásszervező Platform",
+        alt: "FTV",
       },
     ],
   },
@@ -63,7 +63,7 @@ const homepageStructuredData = [
   {
     "@context": "https://schema.org",
     "@type": "WebApplication",
-    name: "FTV - Forgatásszervező Platform",
+    name: "FTV",
     description: "Professzionális forgatásszervező rendszer a Kőbányai Szent László Gimnázium Média tagozata számára.",
     url: SEO_CONFIG.site.url,
     applicationCategory: "BusinessApplication",

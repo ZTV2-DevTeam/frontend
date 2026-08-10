@@ -30,7 +30,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "FTV - Forgatásszervező Platform",
+    default: "FTV",
     template: "%s | FTV - Kőbányai Szent László Gimnázium"
   },
   description: "Professzionális forgatásszervező rendszer a Kőbányai Szent László Gimnázium Média tagozata számára.",
@@ -50,14 +50,14 @@ export const metadata: Metadata = {
     type: "website",
     locale: "hu_HU",
     siteName: "FTV - Kőbányai Szent László Gimnázium",
-    title: "FTV - Forgatásszervező Platform",
+    title: "FTV",
     description: "Professzionális forgatásszervező rendszer a Kőbányai Szent László Gimnázium média tagozata számára.",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "FTV - Forgatásszervező Platform",
+        alt: "FTV",
       },
     ],
   },
