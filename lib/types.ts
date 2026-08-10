@@ -71,6 +71,7 @@ export interface UserBasicSchema {
 
 export interface UserProfileSchema {
   id: number
+  profile_id?: number
   username: string
   first_name: string
   last_name: string
@@ -83,6 +84,17 @@ export interface UserProfileSchema {
   osztaly_name?: string
   is_second_year_radio: boolean
   gyv?: boolean
+  szerkeszto?: boolean
+  elrejtve?: boolean
+}
+
+export interface StabHistoryEntry {
+  id: number
+  previous_stab?: string
+  previous_radio_stab?: string
+  new_stab?: string
+  new_radio_stab?: string
+  datetime: string
 }
 
 export interface UserDetailSchema {

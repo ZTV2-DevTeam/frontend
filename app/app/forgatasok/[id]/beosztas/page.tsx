@@ -12,6 +12,7 @@ import { ApiErrorBoundary } from "@/components/api-error-boundary"
 import { ApiErrorFallback } from "@/components/api-error-fallback"
 import { StabBadge, UserStabBadge } from "@/components/stab-badge"
 import { UserAvatar } from "@/components/user-avatar"
+import { UserDetailsModal } from "@/components/user-details-modal"
 import { RemoveStudentConfirmation } from "@/components/remove-student-confirmation"
 import {
   SidebarInset,
@@ -1777,150 +1778,81 @@ export default function BeosztasDetailPage({ params }: PageProps) {
             </div>
 
             {/* Crew Member Detail Modal */}
-            <Dialog open={!!selectedCrewMember} onOpenChange={() => setSelectedCrewMember(null)}>
-              <DialogContent className="mx-2 w-[calc(100vw-1rem)] max-w-md sm:mx-4 sm:w-[calc(100vw-2rem)] sm:max-w-lg">
-                <DialogHeader>
-                  <DialogTitle className="flex items-center gap-2">
-                    <Users className="h-5 w-5" />
-                    Stáb tag részletek
-                  </DialogTitle>
-                  <DialogDescription>Kapcsolattartó információk és szerepkör</DialogDescription>
-                </DialogHeader>
-                {selectedCrewMember && (
-                  <div className="space-y-4 max-h-[80vh] overflow-y-auto">
-                    <div className="text-center space-y-2">
-                      <UserAvatar
-                        email={selectedCrewMember.email || ''}
-                        firstName={selectedCrewMember.firstName || ''}
-                        lastName={selectedCrewMember.lastName || ''}
-                        username={selectedCrewMember.username || ''}
-                        customSize={64}
-                        className="border-2 border-primary/20 mx-auto"
-                        fallbackClassName="bg-gradient-to-br from-primary/20 to-primary/10 text-lg font-semibold"
-                      />
-                      <h3 className="text-lg font-semibold break-words">{selectedCrewMember.name}</h3>
-                      <div className="flex flex-wrap items-center justify-center gap-1 sm:gap-2">
-                        <Badge variant="secondary" className="text-xs">{selectedCrewMember.role}</Badge>
-                        <Badge variant="outline" className="text-xs">{selectedCrewMember.class}</Badge>
-                        {selectedCrewMember.stab && (
-                          <UserStabBadge stabName={selectedCrewMember.stab} />
-                        )}
+            <UserDetailsModal
+              open={!!selectedCrewMember}
+              onOpenChange={(isOpen) => !isOpen && setSelectedCrewMember(null)}
+              user={selectedCrewMember ? {
+                id: selectedCrewMember.id,
+                full_name: selectedCrewMember.name,
+                first_name: selectedCrewMember.firstName,
+                last_name: selectedCrewMember.lastName,
+                username: selectedCrewMember.username,
+                email: selectedCrewMember.email,
+                telefonszam: selectedCrewMember.phone,
+                osztaly_name: selectedCrewMember.class,
+                stab_name: selectedCrewMember.stab,
+                contextRole: selectedCrewMember.role,
+              } : null}
+            >
+              {(userStats || userStatsLoading) && (
+                <div className="space-y-3">
+                  <Separator />
+                  {userStats && (
+                    <div>
+                      <h4 className="font-medium text-sm mb-3 flex items-center gap-2">
+                        <Info className="h-4 w-4" />
+                        Forgatási Statisztikák
+                      </h4>
+                      <div className="grid grid-cols-2 gap-3 mb-3">
+                        <div className="text-center p-2 rounded-lg bg-background/50 border border-border/50">
+                          <div className="text-sm text-muted-foreground">Összes forgatás</div>
+                          <div className="font-semibold text-lg">{userStats.summary.total_assignments}</div>
+                        </div>
+                        <div className="text-center p-2 rounded-lg bg-background/50 border border-border/50">
+                          <div className="text-sm text-muted-foreground">Különböző szerepek</div>
+                          <div className="font-semibold text-lg">{userStats.summary.total_different_roles}</div>
+                        </div>
                       </div>
-                    </div>
-
-                    {/* Role Statistics */}
-                    {userStats && (
-                      <div className="space-y-3">
-                        <Separator />
-                        <div>
-                          <h4 className="font-medium text-sm mb-3 flex items-center gap-2">
-                            <Info className="h-4 w-4" />
-                            Forgatási Statisztikák
-                          </h4>
-                          <div className="grid grid-cols-2 gap-3 mb-3">
-                            <div className="text-center p-2 rounded-lg bg-background/50 border border-border/50">
-                              <div className="text-sm text-muted-foreground">Összes forgatás</div>
-                              <div className="font-semibold text-lg">{userStats.summary.total_assignments}</div>
-                            </div>
-                            <div className="text-center p-2 rounded-lg bg-background/50 border border-border/50">
-                              <div className="text-sm text-muted-foreground">Különböző szerepek</div>
-                              <div className="font-semibold text-lg">{userStats.summary.total_different_roles}</div>
-                            </div>
+                      {userStats.summary.most_used_role && (
+                        <div className="p-2 rounded-lg bg-primary/10 border border-primary/20">
+                          <div className="text-sm text-muted-foreground">Leggyakoribb szerepkör</div>
+                          <div className="font-medium">
+                            {userStats.summary.most_used_role.name} ({userStats.summary.most_used_count}x)
                           </div>
-                          {userStats.summary.most_used_role && (
-                            <div className="p-2 rounded-lg bg-primary/10 border border-primary/20">
-                              <div className="text-sm text-muted-foreground">Leggyakoribb szerepkör</div>
-                              <div className="font-medium">
-                                {userStats.summary.most_used_role.name} ({userStats.summary.most_used_count}x)
+                        </div>
+                      )}
+                      {userStats.role_statistics.length > 0 && (
+                        <div className="space-y-2">
+                          <div className="text-sm text-muted-foreground">Szerepkör eloszlás:</div>
+                          <div className="space-y-1 max-h-32 overflow-y-auto">
+                            {userStats.role_statistics.slice(0, 5).map((roleStat) => (
+                              <div key={roleStat.role.id} className="flex justify-between items-center text-xs">
+                                <span>{roleStat.role.name}</span>
+                                <Badge variant="outline" className="text-xs">
+                                  {roleStat.total_times}x
+                                </Badge>
                               </div>
-                            </div>
-                          )}
-                          {userStats.role_statistics.length > 0 && (
-                            <div className="space-y-2">
-                              <div className="text-sm text-muted-foreground">Szerepkör eloszlás:</div>
-                              <div className="space-y-1 max-h-32 overflow-y-auto">
-                                {userStats.role_statistics.slice(0, 5).map((roleStat) => (
-                                  <div key={roleStat.role.id} className="flex justify-between items-center text-xs">
-                                    <span>{roleStat.role.name}</span>
-                                    <Badge variant="outline" className="text-xs">
-                                      {roleStat.total_times}x
-                                    </Badge>
-                                  </div>
-                                ))}
-                                {userStats.role_statistics.length > 5 && (
-                                  <div className="text-xs text-muted-foreground text-center">
-                                    +{userStats.role_statistics.length - 5} további szerepkör...
-                                  </div>
-                                )}
+                            ))}
+                            {userStats.role_statistics.length > 5 && (
+                              <div className="text-xs text-muted-foreground text-center">
+                                +{userStats.role_statistics.length - 5} további szerepkör...
                               </div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    )}
-
-                    {userStatsLoading && (
-                      <div className="space-y-3">
-                        <Separator />
-                        <div className="flex items-center justify-center py-4">
-                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                          <span className="text-sm text-muted-foreground">Statisztikák betöltése...</span>
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="space-y-3">
-                      {selectedCrewMember.phone && (
-                        <div className="flex items-center gap-3 p-3 rounded-lg bg-background/50 border border-border/50">
-                          <div className="h-4 w-4 bg-green-400 rounded-full flex-shrink-0" />
-                          <div>
-                            <div className="text-sm text-muted-foreground">Telefon</div>
-                            <div className="font-medium">{selectedCrewMember.phone}</div>
-                          </div>
-                        </div>
-                      )}
-
-                      {selectedCrewMember.email && (
-                        <div className="flex items-center gap-3 p-3 rounded-lg bg-background/50 border border-border/50">
-                          <div className="h-4 w-4 bg-blue-400 rounded-full flex-shrink-0" />
-                          <div>
-                            <div className="text-sm text-muted-foreground">Email</div>
-                            <div className="font-medium">{selectedCrewMember.email}</div>
-                          </div>
-                        </div>
-                      )}
-
-                      {selectedCrewMember.username && (
-                        <div className="flex items-center gap-3 p-3 rounded-lg bg-background/50 border border-border/50">
-                          <div className="h-4 w-4 bg-purple-400 rounded-full flex-shrink-0" />
-                          <div>
-                            <div className="text-sm text-muted-foreground">Felhasználónév</div>
-                            <div className="font-medium font-mono">@{selectedCrewMember.username}</div>
+                            )}
                           </div>
                         </div>
                       )}
                     </div>
+                  )}
 
-                    <div className="flex flex-col sm:flex-row gap-2 pt-4">
-                      {selectedCrewMember.phone && (
-                        <Button className="flex-1" size="sm" asChild>
-                          <a href={`tel:${selectedCrewMember.phone}`}>
-                            📞 Hívás
-                          </a>
-                        </Button>
-                      )}
-                      {selectedCrewMember.email && (
-                        <Button variant="outline" className="flex-1 bg-transparent" size="sm" asChild>
-                          <a href={`mailto:${selectedCrewMember.email}`}>
-                            ✉️ Email
-                          </a>
-                        </Button>
-                      )}
+                  {userStatsLoading && (
+                    <div className="flex items-center justify-center py-4">
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      <span className="text-sm text-muted-foreground">Statisztikák betöltése...</span>
                     </div>
-                  </div>
-                )}
-              </DialogContent>
-            </Dialog>
+                  )}
+                </div>
+              )}
+            </UserDetailsModal>
 
             {/* Add Member Dialog */}
             <Dialog open={showAddMemberDialog} onOpenChange={setShowAddMemberDialog}>

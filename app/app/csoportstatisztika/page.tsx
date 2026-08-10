@@ -8,7 +8,7 @@ import { SiteHeader } from "@/components/site-header"
 import { ProtectedRoute } from "@/components/protected-route"
 import { ProfessionalLoading } from "@/components/professional-loading"
 import { apiClient } from "@/lib/api"
-import { type ClassMatrixResponseSchema, type OsztalySchema } from "@/lib/api"
+import { type ClassMatrixResponseSchema, type OsztalySchema, type TanevSchema } from "@/lib/api"
 import {
   SidebarInset,
   SidebarProvider,
@@ -26,6 +26,8 @@ export default function CsoportstatisztikaPage() {
   const [classes, setClasses] = useState<OsztalySchema[]>([])
   const [selectedClassId, setSelectedClassId] = useState<number | null>(null)
   const [timeFilter, setTimeFilter] = useState<string>("all")
+  const [schoolYears, setSchoolYears] = useState<TanevSchema[]>([])
+  const [selectedTanevId, setSelectedTanevId] = useState<string>("all")
   
   const [matrixData, setMatrixData] = useState<ClassMatrixResponseSchema | null>(null)
   const [loading, setLoading] = useState(false)
@@ -53,6 +55,23 @@ export default function CsoportstatisztikaPage() {
     return () => { active = false }
   }, [])
 
+  // Fetch available school years for the filter
+  useEffect(() => {
+    let active = true
+    const fetchSchoolYears = async () => {
+      try {
+        const years = await apiClient.getSchoolYears()
+        if (active) {
+          setSchoolYears(years)
+        }
+      } catch (err) {
+        console.error("Failed to load school years:", err)
+      }
+    }
+    fetchSchoolYears()
+    return () => { active = false }
+  }, [])
+
   // Fetch matrix data when a class is selected
   useEffect(() => {
     if (!selectedClassId) return
@@ -62,7 +81,8 @@ export default function CsoportstatisztikaPage() {
       setLoading(true)
       setError(null)
       try {
-        const data = await apiClient.getClassMatrix(selectedClassId, timeFilter)
+        const tanevId = selectedTanevId !== "all" ? parseInt(selectedTanevId) : null
+        const data = await apiClient.getClassMatrix(selectedClassId, timeFilter, tanevId)
         if (active) {
           setMatrixData(data)
         }
@@ -79,7 +99,7 @@ export default function CsoportstatisztikaPage() {
 
     fetchMatrix()
     return () => { active = false }
-  }, [selectedClassId, timeFilter])
+  }, [selectedClassId, timeFilter, selectedTanevId])
 
   // Admin and Class-Teacher only route (Admin has more rights, both should access group stats usually but prompt says Admin only so let's check)
   const isLoading = loading || !classes.length
@@ -260,6 +280,23 @@ export default function CsoportstatisztikaPage() {
                   <CardDescription>Válassz osztályt a mátrix megjelenítéséhez</CardDescription>
                 </div>
                 <div className="flex gap-2 items-center flex-wrap w-full sm:w-auto">
+                  <Select
+                    value={selectedTanevId}
+                    onValueChange={setSelectedTanevId}
+                  >
+                    <SelectTrigger className="w-full sm:w-[200px]">
+                      <SelectValue placeholder="Szűrés tanévre" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Minden tanév</SelectItem>
+                      {schoolYears.map((tanev) => (
+                        <SelectItem key={tanev.id} value={tanev.id.toString()}>
+                          {tanev.display_name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
                   <Select
                     value={timeFilter}
                     onValueChange={setTimeFilter}

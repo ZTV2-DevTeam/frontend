@@ -119,6 +119,7 @@ export interface UserBasicSchema {
 
 export interface UserProfileSchema {
   id: number
+  profile_id?: number
   username: string
   first_name: string
   last_name: string
@@ -131,6 +132,17 @@ export interface UserProfileSchema {
   osztaly_name?: string
   is_second_year_radio: boolean
   gyv?: boolean
+  szerkeszto?: boolean
+  elrejtve?: boolean
+}
+
+export interface StabHistoryEntry {
+  id: number
+  previous_stab?: string
+  previous_radio_stab?: string
+  new_stab?: string
+  new_radio_stab?: string
+  datetime: string
 }
 
 export interface UserDetailSchema {
@@ -1544,6 +1556,16 @@ class ApiClient {
     return this.request<UserProfileSchema[]>('/api/users/radio-students')
   }
 
+  async getUserStabHistory(userId: number): Promise<StabHistoryEntry[]> {
+    return this.request<StabHistoryEntry[]>(`/api/users/${userId}/stab-history`)
+  }
+
+  async toggleUserHidden(userId: number): Promise<{ id: number; elrejtve: boolean }> {
+    return this.request<{ id: number; elrejtve: boolean }>(`/api/users/${userId}/toggle-hidden`, {
+      method: 'POST',
+    })
+  }
+
   async getActiveUsers(): Promise<Record<string, any>> {
     return this.request<Record<string, any>>('/api/users/active')
   }
@@ -2076,9 +2098,10 @@ class ApiClient {
   }
 
   // === FILMING ASSIGNMENTS ===
-  async getClassMatrix(classId: number, timeFilter: string = 'all'): Promise<ClassMatrixResponseSchema> {
+  async getClassMatrix(classId: number, timeFilter: string = 'all', tanevId?: number | null): Promise<ClassMatrixResponseSchema> {
     const params = new URLSearchParams()
     if (timeFilter) params.append('time_filter', timeFilter)
+    if (tanevId) params.append('tanev_id', tanevId.toString())
     return this.request<ClassMatrixResponseSchema>(`/api/assignments/class-matrix/${classId}?${params.toString()}`);
   }
 

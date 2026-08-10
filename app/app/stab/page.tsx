@@ -18,7 +18,6 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -31,7 +30,6 @@ import {
   Search, 
   AlertCircle, 
   Plus, 
-  Edit,
   Trash2,
   Filter,
   Download,
@@ -45,6 +43,8 @@ import {
   Calendar,
   MapPin,
   Eye,
+  EyeOff,
+  ExternalLink,
   RefreshCw,
   Settings,
   MoreHorizontal,
@@ -52,7 +52,6 @@ import {
   Activity,
   Loader2,
   FileText,
-  User,
   ChevronDown,
   ChevronRight
 } from "lucide-react"
@@ -69,6 +68,8 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { UserAvatar } from "@/components/user-avatar"
 import { UserStabBadge } from "@/components/stab-badge"
+import { UserDetailsModal } from "@/components/user-details-modal"
+import { getDatabaseAdminUrl } from "@/lib/database-models"
 
 // Dynamic import for PDF functionality (client-side only)
 const generatePDF = async (users: any[]) => {
@@ -258,10 +259,12 @@ function ErrorDisplay({
 }
 
 // User Card Component
-function UserCard({ user, onEdit, onDelete, hasAdminPermissions = false }: { 
+function UserCard({ user, onEdit, onDelete, onOpenProfileInAdmin, onToggleHidden, hasAdminPermissions = false }: { 
   user: any, 
   onEdit?: (user: any) => void,
   onDelete?: (user: any) => void,
+  onOpenProfileInAdmin?: (user: any) => void,
+  onToggleHidden?: (user: any) => void,
   hasAdminPermissions?: boolean
 }) {
   const getRoleInfo = (user: any) => {
@@ -353,22 +356,36 @@ function UserCard({ user, onEdit, onDelete, hasAdminPermissions = false }: {
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
-                  disabled
+                  className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={(e) => e.stopPropagation()}
                 >
                   <MoreHorizontal className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
+              <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
                 <DropdownMenuItem onClick={() => onEdit?.(user)}>
                   <Eye className="h-4 w-4 mr-2" />
                   Megtekintés
                 </DropdownMenuItem>
                 {hasAdminPermissions && (
                   <>
-                    <DropdownMenuItem onClick={() => onEdit?.(user)}>
-                      <Edit className="h-4 w-4 mr-2" />
-                      Szerkesztés
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => onOpenProfileInAdmin?.(user)}>
+                      <ExternalLink className="h-4 w-4 mr-2" />
+                      Diák profiljának szerkesztése
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onToggleHidden?.(user)}>
+                      {user.elrejtve ? (
+                        <>
+                          <Eye className="h-4 w-4 mr-2" />
+                          Felhasználó megjelenítése
+                        </>
+                      ) : (
+                        <>
+                          <EyeOff className="h-4 w-4 mr-2" />
+                          Felhasználó elrejtése
+                        </>
+                      )}
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem 
@@ -393,6 +410,13 @@ function UserCard({ user, onEdit, onDelete, hasAdminPermissions = false }: {
             
             {(user.stab?.name || user.stab_name) && (
               <UserStabBadge stabName={user.stab?.name || user.stab_name} size="md" />
+            )}
+
+            {user.elrejtve && (
+              <Badge variant="secondary" className="text-xs px-2.5 py-1 gap-1">
+                <EyeOff className="h-3 w-3" />
+                Elrejtve
+              </Badge>
             )}
 
             {isActive && (
@@ -472,6 +496,8 @@ export default function StabPage() {
   const [isOsztalyNelkulOpen, setIsOsztalyNelkulOpen] = useState<boolean>(false) // Collapsible state
   const [selectedUser, setSelectedUser] = useState<any>(null) // Add state for modal
   const [filterGyartasvezetok, setFilterGyartasvezetok] = useState<boolean>(false) // Add Gyártásvezető filter
+  const [showHiddenUsers, setShowHiddenUsers] = useState<boolean>(false) // Admin-only: show users hidden from this page
+  const [usersRefreshKey, setUsersRefreshKey] = useState(0)
   
   // Auto-expand "Osztály nélkül" section when searching
   useEffect(() => {
@@ -504,7 +530,7 @@ export default function StabPage() {
         throw error
       }
     },
-    [isAuthenticated]
+    [isAuthenticated, usersRefreshKey]
   )
   
   const classesQuery = useApiQuery(
@@ -581,7 +607,9 @@ export default function StabPage() {
       
       const matchesGyartasvezetoFilter = !filterGyartasvezetok || user.gyv === true
       
-      return matchesSearch && matchesClass && matchesRole && matchesGyartasvezetoFilter
+      const matchesHiddenFilter = !user.elrejtve || (hasAdminPermissions && showHiddenUsers)
+      
+      return matchesSearch && matchesClass && matchesRole && matchesGyartasvezetoFilter && matchesHiddenFilter
     })
 
     // Sort users
@@ -680,6 +708,21 @@ export default function StabPage() {
   const handleDelete = (user: any) => {
     // TODO: Implement delete functionality
     console.log('Delete user:', user)
+  }
+
+  const handleOpenProfileInAdmin = (user: any) => {
+    if (!user?.profile_id) return
+    const adminUrl = getDatabaseAdminUrl(`api/profile/${user.profile_id}/change`)
+    window.open(adminUrl, '_blank', 'noopener,noreferrer')
+  }
+
+  const handleToggleHidden = async (user: any) => {
+    try {
+      await apiClient.toggleUserHidden(user.id)
+      setUsersRefreshKey((key) => key + 1)
+    } catch (error) {
+      console.error('Failed to toggle user visibility:', error)
+    }
   }
 
   // Helper function to get role info (updated to check admin_type only, class teacher role removed)
@@ -951,6 +994,21 @@ export default function StabPage() {
                         {filterGyartasvezetok ? 'Csak gyártásvezetők' : 'Minden felhasználó'}
                       </span>
                     </div>
+
+                    {hasAdminPermissions && (
+                      <div className="flex items-center space-x-2">
+                        <Toggle
+                          pressed={showHiddenUsers}
+                          onPressedChange={setShowHiddenUsers}
+                          aria-label="Elrejtett felhasználók megjelenítése"
+                          variant="outline"
+                          size="sm"
+                        >
+                          <EyeOff className="h-4 w-4 mr-2" />
+                          Elrejtett felhasználók
+                        </Toggle>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -1102,6 +1160,8 @@ export default function StabPage() {
                                           user={user} 
                                           onEdit={handleEdit}
                                           onDelete={handleDelete}
+                                          onOpenProfileInAdmin={handleOpenProfileInAdmin}
+                                          onToggleHidden={handleToggleHidden}
                                           hasAdminPermissions={hasAdminPermissions}
                                         />
                                       ))}
@@ -1129,6 +1189,8 @@ export default function StabPage() {
                                           user={user} 
                                           onEdit={handleEdit}
                                           onDelete={handleDelete}
+                                          onOpenProfileInAdmin={handleOpenProfileInAdmin}
+                                          onToggleHidden={handleToggleHidden}
                                           hasAdminPermissions={hasAdminPermissions}
                                         />
                                       ))}
@@ -1153,6 +1215,8 @@ export default function StabPage() {
                                           user={user} 
                                           onEdit={handleEdit}
                                           onDelete={handleDelete}
+                                          onOpenProfileInAdmin={handleOpenProfileInAdmin}
+                                          onToggleHidden={handleToggleHidden}
                                           hasAdminPermissions={hasAdminPermissions}
                                         />
                                       ))}
@@ -1169,6 +1233,8 @@ export default function StabPage() {
                                     user={user} 
                                     onEdit={handleEdit}
                                     onDelete={handleDelete}
+                                    onOpenProfileInAdmin={handleOpenProfileInAdmin}
+                                    onToggleHidden={handleToggleHidden}
                                     hasAdminPermissions={hasAdminPermissions}
                                   />
                                 ))}
@@ -1194,6 +1260,8 @@ export default function StabPage() {
                                   user={user} 
                                   onEdit={handleEdit}
                                   onDelete={handleDelete}
+                                  onOpenProfileInAdmin={handleOpenProfileInAdmin}
+                                  onToggleHidden={handleToggleHidden}
                                   hasAdminPermissions={hasAdminPermissions}
                                 />
                               ))}
@@ -1262,6 +1330,8 @@ export default function StabPage() {
                                 user={user} 
                                 onEdit={handleEdit}
                                 onDelete={handleDelete}
+                                onOpenProfileInAdmin={handleOpenProfileInAdmin}
+                                onToggleHidden={handleToggleHidden}
                                 hasAdminPermissions={hasAdminPermissions}
                               />
                             ))}
@@ -1293,6 +1363,8 @@ export default function StabPage() {
                         user={user} 
                         onEdit={handleEdit}
                         onDelete={handleDelete}
+                        onOpenProfileInAdmin={handleOpenProfileInAdmin}
+                        onToggleHidden={handleToggleHidden}
                         hasAdminPermissions={hasAdminPermissions}
                       />
                     ))}
@@ -1330,98 +1402,11 @@ export default function StabPage() {
         </SidebarProvider>
       </TooltipProvider>
 
-      {/* User Details Modal */}
-      <Dialog open={!!selectedUser} onOpenChange={() => setSelectedUser(null)}>
-        <DialogContent className="max-w-sm mx-auto w-[95vw] sm:max-w-md sm:w-full">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <User className="h-5 w-5" />
-              Kapcsolattartó Információk
-            </DialogTitle>
-            <DialogDescription>Diák elérhetőségei és részletei</DialogDescription>
-          </DialogHeader>
-          {selectedUser && (
-            <div className="space-y-4">
-              <div className="text-center space-y-2">
-                <UserAvatar
-                  email={selectedUser.email || ''}
-                  firstName={selectedUser.first_name || ''}
-                  lastName={selectedUser.last_name || ''}
-                  username={selectedUser.username || ''}
-                  customSize={64}
-                  className="border-2 border-primary/20 mx-auto"
-                  fallbackClassName="bg-gradient-to-br from-primary/20 to-primary/10 text-lg font-semibold"
-                />
-                <h3 className="text-lg font-semibold">
-                  {selectedUser.full_name || `${selectedUser.last_name} ${selectedUser.first_name}`.trim()}
-                </h3>
-                <div className="flex items-center justify-center gap-2 flex-wrap">
-                  <Badge className={getRoleInfo(selectedUser).color}>
-                    {getRoleInfo(selectedUser).icon} {getRoleInfo(selectedUser).name}
-                  </Badge>
-                  {(selectedUser.osztaly?.display_name || selectedUser.osztaly_name) && (
-                    <Badge variant="outline">{selectedUser.osztaly?.display_name || selectedUser.osztaly_name}</Badge>
-                  )}
-                  {(selectedUser.stab?.name || selectedUser.stab_name) && (
-                    <UserStabBadge stabName={selectedUser.stab?.name || selectedUser.stab_name} />
-                  )}
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                {selectedUser.telefonszam && (
-                  <div className="flex items-center gap-3 p-3 rounded-lg bg-background/50 border border-border/50">
-                    <Phone className="h-4 w-4 text-green-400" />
-                    <div>
-                      <div className="text-sm text-muted-foreground">Telefon</div>
-                      <div className="font-medium">{selectedUser.telefonszam}</div>
-                    </div>
-                  </div>
-                )}
-
-                {selectedUser.email && (
-                  <div className="flex items-center gap-3 p-3 rounded-lg bg-background/50 border border-border/50">
-                    <Mail className="h-4 w-4 text-blue-400" />
-                    <div>
-                      <div className="text-sm text-muted-foreground">Email</div>
-                      <div className="font-medium">{selectedUser.email}</div>
-                    </div>
-                  </div>
-                )}
-
-                {selectedUser.last_login && (
-                  <div className="flex items-center gap-3 p-3 rounded-lg bg-background/50 border border-border/50">
-                    <Clock className="h-4 w-4 text-purple-400" />
-                    <div>
-                      <div className="text-sm text-muted-foreground">Utolsó bejelentkezés</div>
-                      <div className="font-medium">{new Date(selectedUser.last_login).toLocaleString('hu-HU')}</div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <div className="flex gap-2 pt-4">
-                {selectedUser.telefonszam && (
-                  <Button className="flex-1" size="sm" asChild>
-                    <a href={`tel:${selectedUser.telefonszam}`}>
-                      <Phone className="h-4 w-4 mr-2" />
-                      Hívás
-                    </a>
-                  </Button>
-                )}
-                {selectedUser.email && (
-                  <Button variant="outline" className="flex-1 bg-transparent" size="sm" asChild>
-                    <a href={`mailto:${selectedUser.email}`}>
-                      <Mail className="h-4 w-4 mr-2" />
-                      Email
-                    </a>
-                  </Button>
-                )}
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+      <UserDetailsModal
+        open={!!selectedUser}
+        onOpenChange={(isOpen) => !isOpen && setSelectedUser(null)}
+        user={selectedUser}
+      />
     </ProtectedRoute>
   )
 }

@@ -20,7 +20,7 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { UserDetailsModal } from "@/components/user-details-modal"
 import {
   Calendar,
   MapPin,
@@ -730,81 +730,22 @@ export default function FilmingSessionDetail({ params }: PageProps) {
             </div>
 
             {/* Crew Member Modal */}
-            <Dialog open={!!selectedCrewMember} onOpenChange={() => setSelectedCrewMember(null)}>
-              <DialogContent className="sm:max-w-md mx-4 w-[calc(100vw-2rem)] sm:w-full">
-                <DialogHeader>
-                  <DialogTitle className="flex items-center gap-2">
-                    <User className="h-5 w-5" />
-                    Kapcsolattartó Információk
-                  </DialogTitle>
-                  <DialogDescription>Diák elérhetőségei és részletei</DialogDescription>
-                </DialogHeader>
-                {selectedCrewMember && (
-                  <div className="space-y-4">
-                    <div className="text-center space-y-2">
-                      <UserAvatar
-                        email={selectedCrewMember.email || ''}
-                        firstName={selectedCrewMember.firstName || ''}
-                        lastName={selectedCrewMember.lastName || ''}
-                        username={selectedCrewMember.username || ''}
-                        customSize={64}
-                        className="border-2 border-primary/20 mx-auto"
-                        fallbackClassName="bg-gradient-to-br from-primary/20 to-primary/10 text-lg font-semibold"
-                      />
-                      <h3 className="text-lg font-semibold">{selectedCrewMember.name}</h3>
-                      <div className="flex items-center justify-center gap-2">
-                        <Badge variant="secondary">{selectedCrewMember.role}</Badge>
-                        <Badge variant="outline">{selectedCrewMember.class}</Badge>
-                        {selectedCrewMember.stab && (
-                          <UserStabBadge stabName={selectedCrewMember.stab} />
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="space-y-3">
-                      {selectedCrewMember.phone && (
-                        <div className="flex items-center gap-3 p-3 rounded-lg bg-background/50 border border-border/50">
-                          <Phone className="h-4 w-4 text-green-400" />
-                          <div>
-                            <div className="text-sm text-muted-foreground">Telefon</div>
-                            <div className="font-medium">{selectedCrewMember.phone}</div>
-                          </div>
-                        </div>
-                      )}
-
-                      {selectedCrewMember.email && (
-                        <div className="flex items-center gap-3 p-3 rounded-lg bg-background/50 border border-border/50">
-                          <Mail className="h-4 w-4 text-blue-400" />
-                          <div>
-                            <div className="text-sm text-muted-foreground">Email</div>
-                            <div className="font-medium">{selectedCrewMember.email}</div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="flex gap-2 pt-4">
-                      {selectedCrewMember.phone && (
-                        <Button className="flex-1" size="sm" asChild>
-                          <a href={`tel:${selectedCrewMember.phone}`}>
-                            <Phone className="h-4 w-4 mr-2" />
-                            Hívás
-                          </a>
-                        </Button>
-                      )}
-                      {selectedCrewMember.email && (
-                        <Button variant="outline" className="flex-1 bg-transparent" size="sm" asChild>
-                          <a href={`mailto:${selectedCrewMember.email}`}>
-                            <Mail className="h-4 w-4 mr-2" />
-                            Email
-                          </a>
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </DialogContent>
-            </Dialog>
+            <UserDetailsModal
+              open={!!selectedCrewMember}
+              onOpenChange={(isOpen) => !isOpen && setSelectedCrewMember(null)}
+              user={selectedCrewMember ? {
+                id: selectedCrewMember.id,
+                full_name: selectedCrewMember.name,
+                first_name: selectedCrewMember.firstName,
+                last_name: selectedCrewMember.lastName,
+                username: selectedCrewMember.username,
+                email: selectedCrewMember.email,
+                telefonszam: selectedCrewMember.phone,
+                osztaly_name: selectedCrewMember.class,
+                stab_name: selectedCrewMember.stab,
+                contextRole: selectedCrewMember.role,
+              } : null}
+            />
           </div>
         </SidebarInset>
       </SidebarProvider>

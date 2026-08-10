@@ -29,6 +29,7 @@ import { AnnouncementSchema, AnnouncementDetailSchema } from "@/lib/types";
 import { apiClient } from "@/lib/api";
 import { AnnouncementDialog } from "@/components/announcement-dialog";
 import { AnnouncementActions } from "@/components/announcement-actions";
+import { getSchoolYearFromDate } from "@/lib/config/form-data";
 
 export default function MessageBoardPage() {
   const [searchTerm, setSearchTerm] = useState('')
@@ -126,12 +127,17 @@ export default function MessageBoardPage() {
       return `${diffInHours} órája`
     } else {
       return date.toLocaleDateString('hu-HU', { 
+        year: 'numeric',
         month: 'short', 
         day: 'numeric',
         hour: '2-digit',
         minute: '2-digit'
       })
     }
+  }
+
+  const formatSchoolYear = (timestamp: string) => {
+    return `${getSchoolYearFromDate(new Date(timestamp))} tanév`
   }
 
   // Helper function to check if user can edit/delete an announcement
@@ -242,6 +248,8 @@ export default function MessageBoardPage() {
                             <span>{announcement.author?.full_name || 'Rendszer'}</span>
                             <span>•</span>
                             <span>{formatTimestamp(announcement.created_at)}</span>
+                            <span>•</span>
+                            <span>{formatSchoolYear(announcement.created_at)}</span>
                             <span>•</span>
                             <span>{announcement.recipient_count} címzett</span>
                           </CardDescription>
