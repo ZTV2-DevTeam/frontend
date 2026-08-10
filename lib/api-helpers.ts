@@ -351,7 +351,11 @@ export const formatters = {
   },
 
   /**
-   * Format display name for classes
+   * Format display name for classes.
+   *
+   * @deprecated Multi-Tanév: prefer the backend-provided `osztaly.display_name` or
+   * `osztaly.current_display_name`. Kept only for backward compatibility with
+   * code paths that don't have access to the backend-formatted name.
    */
   formatClassName: (osztaly: { start_year: number; szekcio: string }) => {
     return `${osztaly.start_year}${osztaly.szekcio}`

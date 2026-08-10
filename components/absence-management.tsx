@@ -19,6 +19,8 @@ import { BulkActions, SelectionCheckbox } from '@/components/bulk-actions'
 import { AbsenceTypeSelector } from '@/components/absence-type-selector'
 import { AbsenceTypeBadge } from '@/components/absence-type-badge'
 import { MultiSelect } from '@/components/ui/multi-select'
+import { useTanev } from '@/contexts/tanev-context'
+import { TanevSection } from '@/components/archived-tanev'
 import {
   Select,
   SelectContent,
@@ -56,9 +58,13 @@ const columnHelper = createColumnHelper<TavolletSchema>()
 export function AbsenceManagement() {
   const { user } = useAuth()
   const { hasPermission, getCurrentRole } = usePermissions()
+  const { groupByTanev } = useTanev()
   
   const [absences, setAbsences] = useState<TavolletSchema[]>([])
   const [filteredAbsences, setFilteredAbsences] = useState<TavolletSchema[]>([])
+  const [archivedAbsences, setArchivedAbsences] = useState<
+    Array<{ tanev: { id: number; display_name: string; is_active: boolean }; items: TavolletSchema[] }>
+  >([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   
@@ -214,8 +220,13 @@ export function AbsenceManagement() {
       filtered = filtered.filter(a => a.start_date <= filters.dateTo)
     }
 
-    setFilteredAbsences(filtered)
-  }, [absences, filters])
+    // Multi-Tanév: rows tagged with an archived (non-active) Tanév are peeled
+    // off here so the main table & bulk actions only operate on current-Tanév
+    // data. The archived rows are rendered read-only below the main table.
+    const grouping = groupByTanev(filtered, (a: TavolletSchema) => a.tanev ?? null)
+    setFilteredAbsences(grouping.active)
+    setArchivedAbsences(grouping.archived)
+  }, [absences, filters, groupByTanev])
 
   // Reset filters
   const resetFilters = () => {
@@ -1125,6 +1136,41 @@ export function AbsenceManagement() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Archived Tanév absences — read-only view of data from previous school years */}
+      {archivedAbsences.length > 0 && (
+        <div className="space-y-4">
+          {archivedAbsences.map(({ tanev, items }) => (
+            <TanevSection key={tanev.id} tanev={tanev} count={items.length}>
+              <div className="space-y-3">
+                {items.map((absence) => (
+                  <div
+                    key={absence.id}
+                    className="border border-border/50 rounded-xl p-4 bg-card/50 backdrop-blur-sm"
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div className="min-w-0 space-y-1">
+                        <div className="text-sm font-semibold text-foreground truncate">
+                          {absence.user.full_name || `${absence.user.last_name} ${absence.user.first_name}`}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {formatDateTimeForDisplay(absence.start_date)} – {formatDateTimeForDisplay(absence.end_date)}
+                        </div>
+                        {absence.reason && (
+                          <div className="text-xs text-muted-foreground line-clamp-2">
+                            {absence.reason}
+                          </div>
+                        )}
+                      </div>
+                      <StatusBadge status={absence.status} denied={absence.denied} approved={absence.approved} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </TanevSection>
+          ))}
+        </div>
+      )}
 
       {/* Create Dialog */}
       <FormDialog

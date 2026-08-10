@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { StandardizedLayout } from "@/components/standardized-layout"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -18,6 +18,8 @@ import {
   Users,
 } from "lucide-react"
 import { useUserRole } from "@/contexts/user-role-context"
+import { useTanev } from "@/contexts/tanev-context"
+import { TanevSection } from "@/components/archived-tanev"
 import {
   getMyAbsences,
   getStudentAbsenceStatusColor,
@@ -28,6 +30,7 @@ import { StudentAbsenceEditModal } from "./student-absence-edit-modal"
 
 export function StudentAbsenceManagement() {
   const { currentRole } = useUserRole()
+  const { groupByTanev } = useTanev()
   const [absences, setAbsences] = useState<Absence[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -55,6 +58,12 @@ export function StudentAbsenceManagement() {
     loadData()
   }, [])
 
+  // Split absences by tanév (must be called before any early returns)
+  const { currentAbsences, archivedGroups } = useMemo(() => {
+    const grouping = groupByTanev(absences, (a) => a.tanev)
+    return { currentAbsences: grouping.active, archivedGroups: grouping.archived }
+  }, [absences, groupByTanev])
+
   // Check authorization
   if (currentRole !== 'student') {
     return (
@@ -69,14 +78,16 @@ export function StudentAbsenceManagement() {
     )
   }
 
-  // Calculate statistics
+  // Calculate statistics (current tanév only — archived data is shown separately below)
   const stats = {
-    total: absences.length,
-    excused: absences.filter(a => a.excused && !a.unexcused).length,
-    unexcused: absences.filter(a => !a.excused && a.unexcused).length,
-    pending: absences.filter(a => !a.excused && !a.unexcused).length,
-    edited: absences.filter(a => a.student_edited).length,
+    total: currentAbsences.length,
+    excused: currentAbsences.filter(a => a.excused && !a.unexcused).length,
+    unexcused: currentAbsences.filter(a => !a.excused && a.unexcused).length,
+    pending: currentAbsences.filter(a => !a.excused && !a.unexcused).length,
+    edited: currentAbsences.filter(a => a.student_edited).length,
   }
+
+  // Split absences by tanév (current vs archived) — computed above pre-early-return
 
   const handleEditAbsence = (absence: Absence) => {
     setSelectedAbsence(absence)
@@ -285,7 +296,7 @@ export function StudentAbsenceManagement() {
               </div>
             ) : (
               <div className="space-y-6">
-                {absences.map((absence, index) => {
+                {currentAbsences.map((absence, index) => {
                   const getClassCircleColor = (classNum: number) => {
                     const isAffected = absence.student_edited 
                       ? absence.affected_classes_with_student_time.includes(classNum)
@@ -407,6 +418,36 @@ export function StudentAbsenceManagement() {
             )}
           </CardContent>
         </Card>
+
+        {/* Archived Tanév absences (read-only) */}
+        {archivedGroups.length > 0 && (
+          <div className="space-y-4">
+            {archivedGroups.map(({ tanev, items }) => (
+              <TanevSection key={tanev.id} tanev={tanev} count={items.length}>
+                <div className="space-y-2">
+                  {items.map((absence) => (
+                    <div
+                      key={absence.id}
+                      className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-lg bg-background/30 border border-border/30"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <div className="text-sm font-medium truncate">
+                          {absence.forgatas.name}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {absence.date} · {absence.time_from} - {absence.time_to}
+                        </div>
+                      </div>
+                      <Badge className={getStudentAbsenceStatusColor(absence)}>
+                        {getStudentAbsenceStatusText(absence)}
+                      </Badge>
+                    </div>
+                  ))}
+                </div>
+              </TanevSection>
+            ))}
+          </div>
+        )}
 
         {/* Edit Modal */}
         {selectedAbsence && (

@@ -206,6 +206,19 @@ export interface TanevSchema {
   display_name: string
   is_active: boolean
   osztaly_count: number
+  /**
+   * IDs of Osztaly records that belong to this Tanév. Provided by the backend as of
+   * the multi-Tanév rollout. Kept optional; treat "missing" as "unknown" and do not
+   * filter (single narrow fallback lives in contexts/tanev-context.tsx).
+   */
+  osztalyok?: number[]
+}
+
+/** Minimal Tanév reference embedded on records that can span multiple school years. */
+export interface TanevRefSchema {
+  id: number
+  display_name: string
+  is_active: boolean
 }
 
 export interface TanevCreateSchema {
@@ -366,7 +379,7 @@ export interface ForgatSchema {
   related_kacsa?: Record<string, any>
   equipment_ids: number[]
   equipment_count: number
-  tanev?: Record<string, any>
+  tanev?: TanevRefSchema | Record<string, any>
 }
 
 export interface ForgatCreateSchema {
@@ -515,6 +528,7 @@ export interface ClassMatrixResponseSchema {
   class_name: string
   roles: ClassMatrixRoleSchema[]
   members: ClassMatrixMemberSchema[]
+  tanev?: TanevRefSchema
 }
 
 export interface SzerepkorRelacioCreateSchema {
@@ -532,6 +546,7 @@ export interface BeosztasSchema {
   created_at: string
   student_count: number
   roles_summary: { role: string, count: number }[]
+  tanev?: TanevRefSchema
 }
 
 export interface BeosztasDetailSchema extends BeosztasSchema {
@@ -750,6 +765,7 @@ export interface TavolletSchema {
   status: string
   tipus?: TavolletTipusBasicSchema
   teacher_reason?: string
+  tanev?: TanevRefSchema
 }
 
 export interface TavolletCreateSchema {
