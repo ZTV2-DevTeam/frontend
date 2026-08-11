@@ -170,9 +170,13 @@ export default function NewShooting() {
     
     const types = filmingTypes
     
-    // All users (including admins) should NOT see 'kacsa' type - KaCsa Összejátszás should not be selectable
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return types.filter((type: any) => type.value !== 'kacsa')
+    // Students should NOT see 'kacsa' type - only admin roles (admin, class-teacher) can create it
+    if (currentRole === 'student') {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return types.filter((type: any) => type.value !== 'kacsa')
+    }
+
+    return types
   }, [filmingTypes, typesError, currentRole, hasPermission])
 
   // Redirect to login if not authenticated (but wait for loading to complete)
