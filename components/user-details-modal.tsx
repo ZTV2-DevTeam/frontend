@@ -90,6 +90,18 @@ export function UserDetailsModal({ open, onOpenChange, user, children }: UserDet
     }
   }, [open, user?.id])
 
+  // Radix's Dialog can leave `pointer-events: none` stuck on <body> when the
+  // close races with another dismissable layer (e.g. a DropdownMenuItem's
+  // onClick both closing its menu and opening this dialog). Without this,
+  // hover/click stops working on the rest of the page until a reload.
+  useEffect(() => {
+    if (open) return
+    const timeout = window.setTimeout(() => {
+      document.body.style.pointerEvents = ''
+    }, 300)
+    return () => window.clearTimeout(timeout)
+  }, [open])
+
   if (!user) return null
 
   const firstName = profile?.first_name ?? user.first_name ?? ''

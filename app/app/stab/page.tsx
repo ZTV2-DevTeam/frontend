@@ -498,7 +498,6 @@ export default function StabPage() {
   const [isOsztalyNelkulOpen, setIsOsztalyNelkulOpen] = useState<boolean>(false) // Collapsible state
   const [selectedUser, setSelectedUser] = useState<any>(null) // Add state for modal
   const [filterGyartasvezetok, setFilterGyartasvezetok] = useState<boolean>(false) // Add Gyártásvezető filter
-  const [showHiddenUsers, setShowHiddenUsers] = useState<boolean>(false) // Admin-only: show users hidden from this page
   const [usersRefreshKey, setUsersRefreshKey] = useState(0)
   
   // Auto-expand "Osztály nélkül" section when searching
@@ -630,7 +629,7 @@ export default function StabPage() {
       
       const matchesGyartasvezetoFilter = !filterGyartasvezetok || user.gyv === true
       
-      const matchesHiddenFilter = !user.elrejtve || (hasAdminPermissions && showHiddenUsers)
+      const matchesHiddenFilter = !user.elrejtve
       
       return matchesSearch && matchesClass && matchesRole && matchesGyartasvezetoFilter && matchesHiddenFilter
     })
@@ -718,6 +717,20 @@ export default function StabPage() {
       .filter((user: any) => user?.gyv === true)
       .map(() => "gyartasvezeto")
   ])].sort()
+
+  const activeFilterCount = [
+    searchTerm.trim() !== "",
+    selectedClass !== "all",
+    selectedRole !== "all",
+    filterGyartasvezetok,
+  ].filter(Boolean).length
+
+  const clearFilters = () => {
+    setSearchTerm("")
+    setSelectedClass("all")
+    setSelectedRole("all")
+    setFilterGyartasvezetok(false)
+  }
 
   const handleRefresh = () => {
     window.location.reload()
@@ -909,33 +922,43 @@ export default function StabPage() {
               {/* Filters and Controls */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Filter className="h-5 w-5" />
-                    Szűrők és keresés
-                  </CardTitle>
+                  <div className="flex items-center justify-between gap-2">
+                    <CardTitle className="flex items-center gap-2">
+                      <Filter className="h-5 w-5" />
+                      Szűrők és keresés
+                    </CardTitle>
+                    {activeFilterCount > 0 && (
+                      <Button
+                        onClick={clearFilters}
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 px-2 text-xs text-muted-foreground hover:text-foreground"
+                      >
+                        Törlés ({activeFilterCount})
+                      </Button>
+                    )}
+                  </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="grid gap-x-4 gap-y-2 md:grid-cols-2 lg:grid-cols-6">
-                    {/* Search */}
-                    <div className="lg:col-span-2 flex flex-col gap-2">
-                      <Label htmlFor="search">Keresés</Label>
-                      <div className="relative">
-                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                        <Input
-                          id="search"
-                          placeholder="Név, felhasználónév, email vagy telefonszám..."
-                          value={searchTerm}
-                          onChange={(e) => setSearchTerm(e.target.value)}
-                          className="pl-9"
-                        />
-                      </div>
-                    </div>
+                  {/* Search - full width, always its own row for easy mobile tapping */}
+                  <div className="relative">
+                    <Label htmlFor="search" className="sr-only">Keresés</Label>
+                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      id="search"
+                      placeholder="Név, felhasználónév, email vagy telefonszám..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-9"
+                    />
+                  </div>
 
-                    {/* Group By */}
-                    <div className="flex flex-col gap-2">
-                      <Label>Csoportosítás</Label>
+                  {/* Filter selects - 2 columns on mobile, 4 across on larger screens */}
+                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                    <div className="flex flex-col gap-1.5">
+                      <Label className="text-xs font-normal text-muted-foreground">Csoportosítás</Label>
                       <Select value={groupBy} onValueChange={(value: "class" | "role" | "none") => setGroupBy(value)}>
-                        <SelectTrigger>
+                        <SelectTrigger className="w-full">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -946,12 +969,11 @@ export default function StabPage() {
                       </Select>
                     </div>
 
-                    {/* Class Filter */}
-                    <div className="flex flex-col gap-2">
-                      <Label>Osztály</Label>
+                    <div className="flex flex-col gap-1.5">
+                      <Label className="text-xs font-normal text-muted-foreground">Osztály</Label>
                       <Select value={selectedClass} onValueChange={setSelectedClass}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Osztály szűrése" />
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Minden osztály" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="all">Minden osztály</SelectItem>
@@ -964,12 +986,11 @@ export default function StabPage() {
                       </Select>
                     </div>
 
-                    {/* Role Filter */}
-                    <div className="flex flex-col gap-2">
-                      <Label>Szerepkör</Label>
+                    <div className="flex flex-col gap-1.5">
+                      <Label className="text-xs font-normal text-muted-foreground">Szerepkör</Label>
                       <Select value={selectedRole} onValueChange={setSelectedRole}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Szerepkör szűrése" />
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Minden szerepkör" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="all">Minden szerepkör</SelectItem>
@@ -989,11 +1010,10 @@ export default function StabPage() {
                       </Select>
                     </div>
 
-                    {/* Sort */}
-                    <div className="flex flex-col gap-2">
-                      <Label>Rendezés</Label>
+                    <div className="flex flex-col gap-1.5">
+                      <Label className="text-xs font-normal text-muted-foreground">Rendezés</Label>
                       <Select value={sortBy} onValueChange={setSortBy}>
-                        <SelectTrigger>
+                        <SelectTrigger className="w-full">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -1004,39 +1024,20 @@ export default function StabPage() {
                       </Select>
                     </div>
                   </div>
-                  
-                  {/* Additional Filters Row */}
-                  <div className="flex items-center gap-4 pt-2 border-t border-border/50">
-                    <div className="flex items-center space-x-2">
-                      <Toggle
-                        pressed={filterGyartasvezetok}
-                        onPressedChange={setFilterGyartasvezetok}
-                        aria-label="Filter Gyártásvezetők"
-                        variant="outline"
-                        size="sm"
-                      >
-                        <Filter className="h-4 w-4 mr-2" />
-                        Filter Gyártásvezetők
-                      </Toggle>
-                      <span className="text-xs text-muted-foreground">
-                        {filterGyartasvezetok ? 'Csak gyártásvezetők' : 'Minden felhasználó'}
-                      </span>
-                    </div>
 
-                    {hasAdminPermissions && (
-                      <div className="flex items-center space-x-2">
-                        <Toggle
-                          pressed={showHiddenUsers}
-                          onPressedChange={setShowHiddenUsers}
-                          aria-label="Elrejtett felhasználók megjelenítése"
-                          variant="outline"
-                          size="sm"
-                        >
-                          <EyeOff className="h-4 w-4 mr-2" />
-                          Elrejtett felhasználók
-                        </Toggle>
-                      </div>
-                    )}
+                  {/* Gyártásvezető filter toggle */}
+                  <div className="flex items-center pt-3 border-t border-border/50">
+                    <Toggle
+                      pressed={filterGyartasvezetok}
+                      onPressedChange={setFilterGyartasvezetok}
+                      aria-label="Csak gyártásvezetők mutatása"
+                      variant="outline"
+                      size="sm"
+                      className="gap-1.5"
+                    >
+                      <Filter className="h-3.5 w-3.5" />
+                      Csak gyártásvezetők
+                    </Toggle>
                   </div>
                 </CardContent>
               </Card>
@@ -1418,10 +1419,7 @@ export default function StabPage() {
                       </p>
                     </div>
                     <Button onClick={() => {
-                      setSearchTerm("")
-                      setSelectedClass("all")
-                      setSelectedRole("all")
-                      setFilterGyartasvezetok(false)
+                      clearFilters()
                       setGroupBy("class") // Reset to default class grouping
                     }} variant="outline">
                       Szűrők törlése
