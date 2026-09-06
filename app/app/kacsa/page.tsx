@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo, useCallback } from "react"
+import { useState, useMemo, useCallback, useEffect, useRef } from "react"
 import { StandardizedLayout } from "@/components/standardized-layout"
 import { useApiQuery } from "@/lib/api-helpers"
 import { apiClient } from "@/lib/api"
@@ -30,6 +30,7 @@ import {
   Type,
   Calendar as CalendarSort
 } from "lucide-react"
+import { Loader2 } from "lucide-react"
 import { DuckIcon } from "@/components/icons/duck-icon"
 import {
   DropdownMenu,
@@ -40,11 +41,12 @@ import {
   DropdownMenuLabel
 } from "@/components/ui/dropdown-menu"
 import Link from "next/link"
-import { format } from "date-fns"
+import { format, subDays } from "date-fns"
 import { hu } from "date-fns/locale"
 
 import { usePermissions } from "@/contexts/permissions-context"
-import { StabBadge } from "@/components/stab-badge"
+import { StabBadge, getStabTeam } from "@/components/stab-badge"
+import { KacsaTitle } from "@/components/kacsa-title"
 import { ForgatásokLoading } from "@/components/forgatasok-loading"
 import { useTanev } from "@/contexts/tanev-context"
 import { TanevSection } from "@/components/archived-tanev"
@@ -90,22 +92,59 @@ export default function KacsaOsszejatszasokPage() {
       return timeStr
     }
   }
-  
-  // API queries - fetch optimized data with all relations in one call
+
+  const todayStr = useMemo(() => format(new Date(), 'yyyy-MM-dd'), [])
+  const yesterdayStr = useMemo(() => format(subDays(new Date(), 1), 'yyyy-MM-dd'), [])
+
+  // API queries - fetch optimized data with all relations in one call.
+  // Only current & upcoming sessions are fetched eagerly; past sessions are
+  // loaded lazily (see loadPastSessions) once the user actually needs them.
   const filmingQuery = useApiQuery(
     () => {
       if (!isAuthenticated) return Promise.resolve([])
       
       // Use optimized endpoint for kacsa (collaboration) sessions
-      return apiClient.getFilmingSessionsOptimized(undefined, undefined, 'kacsa')
+      return apiClient.getFilmingSessionsOptimized(todayStr, undefined, 'kacsa')
     },
-    [isAuthenticated]
+    [isAuthenticated, todayStr]
   )
 
   const { data: filmingData = [], loading, error } = filmingQuery
 
+  const [pastData, setPastData] = useState<any[]>([])
+  const [pastLoaded, setPastLoaded] = useState(false)
+  const [pastLoading, setPastLoading] = useState(false)
+  const pastLoadingRef = useRef(false)
+
+  const loadPastSessions = useCallback(async () => {
+    if (!isAuthenticated || pastLoadingRef.current || pastLoaded) return
+    pastLoadingRef.current = true
+    setPastLoading(true)
+    try {
+      const data = await apiClient.getFilmingSessionsOptimized(undefined, yesterdayStr, 'kacsa')
+      setPastData(Array.isArray(data) ? data : [])
+      setPastLoaded(true)
+    } catch (err) {
+      console.error('Failed to load past kacsa sessions:', err)
+    } finally {
+      pastLoadingRef.current = false
+      setPastLoading(false)
+    }
+  }, [isAuthenticated, yesterdayStr, pastLoaded])
+
+  // Trigger the past-sessions fetch only when the user opens the collapsible,
+  // or picks a sort mode that shows everything in one flat (non date-limited) list.
+  useEffect(() => {
+    if (showPastEvents || sortBy !== 'relevance') {
+      loadPastSessions()
+    }
+  }, [showPastEvents, sortBy, loadPastSessions])
+
   // Computed values - data already includes all related information
-  const allSessions = useMemo(() => Array.isArray(filmingData) ? filmingData : [], [filmingData])
+  const allSessions = useMemo(
+    () => [...(Array.isArray(filmingData) ? filmingData : []), ...pastData],
+    [filmingData, pastData]
+  )
 
   // Multi-Tanév: separate archived-Tanév sessions from the current-Tanév ones.
   const tanevGrouping = useMemo(
@@ -189,24 +228,12 @@ export default function KacsaOsszejatszasokPage() {
       roles: assignment.roles_summary,
       assignmentStab: assignment.stab,
       crewMembers: assignedUsers.map((userWithRole: any) => {
-        // Extract class from username as fallback
-        const extractClassFromUsername = (username: string) => {
-          const match = username.match(/(\d{1,2}[a-zA-Z]+)_/)
-          if (match) {
-            return match[1].toUpperCase()
-          }
-          return null
-        }
-
-        const extractedClass = extractClassFromUsername(userWithRole.username)
-        
         return {
           id: userWithRole.id,
           name: userWithRole.full_name || `${userWithRole.last_name} ${userWithRole.first_name}`,
           role: userWithRole.role.name,
-          class: extractedClass || 'Osztály nincs megadva',
-          team: userWithRole.username?.includes('a') ? 'A' : 
-                userWithRole.username?.includes('b') ? 'B' : undefined
+          class: userWithRole.profile?.osztaly_name || 'N/A',
+          team: getStabTeam(userWithRole.profile?.stab)
         }
       })
     }
@@ -358,7 +385,7 @@ export default function KacsaOsszejatszasokPage() {
 
             {/* Content */}
             <div className="flex-1 space-y-3">
-              <h3 className="font-semibold text-sm leading-tight line-clamp-2 min-h-[2.5rem]">{session.name}</h3>
+              <h3 className="font-semibold text-sm leading-tight line-clamp-2 min-h-[2.5rem]"><KacsaTitle name={session.name} /></h3>
 
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -493,7 +520,7 @@ export default function KacsaOsszejatszasokPage() {
               <div className="flex-1 min-w-0 space-y-3">
                 <div>
                   <div className="flex items-center gap-2 mb-1 flex-wrap">
-                    <h3 className="font-semibold text-sm truncate">{session.name}</h3>
+                    <h3 className="font-semibold text-sm truncate"><KacsaTitle name={session.name} /></h3>
                     {isUserInvolved && (
                       <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-blue-500/20 border border-blue-500/30">
                         <Star className="h-3 w-3 text-blue-400 fill-blue-400" />
@@ -826,8 +853,8 @@ export default function KacsaOsszejatszasokPage() {
                   </div>
                 )}
 
-                {/* Past Events - Collapsible */}
-                {pastSessions.length > 0 && (
+                {/* Past Events - Collapsible; not fetched until opened */}
+                {(pastLoaded ? pastSessions.length > 0 : true) && (
                   <div className="space-y-4">
                     <Button
                       variant="ghost"
@@ -843,14 +870,19 @@ export default function KacsaOsszejatszasokPage() {
                         <Calendar className="h-5 w-5 text-muted-foreground" />
                         <h2 className="text-lg sm:text-xl font-semibold">Elmúlt Forgatások</h2>
                         <Badge variant="secondary" className="text-xs">
-                          {pastSessions.length}
+                          {pastLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : pastLoaded ? pastSessions.length : ''}
                         </Badge>
                       </div>
                     </Button>
 
                     {showPastEvents && (
                       <div className="animate-in slide-in-from-top-2 duration-300">
-                        {viewMode === "grid" ? (
+                        {pastLoading && pastSessions.length === 0 ? (
+                          <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground py-6">
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            Korábbi forgatások betöltése…
+                          </div>
+                        ) : viewMode === "grid" ? (
                           <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 opacity-70">
                             {pastSessions.map((session, index) => (
                               <div
@@ -972,8 +1004,8 @@ export default function KacsaOsszejatszasokPage() {
                   </div>
                 )}
 
-                {/* Past Personal Events - Collapsible */}
-                {pastSessions.length > 0 && (
+                {/* Past Personal Events - Collapsible; not fetched until opened */}
+                {(pastLoaded ? pastSessions.length > 0 : true) && (
                   <div className="space-y-4">
                     <Button
                       variant="ghost"
@@ -989,7 +1021,7 @@ export default function KacsaOsszejatszasokPage() {
                         <Calendar className="h-5 w-5 text-muted-foreground" />
                         <h2 className="text-lg sm:text-xl font-semibold">Saját Elmúlt Forgatások</h2>
                         <Badge variant="secondary" className="text-xs">
-                          {pastSessions.length}
+                          {pastLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : pastLoaded ? pastSessions.length : ''}
                         </Badge>
                       </div>
                     </Button>

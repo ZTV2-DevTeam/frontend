@@ -39,6 +39,7 @@ import { useApiQuery } from "@/lib/api-helpers"
 import { ForgatSchema, EquipmentSchema, EquipmentOverviewSchema } from "@/lib/types"
 import { apiClient } from "@/lib/api"
 import { ApiError } from "@/components/api-error"
+import { KacsaTitle } from "@/components/kacsa-title"
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, startOfWeek, endOfWeek } from "date-fns"
 import { hu } from "date-fns/locale"
 
@@ -762,7 +763,7 @@ export default function CalendarPage() {
                                     }}
                                   >
                                     <div className="truncate font-medium">
-                                      {event.title}
+                                      <KacsaTitle name={event.title} />
                                     </div>
                                     <div className="truncate text-xs opacity-75">
                                       {(() => {
@@ -820,7 +821,7 @@ export default function CalendarPage() {
                                 {getEventIcon()}
                               </div>
                               <div className="flex-1 min-w-0">
-                                <div className="font-medium text-sm sm:text-base truncate">{event.title}</div>
+                                <div className="font-medium text-sm sm:text-base truncate"><KacsaTitle name={event.title} /></div>
                                 <div className="text-xs sm:text-sm text-muted-foreground mt-1 line-clamp-2">
                                   {event.description.substring(0, 80)}
                                   {event.description.length > 80 ? '...' : ''}
@@ -887,7 +888,7 @@ export default function CalendarPage() {
                               <div className="p-1 bg-primary/10 rounded">
                                 {getEventIcon()}
                               </div>
-                              <div className="font-medium text-sm">{event.title}</div>
+                              <div className="font-medium text-sm"><KacsaTitle name={event.title} /></div>
                             </div>
                             <Badge className={`text-xs ${getEventBadgeColor(event.type)}`}>
                               {event.typeDisplay}
@@ -931,7 +932,7 @@ export default function CalendarPage() {
               <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto mx-4 sm:mx-0">
                 <DialogHeader className="pb-4">
                   <DialogTitle className="text-lg sm:text-xl">
-                    {selectedSession?.name || "Forgatás részletei"}
+                    {selectedSession ? <KacsaTitle name={selectedSession.name} /> : "Forgatás részletei"}
                   </DialogTitle>
                 </DialogHeader>
                 

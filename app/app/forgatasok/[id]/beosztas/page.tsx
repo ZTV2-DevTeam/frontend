@@ -11,6 +11,7 @@ import type { SzerepkorSchema, BeosztasWithAvailabilitySchema, EquipmentSchema, 
 import { ApiErrorBoundary } from "@/components/api-error-boundary"
 import { ApiErrorFallback } from "@/components/api-error-fallback"
 import { StabBadge, UserStabBadge } from "@/components/stab-badge"
+import { KacsaTitle } from "@/components/kacsa-title"
 import { UserAvatar } from "@/components/user-avatar"
 import { UserDetailsModal } from "@/components/user-details-modal"
 import { RemoveStudentConfirmation } from "@/components/remove-student-confirmation"
@@ -874,7 +875,7 @@ export default function BeosztasDetailPage({ params }: PageProps) {
                   <Users className="h-5 w-5 sm:h-6 sm:w-6 text-purple-400 flex-shrink-0 mt-1 sm:mt-0" />
                   <div className="min-w-0 flex-1">
                     <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent break-words">
-                      Beosztás - {session.name}
+                      Beosztás - <KacsaTitle name={session.name} />
                     </h1>
                   </div>
                 </div>

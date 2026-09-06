@@ -2,6 +2,19 @@
 
 import { Badge } from "./ui/badge"
 
+/**
+ * Derive the A/B team letter from a Stab's name (e.g. "A stáb" -> "A").
+ * Returns undefined when the stab is missing or doesn't match either team
+ * (e.g. a "None"/unassigned stab) - callers should treat that as "no badge".
+ */
+export function getStabTeam(stab?: { name?: string | null } | null): 'A' | 'B' | undefined {
+  const name = stab?.name?.toLowerCase()
+  if (!name) return undefined
+  if (name.includes('a stáb') || name.includes('a-stáb')) return 'A'
+  if (name.includes('b stáb') || name.includes('b-stáb')) return 'B'
+  return undefined
+}
+
 interface StabBadgeProps {
   stab: {
     id: number

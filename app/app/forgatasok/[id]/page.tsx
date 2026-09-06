@@ -11,6 +11,7 @@ import type { EquipmentSchema, BeosztasSchema } from "@/lib/types"
 import { ApiErrorBoundary } from "@/components/api-error-boundary"
 import { ApiErrorFallback } from "@/components/api-error-fallback"
 import { StabBadge, UserStabBadge } from "@/components/stab-badge"
+import { KacsaTitle } from "@/components/kacsa-title"
 import { UserAvatar } from "@/components/user-avatar"
 import { GoogleCalendarButton } from "@/components/google-calendar-button"
 import {
@@ -235,7 +236,7 @@ export default function FilmingSessionDetail({ params }: PageProps) {
                     }`}
                   />
                   <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-                    {session.name}
+                    <KacsaTitle name={session.name} />
                   </h1>
                 </div>
                 <p className="text-muted-foreground">Forgatás részletes információi</p>

@@ -20,6 +20,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { ArrowUpDown, Table as TableIcon } from "lucide-react"
 import { useTanev } from "@/contexts/tanev-context"
 import { ArchivedTanevBanner } from "@/components/archived-tanev"
+import { KacsaTitle } from "@/components/kacsa-title"
 
 export default function CsoportstatisztikaPage() {
   const { user } = useAuth()
@@ -189,7 +190,7 @@ export default function CsoportstatisztikaPage() {
                                   <ul className="text-xs space-y-2 list-none pl-0 text-left m-0">
                                     {cell?.occurrences.map((occ, idx) => (
                                       <li key={idx} className="flex flex-col gap-0.5 bg-muted/30 p-2 rounded-sm">
-                                        <span className="font-medium text-foreground">{occ.forgatas_name}</span>
+                                        <span className="font-medium text-foreground"><KacsaTitle name={occ.forgatas_name} /></span>
                                         <span className="text-muted-foreground/80">{occ.date} {occ.time.substring(0, 5)}</span>
                                       </li>
                                     ))}
@@ -231,7 +232,7 @@ export default function CsoportstatisztikaPage() {
                                    <ul className="text-xs space-y-2 list-none pl-0 text-left m-0">
                                      {cell?.occurrences.map((occ, idx) => (
                                        <li key={idx} className="flex flex-col gap-0.5 bg-muted/30 p-2 rounded-sm">
-                                         <span className="font-medium text-foreground">{occ.forgatas_name}</span>
+                                         <span className="font-medium text-foreground"><KacsaTitle name={occ.forgatas_name} /></span>
                                          <span className="text-muted-foreground/80">{occ.date} {occ.time.substring(0, 5)}</span>
                                        </li>
                                      ))}
