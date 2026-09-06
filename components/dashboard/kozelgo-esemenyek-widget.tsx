@@ -10,6 +10,7 @@ import { useAuth } from "@/contexts/auth-context"
 import { format, parseISO } from "date-fns"
 import { hu } from "date-fns/locale"
 import { ChevronDown, ChevronUp, MapPin, User, Info, Wrench, CalendarIcon, Clock } from "lucide-react"
+import { KacsaTitle } from "@/components/kacsa-title"
 
 export function KozelgoEsemenyekWidget() {
   const router = useRouter()
@@ -120,7 +121,7 @@ export function KozelgoEsemenyekWidget() {
                         </span>
                       </div>
                       <h4 className="font-bold text-lg leading-none mb-1.5 truncate">
-                        {session.name}
+                        <KacsaTitle name={session.name} />
                       </h4>
                       <div className="text-sm text-muted-foreground flex items-center gap-1">
                         <span className="capitalize">{dayOfWeek}.</span>

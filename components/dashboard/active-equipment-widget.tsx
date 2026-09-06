@@ -10,6 +10,7 @@ import { format } from "date-fns"
 import { hu } from "date-fns/locale"
 import type { EquipmentOverviewSchema } from "@/lib/api"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { KacsaTitle } from "@/components/kacsa-title"
 
 function getEquipmentIcon(type: string) {
   const typeLower = type.toLowerCase()
@@ -151,7 +152,7 @@ export function ActiveEquipmentWidget() {
                       <div key={booking.forgatas_id} className="flex flex-col text-xs bg-muted/40 p-1.5 rounded">
                         <div className="flex justify-between items-start mb-0.5">
                           <span className="font-medium truncate pr-1" title={booking.forgatas_name}>
-                            {booking.forgatas_name}
+                            <KacsaTitle name={booking.forgatas_name} />
                           </span>
                           <span className="text-muted-foreground whitespace-nowrap shrink-0 ml-1">
                             {booking.time_from.substring(0, 5)} - {booking.time_to.substring(0, 5)}

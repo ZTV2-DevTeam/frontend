@@ -70,6 +70,7 @@ import { VersionInfo } from "@/components/version-info"
 import { SystemMessages } from "@/components/system-messages"
 import { KozelgoEsemenyekWidget } from "@/components/dashboard/kozelgo-esemenyek-widget"
 import { ActiveEquipmentWidget } from "@/components/dashboard/active-equipment-widget"
+import { KacsaTitle } from "@/components/kacsa-title"
 import { Shadow } from "@tsparticles/engine"
 import { getCurrentSeasonalTheme, getSeasonalThemeConfig } from "@/lib/seasonal-themes"
 
@@ -712,7 +713,7 @@ function FuggoForgatasokWidget() {
                     <div key={forgatas.id} className="p-3 border border-red-200 rounded-lg bg-red-50 dark:bg-red-950/20 dark:border-red-800">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div className="flex-1 min-w-0">
-                          <div className="font-medium text-sm text-red-900 dark:text-red-100 truncate">{forgatas.name}</div>
+                          <div className="font-medium text-sm text-red-900 dark:text-red-100 truncate"><KacsaTitle name={forgatas.name} /></div>
                           <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 text-xs text-red-700 dark:text-red-300 mt-1">
                             {forgatas.date && (
                               <div className="flex items-center gap-1 shrink-0">
@@ -765,7 +766,7 @@ function FuggoForgatasokWidget() {
                     <div key={forgatas.id} className="p-3 border border-yellow-200 rounded-lg bg-yellow-50 dark:bg-yellow-950/20 dark:border-yellow-800">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div className="flex-1 min-w-0">
-                          <div className="font-medium text-sm text-yellow-900 dark:text-yellow-100 truncate">{forgatas.name}</div>
+                          <div className="font-medium text-sm text-yellow-900 dark:text-yellow-100 truncate"><KacsaTitle name={forgatas.name} /></div>
                           <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 text-xs text-yellow-700 dark:text-yellow-300 mt-1">
                             {forgatas.date && (
                               <div className="flex items-center gap-1 shrink-0">
@@ -972,7 +973,7 @@ function UpcomingShootingsWidget() {
                 <Camera className="h-5 w-5 text-muted-foreground" />
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="font-medium">{session.title || session.name}</span>
+                    <span className="font-medium"><KacsaTitle name={session.title || session.name} /></span>
                     {index === 0 && (
                       <Badge variant="default" className="text-xs">
                         Következő
