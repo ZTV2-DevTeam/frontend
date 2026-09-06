@@ -406,6 +406,8 @@ export function StudentAbsenceManagement() {
                           size="sm"
                           variant="outline"
                           className="flex items-center justify-center gap-2 w-full sm:w-auto"
+                          disabled={absence.can_be_corrected === false}
+                          title={absence.can_be_corrected === false ? "Több napos forgatáshoz tartozó hiányzás nem korrigálható" : undefined}
                         >
                           <Edit2 className="h-4 w-4" />
                           <span>Korrigálás</span>

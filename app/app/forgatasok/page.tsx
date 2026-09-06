@@ -48,16 +48,7 @@ import { StabBadge, getStabTeam } from "@/components/stab-badge"
 import { ForgatásokLoading } from "@/components/forgatasok-loading"
 import { useTanev } from "@/contexts/tanev-context"
 import { TanevSection } from "@/components/archived-tanev"
-
-// Date helper for better formatting
-const formatSessionDate = (dateStr: string) => {
-  try {
-    const date = new Date(dateStr)
-    return format(date, 'yyyy. MMMM dd. (EEEE)', { locale: hu })
-  } catch {
-    return dateStr
-  }
-}
+import { formatSessionDateRange, formatSessionTimeRange } from "@/lib/format-session-date"
 
 type CrewMember = {
   id: number
@@ -81,16 +72,6 @@ export default function FilmingSessionsPage() {
   const { user, isAuthenticated } = useAuth()
   const { hasPermission } = usePermissions()
   const { groupByTanev } = useTanev()
-
-  // Format time to remove seconds (HH:MM:SS -> HH:MM)
-  const formatTime = (timeStr: string) => {
-    try {
-      const [hours, minutes] = timeStr.split(':')
-      return `${hours}:${minutes}`
-    } catch {
-      return timeStr
-    }
-  }
 
   const todayStr = useMemo(() => format(new Date(), 'yyyy-MM-dd'), [])
   const yesterdayStr = useMemo(() => format(subDays(new Date(), 1), 'yyyy-MM-dd'), [])
@@ -410,10 +391,10 @@ export default function FilmingSessionsPage() {
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <Calendar className="h-3 w-3 flex-shrink-0" />
                   <span className="truncate">
-                    {formatSessionDate(session.date)}
+                    {formatSessionDateRange(session)}
                     {session.time_from && session.time_to && (
                       <span className="ml-2 font-medium">
-                        {formatTime(session.time_from)} - {formatTime(session.time_to)}
+                        {formatSessionTimeRange(session)}
                       </span>
                     )}
                   </span>
@@ -559,10 +540,10 @@ export default function FilmingSessionsPage() {
                     <span className="flex items-center gap-1">
                       <Calendar className="h-3 w-3" />
                       <span className="truncate">
-                        {formatSessionDate(session.date)}
+                        {formatSessionDateRange(session)}
                         {session.time_from && session.time_to && (
                           <span className="ml-2 font-medium">
-                            {formatTime(session.time_from)} - {formatTime(session.time_to)}
+                            {formatSessionTimeRange(session)}
                           </span>
                         )}
                       </span>

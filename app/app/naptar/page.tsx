@@ -42,6 +42,7 @@ import { ApiError } from "@/components/api-error"
 import { KacsaTitle } from "@/components/kacsa-title"
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, startOfWeek, endOfWeek } from "date-fns"
 import { hu } from "date-fns/locale"
+import { formatSessionDateRange, formatSessionTimeRange, isSessionMultiDay } from "@/lib/format-session-date"
 
 export default function CalendarPage() {
   const [currentDate, setCurrentDate] = useState(new Date())
@@ -86,6 +87,8 @@ export default function CalendarPage() {
       id: `filming-${session.id}`,
       title: session.name || "Névtelen forgatás",
       date: session.date || "",
+      endDate: session.end_date || session.date || "",
+      isMultiDay: isSessionMultiDay(session),
       time: `${session.time_from || "00:00"} - ${session.time_to || "00:00"}`,
       location: session.location?.name || "Nem megadott",
       type: session.type || "filming",
@@ -116,13 +119,13 @@ export default function CalendarPage() {
   const calendarEnd = endOfWeek(monthEnd, { weekStartsOn: 1 })
   const calendarDays = eachDayOfInterval({ start: calendarStart, end: calendarEnd })
 
-  // Get events for a specific day
+  // Get events for a specific day - multi-day sessions show up on every day they span
   const getEventsForDay = (day: Date) => {
     if (!filteredSessions || filteredSessions.length === 0) {
       return []
     }
     const dayString = format(day, 'yyyy-MM-dd')
-    return filteredSessions.filter(event => event.date === dayString)
+    return filteredSessions.filter(event => dayString >= event.date && dayString <= (event.endDate || event.date))
   }
 
   // Get events for selected day
@@ -179,7 +182,7 @@ export default function CalendarPage() {
             <div className="min-w-0 flex-1">
               <div className="font-medium text-sm">Dátum</div>
               <div className="text-sm text-muted-foreground truncate">
-                {formatSessionDate(session.date)}
+                {formatSessionDateRange(session)}
               </div>
             </div>
           </div>
@@ -192,7 +195,7 @@ export default function CalendarPage() {
               <div className="font-medium text-sm">Időpont</div>
               <div className="text-sm text-muted-foreground truncate">
                 {session.time_from && session.time_to 
-                  ? `${formatTime(session.time_from)} - ${formatTime(session.time_to)}`
+                  ? formatSessionTimeRange(session)
                   : 'Nincs megadva'
                 }
               </div>

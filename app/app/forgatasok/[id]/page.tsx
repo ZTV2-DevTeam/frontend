@@ -11,6 +11,7 @@ import type { EquipmentSchema, BeosztasSchema } from "@/lib/types"
 import { ApiErrorBoundary } from "@/components/api-error-boundary"
 import { ApiErrorFallback } from "@/components/api-error-fallback"
 import { StabBadge, UserStabBadge } from "@/components/stab-badge"
+import { formatSessionDateRange, formatSessionTimeRange } from "@/lib/format-session-date"
 import { KacsaTitle } from "@/components/kacsa-title"
 import { UserAvatar } from "@/components/user-avatar"
 import { GoogleCalendarButton } from "@/components/google-calendar-button"
@@ -49,26 +50,6 @@ interface PageProps {
   params: Promise<{
     id: string
   }>
-}
-
-// Date helper for better formatting
-const formatSessionDate = (dateStr: string) => {
-  try {
-    const date = new Date(dateStr)
-    return format(date, 'yyyy. MMMM dd. (EEEE)', { locale: hu })
-  } catch {
-    return dateStr
-  }
-}
-
-// Time helper
-const formatTime = (timeStr: string) => {
-  try {
-    const [hours, minutes] = timeStr.split(':')
-    return `${hours}:${minutes}`
-  } catch {
-    return timeStr
-  }
 }
 
 interface CrewMember {
@@ -311,7 +292,7 @@ export default function FilmingSessionDetail({ params }: PageProps) {
                           <Calendar className="h-4 w-4 text-green-400" />
                           <div>
                             <div className="text-sm text-muted-foreground">Dátum</div>
-                            <div className="font-medium">{formatSessionDate(session.date)}</div>
+                            <div className="font-medium">{formatSessionDateRange(session)}</div>
                           </div>
                         </div>
                       </div>
@@ -322,7 +303,7 @@ export default function FilmingSessionDetail({ params }: PageProps) {
                           <div>
                             <div className="text-sm text-muted-foreground">Időpont</div>
                             <div className="font-medium">
-                              {formatTime(session.time_from)} - {formatTime(session.time_to)}
+                              {formatSessionTimeRange(session)}
                             </div>
                           </div>
                         </div>

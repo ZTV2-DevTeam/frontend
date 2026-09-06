@@ -718,7 +718,10 @@ function FuggoForgatasokWidget() {
                             {forgatas.date && (
                               <div className="flex items-center gap-1 shrink-0">
                                 <Calendar className="h-3 w-3" />
-                                <span>{formatSessionDate(forgatas.date)}</span>
+                                <span>
+                                  {formatSessionDate(forgatas.date)}
+                                  {forgatas.is_multi_day && forgatas.end_date && ` – ${formatSessionDate(forgatas.end_date)}`}
+                                </span>
                               </div>
                             )}
                             {forgatas.time && (
@@ -771,7 +774,10 @@ function FuggoForgatasokWidget() {
                             {forgatas.date && (
                               <div className="flex items-center gap-1 shrink-0">
                                 <Calendar className="h-3 w-3" />
-                                <span>{formatSessionDate(forgatas.date)}</span>
+                                <span>
+                                  {formatSessionDate(forgatas.date)}
+                                  {forgatas.is_multi_day && forgatas.end_date && ` – ${formatSessionDate(forgatas.end_date)}`}
+                                </span>
                               </div>
                             )}
                             {forgatas.time && (
@@ -983,7 +989,10 @@ function UpcomingShootingsWidget() {
                   <div className="flex items-center gap-4 text-sm text-muted-foreground">
                     <div className="flex items-center gap-1">
                       <Calendar className="h-3 w-3" />
-                      <span>{session.date || 'Nincs dátum'}</span>
+                      <span>
+                        {session.date || 'Nincs dátum'}
+                        {session.is_multi_day && session.end_date && ` – ${session.end_date}`}
+                      </span>
                     </div>
                     <div className="flex items-center gap-1">
                       <Globe className="h-3 w-3" />

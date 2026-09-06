@@ -372,6 +372,10 @@ export interface ForgatSchema {
   date: string
   time_from: string
   time_to: string
+  end_date?: string
+  is_multi_day?: boolean
+  start_datetime?: string
+  end_datetime?: string
   location?: Record<string, any>
   contact_person?: ContactPersonSchema
   notes?: string
@@ -389,6 +393,7 @@ export interface ForgatCreateSchema {
   date: string
   time_from: string
   time_to: string
+  end_date?: string
   location_id?: number
   contact_person_id?: number
   szerkeszto_id?: number
@@ -404,6 +409,7 @@ export interface ForgatUpdateSchema {
   date?: string
   time_from?: string
   time_to?: string
+  end_date?: string
   location_id?: number
   contact_person_id?: number
   notes?: string
@@ -919,6 +925,8 @@ export interface PendingFilmingSessionItemSchema {
   id: number
   name: string
   date: string
+  end_date?: string
+  is_multi_day?: boolean
   location: string
   time: string
   szerkeszto: string | null

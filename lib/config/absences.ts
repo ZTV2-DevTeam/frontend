@@ -20,6 +20,8 @@ export interface Absence {
     date: string
     time_from: string
     time_to: string
+    end_date?: string
+    is_multi_day?: boolean
     type: string
   }
   date: string
@@ -37,6 +39,8 @@ export interface Absence {
   student_edit_note?: string
   effective_time_from: string
   effective_time_to: string
+  is_multi_day?: boolean
+  can_be_corrected?: boolean
   osztaly?: {
     id: number
     name: string

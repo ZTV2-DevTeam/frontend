@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Combobox } from "@/components/ui/combobox"
 import { Badge } from "@/components/ui/badge"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Camera, MapPin, Clock, FileText, ArrowLeft, Save, Star, CalendarDays, LinkIcon, AlertTriangle, RefreshCw } from "lucide-react"
 import { useUserRole } from "@/contexts/user-role-context"
 import { useAuth } from "@/contexts/auth-context"
@@ -39,6 +40,8 @@ interface ShootingFormData {
   date: Date | undefined
   startTime: string
   endTime: string
+  isMultiDay: boolean
+  endDate: Date | undefined
   locationId: string
   contactId: string
   relatedKacsaId: string
@@ -62,6 +65,8 @@ export default function NewShooting() {
     date: new Date(),
     startTime: new Date().toTimeString().slice(0, 5),
     endTime: "",
+    isMultiDay: false,
+    endDate: undefined,
     locationId: "",
     contactId: "",
     relatedKacsaId: "",
@@ -312,7 +317,7 @@ export default function NewShooting() {
     )
   }
 
-  const handleInputChange = (field: keyof ShootingFormData, value: string | Date | undefined) => {
+  const handleInputChange = (field: keyof ShootingFormData, value: string | Date | boolean | undefined) => {
     setFormData((prev) => {
       const updated = { ...prev, [field]: value }
 
@@ -327,6 +332,10 @@ export default function NewShooting() {
 
   const handleDateChange = (date: Date | undefined) => {
     handleInputChange("date", date)
+  }
+
+  const handleEndDateChange = (date: Date | undefined) => {
+    handleInputChange("endDate", date)
   }
 
   const handleTimeChange = (field: "startTime" | "endTime", time: string) => {
@@ -358,6 +367,12 @@ export default function NewShooting() {
       }
       if (!formData.endTime.trim()) {
         throw new Error("A befejezés ideje kötelező")
+      }
+      if (formData.isMultiDay && !formData.endDate) {
+        throw new Error("A befejezés dátuma kötelező több napos forgatásnál")
+      }
+      if (formData.isMultiDay && formData.date && formData.endDate && formData.endDate < formData.date) {
+        throw new Error("A befejezés dátuma nem lehet korábbi, mint a kezdés dátuma")
       }
       if (!formData.type) {
         throw new Error("A forgatás típusa kötelező")
@@ -403,6 +418,7 @@ export default function NewShooting() {
         date: formData.date ? formatDate(formData.date) : "",
         time_from: formData.startTime ? formatTime(formData.startTime) : "",
         time_to: formData.endTime ? formatTime(formData.endTime) : "",
+        end_date: formData.isMultiDay && formData.endDate ? formatDate(formData.endDate) : undefined,
         type: formData.type,
         location_id: formData.locationId ? parseInt(formData.locationId) : undefined,
         contact_person_id: formData.contactId ? parseInt(formData.contactId) : undefined,
@@ -740,7 +756,7 @@ export default function NewShooting() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="date">Dátum *</Label>
+                  <Label htmlFor="date">{formData.isMultiDay ? "Kezdés dátuma *" : "Dátum *"}</Label>
                   <SystemDatePicker
                     date={formData.date}
                     onSelect={handleDateChange}
@@ -748,6 +764,37 @@ export default function NewShooting() {
                     className="w-full"
                   />
                 </div>
+
+                {hasPermission('can_create_multi_day_forgatas') && (
+                  <div className="flex items-center gap-2 p-3 rounded-lg border border-border/50 bg-background/50">
+                    <Checkbox
+                      id="isMultiDay"
+                      checked={formData.isMultiDay}
+                      onCheckedChange={(checked) => {
+                        const isMultiDay = checked === true
+                        handleInputChange("isMultiDay", isMultiDay)
+                        if (!isMultiDay) {
+                          handleInputChange("endDate", undefined)
+                        }
+                      }}
+                    />
+                    <Label htmlFor="isMultiDay" className="cursor-pointer select-none">
+                      Többnapos forgatás
+                    </Label>
+                  </div>
+                )}
+
+                {formData.isMultiDay && (
+                  <div className="space-y-2">
+                    <Label htmlFor="endDate">Befejezés dátuma *</Label>
+                    <SystemDatePicker
+                      date={formData.endDate}
+                      onSelect={handleEndDateChange}
+                      placeholder="Válassz befejező dátumot"
+                      className="w-full"
+                    />
+                  </div>
+                )}
 
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-2">

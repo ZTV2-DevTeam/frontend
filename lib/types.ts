@@ -418,6 +418,10 @@ export interface ForgatSchema {
   date: string
   time_from: string
   time_to: string
+  end_date?: string
+  is_multi_day?: boolean
+  start_datetime?: string
+  end_datetime?: string
   location?: Record<string, any>
   contact_person?: ContactPersonSchema
   notes?: string
@@ -437,6 +441,7 @@ export interface ForgatCreateSchema {
   date: string
   time_from: string
   time_to: string
+  end_date?: string
   location_id?: number
   contact_person_id?: number
   notes?: string
@@ -451,6 +456,7 @@ export interface ForgatUpdateSchema {
   date?: string
   time_from?: string
   time_to?: string
+  end_date?: string
   location_id?: number
   contact_person_id?: number
   notes?: string
