@@ -19,6 +19,7 @@ interface AuthContextType {
   isLoading: boolean
   isAuthenticated: boolean
   login: (credentials: LoginRequest) => Promise<void>
+  loginWithSSOTicket: (ticket: string) => Promise<void>
   logout: () => Promise<void>
   refreshToken: () => Promise<void>
   updateUserProfile: (updates: Partial<User>) => void
@@ -187,6 +188,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  const loginWithSSOTicket = async (ticket: string) => {
+    // The one-time ticket from the SZLG+ login is exchanged for the same JWT session as /api/login
+    const response = await apiClient.exchangeSSOTicket(ticket)
+    const baseUser = {
+      user_id: response.user_id,
+      username: response.username,
+      first_name: response.first_name,
+      last_name: response.last_name,
+      email: response.email,
+    }
+
+    apiClient.getUserDetails(response.user_id)
+      .then(fullProfile => {
+        setUser(prevUser => prevUser ? {
+          ...prevUser,
+          telefonszam: fullProfile.telefonszam,
+        } : null)
+      })
+      .catch(profileDetailError => {
+        console.warn('Failed to get full user profile during SSO login:', profileDetailError)
+      })
+
+    setUser(baseUser)
+  }
+
   const logout = async () => {
     try {
       await apiClient.logout()
@@ -257,6 +283,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     isLoading,
     isAuthenticated,
     login,
+    loginWithSSOTicket,
     logout,
     refreshToken,
     updateUserProfile,

@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { Landmark } from 'lucide-react'
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
@@ -14,9 +15,26 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useAuth } from "@/contexts/auth-context"
+import { apiClient } from "@/lib/api"
 import { usePermissions } from "@/contexts/permissions-context"
 import { ConnectionIndicator } from "@/components/connection-indicator"
 import { ProfessionalLoading } from "@/components/professional-loading"
+
+// Hibakódok, amelyekkel a backend az SZLG+ bejelentkezésből visszairányít (?sso_error=...)
+const SSO_ERROR_MESSAGES: Record<string, string> = {
+  sso_not_configured: 'Az SZLG+ bejelentkezés még nincs beállítva. Értesítsd az adminisztrátort.',
+  sso_unavailable: 'Az SZLG+ szolgáltatás jelenleg nem érhető el. Próbáld újra később.',
+  sso_issuer_mismatch: 'Az SZLG+ bejelentkezés beállítása hibás (eltérő kiállító). Értesítsd az adminisztrátort.',
+  sso_invalid_state: 'A bejelentkezési kérés lejárt vagy érvénytelen. Próbáld újra, és ellenőrizd, hogy a böngészőben engedélyezve vannak a sütik.',
+  sso_cancelled: 'Az SZLG+ bejelentkezést megszakítottad.',
+  sso_provider_error: 'Az SZLG+ hibát jelzett a bejelentkezés közben. Próbáld újra.',
+  sso_token_rejected: 'Az SZLG+ elutasította az alkalmazás hitelesítését. Értesítsd az adminisztrátort.',
+  sso_email_not_verified: 'Az SZLG+ fiókod e-mail-címe nincs megerősítve.',
+  sso_account_not_linked: 'Ehhez az SZLG+ fiókhoz nem található egyértelműen megfeleltethető FTV felhasználó. Ellenőrizd, hogy az FTV-ben ugyanez az e-mail-cím szerepel.',
+  sso_account_disabled: 'A felhasználói fiók le van tiltva.',
+  sso_not_allowed: 'A felhasználó nem jelentkezhet be az aktuális tanévben. Fordulj a médiatanárhoz.',
+  sso_failed: 'Az SZLG+ bejelentkezés sikertelen. Próbáld újra.',
+}
 
 export function LoginForm({
   className,
@@ -27,10 +45,64 @@ export function LoginForm({
   const [isLoading, setIsLoading] = useState(false)
   const [isNavigating, setIsNavigating] = useState(false)
   const [error, setError] = useState('')
+  const [ssoRedirecting, setSsoRedirecting] = useState(false)
+  const [ssoProcessing, setSsoProcessing] = useState(false)
+  const ssoHandled = useRef(false)
   
-  const { login } = useAuth()
+  const { login, loginWithSSOTicket } = useAuth()
   const { isLoading: permissionsLoading } = usePermissions()
   const router = useRouter()
+
+  // Az SZLG+ bejelentkezésből visszatérve: hibakód megjelenítése, vagy az egyszer
+  // használható jegy beváltása. A paramétereket azonnal töröljük az URL-ből, így a
+  // jegy nem marad az előzményekben, és a React StrictMode kettős effektfuttatása
+  // sem használja fel kétszer.
+  useEffect(() => {
+    if (ssoHandled.current) return
+    const url = new URL(window.location.href)
+    const ssoError = url.searchParams.get('sso_error')
+    const ssoTicket = url.searchParams.get('sso_ticket')
+    if (!ssoError && !ssoTicket) return
+
+    ssoHandled.current = true
+    url.searchParams.delete('sso_error')
+    url.searchParams.delete('sso_ticket')
+    window.history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`)
+
+    if (ssoError) {
+      setError(SSO_ERROR_MESSAGES[ssoError] || SSO_ERROR_MESSAGES.sso_failed)
+      return
+    }
+
+    if (ssoTicket) {
+      setSsoProcessing(true)
+      loginWithSSOTicket(ssoTicket)
+        .then(() => {
+          setIsNavigating(true)
+          setSsoProcessing(false)
+          setTimeout(() => {
+            router.push('/app/iranyitopult')
+          }, 100)
+        })
+        .catch((ssoLoginError) => {
+          console.error('SSO login failed:', ssoLoginError)
+          setSsoProcessing(false)
+          setError(
+            ssoLoginError instanceof Error && ssoLoginError.message
+              ? ssoLoginError.message
+              : 'A bejelentkezés nem fejeződött be. Próbáld újra.'
+          )
+        })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const handleSSOLogin = () => {
+    setSsoRedirecting(true)
+    setError('')
+    // A teljes folyamatot a backend vezeti: átirányít az SZLG+ oldalára
+    window.location.assign(apiClient.getSSOStartUrl())
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -79,6 +151,16 @@ export function LoginForm({
   }
 
   // Show professional loading screen when navigating after successful login
+  if (ssoProcessing) {
+    return (
+      <ProfessionalLoading
+        variant="detailed"
+        title="Bejelentkezés SZLG+-szal"
+        subtitle="A bejelentkezés befejezése..."
+      />
+    )
+  }
+
   if (isNavigating) {
     return (
       <ProfessionalLoading
@@ -167,6 +249,20 @@ export function LoginForm({
                     Bejelentkezés folyamatban
                   </div>
                 )}
+                <div className="relative text-sm text-center after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
+                  <span className="relative z-10 px-2 bg-card text-muted-foreground">vagy SZLG+</span>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  disabled={isLoading || ssoRedirecting}
+                  onClick={handleSSOLogin}
+                  tabIndex={5}
+                >
+                  <Landmark className="w-4 h-4 mr-2" aria-hidden="true" />
+                  {ssoRedirecting ? 'Átirányítás…' : 'Bejelentkezés SZLG+-szal'}
+                </Button>
               </div>
             </div>
           </form>

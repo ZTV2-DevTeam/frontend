@@ -150,6 +150,11 @@ const rotation = await api.rotations.createRotation(rotationData);
 - **Protected Routes**: Route-level protection with role-based access
 - **Login/Logout**: Complete authentication flow
 - **Password Recovery**: Forgot password functionality
+- **SZLG+ Login (SSO)**: "Bejelentkezés SZLG+-szal" button on `/login`. The backend runs the OpenID Connect flow and
+  redirects back to `/login?sso_ticket=...` (or `?sso_error=<code>`); `components/login-form.tsx` exchanges the
+  one-time ticket for the same JWT session as the password login (`apiClient.exchangeSSOTicket`,
+  `useAuth().loginWithSSOTicket`). The SSO client settings live in the **backend**, not in the frontend `.env`
+  (see the backend `docs/SSO_LOGIN.md`).
 
 ### User Roles
 - **Student**: Basic access to personal data

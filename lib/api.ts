@@ -1453,6 +1453,51 @@ class ApiClient {
     }
   }
 
+  /**
+   * SZLG+ single sign-on. The backend runs the whole OpenID Connect flow:
+   * the browser is sent to `getSSOStartUrl()`, and after the SZLG+ login the
+   * backend redirects back to /login with a one-time ticket (?sso_ticket=...)
+   * or an error code (?sso_error=...). The ticket is exchanged for the same
+   * JWT session that /api/login returns.
+   */
+  getSSOStartUrl(): string {
+    return `${this.baseUrl}/api/auth/sso/start`
+  }
+
+  async exchangeSSOTicket(ticket: string): Promise<LoginResponse> {
+    let response: Response
+    try {
+      response = await fetch(`${this.baseUrl}/api/auth/sso/exchange`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({ ticket }),
+      })
+    } catch (networkError) {
+      throw new Error('Nem sikerült csatlakozni a szerverhez. Kérjük, ellenőrizd az internetkapcsolatot és próbáld újra.')
+    }
+
+    let data: any = null
+    try {
+      data = await response.json()
+    } catch (parseError) {
+      data = null
+    }
+
+    if (!response.ok) {
+      throw new Error(data?.message || 'A bejelentkezés nem fejeződött be. Próbáld újra.')
+    }
+
+    if (!data?.token || !data?.username) {
+      throw new Error('Invalid response format: missing required fields')
+    }
+
+    this.setToken(data.token)
+    return data
+  }
+
   async getProfile(): Promise<LoginResponse> {
     return this.requestWithRetry<LoginResponse>('/api/profile', {}, 15000, 2) // 15s timeout, 2 retries
   }
